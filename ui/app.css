@@ -1,0 +1,109 @@
+/* Enerji Akış – masaüstü kabuğu ve görsel katman (panel.css'in üzerine). Açık, sade, kurumsal; Windows yazı tipi. */
+:root{
+  --bg:#F2F4F3; --surface:#FFFFFF; --surface-2:#EDF1F0; --line:#DCE2E1; --line-2:#E8ECEB;
+  --ink:#16232A; --ink-2:#45545C; --ink-3:#6C7A82;
+  --accent:#0F6E8C; --ak:#2F6DB5; --lpg:#C8641C;
+  --petrol:#0E3B4A; --petrol-2:#134A5B; --petrol-ink:#CFE0E5; --petrol-ink-2:#8FB0BA;
+  --f-body:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --f-disp:"Segoe UI Variable Display","Segoe UI",system-ui,Arial,sans-serif;
+  --f-mono:"Segoe UI Variable Text","Segoe UI",system-ui,Arial,sans-serif;
+  --c0:#EDF1F0;
+}
+html,body{height:100%;margin:0}
+body{background:var(--bg);font-size:13.5px;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* ---------- iskelet ---------- */
+.app{display:grid;grid-template-columns:236px minmax(0,1fr);height:100vh}
+.side{background:var(--petrol);color:var(--petrol-ink);display:flex;flex-direction:column;min-height:0;user-select:none}
+.main{overflow:auto;min-width:0;scroll-behavior:smooth}
+.wrap{max-width:1560px;padding:18px 28px 48px;gap:14px}
+
+/* ---------- kenar çubuğu ---------- */
+.brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
+.brand svg{width:28px;height:28px;flex:none}
+.brand b{font:600 16px var(--f-disp);color:#fff;letter-spacing:.1px;display:block;line-height:1.15}
+.brand span{font-size:11.5px;color:var(--petrol-ink-2)}
+nav.tabs.side{display:flex;flex-direction:column;gap:0;border:0;margin:0;padding:4px 10px 12px;overflow:auto;flex:1;position:static;background:none;box-shadow:none}
+nav.tabs.side .grp{margin-top:14px}
+nav.tabs.side .gh{display:flex;align-items:center;gap:8px;font:600 12px var(--f-body);color:var(--petrol-ink-2);padding:6px 8px 6px 10px}
+nav.tabs.side .gh i{width:8px;height:8px;border-radius:50%;background:var(--gc)}
+/* boru hattı: grubun sayfaları ince bir hat üzerinde dizilir, seçili sayfa hattın üzerinde renkli bir parça */
+nav.tabs.side .pipe{position:relative;margin-left:13px;padding-left:9px;border-left:2px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:1px}
+nav.tabs.side button{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:9px;width:100%;padding:6px 10px;border-radius:6px;font:400 13.5px var(--f-body);color:var(--petrol-ink);cursor:pointer;position:relative}
+nav.tabs.side button svg{width:17px;height:17px;flex:none;opacity:.75}
+nav.tabs.side button:hover{background:rgba(255,255,255,.06);color:#fff}
+nav.tabs.side button[aria-selected="true"]{background:rgba(255,255,255,.11);color:#fff;font-weight:600}
+nav.tabs.side button[aria-selected="true"] svg{opacity:1;color:var(--gc)}
+nav.tabs.side .pipe button[aria-selected="true"]::before{content:"";position:absolute;left:-11px;top:6px;bottom:6px;width:2px;border-radius:1px;background:var(--gc)}
+nav.tabs.side button:focus-visible{outline:2px solid #9FD3E3;outline-offset:-2px}
+nav.tabs.side .top button{padding-left:10px}
+.g-akis{--gc:#5FC1D6}.g-ak{--gc:#7FB0EA}.g-lpg{--gc:#F0A15F}
+
+.veri[hidden]{display:none}
+#lpgi-yil svg{max-height:300px}
+.veri{margin:8px 12px 14px;padding:12px;border-radius:8px;background:var(--petrol-2);font-size:12px;color:var(--petrol-ink-2);display:flex;flex-direction:column;gap:6px}
+.veri .ad{color:#fff;font-weight:600;font-size:12.5px;word-break:break-all}
+.veri .sat{display:flex;gap:6px;margin-top:4px}
+.veri button{all:unset;box-sizing:border-box;flex:1;text-align:center;padding:6px 8px;border-radius:6px;font:600 12px var(--f-body);cursor:pointer;color:var(--petrol);background:#E6F1F4}
+.veri button.ik{flex:none;background:transparent;color:var(--petrol-ink);border:1px solid rgba(255,255,255,.22)}
+.veri button:hover{filter:brightness(1.06)}
+.veri button:focus-visible{outline:2px solid #9FD3E3;outline-offset:2px}
+
+/* ---------- üst başlık ---------- */
+.wrap>header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:6px 24px;padding:4px 0 10px;border-bottom:1px solid var(--line)}
+.wrap>header .crumb{grid-column:1;font-size:12.5px;color:var(--ink-3)}
+.wrap>header h1{grid-column:1;font:600 25px/1.15 var(--f-disp);letter-spacing:-.2px;margin:0;color:var(--ink)}
+.wrap>header .meta{grid-column:2;grid-row:1;justify-self:end;font:400 12px var(--f-body);color:var(--ink-3)}
+.wrap>header .mix{display:flex;grid-column:2;grid-row:2;width:300px;height:7px;margin:0;border-radius:4px;gap:2px;align-self:center}
+.wrap>header .mixl{display:flex;grid-column:1/-1;justify-self:end;gap:2px 14px;color:var(--ink-3);font-size:11.5px;margin:0}
+.wrap>header .mixl b{color:var(--ink);font-weight:600}
+.wrap>header .mixl.mixd{display:flex}
+
+/* ---------- tipografi ve bileşenler ---------- */
+.f label{font:600 12px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink-2)}
+th{font:600 12px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink-2);background:#F7F9F8}
+.kpi>span:first-child{font:600 12px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.lbox h3,.kpi .pr4 em.h,.eyebrow{font:600 12px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.meta{font-family:var(--f-body)}
+h2{font:600 16px var(--f-disp)}
+select{font:400 13.5px var(--f-body);background:#fff;border:1px solid #C9D2D1;border-radius:6px;padding:6px 9px}
+select:hover{border-color:#A9B6B5}
+.ms-b{font:400 13.5px var(--f-body);background:#fff;border:1px solid #C9D2D1;border-radius:6px;padding:6px 9px}.ms-b:hover{border-color:#A9B6B5}
+.f .ms-o{font:400 13.5px var(--f-body)}
+.filters{position:sticky;top:0;z-index:4;border-radius:8px;padding:12px 16px;box-shadow:0 1px 0 var(--line-2)}
+section{border-radius:8px;border-color:var(--line)}
+.kpi{border-radius:7px}
+.scroll{border-radius:6px;border-color:var(--line)}
+td{border-color:var(--line-2)}
+tbody tr:hover td{background:#F5F8F8}
+.clear{border-radius:6px}
+::-webkit-scrollbar{width:11px;height:11px}::-webkit-scrollbar-thumb{background:#C5CFCE;border-radius:6px;border:3px solid transparent;background-clip:content-box}::-webkit-scrollbar-thumb:hover{background-color:#A6B3B2}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- boş durum ve yükleme ---------- */
+.ortu{position:fixed;inset:0 0 0 236px;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:50}
+.ortu[hidden]{display:none}
+.kart{width:min(560px,90%);background:#fff;border:1px solid var(--line);border-radius:10px;padding:28px 30px;display:flex;flex-direction:column;gap:14px}
+.kart h2{font:600 21px var(--f-disp);margin:0}
+.kart p{margin:0;color:var(--ink-2);line-height:1.55}
+.kart .dz{border:1.5px dashed #B9C6C5;border-radius:8px;padding:22px;text-align:center;color:var(--ink-3)}
+.kart .dz.ust{border-color:var(--accent);background:#EEF6F8;color:var(--accent)}
+.btn{all:unset;box-sizing:border-box;align-self:flex-start;padding:9px 16px;border-radius:6px;background:var(--accent);color:#fff;font:600 13.5px var(--f-body);cursor:pointer}
+.btn:hover{background:#0C5F79}.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.son{display:flex;flex-direction:column;gap:2px}
+.son button{all:unset;box-sizing:border-box;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--ink);display:flex;flex-direction:column;gap:1px}
+.son button span{color:var(--ink-3);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.son button:hover{background:var(--surface-2)}
+.hata{color:#9B2C1F;background:#FBEDEA;border-radius:6px;padding:10px 12px;font-size:13px}
+.adim{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--ink-3)}
+.adim .on{color:var(--ink);font-weight:600}
+.cubuk{height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+.cubuk i{display:block;height:100%;width:30%;background:var(--accent);animation:kay 1.2s ease-in-out infinite}
+@keyframes kay{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
+@media (prefers-reduced-motion:reduce){.cubuk i{animation:none;width:100%;opacity:.4}.main{scroll-behavior:auto}}
+
+/* güncelleme bandı */
+.gun-bant{position:fixed;right:18px;bottom:18px;z-index:60;display:flex;align-items:center;gap:10px;max-width:520px;padding:10px 12px 10px 16px;border-radius:8px;background:var(--petrol);color:#fff;font-size:13px;box-shadow:0 8px 24px rgba(14,59,74,.3)}
+.gun-bant button{all:unset;cursor:pointer;padding:6px 10px;border-radius:6px;background:#E6F1F4;color:var(--petrol);font-weight:600;font-size:12.5px}
+.gun-bant button.ik{background:transparent;color:#CFE0E5;font-size:16px;padding:2px 6px}
+.gun-bant button:focus-visible{outline:2px solid #9FD3E3;outline-offset:2px}

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'">
+<title>Enerji Akış</title>
+<link rel="stylesheet" href="panel.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side" aria-label="Uygulama menüsü">
+    <div class="brand">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#155567"/><path d="M5 18c4 0 5-8 9-8s5 8 9 8" fill="none" stroke="#5FC1D6" stroke-width="2.2" stroke-linecap="round"/><path d="M5 12c3 0 4 4 7 4" fill="none" stroke="#7FB0EA" stroke-width="1.8" stroke-linecap="round"/><path d="M16 16c3 0 4-4 7-4" fill="none" stroke="#F0A15F" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <div><b>Enerji Akış</b><span>Akaryakıt ve LPG dağıtımı</span></div>
+    </div>
+    <nav class="tabs side" role="tablist" aria-label="Sayfalar" aria-orientation="vertical">
+      <div class="top g-akis">
+        <button type="button" role="tab" id="tab-akis" data-sayfa="akis" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13M15 6.5v13"/></svg>Akış haritası</button>
+      </div>
+      <div class="grp g-ak">
+        <div class="gh"><i></i>Akaryakıt</div>
+        <div class="pipe">
+          <button type="button" role="tab" id="tab-rafineri" data-sayfa="rafineri" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V8h3v12M10.5 20V4h3v16M15.5 20v-6.5c0-1 1-1.8 2.5-1.8s2.5.8 2.5 1.8V20M3 20h18"/></svg>Rafineriler</button>
+          <button type="button" role="tab" id="tab-ithalat" data-sayfa="ithalat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h18l-2.6 4.4H5.6z"/><path d="M6 15v-2.6h8.5V15M14.5 15V9h3.2l1.3 6"/></svg>İthalat</button>
+          <button type="button" role="tab" id="tab-kaynak" data-sayfa="kaynak" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"/><path d="M8.5 12H13M13 12l5-5M13 12l5 5M13 12h6"/></svg>Tahsis kaynak bazlı</button>
+          <button type="button" role="tab" id="tab-tahsis" data-sayfa="tahsis" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 10v10"/></svg>Tahsis terminal bazlı</button>
+          <button type="button" role="tab" id="tab-musteri" data-sayfa="musteri" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Dağıtıcılar arası ticaret</button>
+          <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="12" height="7" rx="3.3"/><path d="M14 10h3.6l3.4 3.4V16h-7M2 16h19"/><circle cx="6" cy="17.6" r="1.7"/><circle cx="17.5" cy="17.6" r="1.7"/></svg>Taşıma</button>
+          <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v13l-3-3M17 20V7l3 3"/></svg>Takas</button>
+          <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V6a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v14M4 20h11M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V8l-2-2M8 8h3"/></svg>Bayiler</button>
+        </div>
+      </div>
+      <div class="grp g-lpg">
+        <div class="gh"><i></i>LPG</div>
+        <div class="pipe">
+          <button type="button" role="tab" id="tab-lpgmus" data-sayfa="lpgmus" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Dağıtıcılar arası ticaret</button>
+          <button type="button" role="tab" id="tab-lpgith" data-sayfa="lpgith" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h18l-2.6 4.4H5.6z"/><path d="M6 15v-2.6h8.5V15M14.5 15V9h3.2l1.3 6"/></svg>İthalat</button>
+        </div>
+      </div>
+    </nav>
+    <div class="veri" id="veri" hidden>
+      <span>Açık veritabanı</span>
+      <span class="ad" id="v-ad"></span>
+      <span id="v-tarih"></span>
+      <div class="sat"><button type="button" id="v-ac">Başka dosya aç</button><button type="button" class="ik" id="v-yenile" title="Aynı dosyayı yeniden oku (F5)">Yenile</button></div>
+    </div>
+  </aside>
+  <main class="main" id="main">
+<div class="wrap" id="wrap" data-sayfa="akis">
+  <header>
+    <h1>Enerji Akış Haritası</h1>
+    <span class="meta" id="meta"></span>
+    <div class="mix" id="mix" role="img"></div>
+  </header>
+  
+
+  <div class="filters" role="search" aria-label="Filtreler">
+    <div class="f"><label for="f-sirket" id="l-sirket">Şirket</label><select id="f-sirket"></select></div>
+    <div class="f akis-only"><label for="f-urun">Ürün</label>
+      <select id="f-urun">
+        <option value="tum">Tüm ürünler</option>
+        <optgroup label="Akaryakıt"><option value="a0">Benzin</option><option value="a1">Motorin</option></optgroup>
+        <optgroup label="LPG"><option value="L">Tüm LPG</option><option value="l0">Otogaz</option><option value="l1">Tüplü</option><option value="l2">Dökme</option></optgroup>
+        <optgroup label="Diğer petrol ürünleri"><option value="a2">Fuel Oil</option><option value="a3">Havacılık</option><option value="a4">Denizcilik</option><option value="a5">Gazyağı</option><option value="a6">Diğer</option></optgroup>
+      </select></div>
+    <div class="f akis-only"><label for="f-il">İl</label><select id="f-il"></select></div>
+    <div class="f raf-only"><label for="f-raf">Rafineri</label><select id="f-raf"></select></div>
+    <div class="f tas-only"><label id="l-tur">Ürün</label><div class="ms" id="f-tur"><button type="button" class="ms-b" id="ms-b" aria-haspopup="true" aria-expanded="false" aria-labelledby="l-tur ms-v"><span id="ms-v">Tüm ürünler</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="ms-p" id="ms-p" role="group" aria-label="Ürünler" hidden></div></div></div>
+    <div class="f tas-only"><label for="f-tmod">Taşıma modu</label><select id="f-tmod"></select></div>
+    <div class="f tas-only"><label for="f-tasy">Taşımayı yapan</label><select id="f-tasy"></select></div>
+    <div class="f kay-only"><label for="f-tmus">Toptan müşteri</label><select id="f-tmus"></select></div>
+    <div class="f tks-only"><label for="f-alici">Alıcı</label><select id="f-alici"></select></div>
+    <div class="f mus-only"><label for="f-mmus">Müşteri</label><select id="f-mmus"></select></div>
+    <div class="f tah-hide"><label for="f-term" id="l-term">Terminal</label><select id="f-term"></select></div>
+    <button type="button" class="clear" id="clear">Filtreleri temizle</button>
+  </div>
+
+  <section class="etki" aria-labelledby="h-etki">
+    <div class="eyebrow" id="e-eyebrow">Enerji Master DB · EPDK 2025</div>
+    <h2 class="big" id="h-etki"></h2>
+    <p class="lead" id="e-lead"></p>
+    <div class="head" style="margin-top:6px"><h3>Ürün özeti</h3><span class="sub">Haritayı değiştirmek için bir ürüne tıklayın.</span></div>
+    <div class="cards" id="cards" role="group" aria-label="Ürün"></div>
+    <div class="hg"><div class="mapbox" id="mapbox"><svg id="map" viewBox="0 0 1000 422" role="img" aria-label="Türkiye il haritası"></svg><div class="tip" id="tip" role="status"></div></div><aside class="ilpan" id="ilpan" aria-label="İl sıralaması"></aside></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="mus-only" aria-labelledby="h-mus">
+    <div class="head"><h2 id="h-mus">Müşteriler</h2><span class="sub" id="s-mus"></span></div>
+    <div id="yol-mus" class="yol" hidden></div>
+    <div class="scroll"><table id="t-mus"></table></div>
+    <ul class="notes"><li>Takas (ithalat takası, ürün değişimi) satış değildir; bu sayfada gösterilmez, Takas sayfasındadır (kullanıcı 15.10.2026 18:52).</li></ul>
+  </section>
+
+  <section class="tah-only" aria-labelledby="h-tah">
+    <div class="head"><h2 id="h-tah">Tedarik tahsisi</h2><span class="sub" id="s-tah"></span></div>
+    <p class="lead" id="l-tah"></p>
+    <div class="kpis" id="k-tah"></div>
+    <div class="scroll"><table id="t-tah"></table></div>
+    <ul class="notes">
+      <li>A, B ve C sınıfı dağıtıcılar ithalat dışı ihtiyaçlarını rafinerilerden alır. Opet yalnız Tüpraş'tan, Socar yalnız Star Rafineri'den alır.</li>
+      <li>D ve E sınıfı şirketler ithalatlarından kalan ihtiyacı A/B/C dağıtıcılarından alır. Satıcının bu satışı EPDK toptan satışını aşmaz.</li>
+      <li>C, D ve E sınıfı talebini dağıtmaz: tek tedarikçiden (Tüpraş toplu, Star ya da tek dağıtıcı) alır; ikinci tedarikçi yalnız navlunu %10'dan fazla düşürüyorsa eklenir. Tonaj yoğunlaştıkça kademe ve ciro primi yükselir.</li>
+      <li>Seçim en düşük navlunla yapılır. Fiyat tanımlanana kadar navlun endeksi km eşdeğeridir: rafineriden yükleme noktasına primer taşıma (boru hattı 0,15, deniz 0,35, demiryolu 0,6, karayolu 1 katsayısıyla) + yükleme noktasından ile karayolu.</li>
+      <li>Liste terminal bazında toplanır; her terminalin altında kaynak × ürün kırılımı vardır (satış kanalı birleştirilmiştir). Mod sütunu taşıma yöntemini gösterir; birden çok yöntem varsa her birinin payı yazılır. Pay, şirketin bu sayfadaki toplam hacmine (kendi satışı + toptan satış için alım) oranıdır. Benzin, motorinin yüklendiği terminali izler. Kendi ithalatı akış haritasındaki yerinde kalır. "Toptan satış için" satırları satıcının D/E alıcılarına sattığı ürün için yaptığı rafineri alımıdır.</li>
+    </ul>
+  </section>
+
+  <section class="kay-only" aria-labelledby="h-kay">
+    <div class="head"><h2 id="h-kay">Kaynak dağılımı</h2><span class="sub" id="s-kay"></span></div>
+    <p class="lead" id="l-kay"></p>
+    <div class="kpis" id="k-kay"></div>
+    <div class="head" id="hr-kay"><h3 id="hr-t">Rafineri alımları</h3><span class="sub" id="sr-kay"></span></div>
+    <div class="kpis" id="r-kay"></div>
+    <div class="head" style="margin-top:6px"><h3 id="h-top">Toptan satışlar</h3><span class="sub" id="s-top"></span></div>
+    <div class="scroll"><table id="t-kay"></table></div>
+    <ul class="notes">
+      <li>Toptan satışlar tablosu, seçili A/B/C dağıtıcısının D/E alıcılarına hangi terminalde, benzin ve motorin olarak ne kadar sattığını gösterir. Pay, şirketin toplam toptan satışına oranıdır; il sayısı alıcının o terminalden beslediği il sayısıdır. Toptan müşteri filtresi tabloyu tek alıcıya daraltır; alımı yapan şirket "Tüm şirketler" iken alıcının hangi satıcılardan, hangi terminalde aldığını gösterir.</li>
+      
+      <li>Tahsis kuralları ve navlun endeksi terminal bazlı sayfadaki gibidir.</li>
+      <li>Ciro primi ve vade: Tüpraş 2025 Akaryakıt Satış Uygulamaları (SPD-543) ve Star 2025 motorin satış şartları, tahsisteki yıllık rafineri alımına (toptan satış için alım dahil) göre kademelenir. Prim CIF MED oranıdır. Ciro primi kademeye göre (Tüpraş en çok %3,00, Star en çok %2,50); Tüpraş performans primi (%0,10) ayrıca gösterilir. Performans primi ve vadesi aylık %95 çekiş varsayımıyla. Tüpraş benzinde ciro primi yoktur; Star benzin koşulu belgede yoktur. Rafineri ticari koşulları iç kullanım içindir.</li>
+    </ul>
+  </section>
+
+  <section class="ith-only" aria-labelledby="h-ith">
+    <div class="head"><h2 id="h-ith">İthalat</h2><span class="sub" id="s-ith"></span></div>
+    <div class="kpis" id="k-ith"></div>
+    <div class="scroll"><table id="t-ith"></table></div>
+    <ul class="notes">
+      <li>Modeldeki ithalat, ithal ürünün yüklendiği terminale göre gösterilir (Enerji Master DB akış tablosu, ithal tonu). İthalatçının başka dağıtıcılara terminalde sattığı ithal ürün ithalatçının satırında sayılır; takasla alıcının kendi terminalinden yüklenen ürün o terminalde görünür.</li>
+      <li>İç terminale transfer: kıyıda tahliye edilen ithal ürünün iç terminale (ör. Aytemiz Kırıkkale ve Kocaeli, PO Doğu Karasal Diyarbakır) taşınan kısmı giriş terminalinin satırında sayılır; satırda 'iç terminale transfer → …' olarak gösterilir.</li>
+      <li>Havalimanı depolarına giden ithal havacılık yakıtı ithalat terminali sayılmaz; tek satırda gösterilir (veride tahliye limanı yok). İstanbul Arnavutköy deposu TFS'nin lisanslı ithalat terminali olduğu için ayrı satırdır.</li>
+      <li>Takas: alıcı dağıtıcının bayisi ithalatçının giriş terminaline yönlendirilir (kullanıcı 11.10.2026); takasla verilen ithal ürün giriş terminalinde, ithalatçının satırında sayılır. Ayrıntı Takas sayfasındadır.</li>
+      <li>LPG sütunu şirketin kendi ithalatıyla karşıladığı LPG akışıdır; LPG'de başka dağıtıcıya satılan ithal ürünün satıcısı veride olmadığı için bu kısım şirkete yazılmaz.</li>
+      <li>TFS'nin ithalat noktası Arnavutköy deposudur (DEP/9944-2/43996); diğer havalimanı depolarına giden ithal yakıt Arnavutköy satırında sayılır. TFS için EPDK karşılaştırmasına yabancıya ihrakiye de eklenir (antrepo ithalatı).</li>
+      <li>EPDK karşılaştırması şirketin EPDK'ya bildirdiği petrol ürünleri ithalatıdır (yurt dışına ihrakiye ve ihracat dahil olabilir); fark, modelde terminale yerleşmeyen ya da başka kaleme giden ithalattır.</li>
+    </ul>
+  </section>
+
+  <section class="raf-only" aria-labelledby="h-raf">
+    <div class="head"><h2 id="h-raf">Rafineriler</h2><span class="sub" id="s-raf"></span></div>
+    <div class="kpis" id="k-raf"></div>
+    <div class="scroll"><table id="t-raf"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB tedarik tahsisi (REF_TEDARIK_TAHSIS; rafineri satırları) ve rafineri satış koşulları (REF_TAHSIS_RAFINERI_KOSUL). Tahsis, şirketlerin rafineri alımını en düşük navlunla ve motorin tedarik tablosuna göre dağıtır.</li>
+      <li>Alıcı satırı şirketin o rafineriden toplam alımıdır; altında yükleme terminali kırılımı ve taşıma modu yer alır. "Toptan için" sütunu alıcının başka dağıtıcılara toptan satışının karşılığı olarak yaptığı alımdır (ör. Güzel'in Aytemiz adına aldığı ürün).</li>
+      <li>Ciro primi ve kademe, alıcının Tüpraş (tüm rafineriler toplamı) ya da Star motorin alımına göredir; Tüpraş benzinde ciro primi yoktur.</li>
+    </ul>
+  </section>
+
+  <section class="tas-only" aria-labelledby="h-tas">
+    <div class="head"><h2 id="h-tas">Taşıma</h2><span class="sub" id="s-tas"></span></div>
+    <p class="lead" id="l-tas"></p>
+    <div class="head"><h3>Taşımayı yapan</h3><span class="sub">tıklayınca filtrelenir</span></div>
+    <div class="kpis" id="y-tas"></div>
+    <div class="head"><h3>Taşıma modu</h3></div>
+    <div class="kpis" id="k-tas"></div>
+    <div class="head" style="margin-top:6px"><h3 id="h-tas2">Ürünün taşındığı terminaller</h3><span class="sub" id="s-tas2"></span></div>
+    <div class="scroll"><table id="t-tas"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB akış tablosu (FACT_AKARYAKIT_AKIS). Terminal, ürünün taşındığı (Leg1 varış) ve bayiye yüklendiği noktadır; alt satırlar ürünün nereden geldiğidir (rafineri ya da ithalat).</li>
+      <li>Taşımayı yapan (kullanıcı 15.10.2026; veritabanında FACT_AKARYAKIT_AKIS.Leg1_Tasiyan_Tipi / Leg1_Tasiyan_Sirket_ID, db_101–102): rafineriden deniz yolu, demiryolu ve boru hattı taşımaları (İzmit → Kırıkkale/Batman demiryolu, Tüpraş Aliağa → Star komşu saha transferi dahil; bu transfer deniz yoludur, db_103) tahsisler dahilinde Tüpraş ya da Star tarafından planlanır ve yapılır; dağıtıcı ürünü varış terminalinde/sahada teslim alır. Karayolu ve rafineri sahasından yükleme dağıtıcıya, ithal ürünün deniz yolu ve iç terminale transferi ithalatçıya aittir.</li>
+      <li>Taşıma modu ana gruplara toplanır (deniz yolu, demiryolu, boru hattı, karayolu, rafineri sahasından yükleme …); İzmit → Kırıkkale/Batman demiryolu ile devam eden saha ya da boru hattı ayağı "Demiryolu" sayılır. Tablodaki alt satırlarda ayrıntılı etiket görünür. Taşıma modu Leg1 etiketinden alınır; takas öneki ve "Rafineri tahsisinden alım (…)" sarmalı ayrılır. "Terminal içi devir" ürünün aynı terminalde el değiştirdiği, taşıma olmayan satırlardır.</li>
+      <li>Şirket filtresi ürünün sahibine (bayiye satan dağıtıcı) ya da taşımayı yapana göredir: Tüpraş seçilince Tüpraş'ın kendi satışı ile tahsisler dahilinde taşıdığı ürün birlikte görünür. Star şirket listesinde yoktur; Star taşımaları için "Taşımayı yapan: Star" seçin. İl sütunu terminalden beslenen il sayısı, km sütunu Leg1 hariç terminalden bayiye ortalama karayolu mesafesidir.</li>
+    </ul>
+  </section>
+
+  <section class="bay-only" aria-labelledby="h-bay">
+    <div class="head"><h2 id="h-bay">Bayiler</h2><span class="sub" id="s-bay"></span></div>
+    <div class="kpis" id="k-bay"></div>
+    <div class="scroll"><table id="t-bay"></table></div>
+    <ul class="notes">
+      <li>Kaynak: EPDK bayilik lisansları (Enerji Master DB, FACT_BAYI_LISANS). İhrakiye lisansları hariç. Bağlı şirketlerin bayileri ana şirketin altında sayılır (ör. BP → Petrol Ofisi).</li>
+      <li>İstasyon: tekil bayi istasyonu. Aynı istasyonda akaryakıt ve otogaz lisansı birlikte olabilir; bu yüzden istasyon sayısı akaryakıt + otogaz toplamından küçüktür. Akaryakıt ve otogaz lisansı farklı şirketlerde olan istasyon her iki şirkette de sayılır.</li>
+      <li>Harita: şirket seçili değilse il başına istasyon sayısı (üçte birlik dilimler); şirket seçiliyse şirketin ildeki istasyon payı. Bir ile tıklayınca tabloda işaretlenir.</li>
+    </ul>
+  </section>
+
+  <section class="tks-only" aria-labelledby="h-tks">
+    <div class="head"><h2 id="h-tks">Takas</h2><span class="sub" id="s-tks"></span></div>
+    <div class="kpis" id="k-tks"></div>
+    <div class="scroll"><table id="t-tks"></table></div>
+    <ul class="notes">
+      <li>Takas = bayi yönlendirmesi (kullanıcı 11.10.2026): dağıtıcı terminalleri arasında ürün taşınmaz. İthalatçı ürünü kendi giriş terminaline indirir; takasla alan dağıtıcı bayisini bu terminale yönlendirir ve ürün buradan bayiye gider. Yönlendirme, bayiye en çok 150 km ilave mesafe getirecek illerde ve giriş terminalinin boş kapasitesi kadar yapılır; önce ilave mesafesi olmayan iller doldurulur.</li>
+      <li>Motorin: ithalat yalnız IM/EX kargosu boşaltılan terminallerde yapılır; ithalatçının EPDK ithalatından kendi satışına ve dağıtıcı satışına yerleşmeyen kalanı takasla verilir. "İthal" sütunu ithal payıdır. Benzin: takasla motorin alan şirket benzinini de aynı satıcıdan, aynı terminalde alır (satıcının rafineri benzini; modelde dağıtıcıların benzin ithalatı yoktur).</li>
+      <li>Ürün değişimi (motorin tedarik tablosu, kullanıcı 12.10.2026): tabloda ithalatçıdan alım görünen rafineri alıcısı (PO, Shell, Opet, TP, Güzel) ithalatçının ithal motorinini giriş terminalinde alır, karşılığında kendi rafineri tahsisini verir. Leg1 'Terminal içi devir (takas; ürün değişimi)'.</li>
+      <li>Rafineri tahsisinden alım takas değildir: alıcı ürünü satıcının rafineri tahsisinden alır, ürün rafineriden doğrudan alıcının terminaline (ör. Opet'in Tüpraş tahsisinden gemiyle Aytemiz Alanya'ya) ya da rafineri sahasından bayiye gider. Bu alımlar Dağıtıcı müşterileri sayfasında satıcının altında görünür. Dağıtıcı terminalleri arasında yerli ürün taşınmaz.</li>
+      <li>Harita, takasla gelen ürünün il tüketimindeki payını gösterir. Ürün kartına tıklayınca harita ve tablo o ürüne daralır. Km: yükleme terminalinden ile ton ağırlıklı karayolu mesafesi. Satırlar akış tablosundaki takas satırlarıdır (Leg1 'Terminal içi devir (takas; bayi yönlendirmesi)'; REF_ITHALAT_TAKAS ile birebir).</li>
+    </ul>
+  </section>
+
+  <section class="akis-only" aria-labelledby="h-term">
+    <div class="head"><h2 id="h-term">Şirketler ve terminaller</h2><span class="sub" id="s-term"></span></div>
+    <div class="scroll"><table id="t-term"></table></div>
+  </section>
+
+  <div class="grid akis-only">
+    <section aria-labelledby="h-sepet">
+      <div class="head"><h2 id="h-sepet">Ürün sepeti</h2><span class="sub" id="s-sepet"></span></div>
+      <div class="sepet" id="sepet"></div>
+    </section>
+    <section aria-labelledby="h-il">
+      <div class="head"><h2 id="h-il">Etki alanındaki iller</h2><span class="sub" id="s-il"></span></div>
+      <div class="scroll"><table id="t-il"></table></div>
+    </section>
+  </div>
+
+  <div class="filters lpgf lpgm-only" role="search" aria-label="LPG filtreleri">
+    <div class="f"><label for="f-lsat">Satıcı</label><select id="f-lsat"></select></div>
+    <div class="f"><label for="f-lmus">Müşteri</label><select id="f-lmus"></select></div>
+    <button type="button" class="clear" id="clear-l">Filtreleri temizle</button>
+  </div>
+
+  <section class="lpgm-only" aria-labelledby="h-lpgm">
+    <div class="head"><h2 id="h-lpgm">LPG – dağıtıcılar arası ticaret</h2><span class="sub" id="s-lpgm"></span></div>
+    <p class="lead" id="l-lpgm"></p>
+    <div class="kpis" id="k-lpgm"></div>
+    <div class="scroll"><table id="t-lpgm"></table></div>
+    <ul class="notes">
+      <li>Satış tablosu ticari alımdır (FACT_LPG_TEDARIK): alıcının bir dağıtıcıdan yıllık LPG alımı; toptancıların yeniden sattığı ürün de dahildir. Rafineri alımları (Tüpraş, Star) bu sayfada yalnız özet kartında yer alır.</li>
+      <li>Terminal tablosu fizikseldir (FACT_LPG_AKIS): alıcının bayi ve tüketiciye sattığı LPG'nin hangi terminalden yüklendiği, kaynak türüne göre. Satıcı seçili ya da müşteri seçiliyken her satıcı–müşteri satırının altında terminal kırılımı görünür (db_108, FACT_LPG_TEDARIK.Tedarikci_Terminal_ID: satıcının ürünü verdiği terminal; yeniden satış için alınan kısım da alıcının il profiline göre satıcının en yakın terminallerine atanmıştır). Terminal tablosundaki satıcılar fizikseldir (FACT_LPG_AKIS.Yonlendiren_Sirket_ID).</li>
+    </ul>
+  </section>
+
+  <section class="lpgm-only" aria-labelledby="h-lpgt" id="sec-lpgt" hidden>
+    <div class="head"><h2 id="h-lpgt">Müşterinin yükleme terminalleri</h2><span class="sub" id="s-lpgt"></span></div>
+    <div class="scroll"><table id="t-lpgt"></table></div>
+
+  </section>
+
+  <div class="filters lpgf lpgi-only" role="search" aria-label="LPG ithalat filtreleri">
+    <div class="f"><label for="f-lith">İthalatçı</label><select id="f-lith"></select></div>
+    <div class="f"><label for="f-lgum">Liman bölgesi</label><select id="f-lgum"></select></div>
+    <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
+  </div>
+
+  <section class="lpgi-only" aria-labelledby="h-lpgi">
+    <div class="head"><h2 id="h-lpgi">LPG ithalatı</h2><span class="sub" id="s-lpgi"></span></div>
+    <p class="lead" id="l-lpgi"></p>
+    <div class="kpis" id="k-lpgi"></div>
+    <div class="lgrid">
+      <div class="lbox"><h3>Menşe ülke · 2025 (ülke geneli)</h3><div class="ulke" id="lpgi-ulke"></div></div>
+      <div class="lbox lchart"><h3 id="h-lpgi-ay">Aylık ithalat · bin ton · 2024 ve 2025 (ülke geneli)</h3><div id="lpgi-ay"></div><div class="lleg"><span><i style="background:#C9D3D8"></i>2024</span><span><i style="background:var(--lpg)"></i>2025</span></div></div>
+    </div>
+    <div class="lbox lchart"><h3>LPG arzı · milyon ton · üretim ve ithalat, 2016–2025</h3><div id="lpgi-yil"></div><div class="lleg"><span><i style="background:#8FA3AD"></i>Rafineri üretimi</span><span><i style="background:var(--lpg)"></i>İthalat</span><span><i style="background:none;border-top:2px solid var(--ink)"></i>Yurt içi satış</span></div></div>
+  </section>
+
+  <section class="lpgi-only" aria-labelledby="h-lpgi-t">
+    <div class="head"><h2 id="h-lpgi-t">Liman bölgesi · terminal · ithalatçı</h2><span class="sub" id="s-lpgi-t"></span></div>
+    <div class="scroll"><table id="t-lpgi"></table></div>
+    <ul class="notes">
+      <li>Şirket × terminal ithalatı model tahminidir (FACT_LPG_ITHALAT; gümrük grubu ithalatının ithalatçılara IPF ile dağıtımı); ulusal toplam EPDK ile aynıdır.</li>
+      <li>Kendi bayisine / tüketiciye: ithalatçının bu terminalden kendi ithalatıyla yaptığı satış (FACT_LPG_AKIS, kaynak "Kendi ithalatı"). Kalan kısım başka dağıtıcılara satılır, ihraç edilir ya da stoğa girer.</li>
+      <li>Menşe ülke, aylık seri ve yıllık arz ülke genelidir (EPDK LPG Piyasası Sektör Raporu 2025); ithalatçı ya da liman filtresinden etkilenmez.</li>
+    </ul>
+  </section>
+
+  <footer>Kaynak: Enerji Master DB 2025 (PDM). İl sınırları: alpers/Turkey-Maps-GeoJSON (GitHub; lisans belirtilmemiş, sadeleştirildi). Mesafeler ton ağırlıklı karayolu km. <span class="tag">tahmin</span> etiketi: terminaldeki hacmin yarısından fazlası EPDK il verisinden modelle atanmış (diğer petrol ürünleri). Ürün sepeti EPDK şirket bildirimleridir, il filtresinden etkilenmez. Tedarik tahsisi: Enerji Master DB REF_TEDARIK_TAHSIS ve REF_TAHSIS_RAFINERI_KOSUL (veri sürümüyle birlikte güncellenir).</footer>
+</div>
+
+
+  </main>
+</div>
+
+<div class="ortu" id="bos" hidden>
+  <div class="kart">
+    <h2>Veritabanını açın</h2>
+    <p>PDM teslimatındaki veritabanı zip'ini (<b>enerji_master_2025_db_….zip</b>) ya da içindeki <b>enerji_master_2025.db</b> dosyasını açın; zip'i ayrıca çıkarmanız gerekmez. Excel ve ETL kodu zip'i gerekmez.</p>
+    <div class="hata" id="hata" hidden></div>
+    <div class="dz" id="dz">Zip ya da .db dosyasını buraya sürükleyin</div>
+    <button type="button" class="btn" id="ac">Veritabanı aç…</button>
+    <div class="son" id="son"></div>
+  </div>
+</div>
+<div class="ortu" id="yukle" hidden>
+  <div class="kart">
+    <h2 id="y-bas">Veri hazırlanıyor</h2>
+    <p id="y-dosya"></p>
+    <div class="cubuk" aria-hidden="true"><i></i></div>
+    <div class="adim" id="y-adim" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script type="application/json" id="data"></script>
+<script type="application/json" id="geo"></script>
+<script type="application/json" id="tahsis"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+ "surum": "1.0.6",
+ "kabuk": 1,
+ "tarih": "2026-10-17T18:50:51+03:00",
+ "notlar": "İlk güncelleme kanalı sürümü: Taşıma çoklu ürün filtresi, db_110 zinciri",
+ "dosyalar": {
+  "ui/index.html": "f4a2fa86ab9d6862adeeb06d65deb86da7f715a2d47904c0a36e0dca43c05fb9",
+  "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
+  "ui/app.js": "f88f32380822e36531b9b3d1c6c57675cc4ecd2f8fe8d14f3fdcece3b74496a1",
+  "ui/panel.css": "76f86d58c26fde5fbf5d470e1aa1b8bd3cbc585cf53ad9985ae2b9f9430c9e1f",
+  "ui/panel.js": "13e8e9c4f147ea5573b96336dd5911f025e0bd10eeac5f3318a1608710869dce",
+  "pipeline.js": "309884abf6f0194bbf4bc0d98d42d124b1cf9bc367836456d723eeb2e53c5901",
+  "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
+  "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
+  "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
+ }
+}
