@@ -517,7 +517,7 @@ function ithalat(){
     const trg=TRM.get(imp+"|"+f[1]+"|"+f[3]);   // iç terminaldeki ithal ürün (satıcının devri dahil) giriş terminalinden gelir
     const tx=trg!=null?trg:tk!=null?tk:/T148/.test(MOD[f[5]]||"")?TERM.findIndex(x=>x[0]==="T148"):f[1];   // TFS: ithalat noktası T148, diğer depolara oradan sevk (kullanıcı 09.10 19:38 / 10.10 14:34)
     const o=g(HAVA(tx)?-1:tx); o.c[ui(f[3])]+=it; o.sir.set(imp,(o.sir.get(imp)||0)+it); if(HAVA(tx)) (o.dep||=new Set()).add(tx); if(tk!=null&&tk!==f[1]) (o.tk||=new Map()).set(f[1],(o.tk.get(f[1])||0)+it); if(trg!=null&&trg!==f[1]) (o.tr||=new Map()).set(f[1],(o.tr.get(f[1])||0)+it); }
-  for(const f of LF){ if(f[4]!==0) continue; if(!tum&&f[0]!==S.sid) continue; const o=g(f[1]); o.c[ITH_SUT.length]+=f[6]; o.sir.set(f[0],(o.sir.get(f[0])||0)+f[6]); }
+  // LPG akaryakıt ithalat sayfasından çıkarıldı (kullanıcı 18.10.2026 11:47); LPG ithalatı LPG > İthalat sayfasında
   const rows=[...m].map(([t,o])=>({t,o,tot:o.c.reduce((a,b)=>a+b,0)})).filter(r=>r.tot>0.5).sort((a,b)=>b.tot-a.tot);
   const colT=ITH_SUT.map((x,k)=>rows.reduce((a,r)=>a+r.o.c[k],0)).concat([rows.reduce((a,r)=>a+r.o.c[ITH_SUT.length],0)]);
   const ad=ITH_SUT.map(x=>x[0]).concat(["LPG"]), vis=colT.map(v=>v>=0.5), T=rows.reduce((a,r)=>a+r.tot,0);
@@ -541,7 +541,7 @@ function ithalat(){
   document.getElementById("k-ith").innerHTML=`<div class="kg">`+kompKart("Ürün dağılımı",ad.map((l,k)=>({l,v:vis[k]?colT[k]:0,c:URENK[ITH_RK[k]][2]})),{buyuk:ton(T),alt:"modelde terminale yerleşen ithalat",span:ep>0.5?7:12})
     +(ep>0.5?`<div class="kc" style="--sp:5"><div class="kc-h"><span>EPDK ithalat bildirimi${eih>0.5?" + TFS ihrakiye":""}</span><span class="rz-chip nt">${pct(pet/ep)} terminale yerleşti</span></div><div class="kc-big"><b>${ton(ep)}</b><span>petrol ürünleri${eih>0.5?` (ithalat ${ton(ep-eih)} + yabancıya ihrakiye ${ton(eih)})`:""}</span></div>`
       +`<div class="kc-sl"><div class="kc-s"><span>EPDK bildirimi</span><span class="kc-bar"><i style="width:100%;background:var(--ink-3)"></i></span><b>${ton(ep)}</b></div><div class="kc-s"><span>Modelde terminale yerleşen</span><span class="kc-bar"><i style="width:${Math.min(100,pet/ep*100).toFixed(1)}%;background:var(--accent)"></i></span><b>${ton(pet)}</b></div></div>`
-      +`<p class="kc-not">Fark ${ton(Math.abs(ep-pet))}: modelde terminale yerleşmeyen ya da başka kaleme giden ithalat. LPG hariç.</p></div>`:"")+`</div>`;
+      +`<p class="kc-not">Fark ${ton(Math.abs(ep-pet))}: modelde terminale yerleşmeyen ya da başka kaleme giden ithalat.</p></div>`:"")+`</div>`;
 }
 
 /* ---------- Takas (kullanıcı 11.10.2026: PDM takası yeniden kurunca yeni sayfa) ---------- */
@@ -853,7 +853,7 @@ const fS=document.getElementById("f-sirket"), fU=document.getElementById("f-urun
   const sat=SIR.map(()=>0); AF.forEach(f=>{if(f[11]!==f[0]&&!isTk(f)) sat[f[11]]+=f[6]});
   OPT_MUS='<option value="-1">Tüm dağıtıcılar</option>'+SIR.map((s,i)=>[s,i]).filter(([,i])=>sat[i]>=0.5).sort((a,b)=>sat[b[1]]-sat[a[1]]).map(([s,i])=>`<option value="${i}">${esc(s[1])} · ${ton(sat[i])}</option>`).join("");
   MUS_SID=new Set(SIR.map((s,i)=>i).filter(i=>sat[i]>=0.5));
-  const ith=SIR.map(()=>0); AF.forEach(f=>{if((f[10]||0)>0) ith[f[11]]+=f[10]}); LF.forEach(f=>{if(f[4]===0) ith[f[0]]+=f[6]});
+  const ith=SIR.map(()=>0); AF.forEach(f=>{if((f[10]||0)>0) ith[f[11]]+=f[10]});
   OPT_ITH='<option value="-1">Tüm şirketler</option>'+SIR.map((s,i)=>[s,i]).filter(([,i])=>ith[i]>=0.5).sort((a,b)=>ith[b[1]]-ith[a[1]]).map(([s,i])=>`<option value="${i}">${esc(s[1])} · ${ton(ith[i])}</option>`).join("");
   ITH_SID=new Set(SIR.map((s,i)=>i).filter(i=>ith[i]>=0.5));
   const tks=SIR.map(()=>0); AF.forEach(f=>{if(isTk(f)) tks[f[11]]+=f[6]});
