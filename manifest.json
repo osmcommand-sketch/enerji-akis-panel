@@ -1,15 +1,15 @@
 {
- "surum": "1.0.7",
+ "surum": "1.0.8",
  "kabuk": 1,
- "tarih": "2026-10-18T11:50:14+03:00",
- "notlar": "Akaryakıt > İthalat sayfasından LPG çıkarıldı",
+ "tarih": "2026-10-18T12:08:02+03:00",
+ "notlar": "Terminal adlarının yanında EPDK depolama lisans numaraları",
  "dosyalar": {
   "ui/index.html": "2d32af8343a8b6e2da936c420af34c07e3911839a82dc2547a7d8c4f3e914d6c",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "f88f32380822e36531b9b3d1c6c57675cc4ecd2f8fe8d14f3fdcece3b74496a1",
-  "ui/panel.css": "76f86d58c26fde5fbf5d470e1aa1b8bd3cbc585cf53ad9985ae2b9f9430c9e1f",
-  "ui/panel.js": "5b1749b2d12cf2193301c7fed6a870a1e06d05be4b5c1e62b9cd726c0d318a43",
-  "pipeline.js": "309884abf6f0194bbf4bc0d98d42d124b1cf9bc367836456d723eeb2e53c5901",
+  "ui/panel.css": "d765ffdb4d72f5d9703db2b48ec7ad43a741e876b873a3c00214ec408565337c",
+  "ui/panel.js": "05d41eced099c74c2b91e012ffdbed8108d2ac2db314c0bd92bc06ac1347b9c0",
+  "pipeline.js": "a26dfe22a06f113ee27df23b9f53246a610e029f900ed64176da480a3b5859d8",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

@@ -239,6 +239,12 @@ function run(SQL, dbBytes, resDir, log = () => {}) {
     for (const [sid, il_, sek, is] of rows) for (const k of [six.has(sid) ? six.get(sid) : -2, -1]) { if (k === -2) continue;
       const key = k + '|' + il_; if (!st.has(key)) st.set(key, { k, il: il_, s: [new Set(), new Set(), new Set()] }); const o = st.get(key).s; o[sek === 'Akaryakıt' ? 0 : 1].add(is); o[2].add(is); }
     d.bi = [...st.values()].sort((a, b) => (a.k - b.k) || (a.il - b.il)).map(o => [o.k, o.il, o.s[0].size, o.s[1].size, o.s[2].size]); }
+  /* terminal depolama lisans numaraları (bayi.py ile aynı) */
+  { const ok = (x) => x != null && !['', '—', '-'].includes(String(x).trim()); const TL = new Map();
+    for (const [tid, al, ll, tt] of QA('select Terminal_ID, Akaryakit_Lisans_No, LPG_Lisans_No, Tesis_Tipi from DIM_TERMINAL')) { const sp = (x) => (ok(x) ? String(x).split(';').map((y) => y.trim()).filter(ok) : []); TL.set(tid, [sp(al), sp(ll), tt || '']); }
+    if (hasTable('FACT_DEPOLAMA')) for (const [tid, sek, no] of QA('select Terminal_ID, Sektor, Lisans_No from FACT_DEPOLAMA where Terminal_ID is not null and Lisans_No is not null order by Lisans_No')) {
+      if (TL.has(tid) && ok(no)) { const L = TL.get(tid)[sek === 'LPG' ? 1 : 0]; if (!L.includes(no.trim())) L.push(no.trim()); } }
+    d.tlis = d.term.map((t) => TL.get(t[0]) || [[], [], '']); }
 
   /* ---------------- tahsis_gen ---------------- */
   log('Tedarik tahsisi');
@@ -287,7 +293,7 @@ function run(SQL, dbBytes, resDir, log = () => {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs']) keep[k] = d[k] || [];
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis']) keep[k] = d[k] || [];
   keep.il = d.il.map(r => [r[0], r[1]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
