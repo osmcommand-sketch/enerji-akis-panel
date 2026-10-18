@@ -12,7 +12,7 @@ const LIS=(t,lpg)=>{ const x=TLIS[t]; if(!x) return ""; const a=lpg?x[1]:x[0], b
   if(!Ls.length) return x[2]==="Rafineri"?' <span class="lis yok">rafineri</span>':' <span class="lis yok">lisans no yok</span>';
   return ` <span class="lis" title="EPDK depolama lisansı: ${esc(Ls.join(", "))}">${esc(Ls[0])}${Ls.length>1?` +${Ls.length-1}`:""}</span>`; };
 const ZIN=[]; MOD.forEach((m,i)=>{ const z=String(m).match(/^(.*) – zincir: (.*)$/); if(z){ MOD[i]=z[1]; ZIN[i]=z[2]; } });
-const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrT:"",ltrTm:-1,ltrT:""};
+const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
 const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgmus"};
 const grupOf=sy=>sy==="akis"?null:(SAYFA_GRUP[sy]||"akaryakit");
@@ -1019,10 +1019,10 @@ function lpgIthalat(){
 }
 /* ---------- Terminaller (kullanıcı 18.10.2026 12:12; 12:36: filtrede terminal adı, tabloda terminalde operasyon yapan şirketler) ---------- */
 const SIR_AD=new Set(SIR.map(x=>x[1])), TMETA=D.tmeta||[], fAS=document.getElementById("f-atr-s"), fAT=document.getElementById("f-atr-t"), fLTS=document.getElementById("f-ltr-s"), fLTT=document.getElementById("f-ltr-t");
-fAS.addEventListener("change",()=>{S.atrTm=+fAS.value; render()}); fAT.addEventListener("change",()=>{S.atrT=fAT.value; render()});
-fLTS.addEventListener("change",()=>{S.ltrTm=+fLTS.value; render()}); fLTT.addEventListener("change",()=>{S.ltrT=fLTT.value; render()});
-document.getElementById("clear-atr").addEventListener("click",()=>{S.atrTm=-1; S.atrT=""; render()});
-document.getElementById("clear-ltr").addEventListener("click",()=>{S.ltrTm=-1; S.ltrT=""; render()});
+fAS.addEventListener("change",()=>{S.atrTm=+fAS.value; render()}); fAT.addEventListener("change",()=>{S.atrSr=+fAT.value; render()});
+fLTS.addEventListener("change",()=>{S.ltrTm=+fLTS.value; render()}); fLTT.addEventListener("change",()=>{S.ltrSr=+fLTT.value; render()});
+document.getElementById("clear-atr").addEventListener("click",()=>{S.atrTm=-1; S.atrSr=-1; render()});
+document.getElementById("clear-ltr").addEventListener("click",()=>{S.ltrTm=-1; S.ltrSr=-1; render()});
 const tesisGrp=t=>{ const x=(TMETA[t]||[])[6]||""; return x==="Rafineri"?"Rafineri sahası":/Havacılık/.test(x)?"Havacılık yakıt deposu":/^Bağımsız/.test(x)?"Bağımsız depo":/iç terminal/.test(x)?"İç terminal":/liman terminali/.test(x)?"Liman terminali":/LPG/.test(x)?"LPG tesisi":"Dağıtıcı terminali"; };
 const TESIS_RENK={"Dağıtıcı terminali":"#0F6E8C","Rafineri sahası":"#8A6238","Havacılık yakıt deposu":"#7553B5","Liman terminali":"#1F6FB2","İç terminal":"#3E9A4A","Bağımsız depo":"#B08E14","LPG tesisi":"#C8641C"};
 const SIR_PAL=["#0F6E8C","#2F6FB5","#C8641C","#3E9A4A","#7553B5","#B08E14"];
@@ -1031,77 +1031,100 @@ const dolBar=d=>d==null?'<span class="z">–</span>':`<span class="tb-d" title="
 const nSir=c=>[...c.values()].filter(x=>x.v>=0.5).length;
 const trmOpt=(el,R,sec,bos)=>{ el.innerHTML=`<option value="-1">${bos} (${R.length})</option>`+R.map(r=>`<option value="${r.t}">${esc(TERM[r.t][1])} · ${esc(HUB[TERM[r.t][2]].ad)}${r.v>=0.5?" · "+ton(r.v):""}</option>`).join(""); el.value=String(sec); };
 const sirKart=(baslik,o,T)=>{ const a=[...o].sort((x,y)=>y[1].v-x[1].v), P=a.slice(0,6).map(([s,x],k)=>({l:SIR[s][1],v:x.v,c:SIR_PAL[k]})); if(a.length>6) P.push({l:`Diğer ${a.length-6} şirket`,v:a.slice(6).reduce((q,x)=>q+x[1].v,0),c:"#B8C4CB"}); return kompKart(baslik,P,{T,sag:`${a.length} şirket`,span:5}); };
+// Ürün kaynak zinciri (kullanıcı 18.10.2026 12:43): kaynak (rafineri / ithalat) → satıcı dağıtıcı → şirket · taşıma modu
+const zinAk=f=>{ const K=KAY[f[4]]||["","?",""], kendi=K[3]===f[0];
+  const src=String(K[2]).startsWith("Dağıtıcı")?(kendi?"Kendi ithalatı":K[1]+" ithalatı"):K[1];
+  const sat=f[11]>=0&&f[11]!==f[0]?SIR[f[11]][1]:null, md=tasMod(MOD[f[5]]), z=ZIN[f[5]];
+  return `${src}${sat?" → "+sat:""}${z?` <span class="zn">(${esc(z.replace(/^[^←]*← /,""))})</span>`:""} · <span class="muted">${esc(md)}</span>`; };
+const zinHTML=(m,T)=>{ const a=[...m].sort((x,y)=>y[1]-x[1]).filter(x=>x[1]>=0.5); return a.slice(0,3).map(([z,v])=>`<span class="zc">${z}${a.length>1?` <em>${pct(v/(T||1))}</em>`:""}</span>`).join("")+(a.length>3?`<span class="zc muted">+${a.length-3} yol</span>`:""); };
+const sirOpt=(el,M,sec)=>{ const a=[...M].filter(x=>x[1]>=0.5).sort((x,y)=>y[1]-x[1]); el.innerHTML=`<option value="-1">Tüm dağıtım şirketleri (${a.length})</option>`+a.map(([s,v])=>`<option value="${s}">${esc(SIR[s][1])} · ${ton(v)}</option>`).join(""); el.value=String(sec); };
 function akTerminaller(){
-  const G=new Map();
-  for(const f of AF){ const o=G.get(f[1])||G.set(f[1],{u:[0,0,0],it:0,km:0,il:new Set(),c:new Map()}).get(f[1]), ui=f[3]===0?0:f[3]===1?1:2;
+  const G=new Map(), SM=new Map();
+  for(const f of AF){ SM.set(f[0],(SM.get(f[0])||0)+f[6]);
+    const o=G.get(f[1])||G.set(f[1],{u:[0,0,0],it:0,km:0,il:new Set(),c:new Map()}).get(f[1]), ui=f[3]===0?0:f[3]===1?1:2;
     o.u[ui]+=f[6]; o.it+=f[10]||0; o.km+=(f[7]||0)*f[6]; o.il.add(f[2]);
-    const c=o.c.get(f[0])||o.c.set(f[0],{u:[0,0,0],v:0,it:0,km:0,il:new Set()}).get(f[0]); c.u[ui]+=f[6]; c.v+=f[6]; c.it+=f[10]||0; c.km+=(f[7]||0)*f[6]; c.il.add(f[2]); }
+    const c=o.c.get(f[0])||o.c.set(f[0],{u:[0,0,0],v:0,it:0,km:0,il:new Set(),z:new Map()}).get(f[0]); c.u[ui]+=f[6]; c.v+=f[6]; c.it+=f[10]||0; c.km+=(f[7]||0)*f[6]; c.il.add(f[2]);
+    const zk=zinAk(f); c.z.set(zk,(c.z.get(zk)||0)+f[6]); }
   TERM.forEach((x,t)=>{ if(x[3]&&!G.has(t)&&(TMETA[t]||[])[2]>0) G.set(t,{u:[0,0,0],it:0,km:0,il:new Set(),c:new Map()}); });
-  const tipler=[...new Set([...G.keys()].map(tesisGrp))]; if(S.atrT&&!tipler.includes(S.atrT)) S.atrT="";
-  fAT.innerHTML='<option value="">Tüm tesis tipleri</option>'+tipler.sort().map(x=>`<option${x===S.atrT?" selected":""}>${esc(x)}</option>`).join("");
-  const ALL=[...G].map(([t,o])=>({t,o,v:o.u[0]+o.u[1]+o.u[2]})).filter(r=>!S.atrT||tesisGrp(r.t)===S.atrT).sort((a,b)=>b.v-a.v||TERM[a.t][1].localeCompare(TERM[b.t][1],"tr"));
+  if(S.atrSr>=0&&!(SM.get(S.atrSr)>=0.5)) S.atrSr=-1; sirOpt(fAT,SM,S.atrSr);
+  const sr=S.atrSr, cv=o=>sr>=0?((o.c.get(sr)||{}).v||0):o.u[0]+o.u[1]+o.u[2];
+  const ALL=[...G].map(([t,o])=>({t,o,v:o.u[0]+o.u[1]+o.u[2],w:cv(o)})).filter(r=>sr<0||r.w>=0.5).sort((a,b)=>b.w-a.w||TERM[a.t][1].localeCompare(TERM[b.t][1],"tr"));
   if(S.atrTm>=0&&!ALL.some(r=>r.t===S.atrTm)) S.atrTm=-1;
-  trmOpt(fAS,ALL,S.atrTm,"Tüm terminaller");
-  const R=S.atrTm>=0?ALL.filter(r=>r.t===S.atrTm):ALL, T=R.reduce((a,r)=>a+r.v,0), nAkt=R.filter(r=>r.v>=0.5).length, tek=S.atrTm>=0?R[0]:null;
-  document.getElementById("h-atr").textContent=tek?TERM[tek.t][1]:"Akaryakıt terminalleri"+(S.atrT?` · ${S.atrT}`:"");
-  document.getElementById("s-atr").textContent=tek?`${HUB[TERM[tek.t][2]].ad} · ${nSir(tek.o.c)} şirket · ${ton(T)}`:`${nAkt} terminal${R.length>nAkt?` (+${R.length-nAkt} yüklemesiz)`:""} · ${ton(T)}`;
+  trmOpt(fAS,ALL.map(r=>({t:r.t,v:r.w})),S.atrTm,"Tüm terminaller");
+  const R=S.atrTm>=0?ALL.filter(r=>r.t===S.atrTm):ALL, T=R.reduce((a,r)=>a+r.w,0), nAkt=R.filter(r=>r.w>=0.5).length, tek=S.atrTm>=0?R[0]:null, sad=sr>=0?SIR[sr][1]:null;
+  document.getElementById("h-atr").textContent=(tek?TERM[tek.t][1]:"Akaryakıt terminalleri")+(sad?` · ${sad}`:"");
+  document.getElementById("s-atr").textContent=tek?`${HUB[TERM[tek.t][2]].ad} · ${nSir(tek.o.c)} şirket · ${ton(tek.v)}${sad?` · ${sad} ${ton(tek.w)}`:""}`:`${nAkt} terminal${R.length>nAkt?` (+${R.length-nAkt} yüklemesiz)`:""} · ${sad?sad+" yüklemesi ":""}${ton(T)}`;
   let k=`<div class="kg">`;
-  if(tek){ const m=TMETA[tek.t]||[];
-    k+=sirKart("Operasyon yapan şirketler",tek.o.c,T)
-      +kompKart("Ürün",[{l:"Benzin",v:tek.o.u[0],c:URENK.a0[2]},{l:"Motorin",v:tek.o.u[1],c:URENK.a1[2]},{l:"Diğer",v:tek.o.u[2],c:URENK.a3[2],s:"havacılık, denizcilik, fuel oil…"}],{buyuk:ton(T),alt:`ithal payı ${pct(tek.o.it/(T||1))} · ${tek.o.il.size} il`,span:4})
-      +`<div class="kc" style="--sp:3"><div class="kc-h"><span>Künye</span></div><div class="kc-sl" style="gap:5px;font-size:13px"><div>${LIS(tek.t,0)}</div><div class="muted">${esc(m[6]||"")}${m[1]?" · "+esc(m[1]):""}</div><div>İşletmeci: <b>${esc(islAd(tek.t)||"–")}</b></div><div>Kapasite: <b>${m[2]?nf.format(m[2])+" m³":"–"}</b></div><div>Doluluk: ${dolBar(m[8])}</div><div>Bayiye ort.: <b>${T>=0.5?nf.format(Math.round(tek.o.km/T))+" km":"–"}</b></div></div></div>`;
+  if(tek){ const m=TMETA[tek.t]||[], TV=tek.v;
+    k+=sirKart("Operasyon yapan şirketler",tek.o.c,TV)
+      +kompKart("Ürün",[{l:"Benzin",v:tek.o.u[0],c:URENK.a0[2]},{l:"Motorin",v:tek.o.u[1],c:URENK.a1[2]},{l:"Diğer",v:tek.o.u[2],c:URENK.a3[2],s:"havacılık, denizcilik, fuel oil…"}],{buyuk:ton(TV),alt:`ithal payı ${pct(tek.o.it/(TV||1))} · ${tek.o.il.size} il`,span:4})
+      +`<div class="kc" style="--sp:3"><div class="kc-h"><span>Künye</span></div><div class="kc-sl" style="gap:5px;font-size:13px"><div>${LIS(tek.t,0)}</div><div class="muted">${esc(m[6]||"")}${m[1]?" · "+esc(m[1]):""}</div><div>İşletmeci: <b>${esc(islAd(tek.t)||"–")}</b></div><div>Kapasite: <b>${m[2]?nf.format(m[2])+" m³":"–"}</b></div><div>Doluluk: ${dolBar(m[8])}</div><div>Bayiye ort.: <b>${TV>=0.5?nf.format(Math.round(tek.o.km/TV))+" km":"–"}</b></div></div></div>`;
   } else {
-    const TG=new Map(); for(const r of R) TG.set(tesisGrp(r.t),(TG.get(tesisGrp(r.t))||0)+r.v);
-    k+=kompKart("Yükleme · tesis tipi",[...TG].sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v,c:TESIS_RENK[l]||"#5E7384",s:`${R.filter(r=>tesisGrp(r.t)===l&&r.v>=0.5).length} terminal`})),{buyuk:ton(T),alt:`${nAkt} terminal`,span:4})
-      +siraKart("En çok yükleme",R.map(r=>[TERM[r.t][1],r.v]),{n:8,sag:"benzin + motorin + diğer",span:4});
-    const DL=R.filter(r=>(TMETA[r.t]||[])[8]!=null).map(r=>[TERM[r.t][1],TMETA[r.t][8]*100]);
-    k+=DL.length?siraKart("Kapasite kullanımı",DL,{n:8,fmt:x=>"%"+nf1.format(x),c:"#D9821F",sag:"yükleme / yıllık kapasite",span:4}):""; }
+    const TG=new Map(); for(const r of R) TG.set(tesisGrp(r.t),(TG.get(tesisGrp(r.t))||0)+r.w);
+    k+=kompKart("Yükleme · tesis tipi",[...TG].sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v,c:TESIS_RENK[l]||"#5E7384",s:`${R.filter(r=>tesisGrp(r.t)===l&&r.w>=0.5).length} terminal`})),{buyuk:ton(T),alt:`${nAkt} terminal${sad?" · "+esc(sad):""}`,span:4})
+      +siraKart("En çok yükleme",R.map(r=>[TERM[r.t][1],r.w]),{n:8,sag:sad?esc(sad):"benzin + motorin + diğer",span:4});
+    if(sr>=0){ const ZM=new Map(); for(const r of R){ const c=r.o.c.get(sr); if(c) for(const [z,v] of c.z){ const zz=z.replace(/ · <span class="muted">.*$/,""); ZM.set(zz,(ZM.get(zz)||0)+v);} }
+      k+=siraKart("Ürün kaynakları",[...ZM].map(([z,v])=>[z.replace(/<[^>]+>/g,""),v]),{n:8,c:"#7553B5",sag:"kaynak → satıcı",span:4}); }
+    else { const DL=R.filter(r=>(TMETA[r.t]||[])[8]!=null).map(r=>[TERM[r.t][1],TMETA[r.t][8]*100]);
+      k+=DL.length?siraKart("Kapasite kullanımı",DL,{n:8,fmt:x=>"%"+nf1.format(x),c:"#D9821F",sag:"yükleme / yıllık kapasite",span:4}):""; } }
   document.getElementById("k-atr").innerHTML=k+`</div>`;
-  const head=`<tr><th class="l">Terminal · lisans / operasyon yapan şirket</th><th class="l">Tesis · işletmeci</th><th>Kapasite</th><th>Benzin</th><th>Motorin</th><th>Diğer</th><th>Toplam</th><th>Pay</th><th>İthal</th><th class="l">Doluluk</th><th>İl</th><th>Bayiye km</th></tr>`;
+  const head=`<tr><th class="l">Terminal · lisans / operasyon yapan şirket</th><th class="l">Tesis · işletmeci / ürün kaynak zinciri</th><th>Kapasite</th><th>Benzin</th><th>Motorin</th><th>Diğer</th><th>Toplam</th><th>Pay</th><th>İthal</th><th class="l">Doluluk</th><th>İl</th><th>Bayiye km</th></tr>`;
   const out=[];
   for(const {t,o,v} of R){ const m=TMETA[t]||[];
-    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,0)}<br><span class="muted">${esc(HUB[TERM[t][2]].ad)} · ${nSir(o.c)} şirket</span></td><td class="l"><span class="muted">${esc(m[6]||"")}${m[1]?" · "+esc(m[1]):""}${islAd(t)?"<br>"+esc(islAd(t)):""}</span></td><td>${m[2]?nf.format(m[2])+" m³":'<span class="z">–</span>'}</td><td>${cell(o.u[0])}</td><td>${cell(o.u[1])}</td><td>${cell(o.u[2])}</td><td><b>${cell(v)}</b></td><td>${v>=0.5&&!tek?pct(v/(T||1)):v>=0.5?"%100":""}</td><td>${o.it>=0.5?pct(o.it/v):'<span class="z">–</span>'}</td><td class="l">${dolBar(m[8])}</td><td>${o.il.size||'<span class="z">–</span>'}</td><td>${v>=0.5?nf.format(Math.round(o.km/v)):'<span class="z">–</span>'}</td></tr>`);
-    for(const [s,c] of [...o.c].sort((a,b)=>b[1].v-a[1].v)){ if(c.v<0.5) continue;
-      out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td></td><td></td><td>${cell(c.u[0])}</td><td>${cell(c.u[1])}</td><td>${cell(c.u[2])}</td><td>${ton(c.v)}</td><td><span class="muted">${pct(c.v/(v||1))}</span></td><td>${c.it>=0.5?pct(c.it/c.v):'<span class="z">–</span>'}</td><td></td><td>${c.il.size}</td><td>${nf.format(Math.round(c.km/c.v))}</td></tr>`); } }
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,0)}<br><span class="muted">${esc(HUB[TERM[t][2]].ad)} · ${nSir(o.c)} şirket</span></td><td class="l"><span class="muted">${esc(m[6]||"")}${m[1]?" · "+esc(m[1]):""}${islAd(t)?"<br>"+esc(islAd(t)):""}</span></td><td>${m[2]?nf.format(m[2])+" m³":'<span class="z">–</span>'}</td><td>${cell(o.u[0])}</td><td>${cell(o.u[1])}</td><td>${cell(o.u[2])}</td><td><b>${cell(v)}</b></td><td>${v>=0.5&&!tek&&sr<0?pct(v/(T||1)):v>=0.5?"%100":""}</td><td>${o.it>=0.5?pct(o.it/v):'<span class="z">–</span>'}</td><td class="l">${dolBar(m[8])}</td><td>${o.il.size||'<span class="z">–</span>'}</td><td>${v>=0.5?nf.format(Math.round(o.km/v)):'<span class="z">–</span>'}</td></tr>`);
+    for(const [s,c] of [...o.c].sort((a,b)=>b[1].v-a[1].v)){ if(c.v<0.5||(sr>=0&&s!==sr)) continue;
+      out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td class="l zin" colspan="2">${zinHTML(c.z,c.v)}</td><td>${cell(c.u[0])}</td><td>${cell(c.u[1])}</td><td>${cell(c.u[2])}</td><td>${ton(c.v)}</td><td><span class="muted">${pct(c.v/(v||1))}</span></td><td>${c.it>=0.5?pct(c.it/c.v):'<span class="z">–</span>'}</td><td></td><td>${c.il.size}</td><td>${nf.format(Math.round(c.km/c.v))}</td></tr>`); } }
   document.getElementById("t-atr").innerHTML=`<thead>${head}</thead><tbody>${out.join("")||'<tr><td colspan="12" class="empty">Bu seçimde terminal yok.</td></tr>'}</tbody>`;
 }
 function lpgTerminaller(){
-  const G=new Map(), IT=new Map(); for(const r of LITH){ const k=r[1]+"|"+r[0]; IT.set(k,(IT.get(k)||0)+r[3]); }
-  for(const f of LF){ const o=G.get(f[1])||G.set(f[1],{v:0,km:0,il:new Set(),c:new Map()}).get(f[1]); o.v+=f[6]; o.km+=(f[7]||0)*f[6]; o.il.add(f[3]);
-    const c=o.c.get(f[0])||o.c.set(f[0],{v:0,km:0,il:new Set()}).get(f[0]); c.v+=f[6]; c.km+=(f[7]||0)*f[6]; c.il.add(f[3]); }
+  const G=new Map(), IT=new Map(), SM=new Map(), DS=new Map(); for(const r of LITH){ const k=r[1]+"|"+r[0]; IT.set(k,(IT.get(k)||0)+r[3]); }
+  for(const r of LFS){ const k=r[1]+"|"+r[0]; const m=DS.get(k)||DS.set(k,new Map()).get(k); m.set(r[2],(m.get(r[2])||0)+r[3]); }   // alıcı × terminal → satıcılar
+  const TTAD=["Kendi ithalatı","Dağıtıcıdan","Rafineriden"];
+  for(const f of LF){ SM.set(f[0],(SM.get(f[0])||0)+f[6]); const o=G.get(f[1])||G.set(f[1],{v:0,km:0,il:new Set(),c:new Map()}).get(f[1]); o.v+=f[6]; o.km+=(f[7]||0)*f[6]; o.il.add(f[3]);
+    const c=o.c.get(f[0])||o.c.set(f[0],{v:0,km:0,il:new Set(),z:new Map()}).get(f[0]); c.v+=f[6]; c.km+=(f[7]||0)*f[6]; c.il.add(f[3]); c.z.set(f[4],(c.z.get(f[4])||0)+f[6]); }
   TERM.forEach((x,t)=>{ const m=TMETA[t]||[]; if(!G.has(t)&&(m[11]>0||(x[4]&&m[3]>0))) G.set(t,{v:0,km:0,il:new Set(),c:new Map()}); });
-  for(const k of IT.keys()){ const [t,s]=k.split("|").map(Number), o=G.get(t); if(o&&!o.c.has(s)) o.c.set(s,{v:0,km:0,il:new Set()}); }   // yalnız ithalat yapan şirket de terminalde operasyon yapar
+  for(const k of IT.keys()){ const [t,s]=k.split("|").map(Number), o=G.get(t); SM.set(s,(SM.get(s)||0)); if(o&&!o.c.has(s)) o.c.set(s,{v:0,km:0,il:new Set(),z:new Map()}); }
   const nSirL=(t,c)=>[...c].filter(([s,x])=>x.v>=0.5||(IT.get(t+"|"+s)||0)>=0.5).length;
   const dev=t=>{ const m=TMETA[t]||[], o=G.get(t); return m[3]>0&&o?o.v/(m[3]*0.54):null; };
-  // Tesis tipi (kullanıcı 18.10.2026 12:27): rafineri / dağıtıcı terminali / bağımsız
   const tsn=t=>{ const m=TMETA[t]||[]; return m[6]==="Rafineri"?"Rafineri":(/^Bağımsız|tarifeli/.test(m[6]||"")||(m[4]==="Open / third-party"&&!SIR_AD.has(m[7])))?"Bağımsız":"Dağıtıcı terminali"; };
   const tip=t=>{ const m=TMETA[t]||[]; return m[4]==="Open / third-party"?"açık (üçüncü taraf)":/Captive/.test(m[4])?"kendi kullanımı (captive)":""; };
-  const TS_SIRA=["Rafineri","Dağıtıcı terminali","Bağımsız"], tsVar=new Set([...G.keys()].map(tsn)); if(S.ltrT&&!tsVar.has(S.ltrT)) S.ltrT="";
-  fLTT.innerHTML='<option value="">Tüm tesis tipleri</option>'+TS_SIRA.filter(x=>tsVar.has(x)).map(x=>`<option${x===S.ltrT?" selected":""}>${x}</option>`).join("");
-  const ALL=[...G].map(([t,o])=>({t,o,v:o.v})).filter(r=>!S.ltrT||tsn(r.t)===S.ltrT).sort((a,b)=>b.v-a.v||((TMETA[b.t]||[])[11]-(TMETA[a.t]||[])[11]));
+  const zinL=(t,s,c)=>{ const a=[...c.z].filter(x=>x[1]>=0.5).sort((x,y)=>y[1]-x[1]); const it=IT.get(t+"|"+s)||0;
+    const L=a.map(([tt,v])=>{ let d=TTAD[tt]||"?";
+      if(tt===1){ const sm=[...(DS.get(t+"|"+s)||new Map())].sort((x,y)=>y[1]-x[1]); if(sm.length) d+=": "+sm.slice(0,2).map(([x])=>esc(SIR[x][1])).join(", ")+(sm.length>2?` +${sm.length-2}`:""); }
+      if(tt===2) d+=(TMETA[t]||[])[6]==="Rafineri"?" ("+esc(TERM[t][1])+")":"";
+      if(tt===0&&it>=0.5) d+=" · bu terminale ithalat "+ton(it);
+      return `<span class="zc">${d}${a.length>1?` <em>${pct(v/(c.v||1))}</em>`:""}</span>`; });
+    if(!a.length&&it>=0.5) L.push(`<span class="zc">yalnız ithalat ${ton(it)} · yükleme başka terminalde ya da başka dağıtıcıya</span>`);
+    return L.join(""); };
+  if(S.ltrSr>=0&&!SM.has(S.ltrSr)) S.ltrSr=-1; sirOpt(fLTT,new Map([...SM].map(([s,v])=>[s,Math.max(v,0.5)])),S.ltrSr);
+  const sr=S.ltrSr, cw=(t,o)=>sr>=0?((o.c.get(sr)||{}).v||0)+(o.c.has(sr)?1e-6:0):o.v;
+  const ALL=[...G].map(([t,o])=>({t,o,v:o.v,w:cw(t,o)})).filter(r=>sr<0||r.w>0||(IT.get(r.t+"|"+sr)||0)>=0.5).sort((a,b)=>b.w-a.w||((TMETA[b.t]||[])[11]-(TMETA[a.t]||[])[11]));
   if(S.ltrTm>=0&&!ALL.some(r=>r.t===S.ltrTm)) S.ltrTm=-1;
-  trmOpt(fLTS,ALL,S.ltrTm,"Tüm terminaller");
-  const R=S.ltrTm>=0?ALL.filter(r=>r.t===S.ltrTm):ALL, T=R.reduce((a,r)=>a+r.v,0), TI=R.reduce((a,r)=>a+((TMETA[r.t]||[])[11]||0),0), nAkt=R.filter(r=>r.v>=0.5).length, tek=S.ltrTm>=0?R[0]:null;
-  document.getElementById("h-ltr").textContent=tek?TERM[tek.t][1]:"LPG terminalleri"+(S.ltrT?` · ${S.ltrT}`:"");
-  document.getElementById("s-ltr").textContent=tek?`${HUB[TERM[tek.t][2]].ad} · ${nSirL(tek.t,tek.o.c)} şirket · yükleme ${ton(T)} · ithalat ${ton(TI)}`:`${nAkt} yükleme terminali · ${ton(T)} · ithalat ${ton(TI)}`;
+  trmOpt(fLTS,ALL.map(r=>({t:r.t,v:r.w})),S.ltrTm,"Tüm terminaller");
+  const R=S.ltrTm>=0?ALL.filter(r=>r.t===S.ltrTm):ALL, T=R.reduce((a,r)=>a+r.w,0), TI=R.reduce((a,r)=>a+(sr>=0?(IT.get(r.t+"|"+sr)||0):((TMETA[r.t]||[])[11]||0)),0), nAkt=R.filter(r=>r.w>=0.5).length, tek=S.ltrTm>=0?R[0]:null, sad=sr>=0?SIR[sr][1]:null;
+  document.getElementById("h-ltr").textContent=(tek?TERM[tek.t][1]:"LPG terminalleri")+(sad?` · ${sad}`:"");
+  document.getElementById("s-ltr").textContent=tek?`${HUB[TERM[tek.t][2]].ad} · ${nSirL(tek.t,tek.o.c)} şirket · yükleme ${ton(tek.v)} · ithalat ${ton((TMETA[tek.t]||[])[11]||0)}`:`${nAkt} yükleme terminali · ${sad?sad+" ":""}yükleme ${ton(T)} · ithalat ${ton(TI)}`;
   let k=`<div class="kg">`;
   if(tek){ const m=TMETA[tek.t]||[], dv=dev(tek.t), ITS=new Map(); for(const [kk,v] of IT){ const [t,s]=kk.split("|").map(Number); if(t===tek.t) ITS.set(s,{v}); }
-    k+=sirKart("Operasyon yapan şirketler · yükleme",new Map([...tek.o.c].filter(([,c])=>c.v>=0.5)),T)
-      +(ITS.size?sirKart("İthalat yapan şirketler",ITS,TI).replace("--sp:5","--sp:4"):`<div class="kc" style="--sp:4"><div class="kc-h"><span>İthalat</span></div><p class="kc-not">Bu terminale ithalat yok.</p></div>`)
-      +`<div class="kc" style="--sp:3"><div class="kc-h"><span>Künye</span></div><div class="kc-sl" style="gap:5px;font-size:13px"><div>${LIS(tek.t,1)}</div><div class="muted">${tsn(tek.t)}${tip(tek.t)?" · "+tip(tek.t):""}${m[5]?" · "+esc(m[5]):""}</div><div>İşletmeci: <b>${esc(m[7]||islAd(tek.t)||"–")}</b></div><div>Kapasite: <b>${m[3]?nf.format(m[3])+" m³":"–"}</b></div><div>Yıllık devir: <b>${dv!=null&&T>=0.5?nf1.format(dv):"–"}</b></div><div>Bayiye ort.: <b>${T>=0.5?nf.format(Math.round(tek.o.km/T))+" km":"–"}</b> · ${tek.o.il.size} il</div></div></div>`;
+    k+=sirKart("Operasyon yapan şirketler · yükleme",new Map([...tek.o.c].filter(([,c])=>c.v>=0.5)),tek.v)
+      +(ITS.size?sirKart("İthalat yapan şirketler",ITS,(m[11]||0)).replace("--sp:5","--sp:4"):`<div class="kc" style="--sp:4"><div class="kc-h"><span>İthalat</span></div><p class="kc-not">Bu terminale ithalat yok.</p></div>`)
+      +`<div class="kc" style="--sp:3"><div class="kc-h"><span>Künye</span></div><div class="kc-sl" style="gap:5px;font-size:13px"><div>${LIS(tek.t,1)}</div><div class="muted">${tsn(tek.t)}${tip(tek.t)?" · "+tip(tek.t):""}${m[5]?" · "+esc(m[5]):""}</div><div>İşletmeci: <b>${esc(m[7]||islAd(tek.t)||"–")}</b></div><div>Kapasite: <b>${m[3]?nf.format(m[3])+" m³":"–"}</b></div><div>Yıllık devir: <b>${dv!=null&&tek.v>=0.5?nf1.format(dv):"–"}</b></div><div>Bayiye ort.: <b>${tek.v>=0.5?nf.format(Math.round(tek.o.km/tek.v))+" km":"–"}</b> · ${tek.o.il.size} il</div></div></div>`;
   } else {
-    const TR=new Map(); for(const r of R) TR.set(tsn(r.t),(TR.get(tsn(r.t))||0)+r.v);
+    const TR=new Map(); for(const r of R) TR.set(tsn(r.t),(TR.get(tsn(r.t))||0)+r.w);
     const TPR={"Dağıtıcı terminali":"#C8641C","Bağımsız":"#0F6E8C","Rafineri":"#8A6238"};
-    k+=kompKart("Yükleme · tesis tipi",[...TR].sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v,c:TPR[l]||"#8E9AA2",s:`${R.filter(r=>tsn(r.t)===l&&r.v>=0.5).length} terminal`})),{buyuk:ton(T),alt:`${nAkt} terminal`,span:4})
-      +siraKart("İthalat",R.map(r=>[TERM[r.t][1],(TMETA[r.t]||[])[11]||0]),{n:8,c:"var(--lpg)",sag:"terminale giren ithalat",span:4})
+    k+=kompKart("Yükleme · tesis tipi",[...TR].sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v,c:TPR[l]||"#8E9AA2",s:`${R.filter(r=>tsn(r.t)===l&&r.w>=0.5).length} terminal`})),{buyuk:ton(T),alt:`${nAkt} terminal${sad?" · "+esc(sad):""}`,span:4});
+    if(sr>=0){ const ZM=new Map(); for(const r of R){ const c=r.o.c.get(sr); if(c) for(const [tt,v] of c.z) ZM.set(TTAD[tt],(ZM.get(TTAD[tt])||0)+v); }
+      k+=kompKart("Ürün kaynağı",[...ZM].map(([l,v],i)=>({l,v,c:["#C8641C","#0F6E8C","#8A6238"][TTAD.indexOf(l)]})),{T,span:4})
+        +siraKart("En çok yükleme",R.map(r=>[TERM[r.t][1],r.w]),{n:8,c:"var(--lpg)",sag:esc(sad),span:4}); }
+    else k+=siraKart("İthalat",R.map(r=>[TERM[r.t][1],(TMETA[r.t]||[])[11]||0]),{n:8,c:"var(--lpg)",sag:"terminale giren ithalat",span:4})
       +siraKart("Yıllık devir",R.filter(r=>dev(r.t)!=null).map(r=>[TERM[r.t][1],dev(r.t)]),{n:8,fmt:x=>nf1.format(x)+" devir",c:"#D9821F",sag:"yükleme / (kapasite × 0,54 t/m³)",span:4}); }
   document.getElementById("k-ltr").innerHTML=k+`</div>`;
-  const head=`<tr><th class="l">Terminal · lisans / operasyon yapan şirket</th><th class="l">Tesis · rol · işletmeci</th><th>Kapasite</th><th>İthalat</th><th>Yükleme</th><th>Pay</th><th>Devir / yıl</th><th>İl</th><th>Bayiye km</th></tr>`;
+  const head=`<tr><th class="l">Terminal · lisans / operasyon yapan şirket</th><th class="l">Tesis · rol · işletmeci / ürün kaynak zinciri</th><th>Kapasite</th><th>İthalat</th><th>Yükleme</th><th>Pay</th><th>Devir / yıl</th><th>İl</th><th>Bayiye km</th></tr>`;
   const out=[];
   for(const {t,o,v} of R){ const m=TMETA[t]||[], dv=dev(t);
-    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)}<br><span class="muted">${esc(HUB[TERM[t][2]].ad)} · ${nSirL(t,o.c)} şirket</span></td><td class="l"><span class="muted"><b style="font-weight:600;color:var(--ink-2)">${tsn(t)}</b>${tip(t)?" · "+tip(t):""}${m[5]?"<br>"+esc(m[5]):""}${m[7]?"<br>"+esc(m[7]):""}</span></td><td>${m[3]?nf.format(m[3])+" m³":'<span class="z">–</span>'}</td><td>${cell(m[11]||0)}</td><td><b>${cell(v)}</b></td><td>${v>=0.5?(tek?"%100":pct(v/(T||1))):""}</td><td>${dv!=null&&v>=0.5?`<span class="${dv>30?"dv-y":""}">${nf1.format(dv)}</span>`:'<span class="z">–</span>'}</td><td>${o.il.size||'<span class="z">–</span>'}</td><td>${v>=0.5?nf.format(Math.round(o.km/v)):'<span class="z">–</span>'}</td></tr>`);
-    for(const [s,c] of [...o.c].sort((a,b)=>b[1].v-a[1].v||(IT.get(t+"|"+b[0])||0)-(IT.get(t+"|"+a[0])||0))){ const it=IT.get(t+"|"+s)||0; if(c.v<0.5&&it<0.5) continue;
-      out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td></td><td></td><td>${cell(it)}</td><td>${cell(c.v)}</td><td><span class="muted">${c.v>=0.5?pct(c.v/(v||1)):""}</span></td><td></td><td>${c.il.size||'<span class="z">–</span>'}</td><td>${c.v>=0.5?nf.format(Math.round(c.km/c.v)):'<span class="z">–</span>'}</td></tr>`); } }
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)}<br><span class="muted">${esc(HUB[TERM[t][2]].ad)} · ${nSirL(t,o.c)} şirket</span></td><td class="l"><span class="muted"><b style="font-weight:600;color:var(--ink-2)">${tsn(t)}</b>${tip(t)?" · "+tip(t):""}${m[5]?"<br>"+esc(m[5]):""}${m[7]?"<br>"+esc(m[7]):""}</span></td><td>${m[3]?nf.format(m[3])+" m³":'<span class="z">–</span>'}</td><td>${cell(m[11]||0)}</td><td><b>${cell(v)}</b></td><td>${v>=0.5?(tek||sr>=0?"%100":pct(v/(T||1))):""}</td><td>${dv!=null&&v>=0.5?`<span class="${dv>30?"dv-y":""}">${nf1.format(dv)}</span>`:'<span class="z">–</span>'}</td><td>${o.il.size||'<span class="z">–</span>'}</td><td>${v>=0.5?nf.format(Math.round(o.km/v)):'<span class="z">–</span>'}</td></tr>`);
+    for(const [s,c] of [...o.c].sort((a,b)=>b[1].v-a[1].v||(IT.get(t+"|"+b[0])||0)-(IT.get(t+"|"+a[0])||0))){ const it=IT.get(t+"|"+s)||0; if((c.v<0.5&&it<0.5)||(sr>=0&&s!==sr)) continue;
+      out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td class="l zin" colspan="2">${zinL(t,s,c)}</td><td>${cell(it)}</td><td>${cell(c.v)}</td><td><span class="muted">${c.v>=0.5?pct(c.v/(v||1)):""}</span></td><td></td><td>${c.il.size||'<span class="z">–</span>'}</td><td>${c.v>=0.5?nf.format(Math.round(c.km/c.v)):'<span class="z">–</span>'}</td></tr>`); } }
   document.getElementById("t-ltr").innerHTML=`<thead>${head}</thead><tbody>${out.join("")||'<tr><td colspan="9" class="empty">Bu seçimde terminal yok.</td></tr>'}</tbody>`;
 }
 function render(){

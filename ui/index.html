@@ -260,7 +260,7 @@
 
   <div class="filters lpgf atr-only" role="search" aria-label="Terminal filtreleri">
     <div class="f"><label for="f-atr-s">Terminal</label><select id="f-atr-s"></select></div>
-    <div class="f"><label for="f-atr-t">Tesis tipi</label><select id="f-atr-t"></select></div>
+    <div class="f"><label for="f-atr-t">Dağıtım şirketi</label><select id="f-atr-t"></select></div>
     <button type="button" class="clear" id="clear-atr">Filtreleri temizle</button>
   </div>
   <section class="atr-only" aria-labelledby="h-atr">
@@ -269,13 +269,14 @@
     <div class="scroll"><table id="t-atr"></table></div>
     <ul class="notes">
       <li>Yükleme: terminalden bayiye / tüketiciye yüklenen akaryakıt (Enerji Master DB akış tablosu, 2025). Her terminalin altında o terminalde operasyon yapan (ürün yükleyen) şirketler; pay şirketin terminal yüklemesindeki payıdır. İthal: yüklemenin ithal ürün payı.</li>
+      <li>Ürün kaynak zinciri: kaynak (rafineri ya da ithalatçı) → satıcı dağıtıcı (başka dağıtıcıdan alımsa) · taşıma modu; tahsisi olmayan satıcıda parantez içinde tahsis zinciri. En büyük üç yol payıyla gösterilir.</li>
       <li>Kapasite: EPDK akaryakıt depolama kapasitesi. Doluluk: terminalin tüm yüklemesi / (kapasite × yıllık devir), REF_TERMINAL_KAPASITE. %90 üstü kırmızı, %70 üstü turuncu.</li>
       <li>Lisans: EPDK depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA). Rafinerilerin rafinerici lisansı vardır, depolama lisansı yoktur. İşletmeci: veritabanındaki terminal işletmecisi ya da lisans sahibi.</li>
     </ul>
   </section>
   <div class="filters lpgf ltr-only" role="search" aria-label="LPG terminal filtreleri">
     <div class="f"><label for="f-ltr-s">Terminal</label><select id="f-ltr-s"></select></div>
-    <div class="f"><label for="f-ltr-t">Tesis tipi</label><select id="f-ltr-t"></select></div>
+    <div class="f"><label for="f-ltr-t">Dağıtım şirketi</label><select id="f-ltr-t"></select></div>
     <button type="button" class="clear" id="clear-ltr">Filtreleri temizle</button>
   </div>
   <section class="ltr-only" aria-labelledby="h-ltr">
@@ -285,6 +286,7 @@
     <ul class="notes">
       <li>Yükleme: terminalden bayiye / tüketiciye yüklenen LPG (FACT_LPG_AKIS). İthalat: terminale giren ithalat (FACT_LPG_ITHALAT); şirket satırında o şirketin bu terminale yaptığı ithalat.</li>
       <li>Devir / yıl: yükleme / (LPG kapasitesi m³ × 0,54 t/m³). 30 üstü kalın: kapasite verisi teyit edilmeli ya da tank çok sık dönüyor.</li>
+      <li>Ürün kaynak zinciri: şirketin bu terminalde yüklediği LPG'nin kaynağı – kendi ithalatı, dağıtıcıdan alım (satıcılar FACT_LPG_TEDARIK / FACT_LPG_AKIS yönlendiren şirketten) ya da rafineriden alım; birden çok kaynak varsa payıyla.</li>
       <li>Tesis tipi: Rafineri (Tüpraş, Star); Dağıtıcı terminali (işletmecisi LPG dağıtıcısı, kendi kullanımı ya da açık); Bağımsız (bağımsız LPG deposu, tarifeli kara terminali ya da işletmecisi dağıtıcı olmayan açık terminal, ör. Byport).</li>
       <li>Lisans: EPDK LPG depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA).</li>
     </ul>
