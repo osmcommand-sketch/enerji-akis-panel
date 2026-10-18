@@ -261,6 +261,7 @@
   <div class="filters lpgf atr-only" role="search" aria-label="Terminal filtreleri">
     <div class="f"><label for="f-atr-s">Terminal</label><select id="f-atr-s"></select></div>
     <div class="f"><label for="f-atr-t">Dağıtım şirketi</label><select id="f-atr-t"></select></div>
+    <div class="f"><label id="l-ms-atr">Ürün</label><div class="ms" id="ms-atr"><button type="button" class="ms-b" aria-haspopup="true" aria-expanded="false"><span class="ms-v">Tüm ürünler</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="ms-p" role="group" aria-label="Ürünler" hidden></div></div></div>
     <button type="button" class="clear" id="clear-atr">Filtreleri temizle</button>
   </div>
   <section class="atr-only" aria-labelledby="h-atr">
@@ -277,6 +278,7 @@
   <div class="filters lpgf ltr-only" role="search" aria-label="LPG terminal filtreleri">
     <div class="f"><label for="f-ltr-s">Terminal</label><select id="f-ltr-s"></select></div>
     <div class="f"><label for="f-ltr-t">Dağıtım şirketi</label><select id="f-ltr-t"></select></div>
+    <div class="f"><label id="l-ms-ltr">Ürün</label><div class="ms" id="ms-ltr"><button type="button" class="ms-b" aria-haspopup="true" aria-expanded="false"><span class="ms-v">Tüm ürünler</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="ms-p" role="group" aria-label="Ürünler" hidden></div></div></div>
     <button type="button" class="clear" id="clear-ltr">Filtreleri temizle</button>
   </div>
   <section class="ltr-only" aria-labelledby="h-ltr">
@@ -285,6 +287,7 @@
     <div class="scroll"><table id="t-ltr"></table></div>
     <ul class="notes">
       <li>Yükleme: terminalden bayiye / tüketiciye yüklenen LPG (FACT_LPG_AKIS). İthalat: terminale giren ithalat (FACT_LPG_ITHALAT); şirket satırında o şirketin bu terminale yaptığı ithalat.</li>
+      <li>Ürün filtresi (otogaz / tüplü / dökme) yüklemeyi süzer; ithalat ürün ayrımı içermediği için süzülmez.</li>
       <li>Devir / yıl: yükleme / (LPG kapasitesi m³ × 0,54 t/m³). 30 üstü kalın: kapasite verisi teyit edilmeli ya da tank çok sık dönüyor.</li>
       <li>Ürün kaynak zinciri: şirketin bu terminalde yüklediği LPG'nin kaynağı – kendi ithalatı, dağıtıcıdan alım (satıcılar FACT_LPG_TEDARIK / FACT_LPG_AKIS yönlendiren şirketten) ya da rafineriden alım; birden çok kaynak varsa payıyla.</li>
       <li>Tesis tipi: Rafineri (Tüpraş, Star); Dağıtıcı terminali (işletmecisi LPG dağıtıcısı, kendi kullanımı ya da açık); Bağımsız (bağımsız LPG deposu, tarifeli kara terminali ya da işletmecisi dağıtıcı olmayan açık terminal, ör. Byport).</li>

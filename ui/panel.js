@@ -12,7 +12,7 @@ const LIS=(t,lpg)=>{ const x=TLIS[t]; if(!x) return ""; const a=lpg?x[1]:x[0], b
   if(!Ls.length) return x[2]==="Rafineri"?' <span class="lis yok">rafineri</span>':' <span class="lis yok">lisans no yok</span>';
   return ` <span class="lis" title="EPDK depolama lisansı: ${esc(Ls.join(", "))}">${esc(Ls[0])}${Ls.length>1?` +${Ls.length-1}`:""}</span>`; };
 const ZIN=[]; MOD.forEach((m,i)=>{ const z=String(m).match(/^(.*) – zincir: (.*)$/); if(z){ MOD[i]=z[1]; ZIN[i]=z[2]; } });
-const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1};
+const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1,atrU:[],ltrU:[]};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
 const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgmus"};
 const grupOf=sy=>sy==="akis"?null:(SAYFA_GRUP[sy]||"akaryakit");
@@ -1021,8 +1021,22 @@ function lpgIthalat(){
 const SIR_AD=new Set(SIR.map(x=>x[1])), TMETA=D.tmeta||[], fAS=document.getElementById("f-atr-s"), fAT=document.getElementById("f-atr-t"), fLTS=document.getElementById("f-ltr-s"), fLTT=document.getElementById("f-ltr-t");
 fAS.addEventListener("change",()=>{S.atrTm=+fAS.value; render()}); fAT.addEventListener("change",()=>{S.atrSr=+fAT.value; render()});
 fLTS.addEventListener("change",()=>{S.ltrTm=+fLTS.value; render()}); fLTT.addEventListener("change",()=>{S.ltrSr=+fLTT.value; render()});
-document.getElementById("clear-atr").addEventListener("click",()=>{S.atrTm=-1; S.atrSr=-1; render()});
-document.getElementById("clear-ltr").addEventListener("click",()=>{S.ltrTm=-1; S.ltrSr=-1; render()});
+// Genel çoklu seçim (Terminaller sayfaları, kullanıcı 18.10.2026 13:37): boş dizi = tümü
+function msKur(id,al,koy){ const k=document.getElementById(id), b=k.querySelector(".ms-b"), p=k.querySelector(".ms-p");
+  const ac=v=>{ p.hidden=!v; b.setAttribute("aria-expanded",String(v)); if(v){ const c=p.querySelector("input"); if(c) c.focus(); } };
+  b.setAttribute("aria-labelledby","l-"+id); b.addEventListener("click",()=>ac(p.hidden));
+  p.addEventListener("change",e=>{ const x=e.target; if(!x.matches("input")) return; const v=+x.value;
+    if(v<0) koy([]); else { const t=new Set(al()); x.checked?t.add(v):t.delete(v); koy([...t].sort((a,b)=>a-b)); }
+    render(); const f=p.querySelector(`input[value="${v}"]`); if(f) f.focus(); });
+  document.addEventListener("click",e=>{ if(!p.hidden&&!k.contains(e.target)) ac(false); });
+  k.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!p.hidden){ ac(false); b.focus(); } }); }
+function msDoldur(id,items,sec){ const k=document.getElementById(id), p=k.querySelector(".ms-p"), S2=new Set(sec), T=items.reduce((a,x)=>a+x[3],0);
+  p.innerHTML=`<label class="ms-o tum"><input type="checkbox" value="-1"${S2.size?"":" checked"}><span>Tüm ürünler</span><em>${ton(T)}</em></label>`+items.map(([v,l,c,t])=>`<label class="ms-o"><input type="checkbox" value="${v}"${S2.has(v)?" checked":""}><i style="background:${c}"></i><span>${esc(l)}</span><em>${ton(t)}</em></label>`).join("");
+  const ad=items.filter(x=>S2.has(x[0])).map(x=>x[1]); k.querySelector(".ms-v").textContent=!S2.size?"Tüm ürünler":S2.size<=2?ad.join(", "):`${S2.size} ürün seçili`; }
+msKur("ms-atr",()=>S.atrU,v=>{S.atrU=v}); msKur("ms-ltr",()=>S.ltrU,v=>{S.ltrU=v});
+const LPGU=["Otogaz","Tüplü","Dökme"], LPGU_R=["#D9711F","#B55A12","#F2AE6F"];
+document.getElementById("clear-atr").addEventListener("click",()=>{S.atrTm=-1; S.atrSr=-1; S.atrU=[]; render()});
+document.getElementById("clear-ltr").addEventListener("click",()=>{S.ltrTm=-1; S.ltrSr=-1; S.ltrU=[]; render()});
 const tesisGrp=t=>{ const x=(TMETA[t]||[])[6]||""; return x==="Rafineri"?"Rafineri sahası":/Havacılık/.test(x)?"Havacılık yakıt deposu":/^Bağımsız/.test(x)?"Bağımsız depo":/iç terminal/.test(x)?"İç terminal":/liman terminali/.test(x)?"Liman terminali":/LPG/.test(x)?"LPG tesisi":"Dağıtıcı terminali"; };
 const TESIS_RENK={"Dağıtıcı terminali":"#0F6E8C","Rafineri sahası":"#8A6238","Havacılık yakıt deposu":"#7553B5","Liman terminali":"#1F6FB2","İç terminal":"#3E9A4A","Bağımsız depo":"#B08E14","LPG tesisi":"#C8641C"};
 const SIR_PAL=["#0F6E8C","#2F6FB5","#C8641C","#3E9A4A","#7553B5","#B08E14"];
@@ -1039,20 +1053,22 @@ const zinAk=f=>{ const K=KAY[f[4]]||["","?",""], kendi=K[3]===f[0];
 const zinHTML=(m,T)=>{ const a=[...m].sort((x,y)=>y[1]-x[1]).filter(x=>x[1]>=0.5); return a.slice(0,3).map(([z,v])=>`<span class="zc">${z}${a.length>1?` <em>${pct(v/(T||1))}</em>`:""}</span>`).join("")+(a.length>3?`<span class="zc muted">+${a.length-3} yol</span>`:""); };
 const sirOpt=(el,M,sec)=>{ const a=[...M].filter(x=>x[1]>=0.5).sort((x,y)=>y[1]-x[1]); el.innerHTML=`<option value="-1">Tüm dağıtım şirketleri (${a.length})</option>`+a.map(([s,v])=>`<option value="${s}">${esc(SIR[s][1])} · ${ton(v)}</option>`).join(""); el.value=String(sec); };
 function akTerminaller(){
-  const G=new Map(), SM=new Map();
-  for(const f of AF){ SM.set(f[0],(SM.get(f[0])||0)+f[6]);
+  const G=new Map(), SM=new Map(), UT=new Map(); for(const f of AF) UT.set(f[3],(UT.get(f[3])||0)+f[6]);
+  S.atrU=S.atrU.filter(u=>UT.get(u)>=0.5); const US=new Set(S.atrU);
+  msDoldur("ms-atr",[...UT].filter(x=>x[1]>=0.5).sort((a,b)=>a[0]-b[0]).map(([u,v])=>[u,TURAD[u]||"?",(URENK["a"+u]||URENK.tum)[2],v]),S.atrU);
+  for(const f of AF){ if(US.size&&!US.has(f[3])) continue; SM.set(f[0],(SM.get(f[0])||0)+f[6]);
     const o=G.get(f[1])||G.set(f[1],{u:[0,0,0],it:0,km:0,il:new Set(),c:new Map()}).get(f[1]), ui=f[3]===0?0:f[3]===1?1:2;
     o.u[ui]+=f[6]; o.it+=f[10]||0; o.km+=(f[7]||0)*f[6]; o.il.add(f[2]);
     const c=o.c.get(f[0])||o.c.set(f[0],{u:[0,0,0],v:0,it:0,km:0,il:new Set(),z:new Map()}).get(f[0]); c.u[ui]+=f[6]; c.v+=f[6]; c.it+=f[10]||0; c.km+=(f[7]||0)*f[6]; c.il.add(f[2]);
     const zk=zinAk(f); c.z.set(zk,(c.z.get(zk)||0)+f[6]); }
-  TERM.forEach((x,t)=>{ if(x[3]&&!G.has(t)&&(TMETA[t]||[])[2]>0) G.set(t,{u:[0,0,0],it:0,km:0,il:new Set(),c:new Map()}); });
+  if(!US.size) TERM.forEach((x,t)=>{ if(x[3]&&!G.has(t)&&(TMETA[t]||[])[2]>0) G.set(t,{u:[0,0,0],it:0,km:0,il:new Set(),c:new Map()}); });
   if(S.atrSr>=0&&!(SM.get(S.atrSr)>=0.5)) S.atrSr=-1; sirOpt(fAT,SM,S.atrSr);
   const sr=S.atrSr, cv=o=>sr>=0?((o.c.get(sr)||{}).v||0):o.u[0]+o.u[1]+o.u[2];
   const ALL=[...G].map(([t,o])=>({t,o,v:o.u[0]+o.u[1]+o.u[2],w:cv(o)})).filter(r=>sr<0||r.w>=0.5).sort((a,b)=>b.w-a.w||TERM[a.t][1].localeCompare(TERM[b.t][1],"tr"));
   if(S.atrTm>=0&&!ALL.some(r=>r.t===S.atrTm)) S.atrTm=-1;
   trmOpt(fAS,ALL.map(r=>({t:r.t,v:r.w})),S.atrTm,"Tüm terminaller");
   const R=S.atrTm>=0?ALL.filter(r=>r.t===S.atrTm):ALL, T=R.reduce((a,r)=>a+r.w,0), nAkt=R.filter(r=>r.w>=0.5).length, tek=S.atrTm>=0?R[0]:null, sad=sr>=0?SIR[sr][1]:null;
-  document.getElementById("h-atr").textContent=(tek?TERM[tek.t][1]:"Akaryakıt terminalleri")+(sad?` · ${sad}`:"");
+  document.getElementById("h-atr").textContent=(tek?TERM[tek.t][1]:"Akaryakıt terminalleri")+(sad?` · ${sad}`:"")+(US.size?` · ${S.atrU.map(u=>TURAD[u]).join(" + ")}`:"");
   document.getElementById("s-atr").textContent=tek?`${HUB[TERM[tek.t][2]].ad} · ${nSir(tek.o.c)} şirket · ${ton(tek.v)}${sad?` · ${sad} ${ton(tek.w)}`:""}`:`${nAkt} terminal${R.length>nAkt?` (+${R.length-nAkt} yüklemesiz)`:""} · ${sad?sad+" yüklemesi ":""}${ton(T)}`;
   let k=`<div class="kg">`;
   if(tek){ const m=TMETA[tek.t]||[], TV=tek.v;
@@ -1080,7 +1096,10 @@ function lpgTerminaller(){
   const G=new Map(), IT=new Map(), SM=new Map(), DS=new Map(); for(const r of LITH){ const k=r[1]+"|"+r[0]; IT.set(k,(IT.get(k)||0)+r[3]); }
   for(const r of LFS){ const k=r[1]+"|"+r[0]; const m=DS.get(k)||DS.set(k,new Map()).get(k); m.set(r[2],(m.get(r[2])||0)+r[3]); }   // alıcı × terminal → satıcılar
   const TTAD=["Kendi ithalatı","Dağıtıcıdan","Rafineriden"];
-  for(const f of LF){ SM.set(f[0],(SM.get(f[0])||0)+f[6]); const o=G.get(f[1])||G.set(f[1],{v:0,km:0,il:new Set(),c:new Map()}).get(f[1]); o.v+=f[6]; o.km+=(f[7]||0)*f[6]; o.il.add(f[3]);
+  const UT=new Map(); for(const f of LF) UT.set(f[5],(UT.get(f[5])||0)+f[6]);
+  S.ltrU=S.ltrU.filter(u=>UT.get(u)>=0.5); const US=new Set(S.ltrU);
+  msDoldur("ms-ltr",[...UT].filter(x=>x[1]>=0.5).sort((a,b)=>a[0]-b[0]).map(([u,v])=>[u,LPGU[u]||"?",LPGU_R[u]||"#C8641C",v]),S.ltrU);
+  for(const f of LF){ if(US.size&&!US.has(f[5])) continue; SM.set(f[0],(SM.get(f[0])||0)+f[6]); const o=G.get(f[1])||G.set(f[1],{v:0,km:0,il:new Set(),c:new Map()}).get(f[1]); o.v+=f[6]; o.km+=(f[7]||0)*f[6]; o.il.add(f[3]);
     const c=o.c.get(f[0])||o.c.set(f[0],{v:0,km:0,il:new Set(),z:new Map()}).get(f[0]); c.v+=f[6]; c.km+=(f[7]||0)*f[6]; c.il.add(f[3]); c.z.set(f[4],(c.z.get(f[4])||0)+f[6]); }
   TERM.forEach((x,t)=>{ const m=TMETA[t]||[]; if(!G.has(t)&&(m[11]>0||(x[4]&&m[3]>0))) G.set(t,{v:0,km:0,il:new Set(),c:new Map()}); });
   for(const k of IT.keys()){ const [t,s]=k.split("|").map(Number), o=G.get(t); SM.set(s,(SM.get(s)||0)); if(o&&!o.c.has(s)) o.c.set(s,{v:0,km:0,il:new Set(),z:new Map()}); }
@@ -1102,7 +1121,7 @@ function lpgTerminaller(){
   if(S.ltrTm>=0&&!ALL.some(r=>r.t===S.ltrTm)) S.ltrTm=-1;
   trmOpt(fLTS,ALL.map(r=>({t:r.t,v:r.w})),S.ltrTm,"Tüm terminaller");
   const R=S.ltrTm>=0?ALL.filter(r=>r.t===S.ltrTm):ALL, T=R.reduce((a,r)=>a+r.w,0), TI=R.reduce((a,r)=>a+(sr>=0?(IT.get(r.t+"|"+sr)||0):((TMETA[r.t]||[])[11]||0)),0), nAkt=R.filter(r=>r.w>=0.5).length, tek=S.ltrTm>=0?R[0]:null, sad=sr>=0?SIR[sr][1]:null;
-  document.getElementById("h-ltr").textContent=(tek?TERM[tek.t][1]:"LPG terminalleri")+(sad?` · ${sad}`:"");
+  document.getElementById("h-ltr").textContent=(tek?TERM[tek.t][1]:"LPG terminalleri")+(sad?` · ${sad}`:"")+(US.size?` · ${S.ltrU.map(u=>LPGU[u]).join(" + ")}`:"");
   document.getElementById("s-ltr").textContent=tek?`${HUB[TERM[tek.t][2]].ad} · ${nSirL(tek.t,tek.o.c)} şirket · yükleme ${ton(tek.v)} · ithalat ${ton((TMETA[tek.t]||[])[11]||0)}`:`${nAkt} yükleme terminali · ${sad?sad+" ":""}yükleme ${ton(T)} · ithalat ${ton(TI)}`;
   let k=`<div class="kg">`;
   if(tek){ const m=TMETA[tek.t]||[], dv=dev(tek.t), ITS=new Map(); for(const [kk,v] of IT){ const [t,s]=kk.split("|").map(Number); if(t===tek.t) ITS.set(s,{v}); }
