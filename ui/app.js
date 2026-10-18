@@ -16,7 +16,7 @@
       document.getElementById('gun-yenile').onclick = () => api && api.yenile(); document.getElementById('gun-kapat').onclick = () => b.remove(); }); } catch {} }
   const AD = { akis: ['Genel', 'Akış haritası'], musteri: ['Akaryakıt', 'Dağıtıcılar arası ticaret'], tahsis: ['Akaryakıt', 'Tedarik tahsisi · terminal bazlı'],
     kaynak: ['Akaryakıt', 'Tedarik tahsisi · kaynak bazlı'], ithalat: ['Akaryakıt', 'İthalat'], takas: ['Akaryakıt', 'Takas'], bayi: ['Akaryakıt', 'Bayiler'],
-    rafineri: ['Akaryakıt', 'Rafineriler'], tasima: ['Akaryakıt', 'Taşıma'], lpgmus: ['LPG', 'Dağıtıcılar arası ticaret'], lpgith: ['LPG', 'İthalat'] };
+    rafineri: ['Akaryakıt', 'Rafineriler'], tasima: ['Akaryakıt', 'Taşıma'], lpgmus: ['LPG', 'Dağıtıcılar arası ticaret'], lpgith: ['LPG', 'İthalat'], akterm: ['Akaryakıt', 'Terminaller'], lpgtrm: ['LPG', 'Terminaller'] };
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const tarih = (ms) => new Date(ms).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 

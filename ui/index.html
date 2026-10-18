@@ -29,6 +29,7 @@
           <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="12" height="7" rx="3.3"/><path d="M14 10h3.6l3.4 3.4V16h-7M2 16h19"/><circle cx="6" cy="17.6" r="1.7"/><circle cx="17.5" cy="17.6" r="1.7"/></svg>Taşıma</button>
           <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v13l-3-3M17 20V7l3 3"/></svg>Takas</button>
           <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V6a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v14M4 20h11M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V8l-2-2M8 8h3"/></svg>Bayiler</button>
+          <button type="button" role="tab" id="tab-akterm" data-sayfa="akterm" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3v9c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 8c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Terminaller</button>
         </div>
       </div>
       <div class="grp g-lpg">
@@ -36,6 +37,7 @@
         <div class="pipe">
           <button type="button" role="tab" id="tab-lpgmus" data-sayfa="lpgmus" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Dağıtıcılar arası ticaret</button>
           <button type="button" role="tab" id="tab-lpgith" data-sayfa="lpgith" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h18l-2.6 4.4H5.6z"/><path d="M6 15v-2.6h8.5V15M14.5 15V9h3.2l1.3 6"/></svg>İthalat</button>
+          <button type="button" role="tab" id="tab-lpgtrm" data-sayfa="lpgtrm" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3v9c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 8c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Terminaller</button>
         </div>
       </div>
     </nav>
@@ -256,6 +258,35 @@
     </ul>
   </section>
 
+  <div class="filters lpgf atr-only" role="search" aria-label="Terminal filtreleri">
+    <div class="f"><label for="f-atr-s">Yükleyen şirket</label><select id="f-atr-s"></select></div>
+    <div class="f"><label for="f-atr-t">Tesis tipi</label><select id="f-atr-t"></select></div>
+    <button type="button" class="clear" id="clear-atr">Filtreleri temizle</button>
+  </div>
+  <section class="atr-only" aria-labelledby="h-atr">
+    <div class="head"><h2 id="h-atr">Akaryakıt terminalleri</h2><span class="sub" id="s-atr"></span></div>
+    <div class="kpis" id="k-atr"></div>
+    <div class="scroll"><table id="t-atr"></table></div>
+    <ul class="notes">
+      <li>Yükleme: terminalden bayiye / tüketiciye yüklenen akaryakıt (Enerji Master DB akış tablosu, 2025). İthal: yüklemenin ithal ürün payı.</li>
+      <li>Kapasite: EPDK akaryakıt depolama kapasitesi. Doluluk: terminalin tüm yüklemesi / (kapasite × yıllık devir), REF_TERMINAL_KAPASITE; şirket filtresinden bağımsızdır. %90 üstü kırmızı, %70 üstü turuncu.</li>
+      <li>Lisans: EPDK depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA). Rafinerilerin rafinerici lisansı vardır, depolama lisansı yoktur. İşletmeci: veritabanındaki terminal işletmecisi ya da lisans sahibi.</li>
+    </ul>
+  </section>
+  <div class="filters lpgf ltr-only" role="search" aria-label="LPG terminal filtreleri">
+    <div class="f"><label for="f-ltr-s">Yükleyen şirket</label><select id="f-ltr-s"></select></div>
+    <button type="button" class="clear" id="clear-ltr">Filtreleri temizle</button>
+  </div>
+  <section class="ltr-only" aria-labelledby="h-ltr">
+    <div class="head"><h2 id="h-ltr">LPG terminalleri</h2><span class="sub" id="s-ltr"></span></div>
+    <div class="kpis" id="k-ltr"></div>
+    <div class="scroll"><table id="t-ltr"></table></div>
+    <ul class="notes">
+      <li>Yükleme: terminalden bayiye / tüketiciye yüklenen LPG (FACT_LPG_AKIS). İthalat: terminale giren ithalat (FACT_LPG_ITHALAT), şirket filtresinden bağımsız.</li>
+      <li>Devir / yıl: yükleme / (LPG kapasitesi m³ × 0,54 t/m³). 30 üstü kalın: kapasite verisi teyit edilmeli ya da tank çok sık dönüyor.</li>
+      <li>Lisans: EPDK LPG depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA).</li>
+    </ul>
+  </section>
   <footer>Kaynak: Enerji Master DB 2025 (PDM). İl sınırları: alpers/Turkey-Maps-GeoJSON (GitHub; lisans belirtilmemiş, sadeleştirildi). Mesafeler ton ağırlıklı karayolu km. <span class="tag">tahmin</span> etiketi: terminaldeki hacmin yarısından fazlası EPDK il verisinden modelle atanmış (diğer petrol ürünleri). Ürün sepeti EPDK şirket bildirimleridir, il filtresinden etkilenmez. Tedarik tahsisi: Enerji Master DB REF_TEDARIK_TAHSIS ve REF_TAHSIS_RAFINERI_KOSUL (veri sürümüyle birlikte güncellenir).</footer>
 </div>
 

@@ -104,7 +104,9 @@ tr.kendi td{background:var(--surface-2)}
 .tabs.alt[hidden]{display:none}
 .tabs.alt.lpg button[aria-selected="true"]{color:#8A4512}
 .wrap[data-sayfa="lpgmus"]>:not(header):not(nav):not(.lpgm-only):not(footer){display:none}.wrap:not([data-sayfa="lpgmus"]) .lpgm-only{display:none}
-.wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}
+.wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
+.wrap[data-sayfa="akterm"]>:not(header):not(nav):not(.atr-only):not(footer){display:none}.wrap:not([data-sayfa="akterm"]) .atr-only{display:none}
+.wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}
 #k-lpgi .kpi{flex:1 1 190px;border-top:3px solid var(--lpg)}
 .lgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px}
 @media (max-width:860px){.lgrid{grid-template-columns:minmax(0,1fr)}}
@@ -323,3 +325,5 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 .f .ms-o{font:400 13.5px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink)}.ms-o:hover{background:var(--surface-2)}.ms-o input{margin:0;width:15px;height:15px;accent-color:var(--accent)}
 .ms-o i{width:10px;height:10px;border-radius:2px}.ms-o em{font-style:normal;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .lis{display:inline-block;font:500 11px/1.4 var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap;vertical-align:1px;font-weight:500;letter-spacing:0}.lis.yok{color:var(--ink-3);border-style:dashed}
+#t-atr td:last-child,#t-ltr td:last-child{min-width:200px;white-space:nowrap}#t-atr td:first-child,#t-ltr td:first-child{min-width:200px}#t-atr td:nth-child(2){min-width:150px}#t-atr td:nth-child(10){min-width:120px}
+.tb-d{display:grid;grid-template-columns:70px auto;gap:6px;align-items:center}.tb-d em{font-style:normal;font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink-2)}.dv-y{font-weight:700;color:#8A4B0B}

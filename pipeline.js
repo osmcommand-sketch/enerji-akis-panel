@@ -245,6 +245,18 @@ function run(SQL, dbBytes, resDir, log = () => {}) {
     if (hasTable('FACT_DEPOLAMA')) for (const [tid, sek, no] of QA('select Terminal_ID, Sektor, Lisans_No from FACT_DEPOLAMA where Terminal_ID is not null and Lisans_No is not null order by Lisans_No')) {
       if (TL.has(tid) && ok(no)) { const L = TL.get(tid)[sek === 'LPG' ? 1 : 0]; if (!L.includes(no.trim())) L.push(no.trim()); } }
     d.tlis = d.term.map((t) => TL.get(t[0]) || [[], [], '']); }
+  /* terminal künyesi – Terminaller sayfaları (bayi.py ile aynı) */
+  { const KS = new Map(QA('select Sirket_ID, coalesce(Konsolide_Sirket_ID, Sirket_ID) from DIM_SIRKET'));
+    const SAD = new Map(d.sir.map((x) => [x[0], x[1]])); for (const [a, b] of QA("select Sirket_ID, coalesce(nullif(Konsolide_Adi,''), Sirket_Adi) from DIM_SIRKET")) if (!SAD.has(a)) SAD.set(a, b);
+    const KAP = new Map(hasTable('REF_TERMINAL_KAPASITE') ? QA('select Terminal_ID, Doluluk, Devir, Kapasite_ton from REF_TERMINAL_KAPASITE').map((r) => [r[0], r.slice(1)]) : []);
+    const LIT = new Map(hasTable('FACT_LPG_ITHALAT') ? QA('select Terminal_ID, sum(Ithalat_ton) from FACT_LPG_ITHALAT group by 1') : []);
+    const STK = new Map(hasTable('REF_TERMINAL_STOK') ? QA('select Terminal_ID, sum(Acilis_Stok_ton), sum(Kapanis_Stok_ton) from REF_TERMINAL_STOK group by 1').map((r) => [r[0], r.slice(1)]) : []);
+    const DSA = new Map(); if (hasTable('FACT_DEPOLAMA')) for (const [t, sid] of QA('select Terminal_ID, Sirket_ID from FACT_DEPOLAMA where Terminal_ID is not null and Sirket_ID is not null order by coalesce(Kapasite_m3,0)')) DSA.set(t, sid);
+    const TM = new Map();
+    for (const r of QA(`select Terminal_ID, Ilce, Akaryakit_Terminal_Turu, Akaryakit_EPDK_Kapasite_m3, LPG_Kapasite_m3, LPG_Terminal_Tipi, LPG_Rol, Tesis_Tipi, Akaryakit_Isletmeci, EPDK_Tarifeli from DIM_TERMINAL`)) {
+      const t = r[0], k = KAP.get(t) || [null, null, null], st = STK.get(t) || [null, null], io = r[8] || DSA.get(t), isl = io ? (SAD.get(KS.has(io) ? KS.get(io) : io) || '') : '';
+      TM.set(t, ['', r[2] || '', pr(r[3] || 0), pr(r[4] || 0), r[5] || '', r[6] || '', r[7] || '', isl, k[0] != null ? pr(k[0], 3) : null, k[1], pr(k[2] || 0), pr(LIT.get(t) || 0, 1), pr(st[0] || 0, 1), pr(st[1] || 0, 1), r[9] || '']); }
+    d.tmeta = d.term.map((t) => TM.get(t[0]) || ['', '', 0, 0, '', '', '', '', null, null, 0, 0, 0, 0, '']); }
 
   /* ---------------- tahsis_gen ---------------- */
   log('Tedarik tahsisi');
@@ -293,7 +305,7 @@ function run(SQL, dbBytes, resDir, log = () => {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis']) keep[k] = d[k] || [];
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta']) keep[k] = d[k] || [];
   keep.il = d.il.map(r => [r[0], r[1]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
