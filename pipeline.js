@@ -1,8 +1,9 @@
 'use strict';
 /* Enerji Akış – panel veri hattı (SDT build/extract9.py + konsolide.py + fizik.py + bayi.py + tahsis_gen.py + build_dash2.py'nin JS karşılığı).
    Girdi: enerji_master_2025.db (PDM teslimatı). Çıktı: { data, tahsis } – panelin beklediği biçim. */
-const fs = require('fs');
-const path = require('path');
+// Node (masaüstü) ya da tarayıcı (telefon, worker) – tarayıcıda kaynak dosyalar metin olarak verilir
+const fs = typeof require === 'function' ? require('fs') : null;
+const path = typeof require === 'function' ? require('path') : null;
 
 /* Python round() ile aynı: yarımda çifte yuvarlama */
 function pr(x, n = 0) {
@@ -15,7 +16,7 @@ function pr(x, n = 0) {
 }
 
 function csv(file) {
-  let t = fs.readFileSync(file, 'utf8');
+  let t = typeof file === 'object' ? file.text : fs.readFileSync(file, 'utf8');
   if (t.charCodeAt(0) === 0xFEFF) t = t.slice(1);
   const lines = t.split(/\r?\n/).filter(l => l.length);
   const split = l => { const o = []; let cur = '', q = false;
@@ -55,8 +56,8 @@ function run(SQL, dbBytes, resDir, log = () => {}) {
   const miss = il.filter(r => !has(CO, r.Il_Adi)).map(r => r.Il_Adi);
   if (miss.length) throw new Error('Koordinatı olmayan il: ' + miss.join(', '));
   const IL = il.map(r => [r.Il_ID, r.Il_Adi, r.Bolge, ...CO[r.Il_Adi], pr(r.lt || 0), pr(r.ltk || 0), pr(r.lmk || 0), pr(r.ldt || 0), pr(r.at || 0), pr(r.atk || 0), pr(r.op || 0, 4), pr(r.aip || 0, 4)]);
-  const KO = {}; for (const r of csv(path.join(resDir, 'terminal_depo_koordinat.csv'))) KO[r.Tesis_ID] = r;
-  const IK = {}; for (const r of csv(path.join(resDir, 'ilce_koordinat.csv'))) IK[r.Ilce_ID] = r;
+  const KO = {}; for (const r of csv(typeof resDir === 'object' ? { text: resDir['terminal_depo_koordinat.csv'] } : path.join(resDir, 'terminal_depo_koordinat.csv'))) KO[r.Tesis_ID] = r;
+  const IK = {}; for (const r of csv(typeof resDir === 'object' ? { text: resDir['ilce_koordinat.csv'] } : path.join(resDir, 'ilce_koordinat.csv'))) IK[r.Ilce_ID] = r;
   for (const t of Q('select Terminal_ID,Ilce_ID,Enlem,Boylam from DIM_TERMINAL')) {
     if (has(KO, t.Terminal_ID)) continue;
     const i = IK[t.Ilce_ID];
@@ -314,4 +315,4 @@ function run(SQL, dbBytes, resDir, log = () => {}) {
   return { data: keep, full: d, tahsis: tah, ozet };
 }
 
-module.exports = { run, pr };
+if (typeof module !== 'undefined' && module.exports) module.exports = { run, pr }; else self.EnerjiPipeline = { run, pr };

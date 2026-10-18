@@ -291,7 +291,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 .ip-f{margin:0;font-size:12px;color:var(--ink-3)}
 @media (max-width:1100px){.hg{grid-template-columns:1fr}.ilpan{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px}.ip-l{display:grid;grid-template-columns:1fr 1fr;column-gap:12px}}
 @media (max-width:600px){.ip-l{grid-template-columns:1fr}}
-.kpis>.kg{flex:1 1 100%}
+.kpis>.kg{flex:1 1 100%}@media (max-width:600px){.kpis>.kg{grid-column:1/-1}}
 .kg{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
 .kc{grid-column:span var(--sp,6);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .kc-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font:600 13px var(--f-body);color:var(--ink)}.kc-h>span+span{font-weight:400;font-size:12px;color:var(--ink-3)}

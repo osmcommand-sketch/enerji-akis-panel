@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E3B4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Enerji Akış">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Enerji Akış</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+body{padding-bottom:env(safe-area-inset-bottom)}
+.m-ortu{position:fixed;inset:0;z-index:100;background:#F2F4F3;display:flex;align-items:center;justify-content:center;padding:20px}
+.m-ortu[hidden]{display:none}
+.m-kart{width:min(520px,100%);background:#fff;border:1px solid #DCE2E1;border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:12px;font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#16232A}
+.m-kart h2{margin:0;font-size:20px}.m-kart p{margin:0;color:#45545C}
+.m-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;color:#0E3B4A}.m-brand img{width:36px;height:36px;border-radius:9px}
+.m-btn{align-self:stretch;text-align:center;padding:13px 16px;border-radius:9px;background:#0F6E8C;color:#fff;font-weight:600;cursor:pointer}
+.m-ik{all:unset;text-align:center;padding:10px;color:#0F6E8C;font-weight:600;cursor:pointer}
+.m-not{font-size:13px;color:#6C7A82!important}
+.m-hata{background:#FBEDEA;color:#9B2C1F;border-radius:8px;padding:10px 12px;font-size:14px}
+.m-cubuk{height:4px;border-radius:2px;background:#EDF1F0;overflow:hidden}.m-cubuk i{display:block;height:100%;width:30%;background:#0F6E8C;animation:mkay 1.2s ease-in-out infinite}
+@keyframes mkay{0%{transform:translateX(-100%)}100%{transform:translateX(340%)}}
+.m-adim{display:flex;flex-direction:column;gap:4px;font-size:14px;color:#6C7A82}.m-adim .on{color:#16232A;font-weight:600}
+.m-ac{all:unset;cursor:pointer;font-size:12.5px;color:inherit;opacity:.85;border:1px solid currentColor;border-radius:999px;padding:4px 10px;margin-top:6px;justify-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+<style>
+/* Layout: tek sütun — filtre çubuğu; terminaller (tam genişlik); ürün sepeti | iller */
+:root{
+  --bg:#F6F8F9; --surface:#FFFFFF; --surface-2:#E8ECEE; --line:#D3DADE;
+  --ink:#15222C; --ink-2:#4B5B67; --ink-3:#6F7E89;
+  --accent:#0F6E8C; --ak:#2F6DB5; --lpg:#C8641C;
+  --tag-bg:#FBEFD9; --tag-ink:#7A4A06;
+  --c0:#EEF2F3; --c1:#E2EEF2; --c2:#CAE2EA; --c3:#A9D0DD; --c4:#84BACD; --c5:#5FA2BA; --edge:#FFFFFF; --map-bg:#FFFFFF;
+  --f-body:'IBM Plex Sans',system-ui,Arial,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+/* Tek görünüm: her temada açık renk (kullanıcı isteği) */
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:24px 40px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+h1{font-size:24px;font-weight:600;margin:0}
+.meta{font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+.filters{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:2}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+select{font:500 14px var(--f-body);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:260px;max-width:100%}
+#f-urun,#f-il{width:170px}
+#f-term{width:300px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 12px}
+.chip button{border:0;background:transparent;color:var(--ink-2);font-size:16px;line-height:1;cursor:pointer;padding:0 4px}
+.clear{font:500 13px var(--f-body);background:transparent;border:1px solid var(--line);color:var(--ink-2);border-radius:8px;padding:7px 12px;cursor:pointer;margin-left:auto}
+button:focus-visible,select:focus-visible,tr[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px}
+h2{font-size:16px;font-weight:600;margin:0}
+.sub{font-size:12px;color:var(--ink-3)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:start}
+.scroll{overflow:auto;max-height:520px;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:var(--surface);font:500 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+td.l,th.l{text-align:left;white-space:normal}
+tr[tabindex]{cursor:pointer}
+tbody tr:hover td{background:var(--surface-2)}
+tr.on td{background:var(--surface-2)}
+tr.on td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+tr:last-child td{border-bottom:0}
+.muted{color:var(--ink-3);font-size:12px}
+.z{color:var(--ink-3)}
+.tag{font-family:var(--f-mono);font-size:10px;background:var(--tag-bg);color:var(--tag-ink);border-radius:999px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+.empty{padding:20px;color:var(--ink-3);text-align:center}
+.sepet{display:flex;flex-direction:column}
+.s-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.s-row:last-child{border-bottom:0}
+.s-row .v{font-family:var(--f-mono);font-size:13px;text-align:right}
+.s-row .d{grid-column:1/-1;font-size:12px;color:var(--ink-3)}
+.bar{grid-column:1/-1;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ak)}
+.bar i.lpg{background:var(--lpg)}
+footer{font-size:12px;color:var(--ink-3)}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.big{font-size:26px;font-weight:600;line-height:1.2;text-wrap:balance}
+.lead{margin:0;color:var(--ink-2);max-width:78ch}
+h3{font-size:14px;font-weight:600;margin:0}
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.card{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:118px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.card b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.card span{font-size:12px;color:var(--ink-3)}
+.card[aria-pressed="true"]{border-color:var(--uc,var(--accent));box-shadow:inset 0 0 0 1px var(--uc,var(--accent))}
+.card>span:first-child::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--uc);margin-right:6px;vertical-align:0}
+.mapbox{position:relative;overflow-x:clip}
+/* Harita bölümü her temada beyaz zemin + açık tonlar (kullanıcı isteği) */
+section.etki{--surface:#FFFFFF; --surface-2:#EEF2F3; --line:#D6DDE1; --ink:#15222C; --ink-2:#4B5B67; --ink-3:#6F7E89; --accent:#0F6E8C;
+  --c0:#EEF2F3; --c1:#E2EEF2; --c2:#CAE2EA; --c3:#A9D0DD; --c4:#84BACD; --c5:#5FA2BA; --edge:#FFFFFF; --map-bg:#FFFFFF;
+  --s1:#CDE4EC; --s2:#8FC0D2; --s3:#4E93AD;
+  color-scheme:light; background:#FFFFFF; color:var(--ink); border-color:var(--line)}
+section.etki .card{background:#FFFFFF}
+.mapbox svg{display:block;width:100%;height:auto}
+.il{stroke:var(--edge);stroke-width:.8;cursor:pointer}
+.il:hover{stroke:var(--ink);stroke-width:1.4}
+.il.sel{stroke:var(--ink);stroke-width:2}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;line-height:1.45;padding:8px 10px;border-radius:6px;max-width:260px;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .1s}
+.tip.on{opacity:1}
+.tip b{font-weight:600}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:22px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.tn{fill:var(--tn,#1F5F7A);fill-opacity:.82;stroke:#FFFFFF;stroke-width:1.2;cursor:pointer}
+.tn:hover{fill-opacity:1;stroke:#15222C}
+.tn.sel{fill-opacity:1;stroke:#15222C;stroke-width:2.2}
+.tn.est{fill-opacity:.45}
+.tl{font:500 9.5px var(--f-body);fill:#15222C;paint-order:stroke;stroke:#FFFFFF;stroke-width:2.5px;stroke-linejoin:round;pointer-events:none}
+.tline{stroke:#6F7E89;stroke-width:.6;fill:none}
+.mapbox svg{overflow:visible}
+@media (prefers-reduced-motion:reduce){.tip{transition:none}}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+tr.kendi td{background:var(--surface-2)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 14px;overflow-x:auto;scrollbar-width:thin}.tabs button{flex:0 0 auto}
+.tabs button{font:600 14px var(--f-body);color:var(--ink-2);background:transparent;border:0;border-bottom:2px solid transparent;padding:9px 14px;margin-bottom:-1px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button[data-grup]{display:inline-flex;align-items:center;gap:6px}
+.tabs .chev{width:12px;height:12px;transition:transform .15s}
+.tabs button[data-grup][aria-selected="true"] .chev{transform:rotate(180deg)}
+.tabs.alt{margin:-8px 0 14px;padding:6px 8px;gap:4px;border:0;background:var(--accent-soft,#EAF3F6);border-radius:10px}
+.tabs.alt button{font-size:13px;font-weight:500;padding:6px 12px;border:0;border-radius:7px;margin:0}
+.tabs.alt button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(11,79,102,.18);font-weight:600}
+.tabs.alt[hidden]{display:none}
+.tabs.alt.lpg button[aria-selected="true"]{color:#8A4512}
+.wrap[data-sayfa="lpgmus"]>:not(header):not(nav):not(.lpgm-only):not(footer){display:none}.wrap:not([data-sayfa="lpgmus"]) .lpgm-only{display:none}
+.wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
+.wrap[data-sayfa="akterm"]>:not(header):not(nav):not(.atr-only):not(footer){display:none}.wrap:not([data-sayfa="akterm"]) .atr-only{display:none}
+.wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}
+#k-lpgi .kpi{flex:1 1 190px;border-top:3px solid var(--lpg)}
+.lgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px}
+@media (max-width:860px){.lgrid{grid-template-columns:minmax(0,1fr)}}
+.lbox{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.lbox h3{margin:0;font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.ulke{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr) auto auto;gap:6px 10px;align-items:center;font-size:13px}
+.ulke .b{height:10px;border-radius:3px;background:var(--lpg)}.ulke em{font-style:normal;font-variant-numeric:tabular-nums;text-align:right}
+.ulke .up{color:#1D7A4A}.ulke .dn{color:#B3412E}
+.lchart svg{width:100%;height:auto;display:block}#lpgi-ay,#lpgi-yil{overflow-x:auto}@media (max-width:600px){#lpgi-ay svg{min-width:520px}#lpgi-yil svg{min-width:760px}}.lchart text{font:11px var(--f-body);fill:var(--ink-3)}
+.lleg{display:flex;gap:14px;font-size:12px;color:var(--ink-2)}.lleg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+#sec-lpgt[hidden]{display:none}
+.lpgf{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+#k-lpgm .kpi{flex:1 1 200px;border-top:3px solid var(--lpg)}
+.lseg{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-top:6px}.lseg i{display:block;height:100%}
+tr.lsat td{background:var(--surface-2)}tr.lsat td:first-child{border-left:3px solid var(--lpg)}
+.pbar{display:inline-block;height:6px;border-radius:3px;background:var(--lpg);opacity:.75;vertical-align:middle;margin-right:6px}
+.wrap[data-sayfa="musteri"] .akis-only,.wrap[data-sayfa="akis"] .mus-only{display:none}
+.wrap[data-sayfa="tahsis"] .akis-only,.wrap[data-sayfa="tahsis"] .mus-only,.wrap[data-sayfa="tahsis"] .tah-hide,.wrap[data-sayfa="tahsis"] section.etki,.wrap:not([data-sayfa="tahsis"]) .tah-only{display:none}
+.wrap[data-sayfa="ithalat"] .akis-only,.wrap[data-sayfa="ithalat"] .mus-only,.wrap[data-sayfa="ithalat"] .tah-hide,.wrap[data-sayfa="ithalat"] section.etki,.wrap[data-sayfa="ithalat"] .tah-only,.wrap[data-sayfa="ithalat"] .kay-only,.wrap:not([data-sayfa="ithalat"]) .ith-only{display:none}
+.wrap[data-sayfa="kaynak"] .akis-only,.wrap[data-sayfa="kaynak"] .mus-only,.wrap[data-sayfa="kaynak"] .tah-hide,.wrap[data-sayfa="kaynak"] section.etki,.wrap:not([data-sayfa="kaynak"]) .kay-only{display:none}
+.wrap[data-sayfa="takas"] .akis-only,.wrap[data-sayfa="takas"] .mus-only,.wrap[data-sayfa="takas"] .tah-only,.wrap[data-sayfa="takas"] .kay-only,.wrap[data-sayfa="takas"] .ith-only,.wrap:not([data-sayfa="takas"]) .tks-only{display:none}
+.arc{fill:none;stroke:#7A3E9D;stroke-opacity:.55;stroke-linecap:round}.arc:hover{stroke-opacity:.9}
+.wrap[data-sayfa="bayi"] .akis-only,.wrap[data-sayfa="bayi"] .mus-only,.wrap[data-sayfa="bayi"] .tah-only,.wrap[data-sayfa="bayi"] .kay-only,.wrap[data-sayfa="bayi"] .ith-only,.wrap[data-sayfa="bayi"] .tks-only,.wrap[data-sayfa="bayi"] .tah-hide,.wrap[data-sayfa="bayi"] #cards,.wrap[data-sayfa="bayi"] section.etki .head,.wrap:not([data-sayfa="bayi"]) .bay-only{display:none}
+.wrap[data-sayfa="rafineri"] .akis-only,.wrap[data-sayfa="rafineri"] .mus-only,.wrap[data-sayfa="rafineri"] .tah-only,.wrap[data-sayfa="rafineri"] .kay-only,.wrap[data-sayfa="rafineri"] .ith-only,.wrap[data-sayfa="rafineri"] .tks-only,.wrap[data-sayfa="rafineri"] .bay-only,.wrap[data-sayfa="rafineri"] .tah-hide,.wrap[data-sayfa="rafineri"] section.etki,.wrap:not([data-sayfa="rafineri"]) .raf-only{display:none}
+.wrap[data-sayfa="tasima"] .akis-only,.wrap[data-sayfa="tasima"] .mus-only,.wrap[data-sayfa="tasima"] .tah-only,.wrap[data-sayfa="tasima"] .kay-only,.wrap[data-sayfa="tasima"] .ith-only,.wrap[data-sayfa="tasima"] .tks-only,.wrap[data-sayfa="tasima"] .bay-only,.wrap[data-sayfa="tasima"] .raf-only,.wrap[data-sayfa="tasima"] .tah-hide,.wrap[data-sayfa="tasima"] section.etki,.wrap:not([data-sayfa="tasima"]) .tas-only{display:none}
+.kpi.tm{cursor:pointer;text-align:left;font:inherit;color:inherit;border-top:3px solid var(--line)}.kpi.tm[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);border-top-color:var(--accent)}.kpi.tm:hover{border-color:var(--ink-3)}@media (max-width:600px){.kpi.tm>span:last-child{display:none}.kpi.tm b{font-size:16px}}
+.kbar{display:flex;height:10px;border-radius:3px;overflow:hidden;background:var(--surface-2);min-width:120px}.kbar i{display:block;height:100%}
+.kstack{display:flex;height:22px;border-radius:4px;overflow:hidden;border:1px solid var(--line);flex:1;min-width:0}
+#b-kay{display:flex;flex-direction:column;gap:8px}.kprow{display:flex;align-items:center;gap:12px}.kpl{width:92px;flex:none;font-size:12px;color:var(--ink-3);line-height:1.3}.kpl b{color:var(--ink);font-size:13px}.kstack i{display:block;height:100%}
+.klegend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-2)}.klegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.kpis{display:flex;flex-wrap:wrap;gap:8px}.kpi{display:flex;flex-direction:column;gap:2px;min-width:150px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.kpi.rf{min-width:200px;border-top:3px solid var(--rc,var(--accent))}.kpi .pr{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:center;font-size:12px;color:var(--ink-2);margin-top:4px}.kpi .pr em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink);text-align:right}.kpi .pr .kbar{min-width:60px;height:6px}
+.kpi.rf{flex:1 1 220px}.kpi.ks{flex:1.35 1 280px}#r-kay:not(.g) .kpi.rf{max-width:420px}.kpi.av{flex:1 1 240px;background:var(--surface-2)}.kpi .kv{flex-wrap:wrap;gap:4px 18px}.kpi .pr em{white-space:nowrap}
+@media (min-width:900px){#r-kay.g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);gap:8px}#r-kay.g .av{grid-column:3;grid-row:1 / span 2}}.kpi.av{min-width:0}.kpi .pr4 .kbar{min-width:0}.kpi .pr .nw{white-space:nowrap}@media (max-width:600px){.kpi .pr .nw{white-space:normal}}@media (max-width:600px){.kpi .pr .kbar{min-width:0}.kpi.av{flex-basis:100%!important}.kpi .pr .st{grid-column:1/-1;margin:-2px 0 4px}.kpi .pr4{font-size:11px;gap:2px 5px}.kpi .pr4 em .muted{display:none}.kpi .pr4 em b{font-size:12px}.kpi .pr em.h:nth-child(7){visibility:hidden}}.kpi .pr4{grid-template-columns:auto 1fr auto auto}.kpi .pr4 .muted{font-size:11px}.kpi .pr4 em.h{font:500 10px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}.kpi .pr4 .vb{grid-column:2/5}
+.kv{display:flex;gap:18px}.kv>div{display:flex;flex-direction:column}.kv b{font-size:17px}
+.kpi b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}.kpi span{font-size:12px;color:var(--ink-3)}.kpi>span:first-child{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.pill{display:inline-block;font:500 11px var(--f-mono);border-radius:999px;padding:1px 7px;margin-right:6px;vertical-align:1px;background:var(--surface-2);color:var(--ink-2)}.pill.r{background:#E2EEF2;color:#0F5A73}.pill.d{background:var(--tag-bg);color:var(--tag-ink)}.pill.i{background:#E6ECF7;color:#2A5591}
+.notes{margin:0;padding-left:18px;font-size:12px;color:var(--ink-3);display:flex;flex-direction:column;gap:3px;max-width:100ch}
+tr.grp td{border-top:2px solid var(--line)}
+tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;padding-bottom:6px}td.ind{padding-left:26px}td.ind2{padding-left:48px}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.clear{margin-left:0}}
+
+/* Telefon görünümü (kullanıcı 13.10.2026 19:37: görsel olarak daha zengin). Kimlik aynı: Plex, petrol mavisi, ürün renkleri. */
+.kz,.mix,.mixl{display:none}
+@media (max-width:600px){
+  body{font-size:14px}
+  .wrap{padding-inline:16px;padding-block:0 32px;gap:12px}
+  header{display:block;margin:0 -16px;padding:20px 16px 14px;background:#0B4F66;color:#fff}
+  header h1{font-size:21px;letter-spacing:-.01em;color:#fff}
+  header .meta{display:block;margin-top:2px;color:#A9CDDA}
+  .mix{display:flex;height:8px;margin-top:14px;border-radius:4px;overflow:hidden;gap:2px;background:transparent}
+  .mix i{display:block;height:100%;min-width:3px}
+  .mixl{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:6px;font-size:11px;color:#CFE3EA}
+  .mixl b{color:#fff;font-weight:500}
+  .mixl i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}
+  .tabs{position:sticky;top:0;z-index:5;margin:-12px -16px 0;padding:8px 16px 10px;background:#0B4F66;border-bottom:0;gap:6px;scrollbar-width:none;box-shadow:0 6px 12px -10px rgba(11,79,102,.9)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs button{font:500 13px var(--f-body);color:#DCEBF1;border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 13px;margin:0}
+  .tabs button[aria-selected="true"]{background:#fff;color:#0B4F66;border-color:#fff;font-weight:600}
+  .tabs .uz{display:none}.tabs .kz{display:inline}
+  .tabs.alt{position:static;margin:0 -16px;padding:8px 16px;background:#E6F0F3;box-shadow:none;border-radius:0;gap:6px}
+  .tabs.alt button{color:#0B4F66;border:1px solid #BCD3DB;border-radius:999px;background:transparent;font-size:12.5px;padding:5px 12px}
+  .tabs.alt button[aria-selected="true"]{background:#0B4F66;color:#fff;border-color:#0B4F66;box-shadow:none}
+  .tabs.alt.lpg button[aria-selected="true"]{background:#A8520F;border-color:#A8520F;color:#fff}
+  .filters{position:static;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;padding:12px;border-radius:12px}
+  .filters .f{grid-column:1/-1}.filters .f:has(#f-urun),.filters .f:has(#f-il){grid-column:auto}
+  .filters select,#f-urun,#f-il,#f-term{width:100%}
+  .clear{grid-column:1/-1;justify-self:start}
+  section{padding:14px;border-radius:12px;gap:12px}
+  .big{font-size:22px}
+  .kpis{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  .kpis>.kpi{min-width:0;max-width:none!important}
+  .kpis>.kpi.av,.kpis>.kpi.rf,.kpis>.kpi.ks,.kpis>.kpi:first-child{grid-column:1/-1}
+  .kpis>.kpi:first-child:not(.av){background:#EAF3F6;border-color:#C5DDE6;box-shadow:inset 3px 0 0 var(--accent)}
+  .kpis>.kpi:first-child:not(.av) b{font-size:24px}
+  .kpi b{font-size:19px}
+  .cards{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  .card{min-width:0;border-left:4px solid var(--uc,var(--line));padding:9px 11px}
+  .card>span:first-child::before{display:none}
+  .card b{font-size:18px}
+  .scroll{max-height:72vh;border-radius:10px}
+  th{font-size:10px;padding:7px 8px;white-space:normal}
+  td{font-size:13px;padding:7px 8px}
+  tr.sub td{font-size:12.5px}
+  td.l:not(:first-child),th.l:not(:first-child){min-width:170px}
+  td.ind{padding-left:14px}td.ind2{padding-left:24px}
+  th:first-child,td:first-child{position:sticky;left:0;z-index:1;max-width:46vw;box-shadow:1px 0 0 var(--line)}
+  th:first-child{z-index:3}
+  tbody td:first-child{background:var(--surface)}
+  tr.tg td:first-child,tr.on td:first-child,tr.kendi td:first-child{background:var(--surface-2)}
+  tbody tr:hover td:first-child{background:var(--surface-2)}
+  details.nt{font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:8px}
+  details.nt summary{cursor:pointer;color:var(--ink-2);font-weight:500;list-style-position:outside}
+  details.nt .notes{margin-top:6px}
+  .legend{font-size:11.5px}
+}
+/* Tedarik yolu (kullanıcı 15.10.2026 14:41): satıcının hangi ürünü hangi yöntemle müşteri terminaline geliyor */
+.yol{display:flex;flex-direction:column;gap:8px}
+.yol h3{margin:2px 0 0}
+.yol-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.yol-c{display:flex;flex-wrap:wrap;align-items:stretch;gap:4px}
+.yol-s{display:flex;flex-direction:column;justify-content:center;padding:5px 10px;border-radius:7px;background:var(--surface-2);border-left:3px solid var(--sc,var(--ink-3));min-width:0}
+.yol-s b{font-size:13px;font-weight:600;color:var(--ink)}
+.yol-s span{font-size:11px;color:var(--ink-3)}
+.yol-a{align-self:center;color:var(--ink-3);font-size:14px;padding:0 1px}
+.yol-t{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.yol-t b{font-size:16px}
+.yol-t span{font-size:12px;color:var(--ink-2)}
+.yol-n{grid-column:1/-1;font-size:12px;color:var(--ink-2);margin:0}
+@media (max-width:600px){.yol-r{grid-template-columns:minmax(0,1fr)}.yol-t{flex-direction:row;flex-wrap:wrap;gap:4px 12px;align-items:baseline}.yol-a{transform:rotate(90deg)}.yol-c{flex-direction:column}}
+
+/* Taşıma KPI kartları: piktogram + değer + pay çubuğu */
+.kpi.ik{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto auto auto;column-gap:12px;row-gap:2px;align-items:center;min-width:200px;padding:12px 14px;border-top:1px solid var(--line)}
+.kpi.ik .ikon{grid-row:1/span 4;align-self:start;display:flex;align-items:center;justify-content:center;gap:2px;width:46px;height:46px;border-radius:12px;color:var(--mc);background:color-mix(in srgb,var(--mc) 11%,var(--surface))}
+.kpi.ik .ikon svg{width:28px;height:28px}
+.kpi.ik .ikon.iki{width:62px}.kpi.ik .ikon.iki svg{width:24px;height:24px}
+.kpi.ik .sig{font:600 22px var(--f-body);color:var(--ink-2)}
+.kpi.ik .kt{font:500 13px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink-2);line-height:1.25}
+.kpi.ik b{font-size:20px;line-height:1.15}
+.kpi.ik .pb{display:block;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin:3px 0 2px}
+.kpi.ik .pb i{display:block;height:100%;background:var(--mc)}
+.kpi.ik .ks{font-size:11.5px;color:var(--ink-3)}
+.kpi.tm.ik[aria-pressed="true"]{border-color:var(--mc);box-shadow:inset 0 0 0 1px var(--mc);background:color-mix(in srgb,var(--mc) 5%,var(--surface))}
+.kpi.ik.tot{background:var(--surface-2)}
+#k-tas,#y-tas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+@media (max-width:600px){#k-tas,#y-tas{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}#k-tas>.kpi,#y-tas>.kpi{grid-column:auto!important;min-width:0}.kpi.ik{grid-template-columns:minmax(0,1fr);padding:10px}.kpi.ik .ikon{grid-row:auto;width:36px;height:36px;border-radius:10px;margin-bottom:4px}.kpi.ik .ikon svg{width:22px;height:22px}.kpi.ik .ikon.iki{width:50px}.kpi.ik .ikon.iki svg{width:19px;height:19px}.kpi.ik b{font-size:17px}#k-tas>.tot{grid-column:1/-1!important}}
+
+/* Rafineriler özet bloğu (17.10.2026) */
+#k-raf{display:block}
+.rz{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
+.rz-c{grid-column:span 6;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.rz-oz{grid-column:span 7}.rz-rf{grid-column:span 5}
+.rz-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font:600 13px var(--f-body);color:var(--ink)}
+.rz-h>span{font-weight:400;font-size:12px;color:var(--ink-3)}
+.rz-big{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.rz-big b{font:600 30px/1.1 var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink)}.rz-big span{font-size:12.5px;color:var(--ink-3)}
+.rz-st{display:flex;gap:2px;height:14px;border-radius:4px;overflow:hidden;background:var(--surface-2)}.rz-st i{display:block;min-width:2px}
+.rz-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rz-ku{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:6px;background:var(--surface-2);border-left:3px solid var(--ink-2)}.rz-ku.tp{border-left-color:var(--ink-3)}
+.rz-kt{font:600 12.5px var(--f-body);color:var(--ink-2)}.rz-ku>b{font:600 20px var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink)}.rz-ku>b em{font:400 12.5px var(--f-body);color:var(--ink-3);font-style:normal;margin-left:8px}
+.rz-d{font-size:12px;color:var(--ink-3);margin-bottom:3px}
+.rz-lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}.rz-lg i{width:9px;height:9px;border-radius:2px;flex:none}.rz-lg b{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.rz-n{min-width:0;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis}.rz-n small{display:block;font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rz-bar{display:block;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}.rz-bar>span{display:flex;gap:1px;height:100%;border-radius:4px;overflow:hidden}.rz-bar i{display:block}
+.rz-rr{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(60px,1fr) auto 52px;align-items:center;gap:10px;padding:7px 8px;margin:0 -8px;border-radius:6px;cursor:pointer}
+.rz-rr:hover{background:var(--surface-2)}.rz-rr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.rz-rr b,.rz-r b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);text-align:right;white-space:nowrap}.rz-rr em,.rz-r em{font-style:normal;font-size:12px;color:var(--ink-3);text-align:right;font-variant-numeric:tabular-nums}
+.rz-sel{display:flex;gap:12px;align-items:center}.rz-sel b{display:block;font-size:15px;color:var(--ink)}.rz-sel span{font-size:12.5px;color:var(--ink-3)}
+.rz .ikon{display:flex;align-items:center;justify-content:center;gap:1px;width:34px;height:34px;border-radius:9px;color:var(--mc,var(--accent));background:color-mix(in srgb,var(--mc,var(--accent)) 12%,var(--surface));flex:none}.rz .ikon svg{width:20px;height:20px}.rz .ikon.iki{width:44px}.rz .ikon.iki svg{width:17px;height:17px}
+.rz-tum{all:unset;align-self:flex-start;cursor:pointer;font:600 12.5px var(--f-body);color:var(--accent);padding:4px 0}.rz-tum:hover{text-decoration:underline}
+.rz-r{display:grid;grid-template-columns:44px minmax(0,1fr) auto 48px;grid-template-areas:"i n t p" "i b b b";gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2)}
+.rz-r .ikon{grid-area:i}.rz-r .rz-n{grid-area:n}.rz-r b{grid-area:t}.rz-r em{grid-area:p}.rz-r .rz-bar{grid-area:b}
+.rz-key{display:flex;align-items:center;gap:5px}.rz-key i{width:9px;height:9px;border-radius:2px;margin-left:8px}
+.rz-chip{font:600 11.5px var(--f-body);padding:2px 8px;border-radius:10px;white-space:nowrap}.rz-chip.ok{color:#1E6B34;background:#E2F2E5}.rz-chip.uy{color:#8A4B0B;background:#FCEBD7}
+.rz-h>.rz-chip.ok{color:#1E6B34}.rz-h>.rz-chip.uy{color:#8A4B0B}
+.rz-key2{display:flex;gap:16px;font-size:11.5px;color:var(--ink-3)}.rz-key2 span{display:flex;align-items:center;gap:6px}.rz-key2 .f{width:14px;height:8px;border-radius:2px;background:var(--accent)}.rz-key2 .m{width:2px;height:12px;background:var(--ink)}
+.rz-e{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"n v c" "b b b" "d d d";gap:4px 12px;align-items:center;padding:8px 0;border-top:1px solid var(--line-2)}
+.rz-e .rz-n{grid-area:n;font-weight:600}.rz-v{grid-area:v;font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}.rz-v b{color:var(--ink);font-weight:600}.rz-v em{font-style:normal;margin-left:8px}.rz-e .rz-chip{grid-area:c}
+.rz-bl{grid-area:b;position:relative;display:block;height:10px}
+.rz-bl .tr{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--surface-2)}
+.rz-bl .fl{position:absolute;left:0;top:2px;bottom:2px;border-radius:2px;background:var(--accent)}.rz-e.uy .rz-bl .fl{background:#D9821F}
+.rz-bl .mk{position:absolute;top:-2px;bottom:-2px;width:2px;margin-left:-1px;background:var(--ink)}
+.rz-dt{grid-area:d;font-size:11.5px;color:var(--ink-3)}.rz-dt strong{color:#8A4B0B;font-weight:600}
+.rz-not{margin:2px 0 0;font-size:11px;line-height:1.45;color:var(--ink-3)}
+@media (max-width:1100px){.rz-oz,.rz-rf,.rz-md,.rz-ep{grid-column:span 12}}
+@media (max-width:600px){.rz-two{grid-template-columns:1fr}.rz-big b{font-size:24px}.rz-rr{grid-template-columns:minmax(0,1fr) 60px auto}.rz-rr em{display:none}.rz-e{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n c" "v v" "b b" "d d"}}
+
+/* Harita + il paneli, kompozisyon kartları (17.10.2026) */
+.hg{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:center}
+.hg .mapbox{max-width:880px;width:100%;justify-self:center}
+.ilpan{display:flex;flex-direction:column;gap:10px;border-left:1px solid var(--line);padding-left:20px;min-width:0}
+.ilpan:empty{display:none}
+.ip-h{display:flex;flex-direction:column;gap:1px}.ip-h b{font-size:14px;font-weight:600;color:var(--ink)}.ip-h span{font-size:12px;color:var(--ink-3)}
+.ip-oz{display:flex;gap:8px}.ip-oz>div{flex:1;background:var(--surface-2);border-radius:6px;padding:7px 9px;display:flex;flex-direction:column}.ip-oz b{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}.ip-oz span{font-size:11px;color:var(--ink-3)}
+.ip-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ip-l button{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:20px minmax(0,1fr) auto;grid-template-areas:"n a v" "n b b";gap:2px 8px;align-items:center;padding:4px 6px;border-radius:6px;cursor:pointer}
+.ip-l button:hover{background:var(--surface-2)}.ip-l button.on{background:color-mix(in srgb,var(--s3) 14%,var(--surface));box-shadow:inset 0 0 0 1px var(--s3)}
+.ip-l button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.ip-n{grid-area:n;font-size:11px;font-weight:600;color:var(--ink-3);text-align:right;align-self:start;padding-top:2px}
+.ip-ad{grid-area:a;font-size:13px;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ip-ad small{display:block;font-size:11px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis}
+.ip-l b{grid-area:v;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);align-self:start}
+.ip-b{grid-area:b;display:block;height:5px;border-radius:3px;background:var(--surface-2);overflow:hidden}.ip-b i{display:block;height:100%;background:var(--s3);border-radius:3px}
+.ip-f{margin:0;font-size:12px;color:var(--ink-3)}
+@media (max-width:1100px){.hg{grid-template-columns:1fr}.ilpan{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px}.ip-l{display:grid;grid-template-columns:1fr 1fr;column-gap:12px}}
+@media (max-width:600px){.ip-l{grid-template-columns:1fr}}
+.kpis>.kg{flex:1 1 100%}@media (max-width:600px){.kpis>.kg{grid-column:1/-1}}
+.kg{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
+.kc{grid-column:span var(--sp,6);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.kc-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font:600 13px var(--f-body);color:var(--ink)}.kc-h>span+span{font-weight:400;font-size:12px;color:var(--ink-3)}
+.kc-big{display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap}.kc-big b{font:600 26px/1.1 var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink)}.kc-big span{font-size:12.5px;color:var(--ink-3)}
+.kc-st{display:flex;gap:2px;height:12px;border-radius:4px;overflow:hidden;background:var(--surface-2)}.kc-st i{display:block;min-width:2px}
+.kc-lg{display:flex;flex-direction:column}
+.kc-r{display:grid;grid-template-columns:10px minmax(0,1fr) auto 52px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line-2,var(--line))}
+.kc-r:first-child{border-top:0}
+.kc-r>i{width:10px;height:10px;border-radius:2px}
+.kc-l{font-size:13px;color:var(--ink);min-width:0}.kc-l small{display:block;font-size:11.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kc-r b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink);text-align:right;white-space:nowrap}.kc-r em{font-style:normal;font-size:12px;color:var(--ink-3);text-align:right;font-variant-numeric:tabular-nums}
+.kc-sl{display:flex;flex-direction:column;gap:7px}
+.kc-s{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(50px,1fr) auto;gap:10px;align-items:center;font-size:13px;color:var(--ink)}.kc-s>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kc-s b{min-width:56px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.kc-bar{display:block;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}.kc-bar i{display:block;height:100%;border-radius:4px}
+.rz-chip.nt{color:var(--ink-2);background:var(--surface-2)}
+.kc-not{margin:0;font-size:11.5px;line-height:1.45;color:var(--ink-3)}
+@media (max-width:1100px){.kc{grid-column:span 12}}
+@media (max-width:600px){.kc-big b{font-size:22px}.kc-r{grid-template-columns:10px minmax(0,1fr) auto}.kc-r em{display:none}}
+.zn{display:inline-block;font-size:11.5px;line-height:1.4;color:#7A4E0E}
+
+/* Çoklu seçim açılır listesi */
+.ms{position:relative}
+.ms-b{display:flex;align-items:center;justify-content:space-between;gap:8px;font:500 14px var(--f-body);color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:260px;max-width:100%;cursor:pointer;text-align:left}
+.ms-b span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ms-b svg{width:12px;height:12px;flex:none;color:var(--ink-2)}
+.ms-b:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ms-p{position:absolute;z-index:20;top:calc(100% + 4px);left:0;min-width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(20,35,45,.14);padding:6px;display:flex;flex-direction:column}
+.ms-p[hidden]{display:none}
+.ms-o{display:grid;grid-template-columns:18px 10px minmax(0,1fr) auto;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:13.5px;color:var(--ink);cursor:pointer;white-space:nowrap}
+.ms-o.tum{grid-template-columns:18px minmax(0,1fr) auto;border-bottom:1px solid var(--line);border-radius:6px 6px 0 0;margin-bottom:4px}
+.f .ms-o{font:400 13.5px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink)}.ms-o:hover{background:var(--surface-2)}.ms-o input{margin:0;width:15px;height:15px;accent-color:var(--accent)}
+.ms-o i{width:10px;height:10px;border-radius:2px}.ms-o em{font-style:normal;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.lis{display:inline-block;font:500 11px/1.4 var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:4px;white-space:nowrap;vertical-align:1px;font-weight:500;letter-spacing:0}.lis.yok{color:var(--ink-3);border-style:dashed}
+#t-atr td:first-child,#t-ltr td:first-child{min-width:220px}#f-atr-s,#f-ltr-s{width:340px}.zin{min-width:240px}.zin .zc{display:block;font-size:12px;line-height:1.45;color:var(--ink-2)}.zin .zc em{font-style:normal;color:var(--ink-3);margin-left:4px}#t-atr td:nth-child(10){min-width:120px}#t-atr tr.grp td,#t-ltr tr.grp td{vertical-align:top}
+.tb-d{display:grid;grid-template-columns:70px auto;gap:6px;align-items:center}.tb-d em{font-style:normal;font-size:12px;font-variant-numeric:tabular-nums;color:var(--ink-2)}.dv-y{font-weight:700;color:#8A4B0B}
+</style>
+
+<div class="wrap" id="wrap" data-sayfa="akis">
+  <header>
+    <h1>Enerji Akış Haritası</h1>
+    <span class="meta" id="meta"></span>
+    <div class="mix" id="mix" role="img"></div>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="Sayfalar">
+    <button type="button" role="tab" id="tab-akis" data-sayfa="akis" aria-selected="true"><span class="uz">Akış haritası</span><span class="kz" aria-hidden="true">Akış</span></button>
+    <button type="button" role="tab" id="tab-grp-akaryakit" data-grup="akaryakit" aria-selected="false" aria-controls="alt-akaryakit">Akaryakıt<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" role="tab" id="tab-grp-lpg" data-grup="lpg" aria-selected="false" aria-controls="alt-lpg">LPG<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </nav>
+  <!-- LPG başlığı altındaki sayfalar (kullanıcı 16.10.2026 14:42) -->
+  <nav class="tabs alt lpg" role="tablist" aria-label="LPG sayfaları" id="alt-lpg" data-grup="lpg" hidden>
+    <button type="button" role="tab" id="tab-lpgmus" data-sayfa="lpgmus" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
+    <button type="button" role="tab" id="tab-lpgith" data-sayfa="lpgith" aria-selected="false"><span class="uz">İthalat</span><span class="kz" aria-hidden="true">İthalat</span></button>
+    <button type="button" role="tab" id="tab-lpgtrm" data-sayfa="lpgtrm" aria-selected="false"><span class="uz">Terminaller</span><span class="kz" aria-hidden="true">Terminaller</span></button>
+  </nav>
+  <!-- Akaryakıt başlığı altındaki sayfalar (kullanıcı 16.10.2026 14:34: "akış haritası sonrasındaki tüm sayfaları akaryakıt başlığı altında toplayalım") -->
+  <nav class="tabs alt" role="tablist" aria-label="Akaryakıt sayfaları" id="alt-akaryakit" data-grup="akaryakit">
+    <button type="button" role="tab" id="tab-rafineri" data-sayfa="rafineri" aria-selected="false"><span class="uz">Rafineriler</span><span class="kz" aria-hidden="true">Rafineriler</span></button>
+    <button type="button" role="tab" id="tab-ithalat" data-sayfa="ithalat" aria-selected="false"><span class="uz">İthalat</span><span class="kz" aria-hidden="true">İthalat</span></button>
+    <button type="button" role="tab" id="tab-kaynak" data-sayfa="kaynak" aria-selected="false"><span class="uz">Tedarik tahsisi kaynak bazlı</span><span class="kz" aria-hidden="true">Tahsis · kaynak</span></button>
+    <button type="button" role="tab" id="tab-tahsis" data-sayfa="tahsis" aria-selected="false"><span class="uz">Tedarik tahsisi terminal bazlı</span><span class="kz" aria-hidden="true">Tahsis · terminal</span></button>
+    <button type="button" role="tab" id="tab-musteri" data-sayfa="musteri" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
+    <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><span class="uz">Taşıma</span><span class="kz" aria-hidden="true">Taşıma</span></button>
+    <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><span class="uz">Takas</span><span class="kz" aria-hidden="true">Takas</span></button>
+    <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><span class="uz">Bayiler</span><span class="kz" aria-hidden="true">Bayiler</span></button>
+    <button type="button" role="tab" id="tab-akterm" data-sayfa="akterm" aria-selected="false"><span class="uz">Terminaller</span><span class="kz" aria-hidden="true">Terminaller</span></button>
+  </nav>
+
+  <div class="filters" role="search" aria-label="Filtreler">
+    <div class="f"><label for="f-sirket" id="l-sirket">Şirket</label><select id="f-sirket"></select></div>
+    <div class="f akis-only"><label for="f-urun">Ürün</label>
+      <select id="f-urun">
+        <option value="tum">Tüm ürünler</option>
+        <optgroup label="Akaryakıt"><option value="a0">Benzin</option><option value="a1">Motorin</option></optgroup>
+        <optgroup label="LPG"><option value="L">Tüm LPG</option><option value="l0">Otogaz</option><option value="l1">Tüplü</option><option value="l2">Dökme</option></optgroup>
+        <optgroup label="Diğer petrol ürünleri"><option value="a2">Fuel Oil</option><option value="a3">Havacılık</option><option value="a4">Denizcilik</option><option value="a5">Gazyağı</option><option value="a6">Diğer</option></optgroup>
+      </select></div>
+    <div class="f akis-only"><label for="f-il">İl</label><select id="f-il"></select></div>
+    <div class="f raf-only"><label for="f-raf">Rafineri</label><select id="f-raf"></select></div>
+    <div class="f tas-only"><label id="l-tur">Ürün</label><div class="ms" id="f-tur"><button type="button" class="ms-b" id="ms-b" aria-haspopup="true" aria-expanded="false" aria-labelledby="l-tur ms-v"><span id="ms-v">Tüm ürünler</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="ms-p" id="ms-p" role="group" aria-label="Ürünler" hidden></div></div></div>
+    <div class="f tas-only"><label for="f-tmod">Taşıma modu</label><select id="f-tmod"></select></div>
+    <div class="f tas-only"><label for="f-tasy">Taşımayı yapan</label><select id="f-tasy"></select></div>
+    <div class="f kay-only"><label for="f-tmus">Toptan müşteri</label><select id="f-tmus"></select></div>
+    <div class="f tks-only"><label for="f-alici">Alıcı</label><select id="f-alici"></select></div>
+    <div class="f mus-only"><label for="f-mmus">Müşteri</label><select id="f-mmus"></select></div>
+    <div class="f tah-hide"><label for="f-term" id="l-term">Terminal</label><select id="f-term"></select></div>
+    <button type="button" class="clear" id="clear">Filtreleri temizle</button>
+  </div>
+
+  <section class="etki" aria-labelledby="h-etki">
+    <div class="eyebrow" id="e-eyebrow">Enerji Master DB · EPDK 2025</div>
+    <h2 class="big" id="h-etki"></h2>
+    <p class="lead" id="e-lead"></p>
+    <div class="head" style="margin-top:6px"><h3>Ürün özeti</h3><span class="sub">Haritayı değiştirmek için bir ürüne tıklayın.</span></div>
+    <div class="cards" id="cards" role="group" aria-label="Ürün"></div>
+    <div class="hg"><div class="mapbox" id="mapbox"><svg id="map" viewBox="0 0 1000 422" role="img" aria-label="Türkiye il haritası"></svg><div class="tip" id="tip" role="status"></div></div><aside class="ilpan" id="ilpan" aria-label="İl sıralaması"></aside></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="mus-only" aria-labelledby="h-mus">
+    <div class="head"><h2 id="h-mus">Müşteriler</h2><span class="sub" id="s-mus"></span></div>
+    <div id="yol-mus" class="yol" hidden></div>
+    <div class="scroll"><table id="t-mus"></table></div>
+    <ul class="notes"><li>Takas (ithalat takası, ürün değişimi) satış değildir; bu sayfada gösterilmez, Takas sayfasındadır (kullanıcı 15.10.2026 18:52).</li></ul>
+  </section>
+
+  <section class="tah-only" aria-labelledby="h-tah">
+    <div class="head"><h2 id="h-tah">Tedarik tahsisi</h2><span class="sub" id="s-tah"></span></div>
+    <p class="lead" id="l-tah"></p>
+    <div class="kpis" id="k-tah"></div>
+    <div class="scroll"><table id="t-tah"></table></div>
+    <ul class="notes">
+      <li>A, B ve C sınıfı dağıtıcılar ithalat dışı ihtiyaçlarını rafinerilerden alır. Opet yalnız Tüpraş'tan, Socar yalnız Star Rafineri'den alır.</li>
+      <li>D ve E sınıfı şirketler ithalatlarından kalan ihtiyacı A/B/C dağıtıcılarından alır. Satıcının bu satışı EPDK toptan satışını aşmaz.</li>
+      <li>C, D ve E sınıfı talebini dağıtmaz: tek tedarikçiden (Tüpraş toplu, Star ya da tek dağıtıcı) alır; ikinci tedarikçi yalnız navlunu %10'dan fazla düşürüyorsa eklenir. Tonaj yoğunlaştıkça kademe ve ciro primi yükselir.</li>
+      <li>Seçim en düşük navlunla yapılır. Fiyat tanımlanana kadar navlun endeksi km eşdeğeridir: rafineriden yükleme noktasına primer taşıma (boru hattı 0,15, deniz 0,35, demiryolu 0,6, karayolu 1 katsayısıyla) + yükleme noktasından ile karayolu.</li>
+      <li>Liste terminal bazında toplanır; her terminalin altında kaynak × ürün kırılımı vardır (satış kanalı birleştirilmiştir). Mod sütunu taşıma yöntemini gösterir; birden çok yöntem varsa her birinin payı yazılır. Pay, şirketin bu sayfadaki toplam hacmine (kendi satışı + toptan satış için alım) oranıdır. Benzin, motorinin yüklendiği terminali izler. Kendi ithalatı akış haritasındaki yerinde kalır. "Toptan satış için" satırları satıcının D/E alıcılarına sattığı ürün için yaptığı rafineri alımıdır.</li>
+    </ul>
+  </section>
+
+  <section class="kay-only" aria-labelledby="h-kay">
+    <div class="head"><h2 id="h-kay">Kaynak dağılımı</h2><span class="sub" id="s-kay"></span></div>
+    <p class="lead" id="l-kay"></p>
+    <div class="kpis" id="k-kay"></div>
+    <div class="head" id="hr-kay"><h3 id="hr-t">Rafineri alımları</h3><span class="sub" id="sr-kay"></span></div>
+    <div class="kpis" id="r-kay"></div>
+    <div class="head" style="margin-top:6px"><h3 id="h-top">Toptan satışlar</h3><span class="sub" id="s-top"></span></div>
+    <div class="scroll"><table id="t-kay"></table></div>
+    <ul class="notes">
+      <li>Toptan satışlar tablosu, seçili A/B/C dağıtıcısının D/E alıcılarına hangi terminalde, benzin ve motorin olarak ne kadar sattığını gösterir. Pay, şirketin toplam toptan satışına oranıdır; il sayısı alıcının o terminalden beslediği il sayısıdır. Toptan müşteri filtresi tabloyu tek alıcıya daraltır; alımı yapan şirket "Tüm şirketler" iken alıcının hangi satıcılardan, hangi terminalde aldığını gösterir.</li>
+      
+      <li>Tahsis kuralları ve navlun endeksi terminal bazlı sayfadaki gibidir.</li>
+      <li>Ciro primi ve vade: Tüpraş 2025 Akaryakıt Satış Uygulamaları (SPD-543) ve Star 2025 motorin satış şartları, tahsisteki yıllık rafineri alımına (toptan satış için alım dahil) göre kademelenir. Prim CIF MED oranıdır. Ciro primi kademeye göre (Tüpraş en çok %3,00, Star en çok %2,50); Tüpraş performans primi (%0,10) ayrıca gösterilir. Performans primi ve vadesi aylık %95 çekiş varsayımıyla. Tüpraş benzinde ciro primi yoktur; Star benzin koşulu belgede yoktur. Rafineri ticari koşulları iç kullanım içindir.</li>
+    </ul>
+  </section>
+
+  <section class="ith-only" aria-labelledby="h-ith">
+    <div class="head"><h2 id="h-ith">İthalat</h2><span class="sub" id="s-ith"></span></div>
+    <div class="kpis" id="k-ith"></div>
+    <div class="scroll"><table id="t-ith"></table></div>
+    <ul class="notes">
+      <li>Modeldeki ithalat, ithal ürünün yüklendiği terminale göre gösterilir (Enerji Master DB akış tablosu, ithal tonu). İthalatçının başka dağıtıcılara terminalde sattığı ithal ürün ithalatçının satırında sayılır; takasla alıcının kendi terminalinden yüklenen ürün o terminalde görünür.</li>
+      <li>İç terminale transfer: kıyıda tahliye edilen ithal ürünün iç terminale (ör. Aytemiz Kırıkkale ve Kocaeli, PO Doğu Karasal Diyarbakır) taşınan kısmı giriş terminalinin satırında sayılır; satırda 'iç terminale transfer → …' olarak gösterilir.</li>
+      <li>Havalimanı depolarına giden ithal havacılık yakıtı ithalat terminali sayılmaz; tek satırda gösterilir (veride tahliye limanı yok). İstanbul Arnavutköy deposu TFS'nin lisanslı ithalat terminali olduğu için ayrı satırdır.</li>
+      <li>Takas: alıcı dağıtıcının bayisi ithalatçının giriş terminaline yönlendirilir (kullanıcı 11.10.2026); takasla verilen ithal ürün giriş terminalinde, ithalatçının satırında sayılır. Ayrıntı Takas sayfasındadır.</li>
+      <li>Akaryakıt ithalatıdır; LPG ithalatı LPG &gt; İthalat sayfasındadır.</li>
+      <li>TFS'nin ithalat noktası Arnavutköy deposudur (DEP/9944-2/43996); diğer havalimanı depolarına giden ithal yakıt Arnavutköy satırında sayılır. TFS için EPDK karşılaştırmasına yabancıya ihrakiye de eklenir (antrepo ithalatı).</li>
+      <li>EPDK karşılaştırması şirketin EPDK'ya bildirdiği petrol ürünleri ithalatıdır (yurt dışına ihrakiye ve ihracat dahil olabilir); fark, modelde terminale yerleşmeyen ya da başka kaleme giden ithalattır.</li>
+    </ul>
+  </section>
+
+  <section class="raf-only" aria-labelledby="h-raf">
+    <div class="head"><h2 id="h-raf">Rafineriler</h2><span class="sub" id="s-raf"></span></div>
+    <div class="kpis" id="k-raf"></div>
+    <div class="scroll"><table id="t-raf"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB tedarik tahsisi (REF_TEDARIK_TAHSIS; rafineri satırları) ve rafineri satış koşulları (REF_TAHSIS_RAFINERI_KOSUL). Tahsis, şirketlerin rafineri alımını en düşük navlunla ve motorin tedarik tablosuna göre dağıtır.</li>
+      <li>Alıcı satırı şirketin o rafineriden toplam alımıdır; altında yükleme terminali kırılımı ve taşıma modu yer alır. "Toptan için" sütunu alıcının başka dağıtıcılara toptan satışının karşılığı olarak yaptığı alımdır (ör. Güzel'in Aytemiz adına aldığı ürün).</li>
+      <li>Ciro primi ve kademe, alıcının Tüpraş (tüm rafineriler toplamı) ya da Star motorin alımına göredir; Tüpraş benzinde ciro primi yoktur.</li>
+    </ul>
+  </section>
+
+  <section class="tas-only" aria-labelledby="h-tas">
+    <div class="head"><h2 id="h-tas">Taşıma</h2><span class="sub" id="s-tas"></span></div>
+    <p class="lead" id="l-tas"></p>
+    <div class="head"><h3>Taşımayı yapan</h3><span class="sub">tıklayınca filtrelenir</span></div>
+    <div class="kpis" id="y-tas"></div>
+    <div class="head"><h3>Taşıma modu</h3></div>
+    <div class="kpis" id="k-tas"></div>
+    <div class="head" style="margin-top:6px"><h3 id="h-tas2">Ürünün taşındığı terminaller</h3><span class="sub" id="s-tas2"></span></div>
+    <div class="scroll"><table id="t-tas"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB akış tablosu (FACT_AKARYAKIT_AKIS). Terminal, ürünün taşındığı (Leg1 varış) ve bayiye yüklendiği noktadır; alt satırlar ürünün nereden geldiğidir (rafineri ya da ithalat).</li>
+      <li>Taşımayı yapan (kullanıcı 15.10.2026; veritabanında FACT_AKARYAKIT_AKIS.Leg1_Tasiyan_Tipi / Leg1_Tasiyan_Sirket_ID, db_101–102): rafineriden deniz yolu, demiryolu ve boru hattı taşımaları (İzmit → Kırıkkale/Batman demiryolu, Tüpraş Aliağa → Star komşu saha transferi dahil; bu transfer deniz yoludur, db_103) tahsisler dahilinde Tüpraş ya da Star tarafından planlanır ve yapılır; dağıtıcı ürünü varış terminalinde/sahada teslim alır. Karayolu ve rafineri sahasından yükleme dağıtıcıya, ithal ürünün deniz yolu ve iç terminale transferi ithalatçıya aittir.</li>
+      <li>Taşıma modu ana gruplara toplanır (deniz yolu, demiryolu, boru hattı, karayolu, rafineri sahasından yükleme …); İzmit → Kırıkkale/Batman demiryolu ile devam eden saha ya da boru hattı ayağı "Demiryolu" sayılır. Tablodaki alt satırlarda ayrıntılı etiket görünür. Taşıma modu Leg1 etiketinden alınır; takas öneki ve "Rafineri tahsisinden alım (…)" sarmalı ayrılır. "Terminal içi devir" ürünün aynı terminalde el değiştirdiği, taşıma olmayan satırlardır.</li>
+      <li>Şirket filtresi ürünün sahibine (bayiye satan dağıtıcı) ya da taşımayı yapana göredir: Tüpraş seçilince Tüpraş'ın kendi satışı ile tahsisler dahilinde taşıdığı ürün birlikte görünür. Star şirket listesinde yoktur; Star taşımaları için "Taşımayı yapan: Star" seçin. İl sütunu terminalden beslenen il sayısı, km sütunu Leg1 hariç terminalden bayiye ortalama karayolu mesafesidir.</li>
+    </ul>
+  </section>
+
+  <section class="bay-only" aria-labelledby="h-bay">
+    <div class="head"><h2 id="h-bay">Bayiler</h2><span class="sub" id="s-bay"></span></div>
+    <div class="kpis" id="k-bay"></div>
+    <div class="scroll"><table id="t-bay"></table></div>
+    <ul class="notes">
+      <li>Kaynak: EPDK bayilik lisansları (Enerji Master DB, FACT_BAYI_LISANS). İhrakiye lisansları hariç. Bağlı şirketlerin bayileri ana şirketin altında sayılır (ör. BP → Petrol Ofisi).</li>
+      <li>İstasyon: tekil bayi istasyonu. Aynı istasyonda akaryakıt ve otogaz lisansı birlikte olabilir; bu yüzden istasyon sayısı akaryakıt + otogaz toplamından küçüktür. Akaryakıt ve otogaz lisansı farklı şirketlerde olan istasyon her iki şirkette de sayılır.</li>
+      <li>Harita: şirket seçili değilse il başına istasyon sayısı (üçte birlik dilimler); şirket seçiliyse şirketin ildeki istasyon payı. Bir ile tıklayınca tabloda işaretlenir.</li>
+    </ul>
+  </section>
+
+  <section class="tks-only" aria-labelledby="h-tks">
+    <div class="head"><h2 id="h-tks">Takas</h2><span class="sub" id="s-tks"></span></div>
+    <div class="kpis" id="k-tks"></div>
+    <div class="scroll"><table id="t-tks"></table></div>
+    <ul class="notes">
+      <li>Takas = bayi yönlendirmesi (kullanıcı 11.10.2026): dağıtıcı terminalleri arasında ürün taşınmaz. İthalatçı ürünü kendi giriş terminaline indirir; takasla alan dağıtıcı bayisini bu terminale yönlendirir ve ürün buradan bayiye gider. Yönlendirme, bayiye en çok 150 km ilave mesafe getirecek illerde ve giriş terminalinin boş kapasitesi kadar yapılır; önce ilave mesafesi olmayan iller doldurulur.</li>
+      <li>Motorin: ithalat yalnız IM/EX kargosu boşaltılan terminallerde yapılır; ithalatçının EPDK ithalatından kendi satışına ve dağıtıcı satışına yerleşmeyen kalanı takasla verilir. "İthal" sütunu ithal payıdır. Benzin: takasla motorin alan şirket benzinini de aynı satıcıdan, aynı terminalde alır (satıcının rafineri benzini; modelde dağıtıcıların benzin ithalatı yoktur).</li>
+      <li>Ürün değişimi (motorin tedarik tablosu, kullanıcı 12.10.2026): tabloda ithalatçıdan alım görünen rafineri alıcısı (PO, Shell, Opet, TP, Güzel) ithalatçının ithal motorinini giriş terminalinde alır, karşılığında kendi rafineri tahsisini verir. Leg1 'Terminal içi devir (takas; ürün değişimi)'.</li>
+      <li>Rafineri tahsisinden alım takas değildir: alıcı ürünü satıcının rafineri tahsisinden alır, ürün rafineriden doğrudan alıcının terminaline (ör. Opet'in Tüpraş tahsisinden gemiyle Aytemiz Alanya'ya) ya da rafineri sahasından bayiye gider. Bu alımlar Dağıtıcı müşterileri sayfasında satıcının altında görünür. Dağıtıcı terminalleri arasında yerli ürün taşınmaz.</li>
+      <li>Harita, takasla gelen ürünün il tüketimindeki payını gösterir. Ürün kartına tıklayınca harita ve tablo o ürüne daralır. Km: yükleme terminalinden ile ton ağırlıklı karayolu mesafesi. Satırlar akış tablosundaki takas satırlarıdır (Leg1 'Terminal içi devir (takas; bayi yönlendirmesi)'; REF_ITHALAT_TAKAS ile birebir).</li>
+    </ul>
+  </section>
+
+  <section class="akis-only" aria-labelledby="h-term">
+    <div class="head"><h2 id="h-term">Şirketler ve terminaller</h2><span class="sub" id="s-term"></span></div>
+    <div class="scroll"><table id="t-term"></table></div>
+  </section>
+
+  <div class="grid akis-only">
+    <section aria-labelledby="h-sepet">
+      <div class="head"><h2 id="h-sepet">Ürün sepeti</h2><span class="sub" id="s-sepet"></span></div>
+      <div class="sepet" id="sepet"></div>
+    </section>
+    <section aria-labelledby="h-il">
+      <div class="head"><h2 id="h-il">Etki alanındaki iller</h2><span class="sub" id="s-il"></span></div>
+      <div class="scroll"><table id="t-il"></table></div>
+    </section>
+  </div>
+
+  <div class="filters lpgf lpgm-only" role="search" aria-label="LPG filtreleri">
+    <div class="f"><label for="f-lsat">Satıcı</label><select id="f-lsat"></select></div>
+    <div class="f"><label for="f-lmus">Müşteri</label><select id="f-lmus"></select></div>
+    <button type="button" class="clear" id="clear-l">Filtreleri temizle</button>
+  </div>
+
+  <section class="lpgm-only" aria-labelledby="h-lpgm">
+    <div class="head"><h2 id="h-lpgm">LPG – dağıtıcılar arası ticaret</h2><span class="sub" id="s-lpgm"></span></div>
+    <p class="lead" id="l-lpgm"></p>
+    <div class="kpis" id="k-lpgm"></div>
+    <div class="scroll"><table id="t-lpgm"></table></div>
+    <ul class="notes">
+      <li>Satış tablosu ticari alımdır (FACT_LPG_TEDARIK): alıcının bir dağıtıcıdan yıllık LPG alımı; toptancıların yeniden sattığı ürün de dahildir. Rafineri alımları (Tüpraş, Star) bu sayfada yalnız özet kartında yer alır.</li>
+      <li>Terminal tablosu fizikseldir (FACT_LPG_AKIS): alıcının bayi ve tüketiciye sattığı LPG'nin hangi terminalden yüklendiği, kaynak türüne göre. Satıcı seçili ya da müşteri seçiliyken her satıcı–müşteri satırının altında terminal kırılımı görünür (db_108, FACT_LPG_TEDARIK.Tedarikci_Terminal_ID: satıcının ürünü verdiği terminal; yeniden satış için alınan kısım da alıcının il profiline göre satıcının en yakın terminallerine atanmıştır). Terminal tablosundaki satıcılar fizikseldir (FACT_LPG_AKIS.Yonlendiren_Sirket_ID).</li>
+    </ul>
+  </section>
+
+  <section class="lpgm-only" aria-labelledby="h-lpgt" id="sec-lpgt" hidden>
+    <div class="head"><h2 id="h-lpgt">Müşterinin yükleme terminalleri</h2><span class="sub" id="s-lpgt"></span></div>
+    <div class="scroll"><table id="t-lpgt"></table></div>
+
+  </section>
+
+  <div class="filters lpgf lpgi-only" role="search" aria-label="LPG ithalat filtreleri">
+    <div class="f"><label for="f-lith">İthalatçı</label><select id="f-lith"></select></div>
+    <div class="f"><label for="f-lgum">Liman bölgesi</label><select id="f-lgum"></select></div>
+    <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
+  </div>
+
+  <section class="lpgi-only" aria-labelledby="h-lpgi">
+    <div class="head"><h2 id="h-lpgi">LPG ithalatı</h2><span class="sub" id="s-lpgi"></span></div>
+    <p class="lead" id="l-lpgi"></p>
+    <div class="kpis" id="k-lpgi"></div>
+    <div class="lgrid">
+      <div class="lbox"><h3>Menşe ülke · 2025 (ülke geneli)</h3><div class="ulke" id="lpgi-ulke"></div></div>
+      <div class="lbox lchart"><h3 id="h-lpgi-ay">Aylık ithalat · bin ton · 2024 ve 2025 (ülke geneli)</h3><div id="lpgi-ay"></div><div class="lleg"><span><i style="background:#C9D3D8"></i>2024</span><span><i style="background:var(--lpg)"></i>2025</span></div></div>
+    </div>
+    <div class="lbox lchart"><h3>LPG arzı · milyon ton · üretim ve ithalat, 2016–2025</h3><div id="lpgi-yil"></div><div class="lleg"><span><i style="background:#8FA3AD"></i>Rafineri üretimi</span><span><i style="background:var(--lpg)"></i>İthalat</span><span><i style="background:none;border-top:2px solid var(--ink)"></i>Yurt içi satış</span></div></div>
+  </section>
+
+  <section class="lpgi-only" aria-labelledby="h-lpgi-t">
+    <div class="head"><h2 id="h-lpgi-t">Liman bölgesi · terminal · ithalatçı</h2><span class="sub" id="s-lpgi-t"></span></div>
+    <div class="scroll"><table id="t-lpgi"></table></div>
+    <ul class="notes">
+      <li>Şirket × terminal ithalatı model tahminidir (FACT_LPG_ITHALAT; gümrük grubu ithalatının ithalatçılara IPF ile dağıtımı); ulusal toplam EPDK ile aynıdır.</li>
+      <li>Kendi bayisine / tüketiciye: ithalatçının bu terminalden kendi ithalatıyla yaptığı satış (FACT_LPG_AKIS, kaynak "Kendi ithalatı"). Kalan kısım başka dağıtıcılara satılır, ihraç edilir ya da stoğa girer.</li>
+      <li>Menşe ülke, aylık seri ve yıllık arz ülke genelidir (EPDK LPG Piyasası Sektör Raporu 2025); ithalatçı ya da liman filtresinden etkilenmez.</li>
+    </ul>
+  </section>
+
+  <div class="filters lpgf atr-only" role="search" aria-label="Terminal filtreleri">
+    <div class="f"><label for="f-atr-s">Terminal</label><select id="f-atr-s"></select></div>
+    <div class="f"><label for="f-atr-t">Dağıtım şirketi</label><select id="f-atr-t"></select></div>
+    <button type="button" class="clear" id="clear-atr">Filtreleri temizle</button>
+  </div>
+  <section class="atr-only" aria-labelledby="h-atr">
+    <div class="head"><h2 id="h-atr">Akaryakıt terminalleri</h2><span class="sub" id="s-atr"></span></div>
+    <div class="kpis" id="k-atr"></div>
+    <div class="scroll"><table id="t-atr"></table></div>
+    <ul class="notes">
+      <li>Yükleme: terminalden bayiye / tüketiciye yüklenen akaryakıt (Enerji Master DB akış tablosu, 2025). Her terminalin altında o terminalde operasyon yapan (ürün yükleyen) şirketler; pay şirketin terminal yüklemesindeki payıdır. İthal: yüklemenin ithal ürün payı.</li>
+      <li>Ürün kaynak zinciri: kaynak (rafineri ya da ithalatçı) → satıcı dağıtıcı (başka dağıtıcıdan alımsa) · taşıma modu; tahsisi olmayan satıcıda parantez içinde tahsis zinciri. En büyük üç yol payıyla gösterilir.</li>
+      <li>Kapasite: EPDK akaryakıt depolama kapasitesi. Doluluk: terminalin tüm yüklemesi / (kapasite × yıllık devir), REF_TERMINAL_KAPASITE. %90 üstü kırmızı, %70 üstü turuncu.</li>
+      <li>Lisans: EPDK depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA). Rafinerilerin rafinerici lisansı vardır, depolama lisansı yoktur. İşletmeci: veritabanındaki terminal işletmecisi ya da lisans sahibi.</li>
+    </ul>
+  </section>
+  <div class="filters lpgf ltr-only" role="search" aria-label="LPG terminal filtreleri">
+    <div class="f"><label for="f-ltr-s">Terminal</label><select id="f-ltr-s"></select></div>
+    <div class="f"><label for="f-ltr-t">Dağıtım şirketi</label><select id="f-ltr-t"></select></div>
+    <button type="button" class="clear" id="clear-ltr">Filtreleri temizle</button>
+  </div>
+  <section class="ltr-only" aria-labelledby="h-ltr">
+    <div class="head"><h2 id="h-ltr">LPG terminalleri</h2><span class="sub" id="s-ltr"></span></div>
+    <div class="kpis" id="k-ltr"></div>
+    <div class="scroll"><table id="t-ltr"></table></div>
+    <ul class="notes">
+      <li>Yükleme: terminalden bayiye / tüketiciye yüklenen LPG (FACT_LPG_AKIS). İthalat: terminale giren ithalat (FACT_LPG_ITHALAT); şirket satırında o şirketin bu terminale yaptığı ithalat.</li>
+      <li>Devir / yıl: yükleme / (LPG kapasitesi m³ × 0,54 t/m³). 30 üstü kalın: kapasite verisi teyit edilmeli ya da tank çok sık dönüyor.</li>
+      <li>Ürün kaynak zinciri: şirketin bu terminalde yüklediği LPG'nin kaynağı – kendi ithalatı, dağıtıcıdan alım (satıcılar FACT_LPG_TEDARIK / FACT_LPG_AKIS yönlendiren şirketten) ya da rafineriden alım; birden çok kaynak varsa payıyla.</li>
+      <li>Tesis tipi: Rafineri (Tüpraş, Star); Dağıtıcı terminali (işletmecisi LPG dağıtıcısı, kendi kullanımı ya da açık); Bağımsız (bağımsız LPG deposu, tarifeli kara terminali ya da işletmecisi dağıtıcı olmayan açık terminal, ör. Byport).</li>
+      <li>Lisans: EPDK LPG depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA).</li>
+    </ul>
+  </section>
+  <footer>Kaynak: Enerji Master DB 2025 (PDM). İl sınırları: alpers/Turkey-Maps-GeoJSON (GitHub; lisans belirtilmemiş, sadeleştirildi). Mesafeler ton ağırlıklı karayolu km. <span class="tag">tahmin</span> etiketi: terminaldeki hacmin yarısından fazlası EPDK il verisinden modelle atanmış (diğer petrol ürünleri). Ürün sepeti EPDK şirket bildirimleridir, il filtresinden etkilenmez. Tedarik tahsisi: Enerji Master DB REF_TEDARIK_TAHSIS ve REF_TAHSIS_RAFINERI_KOSUL (veri sürümüyle birlikte güncellenir).</footer>
+</div>
+
+
+<div class="m-ortu" id="m-ortu"><div class="m-kart" id="m-kart"><div class="m-brand"><img src="icon-192.png" alt="">Enerji Akış</div><p>Yükleniyor…</p></div></div>
+<script type="application/json" id="data"></script>
+<script type="application/json" id="geo"></script>
+<script type="application/json" id="tahsis"></script>
+<script src="mobil.js"></script>
+</body>
+</html>

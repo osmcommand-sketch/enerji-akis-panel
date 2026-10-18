@@ -1,15 +1,15 @@
 {
- "surum": "1.0.12",
+ "surum": "1.0.13",
  "kabuk": 1,
- "tarih": "2026-10-18T12:50:29+03:00",
- "notlar": "Terminaller: dağıtım şirketi filtresi, ürün kaynak zinciri",
+ "tarih": "2026-10-18T13:29:26+03:00",
+ "notlar": "Mobil düzen düzeltmesi; veri hattı telefon sürümüyle ortak",
  "dosyalar": {
   "ui/index.html": "43dbd2f9a8f413e0184b96b6194cf6895f8d6ddaf973daf6ca4f5ec47e525101",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "52cc5a7834ce9afd47afbd15e924e398e1571dba55c7e9ec0d46de7444c40117",
-  "ui/panel.css": "6470fab13ffe934ad5caf8506c02a0a75397c488b8934c458ae4d149e27b52b6",
+  "ui/panel.css": "f9b9fc4cbb3d45c9f443e46d1c42c9bd603bbcfee135bb806facecd657a71d50",
   "ui/panel.js": "b7de0f46543a035ed3458887667ddf036a034cdbc6d981df4f980af555c2b0aa",
-  "pipeline.js": "55be6c4f23ec88a3e7bf7d93e1916e49f0b8207e06e7f3f2029c545d81d93bda",
+  "pipeline.js": "d45286d704e2e70e2a4699fb68b0db1ae422dc0185f7f52ed6acbe5cdbe858ae",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
