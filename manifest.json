@@ -1,14 +1,14 @@
 {
- "surum": "1.0.17",
+ "surum": "1.0.18",
  "kabuk": 1,
- "tarih": "2026-10-18T14:39:18+03:00",
- "notlar": "Terminaller: tedarikçi altında alıcılar",
+ "tarih": "2026-10-18T16:12:47+03:00",
+ "notlar": "Terminaller ve Dağıtıcılar arası ticaret: zincirli tedarik ara halkalarıyla (ör. Tüpraş İzmit → Petrol Ofisi → Socar)",
  "dosyalar": {
   "ui/index.html": "ad67bd038e0db7179901f430d09b3f5c4a71f2ad89432a188a37492ad888bdb3",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "52cc5a7834ce9afd47afbd15e924e398e1571dba55c7e9ec0d46de7444c40117",
   "ui/panel.css": "3d4f632672b69442d184657a93d42dbcdd81152364352f2c7dc8b9840b8add4e",
-  "ui/panel.js": "2bc14366ba1a292d54d053c418c96165054460310061949fe3ebce2cb434db1d",
+  "ui/panel.js": "6f5fad461f2b6eaa3349eb573b6d878f11f78f114a8e09fb08f64ed540ec69f0",
   "pipeline.js": "d45286d704e2e70e2a4699fb68b0db1ae422dc0185f7f52ed6acbe5cdbe858ae",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",

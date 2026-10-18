@@ -12,6 +12,7 @@ const LIS=(t,lpg)=>{ const x=TLIS[t]; if(!x) return ""; const a=lpg?x[1]:x[0], b
   if(!Ls.length) return x[2]==="Rafineri"?' <span class="lis yok">rafineri</span>':' <span class="lis yok">lisans no yok</span>';
   return ` <span class="lis" title="EPDK depolama lisansı: ${esc(Ls.join(", "))}">${esc(Ls[0])}${Ls.length>1?` +${Ls.length-1}`:""}</span>`; };
 const ZIN=[]; MOD.forEach((m,i)=>{ const z=String(m).match(/^(.*) – zincir: (.*)$/); if(z){ MOD[i]=z[1]; ZIN[i]=z[2]; } });
+const zinSira=z=>String(z).split(" ← ").map(s=>s.replace(/ tahsisi$/,"").trim()).reverse().join(" → ");
 const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1,atrU:[],ltrU:[]};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
 const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgmus"};
@@ -308,7 +309,7 @@ function musteriler(){
     const o=pt.u.get(f[3])||pt.u.set(f[3],{v:0,il:new Set(),src:new Map(),tes:new Map()}).get(f[3]);
     g.v+=f[6]; g.u.set(f[3],(g.u.get(f[3])||0)+f[6]); pt.v+=f[6]; pt.il.add(f[2]); o.v+=f[6]; o.il.add(f[2]);
     const s=KAY[f[4]][2].startsWith("Dağıtıcı")?KAY[f[4]][1]+" ithalatı":KAY[f[4]][1]; o.src.set(s,(o.src.get(s)||0)+f[6]);
-    const te=teslim(f[5])+(ZIN[f[5]]?`<br><span class="zn">zincir: ${esc(ZIN[f[5]])}</span>`:""); o.tes.set(te,(o.tes.get(te)||0)+f[6]);
+    const te=teslim(f[5])+(ZIN[f[5]]?`<br><span class="zn">zincir: ${esc(s+" → "+zinSira(ZIN[f[5]]))}</span>`:""); o.tes.set(te,(o.tes.get(te)||0)+f[6]);
   }
   const grp=[...m.values()].filter(g=>g.v>0.5).sort((a,b)=>(a.al===a.sat)-(b.al===b.sat)||b.v-a.v);
   const kay=o=>[...o.src].sort((a,b)=>b[1]-a[1]).filter((x,i)=>i===0||(i===1&&x[1]/o.v>=0.15)).map(x=>`${esc(x[0])} · ${pct(x[1]/o.v)}`).join("<br>");
@@ -1049,7 +1050,10 @@ const sirKart=(baslik,o,T)=>{ const a=[...o].sort((x,y)=>y[1].v-x[1].v), P=a.sli
 const zinAk=f=>{ const K=KAY[f[4]]||["","?",""], kendi=K[3]===f[0];
   const src=String(K[2]).startsWith("Dağıtıcı")?(kendi?"Kendi ithalatı":K[1]+" ithalatı"):K[1];
   const sat=f[11]>=0&&f[11]!==f[0]?SIR[f[11]][1]:null, md=tasMod(MOD[f[5]]), z=ZIN[f[5]];
-  return `${src}${sat&&!(String(K[2]).startsWith("Dağıtıcı")&&SIR[f[11]][1]===K[1])?" → "+sat:""}${z?` <span class="zn">(${esc(z.replace(/^[^←]*← /,""))})</span>`:""} · <span class="muted">${esc(md)}</span>`; };
+  // zincir (kullanıcı 18.10.2026 15:48): "Socar ← Petrol Ofisi tahsisi" → kaynak → Petrol Ofisi → Socar (ara halkalar sırayla)
+  const zp=z?String(z).split(" ← ").map(s=>s.replace(/ tahsisi$/,"").trim()):[], ara=zp.slice(1).reverse().filter(a=>a!==K[1]&&a!==sat);
+  const satG=sat&&!(String(K[2]).startsWith("Dağıtıcı")&&SIR[f[11]][1]===K[1]);
+  return `${src}${ara.map(a=>` → <span class="zn">${esc(a)}</span>`).join("")}${satG?" → "+sat:""} · <span class="muted">${esc(md)}</span>`; };
 // Ürün → kaynak → mod (kullanıcı 18.10.2026 14:03: hangi ürün hangi kaynaktan hangi modda): her ürün başlığı altında tüm yollar tonajıyla
 const zinUrun=(zu,ad,renk)=>[...(zu||new Map())].map(([u,m])=>[u,m,[...m.values()].reduce((a,b)=>a+b,0)]).filter(x=>x[2]>=0.5).sort((a,b)=>b[2]-a[2])
   .map(([u,m,T])=>`<span class="zu"><i style="background:${renk(u)}"></i>${esc(ad(u))} <b>${ton(T)}</b></span>`+[...m].filter(x=>x[1]>=0.5).sort((x,y)=>y[1]-x[1]).map(([z,v])=>`<span class="zc zi">${z} <em>${ton(v)}${m.size>1?" · "+pct(v/T):""}</em></span>`).join("")).join("");
