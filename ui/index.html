@@ -275,6 +275,7 @@
   </section>
   <div class="filters lpgf ltr-only" role="search" aria-label="LPG terminal filtreleri">
     <div class="f"><label for="f-ltr-s">Yükleyen şirket</label><select id="f-ltr-s"></select></div>
+    <div class="f"><label for="f-ltr-t">Tesis tipi</label><select id="f-ltr-t"></select></div>
     <button type="button" class="clear" id="clear-ltr">Filtreleri temizle</button>
   </div>
   <section class="ltr-only" aria-labelledby="h-ltr">
@@ -284,6 +285,7 @@
     <ul class="notes">
       <li>Yükleme: terminalden bayiye / tüketiciye yüklenen LPG (FACT_LPG_AKIS). İthalat: terminale giren ithalat (FACT_LPG_ITHALAT), şirket filtresinden bağımsız.</li>
       <li>Devir / yıl: yükleme / (LPG kapasitesi m³ × 0,54 t/m³). 30 üstü kalın: kapasite verisi teyit edilmeli ya da tank çok sık dönüyor.</li>
+      <li>Tesis tipi: Rafineri (Tüpraş, Star); Dağıtıcı terminali (işletmecisi LPG dağıtıcısı, kendi kullanımı ya da açık); Bağımsız (bağımsız LPG deposu, tarifeli kara terminali ya da işletmecisi dağıtıcı olmayan açık terminal, ör. Byport).</li>
       <li>Lisans: EPDK LPG depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA).</li>
     </ul>
   </section>
