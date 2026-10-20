@@ -1,14 +1,14 @@
 {
- "surum": "1.0.23",
+ "surum": "1.0.24",
  "kabuk": 1,
- "tarih": "2026-10-20T21:27:23+03:00",
- "notlar": "LPG Bayiler: dağıtıcı sınıfı ve iş modeli; yeni 'Akaryakıt istasyon ağlarının LPG tedarikçisi' bölümü. Tahsis terminal bazlı: alıcı sınıfı.",
+ "tarih": "2026-10-20T21:31:36+03:00",
+ "notlar": "Filtrelerde şirket ve terminal listeleri tonaja göre (büyükten küçüğe).",
  "dosyalar": {
   "ui/index.html": "416558b071999e76bdefdf788e06a7bdd5e8b7ae7091e17061ae37638992aa67",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "5460c0537c791b9a0614ec53b896a3fa2f78a60c67c020893fcf19347b0e9688",
   "ui/panel.css": "646939be7161bf83cbfbde5fe7cd00d670fa139f6d0c25f7d8f0f8526a6f1d14",
-  "ui/panel.js": "3fc305eec03ce687b40dd531053eaee06626ad4c035d06560bca6cef7e55d6d4",
+  "ui/panel.js": "7b53491fcc54e82804e2374c1c7c038f7916d02e4bc1a469fe51f450f354717a",
   "pipeline.js": "3ea3067baf3ae89df520947076406938b4d132d7089091d7e384b64af425b24a",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",

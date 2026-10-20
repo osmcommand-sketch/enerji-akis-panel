@@ -1205,7 +1205,8 @@ const LSRC=f=>f[4]===0?0:f[4]===2?1:f[4]===1?2:3;          // LF tedarik türü 
 const LSRC_AD=["Kendi ithalatı","Rafineriden","Dağıtıcıdan","Açılış stoku"], LSRC_R=["#2A5591","#0F6E8C","#B7791F","#8A97A3"], LSRC_P=["i","r","d","s"];
 const RAFT=new Set(LURET.map(r=>r[0]));
 const lsel=(id,opts,val,tum)=>{ const el=document.getElementById(id); el.innerHTML=`<option value="-1">${tum}</option>`+opts.map(([v,a])=>`<option value="${v}">${esc(a)}</option>`).join(""); el.value=String(val); };
-const sirOpts=m=>[...m].filter(x=>x[1]>=0.5).sort((a,b)=>SIR[a[0]][1].localeCompare(SIR[b[0]][1],"tr")).map(([i,v])=>[i,`${SIR[i][1]} · ${ton(v)}`]);
+const sirOpts=m=>[...m].filter(x=>x[1]>=0.5).sort((a,b)=>b[1]-a[1])   // tonaja göre (kullanıcı 20.10.2026 21:30)
+.map(([i,v])=>[i,`${SIR[i][1]} · ${ton(v)}`]);
 const urun3=()=>[0,0,0];
 // fiziksel dağıtıcı alımında satıcı payları: alıcı × terminal → [[satıcı, pay]]
 const LFS_PAY=(()=>{ const m=new Map(); for(const r of LFS){ const k=r[0]+"|"+r[1]; (m.get(k)||m.set(k,[]).get(k)).push([r[2],r[3]]); }
@@ -1469,8 +1470,8 @@ function render(){
   // Terminal filtresi (kullanıcı 08.10.2026): seçili şirket + ürün için akışı olan terminaller, alfabetik
   const tv=new Map(); for(const f of AF) if(sA(f)&&prA(f)) tv.set(f[1],(tv.get(f[1])||0)+f[6]); for(const f of LF) if(sL(f)&&prL(f)) tv.set(f[1],(tv.get(f[1])||0)+f[6]);
   const tl=[...tv].filter(([t,v])=>v>0.5||t===S.term).map(([t])=>t); if(S.term!=null&&!tv.has(S.term)) tl.push(S.term);
-  tl.sort((a,b)=>TERM[a][1].localeCompare(TERM[b][1],"tr"));
-  fT.innerHTML=`<option value="">Tüm terminaller (${tl.length})</option>`+tl.map(t=>`<option value="${t}">${esc(TERM[t][1])} · ${esc(HUB[TERM[t][2]].ad)}</option>`).join("");
+  tl.sort((a,b)=>(tv.get(b)||0)-(tv.get(a)||0));   // tonaja göre (kullanıcı 20.10.2026 21:30; önceden alfabetik)
+  fT.innerHTML=`<option value="">Tüm terminaller (${tl.length})</option>`+tl.map(t=>`<option value="${t}">${esc(TERM[t][1])} · ${esc(HUB[TERM[t][2]].ad)}${(tv.get(t)||0)>=0.5?" · "+ton(tv.get(t)):""}</option>`).join("");
   fT.value=S.term==null?"":String(S.term);
   harita(); if(MUS()) musteriler(); else if(TKS()) takas(); else {terminaller(); sepet(); iller();}
 }
