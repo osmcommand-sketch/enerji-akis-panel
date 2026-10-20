@@ -386,6 +386,17 @@
     <ul class="notes">
       <li>Bayi: EPDK otogaz bayilik lisansı (LPG veritabanı ref_dealer, 2026-10-20 görüntüsü); 2025 sonunda faal ve 2025 dağıtıcısına göre (ref_dealer_distributor_hist; TP ve Balpet ağı tahminidir).</li>
       <li>Otogaz satışı: dağıtıcının ildeki 2025 otogaz satışı (FACT_LPG_AKIS). t / bayi: bayi başına yıllık otogaz.</li>
+      <li>Sınıf: LPG satış payına göre ölçek (A ≥ %15, B %5–15, C %1–5, D %0,3–1, E &lt; %0,3); iş modeli: tedarik modeli, altyapı ve yayılıma göre segment – akaryakıt sınıflandırmasıyla aynı yöntem (LPG veritabanı ref_distributor_class).</li>
+    </ul>
+  </section>
+  <section class="lbay-only" aria-labelledby="h-lagi">
+    <div class="head"><h2 id="h-lagi">Akaryakıt istasyon ağlarının LPG tedarikçisi</h2><span class="sub" id="s-lagi"></span></div>
+    <p class="lead">Akaryakıt dağıtım şirketlerinin istasyonlarında satılan otogazın hangi LPG dağıtıcısından geldiği. Bir LPG dağıtıcısı seçince, o dağıtıcının otogaz verdiği akaryakıt ağları listelenir; il seçimi tabloyu süzer.</p>
+    <div class="kpis" id="k-lagi"></div>
+    <div class="scroll"><table id="t-lagi"></table></div>
+    <ul class="notes">
+      <li>LPG dağıtıcısının il bazında 2025 otogaz satışı, o ilde ondan alan istasyonlara eşit bölünür ve istasyonlar akaryakıt dağıtıcısına göre toplanır (LPG veritabanı fact_fuel_network_lpg_supply). İstasyonun 2025 LPG dağıtıcısı bayi lisans geçmişinden, akaryakıt dağıtıcısı güncel bayi listesinden. İstasyonu listelenmeyen il satışı (yaklaşık 39 kt) dağıtılmaz.</li>
+      <li>Aynı grup: akaryakıt ve LPG dağıtıcısı aynı şirket ya da grup (ör. Opet–Aygaz Koç, Güzel Enerji–Likitgaz OYAK, Bpet = Turkey + Balpet).</li>
     </ul>
   </section>
   <footer>Kaynak: Enerji Master DB 2025 (PDM)<span id="lpgk"></span>. İl sınırları: alpers/Turkey-Maps-GeoJSON (GitHub; lisans belirtilmemiş, sadeleştirildi). Mesafeler ton ağırlıklı karayolu km. <span class="tag">tahmin</span> etiketi: terminaldeki hacmin yarısından fazlası EPDK il verisinden modelle atanmış (diğer petrol ürünleri). Ürün sepeti EPDK şirket bildirimleridir, il filtresinden etkilenmez. Tedarik tahsisi: Enerji Master DB REF_TEDARIK_TAHSIS ve REF_TAHSIS_RAFINERI_KOSUL (veri sürümüyle birlikte güncellenir).</footer>
