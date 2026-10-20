@@ -1,7 +1,8 @@
 
 const D=JSON.parse(document.getElementById("data").textContent);
 const IL=new Map(D.il.map(r=>[r[0],r[1]])), TERM=D.term, HUB=D.hub, KAY=D.kay, SIR=D.sir, UG=D.ug, SEP=D.sep;
-const TED=["Kendi ithalatı","Dağıtıcıdan alım","Rafineriden alım"];
+{ const k=D.lpgk; if(k&&k.kaynak) document.getElementById("lpgk").textContent=" · LPG: "+(k.ad||"LPG veritabanı")+(k.tarih?" ("+k.tarih+")":"")+" (LPG Specialist)"; }
+const TED=["Kendi ithalatı","Dağıtıcıdan alım","Rafineriden alım","Stoktan satış"];   // 3: açılış stoku (LPG veritabanı, 20.10.2026)
 const AURUN=["Benzin","Motorin","Fuel Oil","Havacılık","Denizcilik","Gazyağı","Diğer"], LURUN=["Otogaz","Tüplü","Dökme"];
 // afR: [şirket, terminal, il, ürün, kaynak, mod, ton, km, tahmin, havalimanı] · lfR: [şirket, terminal, depo, il, tedarik, ürün, ton, km, km_maliyet]
 const AF=D.af, LF=D.lf, BY=D.by||[], MOD=D.mod||[];
@@ -905,7 +906,7 @@ function lpgTicaret(){
   // alıcı tarafı: ticari alım (dağıtıcı + rafineri) ve bayi / tüketiciye giden kısmı (akış)
   const ALC=S.lmus>=0?new Set([S.lmus]):new Set(LMUS.keys());
   let pD=0,pR=0; for(const r of LT) if(ALC.has(r[0])){ if(r[1]==="Dağıtıcı") pD+=r[4]; else pR+=r[4]; }
-  let fK=0,fD=0,fR=0; for(const f of LF) if(ALC.has(f[0])){ if(f[4]===0) fK+=f[6]; else if(f[4]===1) fD+=f[6]; else fR+=f[6]; }
+  let fK=0,fD=0,fR=0; for(const f of LF) if(ALC.has(f[0])){ if(f[4]===0||f[4]===3) fK+=f[6]; else if(f[4]===1) fD+=f[6]; else fR+=f[6]; }
   const yen=Math.max(0,pD+pR-fD-fR);
   const k=[];
   k.push(`<div class="kpi"><span>Dağıtıcılar arası satış</span><b>${ton(T)}</b><span>${nS} satıcı → ${alc.size} müşteri${S.lsat||S.lmus>=0?" · piyasanın "+pct(T/TUM):""}</span></div>`);
@@ -913,7 +914,7 @@ function lpgTicaret(){
     k.push(`<div class="kpi"><span>${S.lmus>=0?esc(SIR[S.lmus][1])+" – alımın kullanımı":"Alımın kullanımı"}</span><b>${ton(pD+pR)}</b><span>dağıtıcıdan ${ton(pD)} · rafineriden ${ton(pR)}</span>
       <div class="lseg" aria-hidden="true"><i style="flex:${fD+fR} 0 0;background:var(--lpg)"></i><i style="flex:${yen} 0 0;background:#E8B48A"></i></div>
       <span>bayi ve tüketiciye ${ton(fD+fR)} · yeniden satış (toptan) ${ton(yen)}</span></div>`);
-    if(S.lmus>=0) k.push(`<div class="kpi"><span>Kendi ithalatı</span><b>${ton(fK)}</b><span>bayi ve tüketici satışındaki payı ${pct(fK/((fK+fD+fR)||1))}</span></div>`);
+    if(S.lmus>=0) k.push(`<div class="kpi"><span>Kendi ithalatı ve stok</span><b>${ton(fK)}</b><span>bayi ve tüketici satışındaki payı ${pct(fK/((fK+fD+fR)||1))}</span></div>`);
   } else {
     const top=[...new Map(R.reduce((m,r)=>m.set(r[0],(m.get(r[0])||0)+r[4]),new Map()))].sort((a,b)=>b[1]-a[1]).slice(0,3);
     k.push(`<div class="kpi"><span>En büyük müşteriler</span><b>${top.length?esc(SIR[top[0][0]][1]):"–"}</b><span>${top.map(([a,v])=>`${esc(SIR[a][1])} ${pct(v/T)}`).join(" · ")}</span></div>`);
@@ -943,12 +944,12 @@ function lpgTicaret(){
   // müşterinin yükleme terminalleri (fiziksel akış)
   const sec=document.getElementById("sec-lpgt"); sec.hidden=S.lmus<0;
   if(S.lmus>=0){
-    const t=new Map(); for(const f of LF) if(f[0]===S.lmus){ const o=t.get(f[1])||t.set(f[1],{k:0,d:0,r:0,il:new Set(),tk:0}).get(f[1]); if(f[4]===0) o.k+=f[6]; else if(f[4]===1) o.d+=f[6]; else o.r+=f[6]; o.il.add(f[3]); o.tk+=f[6]*f[7]; }
+    const t=new Map(); for(const f of LF) if(f[0]===S.lmus){ const o=t.get(f[1])||t.set(f[1],{k:0,d:0,r:0,il:new Set(),tk:0}).get(f[1]); if(f[4]===0||f[4]===3) o.k+=f[6]; else if(f[4]===1) o.d+=f[6]; else o.r+=f[6]; o.il.add(f[3]); o.tk+=f[6]*f[7]; }
     const ts=[...t].map(([i,o])=>[i,o,o.k+o.d+o.r]).filter(x=>x[2]>0.5).sort((a,b)=>b[2]-a[2]), TT=ts.reduce((a,x)=>a+x[2],0);
     const satT=i=>{ const m=new Map(); for(const r of LFS) if(r[0]===S.lmus&&r[1]===i&&(!S.lsat||(r[2]>=0&&SIR[r[2]][1]===S.lsat))) m.set(r[2],(m.get(r[2])||0)+r[3]); const a=[...m].sort((x,y)=>y[1]-x[1]); return a.length?a.slice(0,3).map(([s_,v])=>`${esc(s_>=0?SIR[s_][1]:"?")} ${ton(v)}`).join(" · ")+(a.length>3?` · +${a.length-3}`:""):"–"; };
     document.getElementById("h-lpgt").textContent=`${SIR[S.lmus][1]} – LPG yükleme terminalleri`;
     document.getElementById("s-lpgt").textContent=`${ts.length} terminal · ${ton(TT)} bayi ve tüketiciye`;
-    document.getElementById("t-lpgt").innerHTML=`<thead><tr><th class="l">Terminal</th><th>Kendi ithalatı</th><th>Dağıtıcı alımı</th><th>Rafineri alımı</th><th>Toplam</th><th>Pay</th><th>İl</th><th>Ort. km</th><th class="l">Dağıtıcı alımında satıcılar</th></tr></thead><tbody>`+
+    document.getElementById("t-lpgt").innerHTML=`<thead><tr><th class="l">Terminal</th><th>Kendi ithalatı / stok</th><th>Dağıtıcı alımı</th><th>Rafineri alımı</th><th>Toplam</th><th>Pay</th><th>İl</th><th>Ort. km</th><th class="l">Dağıtıcı alımında satıcılar</th></tr></thead><tbody>`+
       (ts.length?ts.map(([i,o,v])=>`<tr><td class="l"><b>${(esc(TERM[i][1])+LIS(i,1))}</b> <span class="muted">· ${esc(HUB[TERM[i][2]].ad)}</span></td><td>${cell(o.k)}</td><td>${cell(o.d)}</td><td>${cell(o.r)}</td><td><b>${ton(v)}</b></td><td>${pct(v/TT)}</td><td>${o.il.size}</td><td>${nf.format(o.tk/v)}</td><td class="l"><span class="muted">${satT(i)}</span></td></tr>`).join(""):`<tr><td colspan="9" class="empty">Bu şirketin bayi / tüketici satışı yok (yalnız toptan).</td></tr>`)+`</tbody>`;
   }
 }
@@ -1115,7 +1116,7 @@ function akTerminaller(){
 function lpgTerminaller(){
   const G=new Map(), IT=new Map(), SM=new Map(), DS=new Map(); for(const r of LITH){ const k=r[1]+"|"+r[0]; IT.set(k,(IT.get(k)||0)+r[3]); }
   for(const r of LFS){ const k=r[1]+"|"+r[0]; const m=DS.get(k)||DS.set(k,new Map()).get(k); m.set(r[2],(m.get(r[2])||0)+r[3]); }   // alıcı × terminal → satıcılar
-  const TTAD=["Kendi ithalatı","Dağıtıcıdan","Rafineriden"];
+  const TTAD=["Kendi ithalatı","Dağıtıcıdan","Rafineriden","Açılış stoku"];
   const UT=new Map(); for(const f of LF) UT.set(f[5],(UT.get(f[5])||0)+f[6]);
   S.ltrU=S.ltrU.filter(u=>UT.get(u)>=0.5); const US=new Set(S.ltrU);
   msDoldur("ms-ltr",[...UT].filter(x=>x[1]>=0.5).sort((a,b)=>a[0]-b[0]).map(([u,v])=>[u,LPGU[u]||"?",LPGU_R[u]||"#C8641C",v]),S.ltrU);
@@ -1123,6 +1124,7 @@ function lpgTerminaller(){
     const c=o.c.get(f[0])||o.c.set(f[0],{v:0,km:0,il:new Set(),z:new Map()}).get(f[0]); c.v+=f[6]; c.km+=(f[7]||0)*f[6]; c.il.add(f[3]); c.z.set(f[4],(c.z.get(f[4])||0)+f[6]);
     { const rf=(TMETA[f[1]]||[])[6]==="Rafineri", ta=TERM[f[1]][1];
       if(f[4]===0) agacEkle(o,"Kendi ithalatı",f[0],f[5],"Kendi ithalatı · <span class=\"muted\">Deniz Yolu (ithalat)</span>",f[6],0,f[7]||0,f[3]);
+      else if(f[4]===3) agacEkle(o,"Açılış stoku",f[0],f[5],'Açılış stoku · <span class="muted">Stoktan satış</span>',f[6],0,f[7]||0,f[3]);
       else if(f[4]===2) agacEkle(o,ta.startsWith("Tüpraş")?"Tüpraş":ta.startsWith("Star")?"Star Rafineri":"Rafineri",f[0],f[5],(rf?esc(ta):"Rafineri")+' · <span class="muted">'+(rf?"Rafineri sahasından yükleme":"Rafineriden sevk")+'</span>',f[6],0,f[7]||0,f[3]);
       else { const sm=[...(DS.get(f[1]+"|"+f[0])||new Map())], TT=sm.reduce((q,x)=>q+x[1],0);
         if(!TT) agacEkle(o,"Dağıtıcı",f[0],f[5],'Dağıtıcıdan · <span class="muted">Terminal içi devir</span>',f[6],0,f[7]||0,f[3]);

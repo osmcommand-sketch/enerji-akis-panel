@@ -57,6 +57,7 @@
     $('geo').textContent = JSON.stringify(r.geo);
     window.__SURUM__ = r.meta.surum;
     $('veri').hidden = false; $('v-ad').textContent = r.meta.ad; $('v-tarih').textContent = 'Dosya tarihi ' + tarih(r.meta.mtime);
+    { const k = (r.data && r.data.lpgk) || {}; const e = $('v-lpg'); e.hidden = false; e.textContent = k.kaynak ? 'LPG: ' + k.ad + (k.tarih ? ' (' + k.tarih + ')' : '') : 'LPG: master veritabanı (aynı klasöre lpg_tr…zip koyun)'; }
     const s = document.createElement('script'); s.src = 'panel.js';
     s.onload = () => { baslik(); $('yukle').hidden = true; };
     s.onerror = () => bos('Panel başlatılamadı.');

@@ -39,7 +39,11 @@ onmessage = async (e) => {
     postMessage({ tip: 'log', m: 'SQLite hazırlanıyor' });
     const SQL = await initSqlJs({ locateFile: (f) => f });
     const res = {}; for (const f of ['terminal_depo_koordinat.csv', 'ilce_koordinat.csv']) res[f] = await (await fetch('res/' + f)).text();
-    const r = EnerjiPipeline.run(SQL, buf, res, (m) => postMessage({ tip: 'log', m }));
+    let lpg = null;
+    if (e.data.lpg) { postMessage({ tip: 'log', m: 'LPG veritabanı açılıyor' }); lpg = new Uint8Array(e.data.lpg);
+      if (U32(lpg, 0) === 0x04034b50) lpg = (await zipIcinden(lpg)).buf;
+      if (new TextDecoder().decode(lpg.subarray(0, 15)) !== 'SQLite format 3') throw new Error('LPG dosyası bir SQLite veritabanı değil (lpg_tr_db_….zip seçin).'); }
+    const r = EnerjiPipeline.run(SQL, buf, res, (m) => postMessage({ tip: 'log', m }), lpg ? { lpg, lpgAd: e.data.lpgAd } : {});
     postMessage({ tip: 'bitti', r: { data: r.data, tahsis: r.tahsis, icAd } });
   } catch (err) { postMessage({ tip: 'hata', m: String((err && err.message) || err) }); }
 };
