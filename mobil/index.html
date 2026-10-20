@@ -144,7 +144,7 @@ tr.kendi td{background:var(--surface-2)}
 @media (max-width:860px){.lgrid{grid-template-columns:minmax(0,1fr)}}
 .lbox{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .lbox h3{margin:0;font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
-.ulke{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr) auto auto;gap:6px 10px;align-items:center;font-size:13px}
+.ulke{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr) auto;gap:6px 10px;align-items:center;font-size:13px}
 .ulke .b{height:10px;border-radius:3px;background:var(--lpg)}.ulke em{font-style:normal;font-variant-numeric:tabular-nums;text-align:right}
 .ulke .up{color:#1D7A4A}.ulke .dn{color:#B3412E}
 .lchart svg{width:100%;height:auto;display:block}#lpgi-ay,#lpgi-yil{overflow-x:auto}@media (max-width:600px){#lpgi-ay svg{min-width:520px}#lpgi-yil svg{min-width:760px}}.lchart text{font:11px var(--f-body);fill:var(--ink-3)}
@@ -580,9 +580,8 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <div class="kpis" id="k-lpgi"></div>
     <div class="lgrid">
       <div class="lbox"><h3>Menşe ülke · 2025 (ülke geneli)</h3><div class="ulke" id="lpgi-ulke"></div></div>
-      <div class="lbox lchart"><h3 id="h-lpgi-ay">Aylık ithalat · bin ton · 2024 ve 2025 (ülke geneli)</h3><div id="lpgi-ay"></div><div class="lleg"><span><i style="background:#C9D3D8"></i>2024</span><span><i style="background:var(--lpg)"></i>2025</span></div></div>
+      <div class="lbox lchart"><h3 id="h-lpgi-ay">Aylık LPG arzı · 2025 · bin ton (ülke geneli)</h3><div id="lpgi-ay"></div><div class="lleg"><span><i style="background:#8FA3AD"></i>Rafineri üretimi</span><span><i style="background:var(--lpg)"></i>İthalat</span><span><i style="background:none;border-top:2px solid var(--ink)"></i>Yurt içi satış</span></div></div>
     </div>
-    <div class="lbox lchart"><h3>LPG arzı · milyon ton · üretim ve ithalat, 2016–2025</h3><div id="lpgi-yil"></div><div class="lleg"><span><i style="background:#8FA3AD"></i>Rafineri üretimi</span><span><i style="background:var(--lpg)"></i>İthalat</span><span><i style="background:none;border-top:2px solid var(--ink)"></i>Yurt içi satış</span></div></div>
   </section>
 
   <section class="lpgi-only" aria-labelledby="h-lpgi-t">

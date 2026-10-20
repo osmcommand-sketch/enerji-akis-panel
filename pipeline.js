@@ -343,9 +343,9 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
     if (m && tix.has(m[1]) && tix.has(r.Terminal_ID) && sidx.has(r.Sirket_ID)) TR.push([sidx.get(r.Sirket_ID), tix.get(m[1]), tix.get(r.Terminal_ID), AUR[r.Urun]]);
   }
   const LITH = Q('select Sirket_ID,Terminal_ID,Gumruk_Grubu g,sum(Ithalat_ton) t from FACT_LPG_ITHALAT group by 1,2,3').filter(r => r.t >= 1).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.g || '?', pr(r.t)]);
-  const LULKE = Q('select Country c,"2024" a,"2025" b from REF_LPG_ITHALAT_ULKE where Country not in (\'TOTAL\',\'PDF total\')').filter(r => (r.b || 0) > 0 || (r.a || 0) > 0).map(r => [r.c, r.a || 0, r.b || 0]);
-  const LAY = Q('select "Month (TR)" m,"Imports 2024" a,"Imports 2025" b from REF_LPG_ULUSAL_AYLIK where "Imports 2025" is not null and Month<>\'Total\'').map(r => [r.m, r.a || 0, r.b || 0]);
-  const LYIL = Q('select Year y,"Production t" p,"Imports t" i,"Exports t" e,"Sales total t" s from REF_LPG_ULUSAL_YILLIK where Year glob \'20[0-9][0-9]\' order by Year').map(r => [r.y, r.p, r.i, r.e, r.s]);
+  const LULKE = Q('select Country c,"2024" a,"2025" b from REF_LPG_ITHALAT_ULKE where Country not in (\'TOTAL\',\'PDF total\')').filter(r => (r.b || 0) > 0).map(r => [r.c, r.a || 0, r.b || 0]);
+  const LAY = Q('select "Month (TR)" m,"Production 2025" p,"Imports 2025" i,"Exports 2025" e,"Sales 2025 – total" s from REF_LPG_ULUSAL_AYLIK where "Imports 2025" is not null and Month<>\'Total\'').map(r => [r.m, r.p || 0, r.i || 0, r.e || 0, r.s || 0]);   // yalnız 2025
+  const LYIL = Q('select Year y,"Production t" p,"Imports t" i,"Exports t" e,"Sales total t" s from REF_LPG_ULUSAL_YILLIK where Year=\'2025\'').map(r => [r.y, r.p, r.i, r.e, r.s]);
   const d = { lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 

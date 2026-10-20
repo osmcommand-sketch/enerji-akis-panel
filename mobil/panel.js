@@ -972,37 +972,31 @@ function lpgIthalat(){
   // kendi ithalatıyla bayi / tüketici satışı (şirket × terminal)
   const KND=new Map(); for(const f of LF) if(f[4]===0){ const k=f[0]+"|"+f[1]; KND.set(k,(KND.get(k)||0)+f[6]); }
   let kendi=0; const seen=new Set(); for(const r of R){ const k=r[0]+"|"+r[1]; if(!seen.has(k)){ seen.add(k); kendi+=Math.min(KND.get(k)||0, R.filter(x=>x[0]===r[0]&&x[1]===r[1]).reduce((a,x)=>a+x[3],0)); } }
-  const Y=LYIL[LYIL.length-1]||[], Y0=LYIL[LYIL.length-2]||[], fil=S.lith>=0||S.lgum;
+  const Y=LYIL.find(r=>r[0]==="2025")||[], fil=S.lith>=0||S.lgum;   // yalnız 2025 (kullanıcı 20.10.2026)
+  const ayMax=LAY.reduce((m,r)=>r[2]>m[2]?r:m,LAY[0]||["",0,0]);
   const k=[];
-  k.push(`<div class="kpi"><span>${fil?"Seçimin ithalatı":"LPG ithalatı · 2025"}</span><b>${ton(T)}</b><span>${fil?"ülke ithalatının "+pct(T/TUM):`2024: ${ton(Y0[2]||0)} · ${(Y[2]/Y0[2]-1)>=0?"+":"−"}${pct(Math.abs(Y[2]/Y0[2]-1))}`}</span></div>`);
+  k.push(`<div class="kpi"><span>${fil?"Seçimin ithalatı":"LPG ithalatı · 2025"}</span><b>${ton(T)}</b><span>${fil?"ülke ithalatının "+pct(T/TUM):`aylık ort. ${ton((Y[2]||0)/12)} · en yüksek ${esc(ayMax[0])} ${ton(ayMax[2])}`}</span></div>`);
   if(!fil) k.push(`<div class="kpi"><span>Arzdaki payı</span><b>${pct(Y[2]/(Y[1]+Y[2]))}</b><span>üretim ${ton(Y[1])} · ithalat ${ton(Y[2])}</span></div>`);
   k.push(`<div class="kpi"><span>İthalatçı · terminal</span><b>${new Set(R.map(r=>r[0])).size} · ${new Set(R.map(r=>r[1])).size}</b><span>${new Set(R.map(r=>r[2])).size} liman bölgesi</span></div>`);
   k.push(`<div class="kpi"><span>Kendi bayisine / tüketiciye</span><b>${ton(kendi)}</b><span>ithalatın ${pct(kendi/(T||1))} · kalan ${ton(Math.max(0,T-kendi))} başka dağıtıcıya, ihracata ya da stoğa</span>
     <div class="lseg" aria-hidden="true"><i style="flex:${kendi} 0 0;background:var(--lpg)"></i><i style="flex:${Math.max(0,T-kendi)} 0 0;background:#E8B48A"></i></div></div>`);
-  if(!fil) k.push(`<div class="kpi"><span>İhracat · 2025</span><b>${ton(Y[3]||0)}</b><span>2024: ${ton(Y0[3]||0)}</span></div>`);
+  if(!fil) k.push(`<div class="kpi"><span>İhracat · 2025</span><b>${ton(Y[3]||0)}</b><span>arz içindeki payı ${pct((Y[3]||0)/((Y[1]+Y[2])||1))} · yurt içi satış ${ton(Y[4]||0)}</span></div>`);
   document.getElementById("k-lpgi").innerHTML=k.join("");
   document.getElementById("h-lpgi").textContent="LPG ithalatı"+(S.lith>=0?" – "+SIR[S.lith][1]:"")+(S.lgum?" · "+S.lgum:"");
   document.getElementById("s-lpgi").textContent=`${ton(T)}${fil?" · ülkenin "+pct(T/TUM):""}`;
-  document.getElementById("l-lpgi").textContent="Türkiye LPG arzının çoğu ithalattır. Kartlar ve tablo ithalatçı ile liman bölgesi filtresine göre değişir; menşe ülke, aylık seri ve yıllık arz ülke genelidir.";
+  document.getElementById("l-lpgi").textContent="Türkiye LPG arzının çoğu ithalattır. Kartlar ve tablo ithalatçı ile liman bölgesi filtresine göre değişir; menşe ülke ve aylık arz ülke genelidir (2025).";
   // menşe ülke
   const U=[...LULKE].sort((a,b)=>b[2]-a[2]), UT=U.reduce((a,r)=>a+r[2],0), top=U.slice(0,6), dg=U.slice(6).reduce((a,r)=>[a[0]+r[1],a[1]+r[2]],[0,0]);
-  const rows=[...top.map(r=>[r[0].toLocaleLowerCase("tr-TR").replace(/(^|[\s.])\S/g,m=>m.toLocaleUpperCase("tr-TR")).replace("*",""),r[1],r[2]]),["Diğer ("+(U.length-6)+")",dg[0],dg[1]]], umx=Math.max(...rows.map(r=>r[2]));
-  document.getElementById("lpgi-ulke").innerHTML=rows.map(([n,a,b])=>{ const ch=a>0?b/a-1:null; return `<span>${esc(n)}</span><div><div class="b" style="width:${Math.max(1,100*b/umx)}%"></div></div><em><b>${kisa(b)}</b> ${pct(b/UT)}</em><em class="${ch==null?"":ch>=0?"up":"dn"}">${ch==null?"–":(ch>=0?"▲ ":"▼ ")+pct(Math.abs(ch))}</em>`}).join("");
-  // aylık
-  { const W=560,H=190,pl=36,pb=22,pt=10, mx=Math.max(...LAY.flatMap(r=>[r[1],r[2]]))*1.08, bw=(W-pl)/LAY.length, y=v=>pt+(H-pt-pb)*(1-v/mx);
-    let g=""; for(const t of [0,100e3,200e3,300e3,400e3]) if(t<mx) g+=`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="${t?0.6:1}"/><text x="${pl-5}" y="${y(t)+4}" text-anchor="end">${t/1e3}</text>`;
-    LAY.forEach((r,i)=>{ const x=pl+i*bw, w=(bw-6)/2;
-      g+=`<rect x="${x+3}" y="${y(r[1])}" width="${w}" height="${y(0)-y(r[1])}" rx="1.5" fill="#C9D3D8"><title>${r[0]} 2024: ${ton(r[1])}</title></rect><rect x="${x+3+w}" y="${y(r[2])}" width="${w}" height="${y(0)-y(r[2])}" rx="1.5" fill="var(--lpg)"><title>${r[0]} 2025: ${ton(r[2])}</title></rect><text x="${x+bw/2}" y="${H-6}" text-anchor="middle">${r[0].slice(0,3)}</text>`; });
-    document.getElementById("lpgi-ay").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Aylık LPG ithalatı, bin ton, 2024 ve 2025">${g}</svg>`; }
-  // yıllık arz
-  { const W=1100,H=230,pl=40,pb=22,pt=18, mx=Math.max(...LYIL.map(r=>Math.max(r[1]+r[2],r[4])))*1.06, bw=(W-pl)/LYIL.length, y=v=>pt+(H-pt-pb)*(1-v/mx);
-    let g=""; for(const t of [0,1e6,2e6,3e6,4e6,5e6]) if(t<mx) g+=`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="${t?0.6:1}"/><text x="${pl-5}" y="${y(t)+4}" text-anchor="end">${nf.format(t/1e6)}</text>`;
-    let pts=[]; LYIL.forEach((r,i)=>{ const x=pl+i*bw, w=bw*0.56, x0=x+(bw-w)/2;
-      g+=`<rect x="${x0}" y="${y(r[1])}" width="${w}" height="${y(0)-y(r[1])}" fill="#8FA3AD"><title>${r[0]} üretim ${ton(r[1])}</title></rect><rect x="${x0}" y="${y(r[1]+r[2])}" width="${w}" height="${y(r[1])-y(r[1]+r[2])-1}" fill="var(--lpg)"><title>${r[0]} ithalat ${ton(r[2])} · arzın ${pct(r[2]/(r[1]+r[2]))}</title></rect><text x="${x+bw/2}" y="${H-6}" text-anchor="middle">${r[0]}</text>`;
+  const rows=[...top.map(r=>[/^[A-ZÇĞİÖŞÜ.]{2,5}$/.test(r[0])?r[0]:r[0].toLocaleLowerCase("tr-TR").replace(/(^|[\s.])\S/g,m=>m.toLocaleUpperCase("tr-TR")).replace("*",""),r[1],r[2]]),["Diğer ("+(U.length-6)+")",dg[0],dg[1]]], umx=Math.max(...rows.map(r=>r[2]));
+  document.getElementById("lpgi-ulke").innerHTML=rows.map(([n,a,b])=>{ const ch=a>0?b/a-1:null; return `<span>${esc(n)}</span><div><div class="b" style="width:${Math.max(1,100*b/umx)}%"></div></div><em><b>${kisa(b)}</b> ${pct(b/UT)}</em>`}).join("");
+  // aylık arz · 2025: üretim + ithalat yığılı, çizgi yurt içi satış (LAY: [ay, üretim, ithalat, ihracat, satış])
+  { const W=560,H=200,pl=36,pb=22,pt=14, mx=Math.max(...LAY.map(r=>Math.max(r[1]+r[2],r[4])))*1.08, bw=(W-pl)/(LAY.length||1), y=v=>pt+(H-pt-pb)*(1-v/mx);
+    let g=""; for(const t of [0,100e3,200e3,300e3,400e3,500e3]) if(t<mx) g+=`<line x1="${pl}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="${t?0.6:1}"/><text x="${pl-5}" y="${y(t)+4}" text-anchor="end">${t/1e3}</text>`;
+    const pts=[]; LAY.forEach((r,i)=>{ const x=pl+i*bw, w=bw*0.6, x0=x+(bw-w)/2;
+      g+=`<rect x="${x0}" y="${y(r[1])}" width="${w}" height="${y(0)-y(r[1])}" fill="#8FA3AD"><title>${r[0]} üretim ${ton(r[1])}</title></rect><rect x="${x0}" y="${y(r[1]+r[2])}" width="${w}" height="${Math.max(0,y(r[1])-y(r[1]+r[2])-1)}" fill="var(--lpg)"><title>${r[0]} ithalat ${ton(r[2])} · arzın ${pct(r[2]/((r[1]+r[2])||1))} · ihracat ${ton(r[3])}</title></rect><text x="${x+bw/2}" y="${H-6}" text-anchor="middle">${r[0].slice(0,3)}</text>`;
       pts.push(`${x+bw/2},${y(r[4])}`); });
-    g+=`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.8"/>`+pts.map((p,i)=>`<circle cx="${p.split(",")[0]}" cy="${p.split(",")[1]}" r="2.6" fill="var(--ink)"><title>${LYIL[i][0]} yurt içi satış ${ton(LYIL[i][4])}</title></circle>`).join("");
-    const L=LYIL[LYIL.length-1]; g+=`<text x="${W-4}" y="${y(L[1]+L[2])-6}" text-anchor="end" style="fill:var(--ink);font-weight:600">ithalat ${pct(L[2]/(L[1]+L[2]))}</text>`;
-    document.getElementById("lpgi-yil").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="LPG arzı, üretim ve ithalat, milyon ton, 2016-2025; çizgi yurt içi satış">${g}</svg>`; }
+    g+=`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.8"/>`+pts.map((p,i)=>`<circle cx="${p.split(",")[0]}" cy="${p.split(",")[1]}" r="2.6" fill="var(--ink)"><title>${LAY[i][0]} yurt içi satış ${ton(LAY[i][4])}</title></circle>`).join("");
+    document.getElementById("lpgi-ay").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="2025 aylık LPG arzı, bin ton: rafineri üretimi ve ithalat; çizgi yurt içi satış">${g}</svg>`; }
   // tablo: liman bölgesi → terminal → ithalatçı
   const G=new Map(); for(const r of R){ const g=G.get(r[2])||G.set(r[2],{v:0,t:new Map()}).get(r[2]); g.v+=r[3]; const t=g.t.get(r[1])||g.t.set(r[1],{v:0,s:new Map()}).get(r[1]); t.v+=r[3]; t.s.set(r[0],(t.s.get(r[0])||0)+r[3]); }
   const head=`<tr><th class="l">Liman bölgesi / terminal / ithalatçı</th><th>İthalat</th><th>Pay</th><th>Kendi bayisine / tüketiciye</th><th>Başka dağıtıcıya, ihracat, stok</th></tr>`;
