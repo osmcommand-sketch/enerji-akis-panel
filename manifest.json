@@ -1,15 +1,15 @@
 {
- "surum": "1.0.20",
+ "surum": "1.0.21",
  "kabuk": 1,
- "tarih": "2026-10-20T15:50:27+03:00",
- "notlar": "LPG İthalat yalnız 2025: 2024 karşılaştırmaları ve 2016–2025 yıllık grafik kaldırıldı; aylık LPG arzı (üretim + ithalat, yurt içi satış çizgisi) 2025.",
+ "tarih": "2026-10-20T18:34:32+03:00",
+ "notlar": "LPG altında akaryakıt sayfalarının karşılıkları: Rafineriler, Tahsis kaynak bazlı, Tahsis terminal bazlı, Taşıma, Bayiler (sayfa sırası akaryakıt ile aynı).",
  "dosyalar": {
-  "ui/index.html": "d9ea744cf253173205e10779a8aa1bd1008a1453e916e1de092901d9fab5206e",
+  "ui/index.html": "cdfbd72b301c9a92f02c819b50763c873fd6c6a75f7e62847469f6bda211d798",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
-  "ui/app.js": "bb36b0e0b18f5f9ad71006a23b9a51ec4743aef23019dc700cbde691dd03831b",
-  "ui/panel.css": "b105d8bafbaf6add0fe85feea6b2b7bc95098f6c3815d8be71f4249ec8be7d2a",
-  "ui/panel.js": "84ca64957f72307d07f3ed7961698683bbc10ed814c3709e9e00225e9d98ffe6",
-  "pipeline.js": "68be6733f8b20a03c2eae469e345c2584841ecd4f30139a0d2b6afeac27b5f8b",
+  "ui/app.js": "5460c0537c791b9a0614ec53b896a3fa2f78a60c67c020893fcf19347b0e9688",
+  "ui/panel.css": "646939be7161bf83cbfbde5fe7cd00d670fa139f6d0c25f7d8f0f8526a6f1d14",
+  "ui/panel.js": "a7c0b8db46b21b6c2cbdd5eeb10184caabfc579bd378b116a53681ded84d08c9",
+  "pipeline.js": "793f6427b0a7e4828a607beef1693dc0c1029dfb21b6858b2dd3a74a8ab5f2e3",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

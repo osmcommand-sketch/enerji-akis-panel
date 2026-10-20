@@ -139,6 +139,17 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
 .wrap[data-sayfa="akterm"]>:not(header):not(nav):not(.atr-only):not(footer){display:none}.wrap:not([data-sayfa="akterm"]) .atr-only{display:none}
 .wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}
+.wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
+.wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
+.wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
+.wrap[data-sayfa="lpgtas"]>:not(header):not(nav):not(.ltas-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtas"]) .ltas-only{display:none}
+.wrap[data-sayfa="lpgbay"]>:not(header):not(nav):not(.lbay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgbay"]) .lbay-only{display:none}
+.pill.s{background:#EEF1F3;color:#5E6B75}.lu{display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:12.5px;white-space:nowrap}.lu i{width:8px;height:8px;border-radius:2px}
+.lsub{margin:14px 0 8px;font:600 13px var(--f-body);color:var(--ink)}#k-ltas-m .kpi.ltk{flex:1 1 190px}#k-ltas-m .kpi.ltk span:last-child{font-size:12px;color:var(--ink-3)}
+.lbay-only .hg{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}.lbay-only .ilpan{border-left:1px solid var(--line);padding-left:16px}
+#lbay-map{width:100%;height:auto;display:block}#lbay-map .il{stroke:var(--edge,#fff);stroke-width:.6;cursor:pointer}#lbay-map .il.sel{stroke:var(--ink);stroke-width:1.4}
+.lbay-only{--s1:#FBE0C8;--s2:#F2AE6F;--s3:#D9711F}button.lnk{border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);cursor:pointer}
+@media (max-width:1100px){.lbay-only .hg{grid-template-columns:1fr}.lbay-only .ilpan{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px}}
 #k-lpgi .kpi{flex:1 1 190px;border-top:3px solid var(--lpg)}
 .lgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px}
 @media (max-width:860px){.lgrid{grid-template-columns:minmax(0,1fr)}}
@@ -377,8 +388,13 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
   </nav>
   <!-- LPG başlığı altındaki sayfalar (kullanıcı 16.10.2026 14:42) -->
   <nav class="tabs alt lpg" role="tablist" aria-label="LPG sayfaları" id="alt-lpg" data-grup="lpg" hidden>
-    <button type="button" role="tab" id="tab-lpgmus" data-sayfa="lpgmus" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
+    <button type="button" role="tab" id="tab-lpgraf" data-sayfa="lpgraf" aria-selected="false"><span class="uz">Rafineriler</span><span class="kz" aria-hidden="true">Rafineriler</span></button>
     <button type="button" role="tab" id="tab-lpgith" data-sayfa="lpgith" aria-selected="false"><span class="uz">İthalat</span><span class="kz" aria-hidden="true">İthalat</span></button>
+    <button type="button" role="tab" id="tab-lpgkay" data-sayfa="lpgkay" aria-selected="false"><span class="uz">Tedarik tahsisi kaynak bazlı</span><span class="kz" aria-hidden="true">Tahsis · kaynak</span></button>
+    <button type="button" role="tab" id="tab-lpgtah" data-sayfa="lpgtah" aria-selected="false"><span class="uz">Tedarik tahsisi terminal bazlı</span><span class="kz" aria-hidden="true">Tahsis · terminal</span></button>
+    <button type="button" role="tab" id="tab-lpgmus" data-sayfa="lpgmus" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
+    <button type="button" role="tab" id="tab-lpgtas" data-sayfa="lpgtas" aria-selected="false"><span class="uz">Taşıma</span><span class="kz" aria-hidden="true">Taşıma</span></button>
+    <button type="button" role="tab" id="tab-lpgbay" data-sayfa="lpgbay" aria-selected="false"><span class="uz">Bayiler</span><span class="kz" aria-hidden="true">Bayiler</span></button>
     <button type="button" role="tab" id="tab-lpgtrm" data-sayfa="lpgtrm" aria-selected="false"><span class="uz">Terminaller</span><span class="kz" aria-hidden="true">Terminaller</span></button>
   </nav>
   <!-- Akaryakıt başlığı altındaki sayfalar (kullanıcı 16.10.2026 14:34: "akış haritası sonrasındaki tüm sayfaları akaryakıt başlığı altında toplayalım") -->
@@ -629,6 +645,86 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
       <li>Ürün kaynak zinciri: şirketin bu terminalde yüklediği LPG'nin kaynağı – kendi ithalatı, dağıtıcıdan alım (satıcılar FACT_LPG_TEDARIK / FACT_LPG_AKIS yönlendiren şirketten) ya da rafineriden alım; birden çok kaynak varsa payıyla.</li>
       <li>Tesis tipi: Rafineri (Tüpraş, Star); Dağıtıcı terminali (işletmecisi LPG dağıtıcısı, kendi kullanımı ya da açık); Bağımsız (bağımsız LPG deposu, tarifeli kara terminali ya da işletmecisi dağıtıcı olmayan açık terminal, ör. Byport).</li>
       <li>Lisans: EPDK LPG depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA).</li>
+    </ul>
+  </section>
+  <!-- LPG · akaryakıt sayfalarının karşılıkları (kullanıcı 20.10.2026 18:08) -->
+  <div class="filters lpgf lraf-only" role="search" aria-label="LPG rafineri filtreleri">
+    <div class="f"><label for="f-lr-s">Alıcı şirket</label><select id="f-lr-s"></select></div>
+    <div class="f"><label for="f-lr-r">Rafineri</label><select id="f-lr-r"></select></div>
+    <button type="button" class="clear" id="clear-lr">Filtreleri temizle</button>
+  </div>
+  <section class="lraf-only" aria-labelledby="h-lraf">
+    <div class="head"><h2 id="h-lraf">LPG rafinerileri</h2><span class="sub" id="s-lraf"></span></div>
+    <p class="lead" id="l-lraf"></p>
+    <div class="kpis" id="k-lraf"></div>
+    <div class="scroll"><table id="t-lraf"></table></div>
+    <ul class="notes">
+      <li>Üretim: rafineri bazında 2025 LPG üretimi (EPDK, LPG veritabanı fact_production). İhracat: rafineri tesisinden ihracat tahmini (fact_export, tesis dağılımı).</li>
+      <li>Rafineriden alım: rafineriden ilk alan dağıtıcı (ticari). Kendi bayisine / tüketiciye: aynı dağıtıcının rafineri sahasından kendi satışı için yüklediği LPG; kalan kısım başka dağıtıcılara satılır.</li>
+    </ul>
+  </section>
+  <div class="filters lpgf lkay-only" role="search" aria-label="LPG kaynak filtreleri">
+    <div class="f"><label for="f-lk-s">Alımı yapan şirket</label><select id="f-lk-s"></select></div>
+    <button type="button" class="clear" id="clear-lk">Filtreleri temizle</button>
+  </div>
+  <section class="lkay-only" aria-labelledby="h-lkay">
+    <div class="head"><h2 id="h-lkay">LPG kaynak dağılımı</h2><span class="sub" id="s-lkay"></span></div>
+    <p class="lead" id="l-lkay"></p>
+    <div class="kpis" id="k-lkay"></div>
+    <div class="scroll"><table id="t-lkay"></table></div>
+    <ul class="notes">
+      <li>Kaynak: bayiye ve tüketiciye yüklenen LPG'nin geldiği yer (FACT_LPG_AKIS, LPG veritabanı şirket akışı). Dağıtıcıdan alımda satıcı, alıcı × terminal düzeyindeki satıcı paylarıyla dağıtılır.</li>
+      <li>Açılış stoku: 01.01.2025 stokundan yapılan satış.</li>
+    </ul>
+  </section>
+  <div class="filters lpgf ltah-only" role="search" aria-label="LPG tahsis filtreleri">
+    <div class="f"><label for="f-lt-s">Alımı yapan şirket</label><select id="f-lt-s"></select></div>
+    <button type="button" class="clear" id="clear-lt">Filtreleri temizle</button>
+  </div>
+  <section class="ltah-only" aria-labelledby="h-ltah">
+    <div class="head"><h2 id="h-ltah">LPG tedarik tahsisi</h2><span class="sub" id="s-ltah"></span></div>
+    <p class="lead" id="l-ltah"></p>
+    <div class="kpis" id="k-ltah"></div>
+    <div class="scroll"><table id="t-ltah"></table></div>
+    <ul class="notes">
+      <li>Satır: şirketin terminalden bayiye / tüketiciye yüklediği LPG; altında kaynak kırılımı. Rota: doğrudan ya da ara depo üzerinden. Ort. km: terminal → il karayolu mesafesi, ton ağırlıklı.</li>
+    </ul>
+  </section>
+  <div class="filters lpgf ltas-only" role="search" aria-label="LPG taşıma filtreleri">
+    <div class="f"><label for="f-ls-s">Şirket</label><select id="f-ls-s"></select></div>
+    <div class="f"><label for="f-ls-u">Ürün</label><select id="f-ls-u"></select></div>
+    <div class="f"><label for="f-ls-r">Rota</label><select id="f-ls-r"><option value="">Tüm rotalar</option><option value="d">Doğrudan</option><option value="p">Ara depo üzerinden</option></select></div>
+    <button type="button" class="clear" id="clear-ls">Filtreleri temizle</button>
+  </div>
+  <section class="ltas-only" aria-labelledby="h-ltas">
+    <div class="head"><h2 id="h-ltas">LPG taşıma</h2><span class="sub" id="s-ltas"></span></div>
+    <p class="lead" id="l-ltas"></p>
+    <h3 class="lsub">Taşıma modu · piyasa geneli</h3>
+    <div class="kpis" id="k-ltas-m"></div>
+    <h3 class="lsub">Şirket akışı</h3>
+    <div class="kpis" id="k-ltas"></div>
+    <div class="scroll"><table id="t-ltas"></table></div>
+    <ul class="notes">
+      <li>Taşıma modu kartları LPG veritabanının 2025 çok modlu en düşük navlun modelidir (fact_land_transport): karayolu primer / sekonder, boru hattı (küme içi) ve gözlenen kabotaj seferleri; navlun USD, 2025 ortalama kuru.</li>
+      <li>Şirket akışı: FACT_LPG_AKIS. Primer km: terminalden ara depoya; ort. km: terminalden satış iline toplam karayolu mesafesi.</li>
+    </ul>
+  </section>
+  <div class="filters lpgf lbay-only" role="search" aria-label="LPG bayi filtreleri">
+    <div class="f"><label for="f-lb-s">Dağıtım şirketi</label><select id="f-lb-s"></select></div>
+    <button type="button" class="clear" id="clear-lb">Filtreleri temizle</button>
+  </div>
+  <section class="lbay-only etki-l" aria-labelledby="h-lbay">
+    <div class="head"><h2 id="h-lbay">Otogaz bayileri</h2></div>
+    <p class="lead" id="l-lbay"></p>
+    <div class="hg"><div class="mapbox"><svg id="lbay-map" role="img" aria-label="Türkiye il haritası, otogaz bayileri"></svg></div><div class="ilpan" id="lbay-il"></div></div>
+    <div class="legend" id="lbay-leg"></div>
+  </section>
+  <section class="lbay-only" aria-labelledby="h-lbay-t">
+    <div class="head"><h2 id="h-lbay-t">Otogaz bayileri</h2><span class="sub" id="s-lbay-t"></span></div>
+    <div class="scroll"><table id="t-lbay"></table></div>
+    <ul class="notes">
+      <li>Bayi: EPDK otogaz bayilik lisansı (LPG veritabanı ref_dealer, 2026-10-20 görüntüsü); 2025 sonunda faal ve 2025 dağıtıcısına göre (ref_dealer_distributor_hist; TP ve Balpet ağı tahminidir).</li>
+      <li>Otogaz satışı: dağıtıcının ildeki 2025 otogaz satışı (FACT_LPG_AKIS). t / bayi: bayi başına yıllık otogaz.</li>
     </ul>
   </section>
   <footer>Kaynak: Enerji Master DB 2025 (PDM)<span id="lpgk"></span>. İl sınırları: alpers/Turkey-Maps-GeoJSON (GitHub; lisans belirtilmemiş, sadeleştirildi). Mesafeler ton ağırlıklı karayolu km. <span class="tag">tahmin</span> etiketi: terminaldeki hacmin yarısından fazlası EPDK il verisinden modelle atanmış (diğer petrol ürünleri). Ürün sepeti EPDK şirket bildirimleridir, il filtresinden etkilenmez. Tedarik tahsisi: Enerji Master DB REF_TEDARIK_TAHSIS ve REF_TAHSIS_RAFINERI_KOSUL (veri sürümüyle birlikte güncellenir).</footer>

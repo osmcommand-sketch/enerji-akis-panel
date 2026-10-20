@@ -16,7 +16,7 @@ const ZIN=[]; MOD.forEach((m,i)=>{ const z=String(m).match(/^(.*) – zincir: (.
 const zinSira=z=>String(z).split(" ← ").map(s=>s.replace(/ tahsisi$/,"").trim()).reverse().join(" → ");
 const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1,atrU:[],ltrU:[]};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
-const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgmus"};
+const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg",lpgraf:"lpg",lpgkay:"lpg",lpgtah:"lpg",lpgtas:"lpg",lpgbay:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgraf"};
 const grupOf=sy=>sy==="akis"?null:(SAYFA_GRUP[sy]||"akaryakit");
 S.lsat=""; S.lmus=-1; S.hepsiL=false; S.lith=-1; S.lgum="";
 
@@ -1184,6 +1184,221 @@ function lpgTerminaller(){
       for(const [b,c] of BB) out.push(`<tr class="sub"><td class="l ind2"><span class="muted">→</span> ${esc(SIR[b][1])}</td><td class="l zin" colspan="2">${c.v>=0.5?zinUrun(c.zu,LAD,LRK):'<span class="zc muted">yalnız ithalat · yükleme başka terminalde ya da başka dağıtıcıya</span>'}</td><td>${cell(c.it)}</td><td>${cell(c.v)}</td><td><span class="muted">${c.v>=0.5&&P.v>=0.5?pct(c.v/P.v):""}</span></td><td></td><td>${c.il.size||'<span class="z">–</span>'}</td><td>${c.v>=0.5?nf.format(Math.round(c.km/c.v)):'<span class="z">–</span>'}</td></tr>`); } }
   document.getElementById("t-ltr").innerHTML=`<thead>${head}</thead><tbody>${out.join("")||'<tr><td colspan="9" class="empty">Bu seçimde terminal yok.</td></tr>'}</tbody>`;
 }
+/* ---------- LPG · akaryakıt sayfalarının karşılıkları (kullanıcı 20.10.2026 18:08): Rafineriler, Tahsis kaynak / terminal bazlı, Taşıma, Bayiler ---------- */
+const LURET=D.luret||[], LIHR=D.lihr||[], LTAS=D.ltas||[], LBAY=D.lbay||[], LDEP=D.dep||[];
+const LSRC=f=>f[4]===0?0:f[4]===2?1:f[4]===1?2:3;          // LF tedarik türü → kaynak sırası
+const LSRC_AD=["Kendi ithalatı","Rafineriden","Dağıtıcıdan","Açılış stoku"], LSRC_R=["#2A5591","#0F6E8C","#B7791F","#8A97A3"], LSRC_P=["i","r","d","s"];
+const RAFT=new Set(LURET.map(r=>r[0]));
+const lsel=(id,opts,val,tum)=>{ const el=document.getElementById(id); el.innerHTML=`<option value="-1">${tum}</option>`+opts.map(([v,a])=>`<option value="${v}">${esc(a)}</option>`).join(""); el.value=String(val); };
+const sirOpts=m=>[...m].filter(x=>x[1]>=0.5).sort((a,b)=>SIR[a[0]][1].localeCompare(SIR[b[0]][1],"tr")).map(([i,v])=>[i,`${SIR[i][1]} · ${ton(v)}`]);
+const urun3=()=>[0,0,0];
+// fiziksel dağıtıcı alımında satıcı payları: alıcı × terminal → [[satıcı, pay]]
+const LFS_PAY=(()=>{ const m=new Map(); for(const r of LFS){ const k=r[0]+"|"+r[1]; (m.get(k)||m.set(k,[]).get(k)).push([r[2],r[3]]); }
+  for(const [k,a] of m){ const T=a.reduce((q,x)=>q+x[1],0)||1; m.set(k,a.map(([s,v])=>[s,v/T])); } return m; })();
+Object.assign(S,{lrS:-1,lrR:-1,lkS:-1,ltS:-1,lsS:-1,lsU:-1,lsR:"",lbS:-1,lbIl:null});
+
+/* ortak üst kartlar: toplam çıkış (ürün) + kaynak dağılımı */
+function lpgUstKart(R,ad){
+  const U=urun3(), K=[0,0,0,0], tr=[new Set(),new Set(),new Set(),new Set()]; let n=new Set();
+  for(const f of R){ U[f[5]]+=f[6]; const k=LSRC(f); K[k]+=f[6]; tr[k].add(f[1]); }
+  const sat=new Set(); for(const f of R) if(f[4]===1) for(const [s] of (LFS_PAY.get(f[0]+"|"+f[1])||[])) sat.add(s);
+  const T=U[0]+U[1]+U[2];
+  return `<div class="kg">`+kompKart("Toplam çıkış",[0,1,2].map(u=>({l:"LPG "+LPGU[u].toLocaleLowerCase("tr-TR"),v:U[u],c:LPGU_R[u]})),{buyuk:ton(T),alt:ad,span:5})
+    +kompKart("Kaynak dağılımı",[0,1,2,3].map(k=>({l:LSRC_AD[k],v:K[k],c:LSRC_R[k],s:k===2?`${sat.size} satıcı dağıtıcı · ${tr[k].size} terminal`:`${tr[k].size} ${k===1?"rafineri":"terminal"}`})),{sag:"bayi ve tüketiciye yüklenen LPG'nin kaynağı",span:7})+`</div>`;
+}
+
+/* ---------------- LPG · Rafineriler ---------------- */
+function lpgRafineriler(){
+  const LTr=LT.filter(r=>r[1]==="Rafineri"&&RAFT.has(r[3]));
+  const alc=new Map(); for(const r of LTr) alc.set(r[0],(alc.get(r[0])||0)+r[4]);
+  if(S.lrS>=0&&!alc.has(S.lrS)) S.lrS=-1;
+  lsel("f-lr-s",sirOpts(alc),S.lrS,`Tüm alıcılar (${alc.size})`);
+  lsel("f-lr-r",LURET.slice().sort((a,b)=>b[1]-a[1]).map(([t,v])=>[t,`${TERM[t][1]} · ${ton(v)}`]),S.lrR,"Tüm rafineriler");
+  const okR=t=>S.lrR<0||t===S.lrR, okS=s=>S.lrS<0||s===S.lrS;
+  const P=LURET.filter(r=>okR(r[0])), PT=P.reduce((a,r)=>a+r[1],0);
+  const E=LIHR.filter(r=>RAFT.has(r[0])&&okR(r[0])).reduce((a,r)=>a+r[2],0);
+  const A=LTr.filter(r=>okR(r[3])&&okS(r[0])), AT=A.reduce((a,r)=>a+r[4],0), ATall=LTr.filter(r=>okR(r[3])).reduce((a,r)=>a+r[4],0);
+  const F=LF.filter(f=>RAFT.has(f[1])&&okR(f[1])&&okS(f[0])), U=urun3(); for(const f of F) U[f[5]]+=f[6];
+  const RR=["#0F6E8C","#3A8FB0","#7DB6CC","#5E7384"];
+  const ad=(S.lrR>=0?TERM[S.lrR][1]:"Tüm rafineriler")+(S.lrS>=0?" – "+SIR[S.lrS][1]:"");
+  document.getElementById("h-lraf").textContent=ad+" – LPG";
+  document.getElementById("s-lraf").textContent=`${P.length} rafineri · üretim ${ton(PT)}`;
+  document.getElementById("l-lraf").textContent="Rafinerilerin 2025 LPG üretimi ve kullanımı: yurt içinde dağıtıcılara satılan (ilk alıcı), ihraç edilen ve rafineri sahasından bayiye / tüketiciye yüklenen LPG. Alıcı seçince o şirketin rafineri alımları görünür.";
+  const k=[`<div class="kg">`,
+    kompKart("Rafineri LPG üretimi",P.sort((a,b)=>b[1]-a[1]).map((r,i)=>({l:TERM[r[0]][1],v:r[1],c:RR[i%4]})),{buyuk:ton(PT),alt:"2025 · EPDK",span:5}),
+    kompKart("Üretimin kullanımı",[{l:"Yurt içi dağıtıcılara",v:ATall,c:"#0F6E8C",s:`${alc.size} alıcı (ilk alıcı)`},{l:"İhracat",v:E,c:"#7553B5",s:"tesis bazlı tahmin"},{l:"Stok ve rafineri içi",v:Math.max(0,PT-ATall-E),c:"#B7C3CC",s:"üretim − satış − ihracat"}],{T:PT,span:7}),
+    kompKart(S.lrS>=0?SIR[S.lrS][1]+" · rafineriden yükleme":"Rafineri sahasından yükleme",[0,1,2].map(u=>({l:"LPG "+LPGU[u].toLocaleLowerCase("tr-TR"),v:U[u],c:LPGU_R[u]})),{buyuk:ton(U[0]+U[1]+U[2]),alt:"bayi ve tüketiciye, ürüne göre",span:5}),
+    siraKart(S.lrS>=0?"Rafineriler":"Alıcılar (rafineri alımı)",S.lrS>=0?(()=>{const m=new Map(); for(const r of A) m.set(TERM[r[3]][1],(m.get(TERM[r[3]][1])||0)+r[4]); return [...m];})():[...(()=>{const m=new Map(); for(const r of A) m.set(SIR[r[0]][1],(m.get(SIR[r[0]][1])||0)+r[4]); return m;})()],{span:7,n:6,c:"#0F6E8C",sag:ton(AT)}),`</div>`];
+  document.getElementById("k-lraf").innerHTML=k.join("");
+  // tablo: rafineri → alıcı
+  const out=[], head=`<tr><th class="l">Rafineri / alıcı</th><th>Rafineriden alım</th><th>Kendi bayisine / tüketiciye</th><th>Başka dağıtıcıya (toptan)</th><th>Pay</th><th>İl</th><th>Ort. km</th></tr>`;
+  for(const [t,pv] of P){
+    const ab=new Map(); for(const r of A) if(r[3]===t) ab.set(r[0],(ab.get(r[0])||0)+r[4]);
+    const kb=new Map(); for(const f of F) if(f[1]===t&&f[4]===2){ const o=kb.get(f[0])||kb.set(f[0],{v:0,km:0,il:new Set()}).get(f[0]); o.v+=f[6]; o.km+=f[6]*f[7]; o.il.add(f[3]); }
+    const gT=[...ab.values()].reduce((a,b)=>a+b,0), gK=[...kb.values()].reduce((a,o)=>a+o.v,0), ex=LIHR.filter(r=>r[0]===t).reduce((a,r)=>a+r[2],0);
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)}<br><span class="muted">üretim ${ton(pv)} · ihracat ${ton(ex)}</span></td><td><b>${ton(gT)}</b></td><td>${cell(gK)}</td><td>${cell(Math.max(0,gT-gK))}</td><td>${pct(PT?pv/PT:0)}</td><td></td><td></td></tr>`);
+    for(const [s,v] of [...ab].sort((a,b)=>b[1]-a[1])){ const o=kb.get(s)||{v:0,km:0,il:new Set()};
+      out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td>${ton(v)}</td><td>${cell(o.v)}</td><td>${cell(Math.max(0,v-o.v))}</td><td>${pct(gT?v/gT:0)}</td><td>${o.il.size||"–"}</td><td>${o.v?nf.format(o.km/o.v):"–"}</td></tr>`); }
+  }
+  document.getElementById("t-lraf").innerHTML=`<thead>${head}</thead><tbody>${out.join("")||'<tr><td colspan="7" class="empty">Bu seçimde rafineri alımı yok.</td></tr>'}</tbody>`;
+}
+for(const [id,k] of [["f-lr-s","lrS"],["f-lr-r","lrR"]]) document.getElementById(id).addEventListener("change",e=>{S[k]=+e.target.value; render();});
+document.getElementById("clear-lr").addEventListener("click",()=>{S.lrS=-1; S.lrR=-1; render();});
+
+/* ---------------- LPG · tedarik tahsisi kaynak bazlı ---------------- */
+function lpgKaynak(){
+  const sv=new Map(); for(const f of LF) sv.set(f[0],(sv.get(f[0])||0)+f[6]);
+  if(S.lkS>=0&&!sv.has(S.lkS)) S.lkS=-1;
+  lsel("f-lk-s",sirOpts(sv),S.lkS,"Tüm şirketler");
+  const R=LF.filter(f=>S.lkS<0||f[0]===S.lkS), ad=S.lkS>=0?SIR[S.lkS][1]:"tüm şirketler";
+  document.getElementById("h-lkay").textContent="LPG kaynak dağılımı – "+ad;
+  document.getElementById("l-lkay").textContent="Bayiye ve tüketiciye yüklenen LPG'nin kaynağa göre dağılımı: kendi ithalatı, rafineriden alım, başka dağıtıcıdan alım (satıcıya göre) ve açılış stoku. Alımı yapan şirketi seçerek tek şirkete inin.";
+  // kaynak grupları: anahtar → {tip, ad, alıcılar}
+  const G=new Map(); const g=(k,tp,a)=>G.get(k)||G.set(k,{tp,ad:a,v:0,u:urun3(),al:new Map()}).get(k);
+  const ekle=(o,s,t,u,v)=>{ o.v+=v; o.u[u]+=v; const a=o.al.get(s)||o.al.set(s,{v:0,u:urun3(),t:new Set()}).get(s); a.v+=v; a.u[u]+=v; a.t.add(t); };
+  for(const f of R){ const k=LSRC(f);
+    if(k===0) ekle(g("i","i","Kendi ithalatı"),f[0],f[1],f[5],f[6]);
+    else if(k===1) ekle(g("r"+f[1],"r",TERM[f[1]][1]),f[0],f[1],f[5],f[6]);
+    else if(k===3) ekle(g("s","s","Açılış stoku"),f[0],f[1],f[5],f[6]);
+    else { const sp=LFS_PAY.get(f[0]+"|"+f[1]); if(!sp) ekle(g("d?","d","Dağıtıcı (belirsiz)"),f[0],f[1],f[5],f[6]); else for(const [s,w] of sp) ekle(g("d"+s,"d",s>=0?SIR[s][1]:"?"),f[0],f[1],f[5],f[6]*w); } }
+  const T=R.reduce((a,f)=>a+f[6],0), GL=[...G.values()].sort((a,b)=>b.v-a.v);
+  document.getElementById("s-lkay").textContent=`${GL.length} kaynak · ${ton(T)}`;
+  const raf=GL.filter(o=>o.tp==="r"), dag=GL.filter(o=>o.tp==="d");
+  document.getElementById("k-lkay").innerHTML=lpgUstKart(R,S.lkS>=0?"bayi ve tüketiciye":"otogaz + tüplü + dökme")
+    +`<div class="kg" style="margin-top:10px">`+siraKart("Rafineri kaynakları",raf.map(o=>[o.ad,o.v]),{span:6,c:"#0F6E8C",sag:ton(raf.reduce((a,o)=>a+o.v,0))})
+    +siraKart("Satıcı dağıtıcılar",dag.map(o=>[o.ad,o.v]),{span:6,c:"#B7791F",sag:ton(dag.reduce((a,o)=>a+o.v,0))})+`</div>`;
+  const out=[], N=S.lkS>=0?99:8;
+  for(const o of GL){ if(o.v<0.5) continue;
+    out.push(`<tr class="grp tg"><td class="l"><span class="pill ${o.tp}">${["Kendi ithalatı","Rafineri","Dağıtıcı","Stok"][["i","r","d","s"].indexOf(o.tp)]}</span><b>${esc(o.ad)}</b></td>${o.u.map(x=>`<td>${cell(x)}</td>`).join("")}<td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${o.al.size}</td></tr>`);
+    const AL=[...o.al].sort((a,b)=>b[1].v-a[1].v);
+    for(const [s,a] of AL.slice(0,N)) out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])} <span class="muted">· ${a.t.size} terminal</span></td>${a.u.map(x=>`<td>${cell(x)}</td>`).join("")}<td>${ton(a.v)}</td><td>${pct(o.v?a.v/o.v:0)}</td><td></td></tr>`);
+    if(AL.length>N) out.push(`<tr class="sub"><td class="l ind muted">+${AL.length-N} alıcı daha</td><td></td><td></td><td></td><td>${ton(AL.slice(N).reduce((q,x)=>q+x[1].v,0))}</td><td></td><td></td></tr>`);
+  }
+  document.getElementById("t-lkay").innerHTML=`<thead><tr><th class="l">Kaynak / alıcı</th><th>Otogaz</th><th>Tüplü</th><th>Dökme</th><th>Toplam</th><th>Pay</th><th>Alıcı</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="7" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
+}
+document.getElementById("f-lk-s").addEventListener("change",e=>{S.lkS=+e.target.value; render();});
+document.getElementById("clear-lk").addEventListener("click",()=>{S.lkS=-1; render();});
+
+/* ---------------- LPG · tedarik tahsisi terminal bazlı ---------------- */
+function lpgTahsis(){
+  const sv=new Map(); for(const f of LF) sv.set(f[0],(sv.get(f[0])||0)+f[6]);
+  if(S.ltS>=0&&!sv.has(S.ltS)) S.ltS=-1;
+  lsel("f-lt-s",sirOpts(sv),S.ltS,"Tüm şirketler");
+  const R=LF.filter(f=>S.ltS<0||f[0]===S.ltS), T=R.reduce((a,f)=>a+f[6],0);
+  const G=new Map(); for(const f of R){ const k=f[0]+"|"+f[1]; const o=G.get(k)||G.set(k,{s:f[0],t:f[1],v:0,u:urun3(),il:new Set(),km:0,dep:0,src:new Map()}).get(k);
+    o.v+=f[6]; o.u[f[5]]+=f[6]; o.il.add(f[3]); o.km+=f[6]*f[7]; if(f[2]>=0) o.dep+=f[6];
+    const kk=LSRC(f), add=(key,ad,v)=>{ const x=o.src.get(key)||o.src.set(key,{k:kk,ad,v:0,u:urun3(),km:0}).get(key); x.v+=v; x.u[f[5]]+=v; x.km+=v*f[7]; };
+    if(kk===2){ const sp=LFS_PAY.get(k); if(sp) for(const [s,w] of sp) add("d"+s,s>=0?SIR[s][1]:"?",f[6]*w); else add("d?","Dağıtıcı",f[6]); }
+    else add("k"+kk,kk===1?TERM[f[1]][1]:LSRC_AD[kk],f[6]); }
+  const GL=[...G.values()].sort((a,b)=>b.v-a.v), N=S.ltS>=0?999:60;
+  document.getElementById("h-ltah").textContent="LPG tedarik tahsisi – "+(S.ltS>=0?SIR[S.ltS][1]:"tüm şirketler");
+  document.getElementById("s-ltah").textContent=`${new Set(GL.map(o=>o.t)).size} terminal · ${GL.length} şirket × terminal`;
+  document.getElementById("l-ltah").textContent="Alımı yapan şirketi seçin. Her şirket × terminal satırının altında kaynak kırılımı yer alır: kendi ithalatı, rafineriden, satıcı dağıtıcıdan ya da açılış stokundan.";
+  document.getElementById("k-ltah").innerHTML=lpgUstKart(R,S.ltS>=0?"bayi ve tüketiciye":"otogaz + tüplü + dökme");
+  const um=u=>[0,1,2].filter(i=>u[i]>=0.5).map(i=>`<span class="lu"><i style="background:${LPGU_R[i]}"></i>${LPGU[i]} ${ton(u[i])}</span>`).join("");
+  const out=[];
+  for(const o of GL.slice(0,N)){
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(SIR[o.s][1])}</b></td><td class="l"><b>${esc(TERM[o.t][1])}</b>${LIS(o.t,1)}<br><span class="muted">${esc(HUB[TERM[o.t][2]].ad)}</span></td><td class="l">${um(o.u)}</td><td class="l">${o.dep>=0.5?`Depo üzerinden ${pct(o.dep/o.v)}<br>`:""}${o.v-o.dep>=0.5?`Doğrudan ${pct((o.v-o.dep)/o.v)}`:""}</td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${o.il.size}</td><td>${nf.format(o.km/o.v)} km</td></tr>`);
+    for(const x of [...o.src.values()].sort((a,b)=>b.v-a.v)) if(x.v>=0.5)
+      out.push(`<tr class="sub"><td></td><td class="l ind"><span class="pill ${LSRC_P[x.k]}">${["Kendi ithalatı","Rafineri","Dağıtıcı","Stok"][x.k]}</span>${esc(x.ad)}</td><td class="l">${um(x.u)}</td><td></td><td>${ton(x.v)}</td><td>${pct(o.v?x.v/o.v:0)}</td><td></td><td>${nf.format(x.km/x.v)} km</td></tr>`);
+  }
+  if(GL.length>N) out.push(`<tr><td colspan="8" class="empty">+${GL.length-N} şirket × terminal satırı daha (${ton(GL.slice(N).reduce((a,o)=>a+o.v,0))}); bir şirket seçin.</td></tr>`);
+  document.getElementById("t-ltah").innerHTML=`<thead><tr><th class="l">Alıcı</th><th class="l">Terminal / kaynak</th><th class="l">Ürün</th><th class="l">Rota</th><th>Miktar</th><th>Pay</th><th>İl</th><th>Ort. km</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="8" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
+}
+document.getElementById("f-lt-s").addEventListener("change",e=>{S.ltS=+e.target.value; render();});
+document.getElementById("clear-lt").addEventListener("click",()=>{S.ltS=-1; render();});
+
+/* ---------------- LPG · taşıma ---------------- */
+const LTAS_AD={"ROAD|PRIMER":["Karayolu · primer","terminal / rafineri → ara depo ya da büyük müşteri","#D9711F"],"ROAD|SEKONDER":["Karayolu · sekonder","depo → bayi / tüketici","#F2AE6F"],"PIPELINE|PRIMER":["Boru hattı","iskele / rafineri → depo (küme içi)","#0F6E8C"],"COASTAL_SEA|PRIMER":["Kabotaj (deniz)","yurt içi gemi seferi (gözlenen)","#2A5591"]};
+function lpgTasima(){
+  const sv=new Map(); for(const f of LF) if((S.lsU<0||f[5]===S.lsU)&&(!S.lsR||(S.lsR==="p")===(f[2]>=0))) sv.set(f[0],(sv.get(f[0])||0)+f[6]);
+  if(S.lsS>=0&&!sv.has(S.lsS)) S.lsS=-1;
+  lsel("f-ls-s",sirOpts(sv),S.lsS,"Tüm şirketler");
+  lsel("f-ls-u",[0,1,2].map(u=>[u,"LPG "+LPGU[u].toLocaleLowerCase("tr-TR")]),S.lsU,"Tüm ürünler");
+  document.getElementById("f-ls-r").value=S.lsR;
+  const R=LF.filter(f=>(S.lsS<0||f[0]===S.lsS)&&(S.lsU<0||f[5]===S.lsU)&&(!S.lsR||(S.lsR==="p")===(f[2]>=0)));
+  const T=R.reduce((a,f)=>a+f[6],0), TK=R.reduce((a,f)=>a+f[6]*f[7],0);
+  const ad=(S.lsS>=0?SIR[S.lsS][1]:"Tüm şirketler")+(S.lsU>=0?" · "+LPGU[S.lsU].toLocaleLowerCase("tr-TR"):"");
+  document.getElementById("h-ltas").textContent=ad+" – LPG taşıma";
+  document.getElementById("s-ltas").textContent=`${ton(T)} · ort. ${nf.format(TK/(T||1))} km`;
+  document.getElementById("l-ltas").textContent="LPG terminalden (ithalat terminali ya da rafineri) bayiye ve tüketiciye karayoluyla taşınır; bir kısmı bir ara depoya uğrar. Üst kartlar piyasa genelinin çok modlu navlun modelidir (LPG veritabanı), şirket ve ürün filtresinden etkilenmez.";
+  // piyasa geneli modlar
+  const TA=LTAS.reduce((a,r)=>a+r[4],0), TT_=LTAS.reduce((a,r)=>a+r[2],0);
+  const mk=LTAS.slice().sort((a,b)=>b[2]-a[2]).map(r=>{ const m=LTAS_AD[r[0]+"|"+r[1]]||[r[0]+" · "+r[1],"","#8A97A3"];
+    return `<div class="kpi ltk" style="border-top:3px solid ${m[2]}"><span>${esc(m[0])}</span><b>${ton(r[2])}</b><span>${esc(m[1])}</span><span>ort. ${nf.format(r[3]/(r[2]||1))} km · ${nf.format(r[4]/(r[2]||1))} USD/t${r[5]?` · ${nf.format(r[5])} sefer`:""}</span></div>`; }).join("");
+  document.getElementById("k-ltas-m").innerHTML=LTAS.length?mk+`<div class="kpi ltk" style="border-top:3px solid var(--ink)"><span>Toplam navlun · 2025</span><b>${nf2.format(TA/1e6)} M USD</b><span>${nf.format(TA/3946405)} USD / satılan ton</span><span>${ton(TT_)} taşıma (bacak toplamı)</span></div>`:'<p class="muted">Piyasa geneli taşıma özeti için LPG veritabanı gerekir.</p>';
+  // şirket akışı kartları
+  const dir=R.filter(f=>f[2]<0).reduce((a,f)=>a+f[6],0), dep=T-dir, B=[[0,100],[100,250],[250,500],[500,1e9]], BV=B.map(([a,b])=>R.filter(f=>f[7]>=a&&f[7]<b).reduce((q,f)=>q+f[6],0));
+  const DM=new Map(); for(const f of R) if(f[2]>=0){ const d=LDEP[f[2]]; const k=d?`${d[1]} ${String(d[3]||"").toLocaleLowerCase("tr-TR").replace(/(^|\s)\S/g,m=>m.toLocaleUpperCase("tr-TR"))} (${IL.get(d[2])||""})`:"?"; DM.set(k,(DM.get(k)||0)+f[6]); }
+  const pk=R.reduce((a,f)=>a+f[6]*(f[9]||0),0), sk=R.reduce((a,f)=>a+f[6]*(f[10]||0),0);
+  document.getElementById("k-ltas").innerHTML=`<div class="kg">`
+    +kompKart("Rota",[{l:"Doğrudan",v:dir,c:"#D9711F",s:"terminalden bayiye / tüketiciye"},{l:"Ara depo üzerinden",v:dep,c:"#8A4512",s:`${DM.size} depo · primer ort. ${nf.format(pk/(dep||1))} km`}],{buyuk:ton(T),alt:`ton-km ${nf.format(TK/1e6)} milyon`,span:4})
+    +kompKart("Mesafe dağılımı",B.map(([a,b],i)=>({l:b>1e8?`${a} km ve üzeri`:`${a}–${b} km`,v:BV[i],c:["#FBE0C8","#F2AE6F","#D9711F","#8A4512"][i]})),{sag:"terminal → il, ton ağırlıklı",span:4})
+    +siraKart("Ara depolar",[...DM],{span:4,c:"#8A4512",n:5,sag:ton(dep)})+`</div>`;
+  // tablo: terminal → şirket
+  const G=new Map(); for(const f of R){ const o=G.get(f[1])||G.set(f[1],{v:0,tk:0,pk:0,sk:0,dep:0,il:new Set(),c:new Map()}).get(f[1]);
+    o.v+=f[6]; o.tk+=f[6]*f[7]; o.pk+=f[6]*(f[9]||0); o.sk+=f[6]*(f[10]||0); if(f[2]>=0) o.dep+=f[6]; o.il.add(f[3]);
+    const c=o.c.get(f[0])||o.c.set(f[0],{v:0,tk:0,dep:0,il:new Set()}).get(f[0]); c.v+=f[6]; c.tk+=f[6]*f[7]; if(f[2]>=0) c.dep+=f[6]; c.il.add(f[3]); }
+  const out=[];
+  for(const [t,o] of [...G].sort((a,b)=>b[1].v-a[1].v)){
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)} <span class="muted">· ${esc(HUB[TERM[t][2]].ad)}</span></td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${pct(o.dep/o.v)}</td><td>${o.il.size}</td><td>${nf.format(o.tk/o.v)}</td><td>${o.dep>=0.5?nf.format(o.pk/o.dep):"–"}</td><td>${nf.format(o.tk/1e6)}</td></tr>`);
+    const C=[...o.c].sort((a,b)=>b[1].v-a[1].v), N=S.lsS>=0?99:5;
+    for(const [s,c] of C.slice(0,N)) out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td>${ton(c.v)}</td><td>${pct(o.v?c.v/o.v:0)}</td><td>${pct(c.dep/c.v)}</td><td>${c.il.size}</td><td>${nf.format(c.tk/c.v)}</td><td></td><td>${nf.format(c.tk/1e6)}</td></tr>`);
+    if(C.length>N) out.push(`<tr class="sub"><td class="l ind muted">+${C.length-N} şirket daha</td><td>${ton(C.slice(N).reduce((q,x)=>q+x[1].v,0))}</td><td colspan="6"></td></tr>`);
+  }
+  document.getElementById("t-ltas").innerHTML=`<thead><tr><th class="l">Terminal / şirket</th><th>Miktar</th><th>Pay</th><th>Depo üzerinden</th><th>İl</th><th>Ort. km</th><th>Primer km</th><th>Ton-km (M)</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="8" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
+}
+for(const [id,k] of [["f-ls-s","lsS"],["f-ls-u","lsU"]]) document.getElementById(id).addEventListener("change",e=>{S[k]=+e.target.value; render();});
+document.getElementById("f-ls-r").addEventListener("change",e=>{S.lsR=e.target.value; render();});
+document.getElementById("clear-ls").addEventListener("click",()=>{S.lsS=-1; S.lsU=-1; S.lsR=""; render();});
+
+/* ---------------- LPG · bayiler (otogaz bayi lisansları, 2025 sonu dağıtıcısı) ---------------- */
+const LB_IL=new Map(), LB_S=new Map(); for(const [i,s,n] of LBAY){ LB_IL.set(i,(LB_IL.get(i)||0)+n); const m=LB_S.get(s)||LB_S.set(s,new Map()).get(s); m.set(i,(m.get(i)||0)+n); }
+const LB_OT=new Map(); for(const f of LF) if(f[5]===0){ const k=f[0]+"|"+f[3]; LB_OT.set(k,(LB_OT.get(k)||0)+f[6]); }
+const lbYol=new Map();
+(()=>{ const svg=document.getElementById("lbay-map"); if(!svg) return; svg.setAttribute("viewBox",svgM.getAttribute("viewBox"));
+  for(const [n,d] of Object.entries(GEO.p)){ const e=document.createElementNS(NS,"path"); e.setAttribute("d",d); e.setAttribute("class","il"); e.dataset.il=n; svg.appendChild(e); lbYol.set(+n,e); }
+  svg.addEventListener("click",e=>{ const p=e.target.closest("[data-il]"); if(p){ const i=+p.dataset.il; S.lbIl=S.lbIl===i?null:i; render(); } }); })();
+function lpgBayiler(){
+  const tot=new Map([...LB_S].map(([s,m])=>[s,[...m.values()].reduce((a,b)=>a+b,0)]));
+  if(S.lbS>=0&&!tot.has(S.lbS)) S.lbS=-1;
+  lsel("f-lb-s",[...tot].sort((a,b)=>b[1]-a[1]).map(([s,n])=>[s,`${SIR[s][1]} · ${nf.format(n)} bayi`]),S.lbS,`Tüm dağıtıcılar (${tot.size})`);
+  const tum=S.lbS<0, sel=tum?LB_IL:(LB_S.get(S.lbS)||new Map()), UL=[...LB_IL.values()].reduce((a,b)=>a+b,0), ST=[...sel.values()].reduce((a,b)=>a+b,0);
+  let bins=[]; if(tum){ const v=[...LB_IL.values()].filter(x=>x>0).sort((a,b)=>a-b); bins=[1/3,2/3].map(q=>v[Math.floor(q*(v.length-1))]||0); }
+  for(const [i,e] of lbYol){ const n=sel.get(i)||0; let f="var(--c0)";
+    if(n>0){ if(tum){ let k=1; for(const b of bins) if(n>=b) k++; f=`var(--s${k})`; } else { const p=n/(LB_IL.get(i)||1); let k=1; for(const b of BAY_BIN) if(p>=b) k++; f=`var(--s${k})`; } }
+    e.setAttribute("fill",f); e.classList.toggle("sel",S.lbIl===i); }
+  const ad=tum?"tüm dağıtıcılar":SIR[S.lbS][1];
+  document.getElementById("h-lbay").textContent=tum?"Otogaz bayileri: il dağılımı":`${ad}: illerdeki otogaz bayi payı`;
+  document.getElementById("l-lbay").textContent=tum?`Her il, 2025 sonunda faal otogaz bayisi sayısına göre renklendirildi (toplam ${nf.format(UL)} bayi). Bir dağıtıcı seçince harita, dağıtıcının her ildeki bayi payını gösterir.`
+    :`${ad} ${sel.size} ilde ${nf.format(ST)} otogaz bayisiyle temsil ediliyor; ülkedeki bayilerin ${pct(ST/(UL||1))}'i. Renk: ildeki bayilerin dağıtıcıya ait payı.`;
+  document.getElementById("lbay-leg").innerHTML=tum?`<span><i style="background:var(--c0)"></i>yok</span>`+[0,1,2].map(k=>`<span><i style="background:var(--s${k+1})"></i>${k===0?nf.format(bins[0])+"'ten az":k===1?nf.format(bins[0])+"–"+nf.format(bins[1]):nf.format(bins[1])+" ve üzeri"}</span>`).join("")+`<span>· il başına bayi</span>`
+    :`<span><i style="background:var(--c0)"></i>yok</span><span><i style="background:var(--s1)"></i>%10'dan az</span><span><i style="background:var(--s2)"></i>%10–20</span><span><i style="background:var(--s3)"></i>%20 ve üzeri</span><span>· ildeki bayi payı</span>`;
+  // il sıralaması
+  const otg=(s,i)=>s<0?[...LB_S.keys()].reduce((a,x)=>a+(LB_OT.get(x+"|"+i)||0),0):(LB_OT.get(s+"|"+i)||0);
+  const IR=[...sel].filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]), M=IR.length?IR[0][1]:1, ilk5=IR.slice(0,5).reduce((a,x)=>a+x[1],0);
+  document.getElementById("lbay-il").innerHTML=`<div class="ip-h"><b>İl sıralaması</b><span>${tum?"il başına otogaz bayisi":"dağıtıcının il başına bayisi"}</span></div><div class="ip-oz"><div><b>${IR.length}</b><span>il</span></div><div><b>${pct(ST?ilk5/ST:0)}</b><span>ilk 5 ilin payı</span></div></div>`
+    +`<ol class="ip-l">${IR.slice(0,8).map(([i,n],k)=>{ const o=otg(S.lbS,i); return `<li><button type="button" data-il="${i}" class="${S.lbIl===i?"on":""}"><span class="ip-n">${k+1}</span><span class="ip-ad">${esc(IL.get(i))}<small>${tum?"":"ilde "+pct(n/(LB_IL.get(i)||1))+" · "}otogaz ${ton(o)} · ${nf.format(o/n)} t/bayi</small></span><b>${nf.format(n)}</b><span class="ip-b"><i style="width:${(n/M*100).toFixed(1)}%"></i></span></button></li>`; }).join("")}</ol>`
+    +(IR.length>8?`<p class="ip-f">+${IR.length-8} il daha · ${nf.format(IR.slice(8).reduce((a,x)=>a+x[1],0))}</p>`:"");
+  // tablo
+  let head, rows;
+  if(tum&&S.lbIl==null){ head=`<tr><th class="l">Dağıtıcı</th><th>Bayi</th><th>Pay</th><th>İl</th><th>Otogaz satışı</th><th>t / bayi</th></tr>`;
+    rows=[...tot].sort((a,b)=>b[1]-a[1]).map(([s,n])=>{ const o=[...LB_S.get(s).keys()].reduce((a,i)=>a+(LB_OT.get(s+"|"+i)||0),0);
+      return `<tr><td class="l"><button type="button" class="lnk" data-lbs="${s}">${esc(SIR[s][1])}</button></td><td><b>${nf.format(n)}</b></td><td>${pct(n/UL)}</td><td>${LB_S.get(s).size}</td><td>${cell(o)}</td><td>${o?nf.format(o/n):"–"}</td></tr>`; }); }
+  else if(S.lbIl!=null){ const i=S.lbIl; head=`<tr><th class="l">${esc(IL.get(i))} · dağıtıcı</th><th>Bayi</th><th>İldeki pay</th><th>Otogaz satışı</th><th>t / bayi</th></tr>`;
+    rows=[...LB_S].map(([s,m])=>[s,m.get(i)||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).map(([s,n])=>{ const o=LB_OT.get(s+"|"+i)||0;
+      return `<tr${s===S.lbS?' class="tg"':""}><td class="l">${esc(SIR[s][1])}</td><td><b>${nf.format(n)}</b></td><td>${pct(n/(LB_IL.get(i)||1))}</td><td>${cell(o)}</td><td>${o?nf.format(o/n):"–"}</td></tr>`; }); }
+  else { head=`<tr><th class="l">İl</th><th>Bayi</th><th>İldeki pay</th><th>Otogaz satışı</th><th>t / bayi</th></tr>`;
+    rows=IR.map(([i,n])=>{ const o=LB_OT.get(S.lbS+"|"+i)||0; return `<tr><td class="l">${esc(IL.get(i))}</td><td><b>${nf.format(n)}</b></td><td>${pct(n/(LB_IL.get(i)||1))}</td><td>${cell(o)}</td><td>${o?nf.format(o/n):"–"}</td></tr>`; }); }
+  document.getElementById("h-lbay-t").textContent=S.lbIl!=null?`${IL.get(S.lbIl)} – dağıtıcılara göre otogaz bayileri`:tum?"Otogaz bayileri – dağıtıcılar":`${ad} – illere göre otogaz bayileri`;
+  document.getElementById("s-lbay-t").textContent=S.lbIl!=null?`${nf.format(LB_IL.get(S.lbIl)||0)} bayi`:`${nf.format(ST)} bayi · ${IR.length} il`;
+  document.getElementById("t-lbay").innerHTML=`<thead>${head}</thead><tbody>${rows.join("")||'<tr><td colspan="6" class="empty">Otogaz bayi verisi için LPG veritabanı gerekir.</td></tr>'}</tbody>`;
+}
+document.getElementById("f-lb-s").addEventListener("change",e=>{S.lbS=+e.target.value; render();});
+document.getElementById("clear-lb").addEventListener("click",()=>{S.lbS=-1; S.lbIl=null; render();});
+document.getElementById("lbay-il").addEventListener("click",e=>{ const b=e.target.closest("[data-il]"); if(b){ const i=+b.dataset.il; S.lbIl=S.lbIl===i?null:i; render(); } });
+document.getElementById("t-lbay").addEventListener("click",e=>{ const b=e.target.closest("[data-lbs]"); if(b){ S.lbS=+b.dataset.lbs; render(); } });
+
 function render(){
   mobilHazirla();
   const W=document.getElementById("wrap"); W.dataset.sayfa=S.sayfa;
@@ -1200,6 +1415,11 @@ function render(){
   if(S.sayfa==="lpgmus"){ lpgTicaret(); return; }
   if(S.sayfa==="lpgith"){ lpgIthalat(); return; }
   if(S.sayfa==="lpgtrm"){ lpgTerminaller(); return; }
+  if(S.sayfa==="lpgraf"){ lpgRafineriler(); return; }
+  if(S.sayfa==="lpgkay"){ lpgKaynak(); return; }
+  if(S.sayfa==="lpgtah"){ lpgTahsis(); return; }
+  if(S.sayfa==="lpgtas"){ lpgTasima(); return; }
+  if(S.sayfa==="lpgbay"){ lpgBayiler(); return; }
   if(S.sayfa==="akterm"){ akTerminaller(); return; }
   if(TAH()){ tahsis(); return; }
   if(KAYN()){ kaynakDag(); return; }

@@ -107,6 +107,17 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
 .wrap[data-sayfa="akterm"]>:not(header):not(nav):not(.atr-only):not(footer){display:none}.wrap:not([data-sayfa="akterm"]) .atr-only{display:none}
 .wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}
+.wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
+.wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
+.wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
+.wrap[data-sayfa="lpgtas"]>:not(header):not(nav):not(.ltas-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtas"]) .ltas-only{display:none}
+.wrap[data-sayfa="lpgbay"]>:not(header):not(nav):not(.lbay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgbay"]) .lbay-only{display:none}
+.pill.s{background:#EEF1F3;color:#5E6B75}.lu{display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:12.5px;white-space:nowrap}.lu i{width:8px;height:8px;border-radius:2px}
+.lsub{margin:14px 0 8px;font:600 13px var(--f-body);color:var(--ink)}#k-ltas-m .kpi.ltk{flex:1 1 190px}#k-ltas-m .kpi.ltk span:last-child{font-size:12px;color:var(--ink-3)}
+.lbay-only .hg{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px}.lbay-only .ilpan{border-left:1px solid var(--line);padding-left:16px}
+#lbay-map{width:100%;height:auto;display:block}#lbay-map .il{stroke:var(--edge,#fff);stroke-width:.6;cursor:pointer}#lbay-map .il.sel{stroke:var(--ink);stroke-width:1.4}
+.lbay-only{--s1:#FBE0C8;--s2:#F2AE6F;--s3:#D9711F}button.lnk{border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);cursor:pointer}
+@media (max-width:1100px){.lbay-only .hg{grid-template-columns:1fr}.lbay-only .ilpan{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px}}
 #k-lpgi .kpi{flex:1 1 190px;border-top:3px solid var(--lpg)}
 .lgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px}
 @media (max-width:860px){.lgrid{grid-template-columns:minmax(0,1fr)}}
