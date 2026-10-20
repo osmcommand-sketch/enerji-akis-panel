@@ -1183,9 +1183,22 @@ function lpgTerminaller(){
       out.push(`<tr class="sub tsup"><td class="l ind"><span class="sup-e">tedarikçi</span><b>${esc(sn)}</b><br><span class="muted">${BB.length} alıcı</span></td><td class="l zin">${urunOz(P.uu,LAD,LRK)}</td><td></td><td>${cell(P.it)}</td><td><b>${cell(P.v)}</b></td><td><span class="muted">${P.v>=0.5?pct(P.v/(v||1)):""}</span></td><td></td><td>${P.il.size||'<span class="z">–</span>'}</td><td>${P.v>=0.5?nf.format(Math.round(P.km/P.v)):'<span class="z">–</span>'}</td></tr>`);
       for(const [b,c] of BB) out.push(`<tr class="sub"><td class="l ind2"><span class="muted">→</span> ${esc(SIR[b][1])}</td><td class="l zin" colspan="2">${c.v>=0.5?zinUrun(c.zu,LAD,LRK):'<span class="zc muted">yalnız ithalat · yükleme başka terminalde ya da başka dağıtıcıya</span>'}</td><td>${cell(c.it)}</td><td>${cell(c.v)}</td><td><span class="muted">${c.v>=0.5&&P.v>=0.5?pct(c.v/P.v):""}</span></td><td></td><td>${c.il.size||'<span class="z">–</span>'}</td><td>${c.v>=0.5?nf.format(Math.round(c.km/c.v)):'<span class="z">–</span>'}</td></tr>`); } }
   document.getElementById("t-ltr").innerHTML=`<thead>${head}</thead><tbody>${out.join("")||'<tr><td colspan="9" class="empty">Bu seçimde terminal yok.</td></tr>'}</tbody>`;
+  // depolar (kullanıcı 20.10.2026 19:17 "depolar eksik"): aktarma (tanker yüklemesi) ve ara depo geçişi
+  { const DM=new Map(); const g=(k,ad,il)=>DM.get(k)||DM.set(k,{ad,il,ak:0,ar:0,kap:0}).get(k);
+    const LD=D.dep||[], LDI=new Map(LD.map((d,i)=>[d[0],i])), tt=x=>String(x||"").toLocaleLowerCase("tr-TR").replace(/(^|\s)\S/g,m=>m.toLocaleUpperCase("tr-TR"));
+    const US2=new Set(S.ltrU);
+    for(const f of LF){ if(US2.size&&!US2.has(f[5])) continue; if(S.ltrSr>=0&&f[0]!==S.ltrSr) continue;
+      if(f[2]>=0){ const d=LD[f[2]]; g(d[0],`${d[1]} ${tt(d[3])}`,d[2]).ar+=f[6]; }
+      if(f[12]&&f[11]>=0){ const y=(D.lyt||[])[f[11]]; if(y){ const o=g(y[0],y[1],y[2]); o.ak+=f[6]; o.kapY=y[4]||0; } } }
+    for(const [k,o] of DM){ const d=LD[LDI.get(k)]; o.kap=o.kapY||(d?d[4]/250:0); }
+    const R=[...DM.values()].filter(o=>o.ak+o.ar>=0.5).sort((a,b)=>(b.ak+b.ar)-(a.ak+a.ar));
+    const el=document.getElementById("t-ltr-dep"); if(el){
+      document.getElementById("s-ltr-dep").textContent=`${R.length} depo · aktarma ${ton(R.reduce((a,o)=>a+o.ak,0))} · ara depo ${ton(R.reduce((a,o)=>a+o.ar,0))}`;
+      el.innerHTML=`<thead><tr><th class="l">Depo</th><th class="l">İl</th><th>Kapasite</th><th>Aktarma (tanker yüklemesi)</th><th>Ara depo geçişi</th><th>Toplam</th><th>Devir / yıl</th></tr></thead><tbody>`+
+        (R.length?R.map(o=>`<tr><td class="l"><b>${esc(o.ad)}</b></td><td class="l">${esc(IL.get(o.il)||"")}</td><td>${o.kap?ton(o.kap):"–"}</td><td>${cell(o.ak)}</td><td>${cell(o.ar)}</td><td><b>${ton(o.ak+o.ar)}</b></td><td>${o.kap?nf1.format((o.ak+o.ar)/o.kap):"–"}</td></tr>`).join(""):`<tr><td colspan="7" class="empty">Bu seçimde depo kullanımı yok.</td></tr>`)+`</tbody>`; } }
 }
 /* ---------- LPG · akaryakıt sayfalarının karşılıkları (kullanıcı 20.10.2026 18:08): Rafineriler, Tahsis kaynak / terminal bazlı, Taşıma, Bayiler ---------- */
-const LURET=D.luret||[], LIHR=D.lihr||[], LTAS=D.ltas||[], LBAY=D.lbay||[], LDEP=D.dep||[];
+const LURET=D.luret||[], LIHR=D.lihr||[], LTAS=D.ltas||[], LBAY=D.lbay||[], LDEP=D.dep||[], LYT=D.lyt||[];   // LYT: aktarma (yükleme) depoları [kod, ad, il, ton]
 const LSRC=f=>f[4]===0?0:f[4]===2?1:f[4]===1?2:3;          // LF tedarik türü → kaynak sırası
 const LSRC_AD=["Kendi ithalatı","Rafineriden","Dağıtıcıdan","Açılış stoku"], LSRC_R=["#2A5591","#0F6E8C","#B7791F","#8A97A3"], LSRC_P=["i","r","d","s"];
 const RAFT=new Set(LURET.map(r=>r[0]));
@@ -1321,7 +1334,7 @@ function lpgTasima(){
   const ad=(S.lsS>=0?SIR[S.lsS][1]:"Tüm şirketler")+(S.lsU>=0?" · "+LPGU[S.lsU].toLocaleLowerCase("tr-TR"):"");
   document.getElementById("h-ltas").textContent=ad+" – LPG taşıma";
   document.getElementById("s-ltas").textContent=`${ton(T)} · ort. ${nf.format(TK/(T||1))} km`;
-  document.getElementById("l-ltas").textContent="LPG terminalden (ithalat terminali ya da rafineri) bayiye ve tüketiciye karayoluyla taşınır; bir kısmı bir ara depoya uğrar. Üst kartlar piyasa genelinin çok modlu navlun modelidir (LPG veritabanı), şirket ve ürün filtresinden etkilenmez.";
+  document.getElementById("l-ltas").textContent="LPG arz tesisinden (ithalat terminali ya da rafineri) çoğu zaman aynı ilçedeki şirket deposuna boru hattıyla aktarılır, tankere oradan yüklenir ve bayiye ya da tüketiciye karayoluyla gider; bir kısmı bir ara depoya uğrar. Üst kartlar piyasa genelinin çok modlu navlun modelidir (LPG veritabanı), şirket ve ürün filtresinden etkilenmez.";
   // piyasa geneli modlar
   const TA=LTAS.reduce((a,r)=>a+r[4],0), TT_=LTAS.reduce((a,r)=>a+r[2],0);
   const mk=LTAS.slice().sort((a,b)=>b[2]-a[2]).map(r=>{ const m=LTAS_AD[r[0]+"|"+r[1]]||[r[0]+" · "+r[1],"","#8A97A3"];
@@ -1331,22 +1344,26 @@ function lpgTasima(){
   const dir=R.filter(f=>f[2]<0).reduce((a,f)=>a+f[6],0), dep=T-dir, B=[[0,100],[100,250],[250,500],[500,1e9]], BV=B.map(([a,b])=>R.filter(f=>f[7]>=a&&f[7]<b).reduce((q,f)=>q+f[6],0));
   const DM=new Map(); for(const f of R) if(f[2]>=0){ const d=LDEP[f[2]]; const k=d?`${d[1]} ${String(d[3]||"").toLocaleLowerCase("tr-TR").replace(/(^|\s)\S/g,m=>m.toLocaleUpperCase("tr-TR"))} (${IL.get(d[2])||""})`:"?"; DM.set(k,(DM.get(k)||0)+f[6]); }
   const pk=R.reduce((a,f)=>a+f[6]*(f[9]||0),0), sk=R.reduce((a,f)=>a+f[6]*(f[10]||0),0);
+  // depoya aktarma (lpg_tr.db v1.1 güncel): arz tesisinden aynı ilçedeki şirket deposuna boru hattı / karayolu
+  const AK=[0,0,0], AKD=new Map(); for(const f of R){ const m=f[12]||0; AK[m]+=f[6]; if(m&&f[11]>=0){ const y=LYT[f[11]], k=y?`${y[1]} (${IL.get(y[2])||""})`:"?"; AKD.set(k,(AKD.get(k)||0)+f[6]); } }
+  const akKm=R.filter(f=>f[12]).reduce((a,f)=>a+f[6]*(f[13]||0),0);
   document.getElementById("k-ltas").innerHTML=`<div class="kg">`
     +kompKart("Rota",[{l:"Doğrudan",v:dir,c:"#D9711F",s:"terminalden bayiye / tüketiciye"},{l:"Ara depo üzerinden",v:dep,c:"#8A4512",s:`${DM.size} depo · primer ort. ${nf.format(pk/(dep||1))} km`}],{buyuk:ton(T),alt:`ton-km ${nf.format(TK/1e6)} milyon`,span:4})
+    +(LYT.length?kompKart("Depoya aktarma",[{l:"Boru hattıyla",v:AK[1],c:"#0F6E8C",s:"lisanslı hatla aynı ilçedeki depoya"},{l:"Karayoluyla",v:AK[2],c:"#B7791F",s:`kısa aktarma · ort. ${nf.format(akKm/((AK[1]+AK[2])||1))} km`},{l:"Aktarmasız",v:AK[0],c:"#C9D3D8",s:"arz tesisinden doğrudan tanker"}],{sag:"tanker yüklemesinden önce",span:4}):"")
     +kompKart("Mesafe dağılımı",B.map(([a,b],i)=>({l:b>1e8?`${a} km ve üzeri`:`${a}–${b} km`,v:BV[i],c:["#FBE0C8","#F2AE6F","#D9711F","#8A4512"][i]})),{sag:"terminal → il, ton ağırlıklı",span:4})
-    +siraKart("Ara depolar",[...DM],{span:4,c:"#8A4512",n:5,sag:ton(dep)})+`</div>`;
+    +siraKart("Aktarma depoları (tanker yüklemesi)",[...AKD],{span:LYT.length?6:4,c:"#0F6E8C",n:6,sag:ton(AK[1]+AK[2])})+siraKart("Ara depolar",[...DM],{span:LYT.length?6:4,c:"#8A4512",n:6,sag:ton(dep)})+`</div>`;
   // tablo: terminal → şirket
-  const G=new Map(); for(const f of R){ const o=G.get(f[1])||G.set(f[1],{v:0,tk:0,pk:0,sk:0,dep:0,il:new Set(),c:new Map()}).get(f[1]);
+  const G=new Map(); for(const f of R){ const o=G.get(f[1])||G.set(f[1],{v:0,tk:0,pk:0,sk:0,dep:0,ak:0,il:new Set(),c:new Map()}).get(f[1]); if(f[12]) o.ak+=f[6];
     o.v+=f[6]; o.tk+=f[6]*f[7]; o.pk+=f[6]*(f[9]||0); o.sk+=f[6]*(f[10]||0); if(f[2]>=0) o.dep+=f[6]; o.il.add(f[3]);
-    const c=o.c.get(f[0])||o.c.set(f[0],{v:0,tk:0,dep:0,il:new Set()}).get(f[0]); c.v+=f[6]; c.tk+=f[6]*f[7]; if(f[2]>=0) c.dep+=f[6]; c.il.add(f[3]); }
+    const c=o.c.get(f[0])||o.c.set(f[0],{v:0,tk:0,dep:0,ak:0,il:new Set()}).get(f[0]); if(f[12]) c.ak+=f[6]; c.v+=f[6]; c.tk+=f[6]*f[7]; if(f[2]>=0) c.dep+=f[6]; c.il.add(f[3]); }
   const out=[];
   for(const [t,o] of [...G].sort((a,b)=>b[1].v-a[1].v)){
-    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)} <span class="muted">· ${esc(HUB[TERM[t][2]].ad)}</span></td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${pct(o.dep/o.v)}</td><td>${o.il.size}</td><td>${nf.format(o.tk/o.v)}</td><td>${o.dep>=0.5?nf.format(o.pk/o.dep):"–"}</td><td>${nf.format(o.tk/1e6)}</td></tr>`);
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)} <span class="muted">· ${esc(HUB[TERM[t][2]].ad)}</span></td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${pct(o.ak/o.v)}</td><td>${pct(o.dep/o.v)}</td><td>${o.il.size}</td><td>${nf.format(o.tk/o.v)}</td><td>${o.dep>=0.5?nf.format(o.pk/o.dep):"–"}</td><td>${nf.format(o.tk/1e6)}</td></tr>`);
     const C=[...o.c].sort((a,b)=>b[1].v-a[1].v), N=S.lsS>=0?99:5;
-    for(const [s,c] of C.slice(0,N)) out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td>${ton(c.v)}</td><td>${pct(o.v?c.v/o.v:0)}</td><td>${pct(c.dep/c.v)}</td><td>${c.il.size}</td><td>${nf.format(c.tk/c.v)}</td><td></td><td>${nf.format(c.tk/1e6)}</td></tr>`);
-    if(C.length>N) out.push(`<tr class="sub"><td class="l ind muted">+${C.length-N} şirket daha</td><td>${ton(C.slice(N).reduce((q,x)=>q+x[1].v,0))}</td><td colspan="6"></td></tr>`);
+    for(const [s,c] of C.slice(0,N)) out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td>${ton(c.v)}</td><td>${pct(o.v?c.v/o.v:0)}</td><td>${pct(c.ak/c.v)}</td><td>${pct(c.dep/c.v)}</td><td>${c.il.size}</td><td>${nf.format(c.tk/c.v)}</td><td></td><td>${nf.format(c.tk/1e6)}</td></tr>`);
+    if(C.length>N) out.push(`<tr class="sub"><td class="l ind muted">+${C.length-N} şirket daha</td><td>${ton(C.slice(N).reduce((q,x)=>q+x[1].v,0))}</td><td colspan="7"></td></tr>`);
   }
-  document.getElementById("t-ltas").innerHTML=`<thead><tr><th class="l">Terminal / şirket</th><th>Miktar</th><th>Pay</th><th>Depo üzerinden</th><th>İl</th><th>Ort. km</th><th>Primer km</th><th>Ton-km (M)</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="8" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
+  document.getElementById("t-ltas").innerHTML=`<thead><tr><th class="l">Arz tesisi / şirket</th><th>Miktar</th><th>Pay</th><th>Depoya aktarma</th><th>Ara depo üzerinden</th><th>İl</th><th>Ort. km</th><th>Primer km</th><th>Ton-km (M)</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="9" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
 }
 for(const [id,k] of [["f-ls-s","lsS"],["f-ls-u","lsU"]]) document.getElementById(id).addEventListener("change",e=>{S[k]=+e.target.value; render();});
 document.getElementById("f-ls-r").addEventListener("change",e=>{S.lsR=e.target.value; render();});

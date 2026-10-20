@@ -647,6 +647,14 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
       <li>Lisans: EPDK LPG depolama lisansı (DIM_TERMINAL, FACT_DEPOLAMA).</li>
     </ul>
   </section>
+  <section class="ltr-only" aria-labelledby="h-ltr-dep">
+    <div class="head"><h2 id="h-ltr-dep">LPG depoları</h2><span class="sub" id="s-ltr-dep"></span></div>
+    <div class="scroll"><table id="t-ltr-dep"></table></div>
+    <ul class="notes">
+      <li>Aktarma: arz tesisinden (ithalat terminali / rafineri) aynı ilçedeki şirket deposuna boru hattı ya da kısa karayoluyla aktarılıp tankere o depodan yüklenen LPG. Ara depo geçişi: primer bacakla depoya gelip oradan bayiye / tüketiciye giden LPG (LPG veritabanı şirket akışı).</li>
+      <li>Kapasite: depo kapasitesi (ton, LPG veritabanı). Devir / yıl: (aktarma + ara depo geçişi) / kapasite. Dağıtım şirketi ve ürün filtreleri bu tabloyu da süzer.</li>
+    </ul>
+  </section>
   <!-- LPG · akaryakıt sayfalarının karşılıkları (kullanıcı 20.10.2026 18:08) -->
   <div class="filters lpgf lraf-only" role="search" aria-label="LPG rafineri filtreleri">
     <div class="f"><label for="f-lr-s">Alıcı şirket</label><select id="f-lr-s"></select></div>
@@ -706,7 +714,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <div class="scroll"><table id="t-ltas"></table></div>
     <ul class="notes">
       <li>Taşıma modu kartları LPG veritabanının 2025 çok modlu en düşük navlun modelidir (fact_land_transport): karayolu primer / sekonder, boru hattı (küme içi) ve gözlenen kabotaj seferleri; navlun USD, 2025 ortalama kuru.</li>
-      <li>Şirket akışı: FACT_LPG_AKIS. Primer km: terminalden ara depoya; ort. km: terminalden satış iline toplam karayolu mesafesi.</li>
+      <li>Şirket akışı: FACT_LPG_AKIS (LPG veritabanı şirket akışı). Arz tesisi: ürünün geldiği ithalat terminali ya da rafineri. Depoya aktarma: arz tesisiyle aynı ilçedeki şirket deposuna boru hattı ya da kısa karayolu aktarması; tanker o depodan yüklenir. Ara depo: primer bacağın vardığı depo. Ort. km: aktarma + primer + sekonder.</li>
     </ul>
   </section>
   <div class="filters lpgf lbay-only" role="search" aria-label="LPG bayi filtreleri">

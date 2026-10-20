@@ -47,14 +47,18 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     const CMP = new Map(); for (const [mid, cid] of LQ('select master_company_id, company_id from ref_company_master_map where company_id is not null order by master_company_id')) if (!CMP.has(cid)) CMP.set(cid, mid);
     const FAC = new Map(); for (const [code, fid, kind] of LQ('select master_code, facility_id, master_kind from ref_facility_master_map where facility_id is not null'))
       if (!FAC.has(fid) || (kind === 'TERMINAL' && !FAC.get(fid).startsWith('T'))) FAC.set(fid, code);
+    const FACP = new Map(); for (const [code, fid] of LQ('select master_code, facility_id, master_kind from ref_facility_master_map where facility_id is not null'))
+      if (!FACP.has(fid) || (code.startsWith('P') && !FACP.get(fid).startsWith('P'))) FACP.set(fid, code);
     const BRAND = new Map(LQ('select company_id, brand_name from ref_company')), FNAME = new Map(LQ('select facility_id, name from ref_facility'));
     const SEG = { OTOGAZ: 'LPG-Otogaz', TUPLU: 'LPG-Tüplü', DOKME: 'LPG-Dökme' };
     const TT = { IMPORT: 'Kendi ithalatı', REFINERY: 'Rafineri alımı', WHOLESALE: 'Dağıtıcı alımı', STOCK: 'Stoktan satış' };
     const eksik = {}; const ek = (k, q) => { eksik[k] = (eksik[k] || 0) + (q || 0); };
     const sid = (cid, q) => { if (cid === null || cid === undefined) return null; const s = CMP.get(cid); if (s === undefined) { ek('şirket ' + (BRAND.get(cid) || cid), q); return null; } return s; };
     db.run('begin');
+    // v1.1 güncel: origin_facility_id = arz tesisi (terminal); load_facility_id = aktarma deposu
+    const YENI = LQ('pragma table_info(fact_company_flow)').some(r => r[1] === 'origin_facility_id'), OF = YENI ? 'origin_facility_id' : 'load_facility_id';
     // yükleme tesisleri
-    const loadf = LQ("select distinct load_facility_id from fact_company_flow union select distinct discharge_facility_id from fact_import where granularity='ESTIMATE' and discharge_facility_id is not null").map(r => r[0]);
+    const loadf = LQ(`select distinct ${OF} from fact_company_flow union select distinct discharge_facility_id from fact_import where granularity='ESTIMATE' and discharge_facility_id is not null`).map(r => r[0]);
     const termIds = new Set(MQ('select Terminal_ID from DIM_TERMINAL').map(r => r[0]));
     const UTIL = new Map(LQ('select facility_id, lpg_facility_role, capacity_t from fact_facility_utilization').map(r => [r[0], r.slice(1)]));
     const ROL = { ITHALAT_TERMINALI: 'İthalat terminali', RAFINERI: 'Rafineri', DEPO_ARA: 'Ara depo', KULLANILMIYOR: 'Kullanılmıyor', FAAL_DEGIL: 'Faal değil' };
@@ -76,33 +80,41 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     // akış (yıllık)
     db.run('delete from FACT_LPG_AKIS');
     const KS = new Map(MQ('select Sirket_ID, coalesce(Konsolide_Sirket_ID, Sirket_ID) from DIM_SIRKET'));
+    for (const [col, typ] of [['Yukleme_Tesis_ID', 'text'], ['Aktarma_Modu', 'text'], ['Aktarma_km', 'real']]) if (!MQ('pragma table_info(FACT_LPG_AKIS)').some(r => r[1] === col)) db.run(`alter table FACT_LPG_AKIS add column ${col} ${typ}`);
     const ins = db.prepare(`insert into FACT_LPG_AKIS (LPG_Akis_ID, Donem, Sirket_ID, Il_ID, Urun, Terminal_ID, Tedarik_Tipi, Rota, Depolama_ID, Primer_km, Sekonder_km,
-      Tarife_km, Miktar_ton, Yonlendiren_Sirket_ID, Ithal_ton, Yerli_ton, Karayolu_km, Ton_km, Maliyet_Esdeger_Ton_km, Depo_Tarife_TL, Konsolide_Sirket_ID) values (?,?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,0,?)`);
-    let n = 0;
-    for (const [cid, lf, vf, il, seg, st, sup, q, imp, dom, pk, sk, dk] of LQ(`select company_id, load_facility_id, via_facility_id, province_id, segment_id, supply_type, supplier_company_id,
-        sum(quantity_t), sum(import_share_t), sum(domestic_t), sum(quantity_t*coalesce(primary_km,0)), sum(quantity_t*coalesce(secondary_km,0)), sum(quantity_t*coalesce(distance_km,0))
-        from fact_company_flow where period_id between 202501 and 202512 group by 1,2,3,4,5,6,7`)) {
+      Tarife_km, Miktar_ton, Yonlendiren_Sirket_ID, Ithal_ton, Yerli_ton, Karayolu_km, Ton_km, Maliyet_Esdeger_Ton_km, Depo_Tarife_TL, Konsolide_Sirket_ID, Yukleme_Tesis_ID, Aktarma_Modu, Aktarma_km) values (?,?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,0,?,?,?,?)`);
+    let n = 0; const AKT = new Map();
+    const yk_ = YENI ? 'load_facility_id, transfer_mode, sum(quantity_t*coalesce(transfer_km,0))' : 'NULL, NULL, 0';
+    for (const [cid, lf, vf, il, seg, st, sup, q, imp, dom, pk, sk, dk, yf, tm, tk] of LQ(`select company_id, ${OF}, via_facility_id, province_id, segment_id, supply_type, supplier_company_id,
+        sum(quantity_t), sum(import_share_t), sum(domestic_t), sum(quantity_t*coalesce(primary_km,0)), sum(quantity_t*coalesce(secondary_km,0)), sum(quantity_t*coalesce(distance_km,0)), ${yk_}
+        from fact_company_flow where period_id between 202501 and 202512 group by 1,2,3,4,5,6,7${YENI ? ',14,15' : ''}`)) {
       if (!q) continue;
-      const s = sid(cid, q), t = TID.get(lf), dep = vf !== null ? (FAC.get(vf) || null) : null;
+      const s = sid(cid, q), t = TID.get(lf), dep = vf !== null ? (FACP.get(vf) || null) : null;
       if (s === null || t === undefined) { ek('akış (şirket/tesis eşleşmedi)', q); continue; }
+      const yk = (yf !== null && yf !== lf) ? (FAC.get(yf) || 'L' + yf) : null; if (yk) AKT.set(yf, (AKT.get(yf) || 0) + q);
       n++;
       ins.run(['N' + String(n).padStart(6, '0'), '2025', s, il, SEG[seg], t, TT[st], dep ? 'Depo üzerinden' : 'Doğrudan', dep, pk / q, sk / q, q,
-        st === 'WHOLESALE' ? sid(sup, q) : null, imp || 0, dom || 0, dk / q, dk, dk, KS.get(s) || s]);
+        st === 'WHOLESALE' ? sid(sup, q) : null, imp || 0, dom || 0, dk / q, dk, dk, KS.get(s) || s, yk, yk ? ({ PIPELINE: 'Boru hattı', ROAD: 'Karayolu' }[tm] || tm) : null, yk ? tk / q : null]);
     }
     ins.free();
+    for (const [d_] of MQ('select distinct Depolama_ID from FACT_LPG_AKIS where Depolama_ID is not null and Depolama_ID not in (select Depolama_ID from REF_LPG_DEPO_KULLANIM)')) {
+      const t_ = MQ('select LPG_Captive_Ithalatci_ID, Il_ID, Ilce, Ilce_ID, LPG_Kapasite_m3 from DIM_TERMINAL where Terminal_ID=?', [d_]);
+      if (t_.length) db.run("insert into REF_LPG_DEPO_KULLANIM (Depolama_ID, Sirket_ID, Il_ID, Ilce, Ilce_ID, Kapasite_m3, Kapasite_ton_yil, Ic_Depo, Atanan_ton, Kullanim_Orani, Acik_Erisim, Varsayim) values (?,?,?,?,?,?,0,0,0,0,0,'terminal ara depo olarak (lpg_tr.db)')", [d_, ...t_[0]]); }
+    db.run('drop table if exists REF_LPG_YUKLEME_TESIS'); db.run('create table REF_LPG_YUKLEME_TESIS (Kod text, Ad text, Il_ID integer, Ton real, Kapasite_t real)');
+    for (const [yf, q] of AKT) { const r_ = LQ('select name, province_id, (select capacity_t from fact_facility_utilization u where u.facility_id=f.facility_id) from ref_facility f where facility_id=?', [yf])[0]; db.run('insert into REF_LPG_YUKLEME_TESIS values (?,?,?,?,?)', [FAC.get(yf) || 'L' + yf, String(r_[0]).split('/')[0].trim(), r_[1], q, r_[2]]); }
     // tedarik: dağıtıcı = fact_wholesale; rafineri = rafineri tesisinden ilk alıcı
     db.run('delete from FACT_LPG_TEDARIK');
     const pairT = new Map(), selT = new Map();
-    for (const [b, s, lf] of LQ("select company_id, supplier_company_id, load_facility_id, sum(quantity_t) from fact_company_flow where supply_type='WHOLESALE' group by 1,2,3 order by 4")) pairT.set(b + '|' + s, lf);
-    for (const [s, lf] of LQ("select supplier_company_id, load_facility_id, sum(quantity_t) from fact_company_flow where supply_type='WHOLESALE' group by 1,2 order by 3")) selT.set(s, lf);
+    for (const [b, s, lf] of LQ(`select company_id, supplier_company_id, ${OF}, sum(quantity_t) from fact_company_flow where supply_type='WHOLESALE' group by 1,2,3 order by 4`)) pairT.set(b + '|' + s, lf);
+    for (const [s, lf] of LQ(`select supplier_company_id, ${OF}, sum(quantity_t) from fact_company_flow where supply_type='WHOLESALE' group by 1,2 order by 3`)) selT.set(s, lf);
     let k = 0;
     for (const [b, s, q] of LQ('select buyer_company_id, seller_company_id, sum(quantity_t) from fact_wholesale where period_id between 202501 and 202512 and buyer_company_id is not null group by 1,2')) {
       if (!q || q < 0.5) continue; const ab = sid(b, q), ss = sid(s, q); if (ab === null || ss === null) continue;
       const lf = pairT.has(b + '|' + s) ? pairT.get(b + '|' + s) : selT.get(s); k++;
       db.run('insert into FACT_LPG_TEDARIK values (?,?,?,?,?,?,?)', ['N' + String(k).padStart(5, '0'), '2025', ab, q, 'Dağıtıcı', ss, TID.get(lf) || null]);
     }
-    for (const [b, lf, q] of LQ(`select case when supply_type='WHOLESALE' then supplier_company_id else company_id end, load_facility_id, sum(quantity_t)
-        from fact_company_flow f join ref_facility r on r.facility_id=f.load_facility_id where r.facility_type='REFINERY' and supply_type in ('REFINERY','WHOLESALE') group by 1,2`)) {
+    for (const [b, lf, q] of LQ(`select case when supply_type='WHOLESALE' then supplier_company_id else company_id end, ${OF}, sum(quantity_t)
+        from fact_company_flow f join ref_facility r on r.facility_id=f.${OF} where r.facility_type='REFINERY' and supply_type in ('REFINERY','WHOLESALE') group by 1,2`)) {
       const ab = sid(b, q); if (ab === null || !q) continue; k++;
       db.run('insert into FACT_LPG_TEDARIK values (?,?,?,?,?,?,?)', ['N' + String(k).padStart(5, '0'), '2025', ab, q, 'Rafineri', null, TID.get(lf) || null]);
     }
@@ -122,11 +134,14 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     // depo kullanımı
     const VIA = new Map(LQ('select via_facility_id, sum(quantity_t) from fact_company_flow where via_facility_id is not null group by 1'));
     const Pk = [];
+    if (!MQ('pragma table_info(REF_LPG_DEPO_KULLANIM)').some(r => r[1] === 'Aktarma_ton')) db.run('alter table REF_LPG_DEPO_KULLANIM add column Aktarma_ton real');
+    db.run('update REF_LPG_DEPO_KULLANIM set Aktarma_ton=0');
     for (const [fid, code] of FAC) { if (!code.startsWith('P')) continue; Pk.push(code);
       const u = LQ('select capacity_t_year from fact_facility_utilization where facility_id=?', [fid]); if (!u.length) continue;
-      const v = VIA.get(fid) || 0;
+      const v = (VIA.get(fid) || 0) + (AKT.get(fid) || 0);
       db.run('update REF_LPG_DEPO_KULLANIM set Kapasite_ton_yil=?, Atanan_ton=?, Kullanim_Orani=?, Varsayim=? where Depolama_ID=?',
-        [u[0][0], v, u[0][0] ? v / u[0][0] : 0, 'lpg_tr.db fact_facility_utilization (kapasite t × 250 devir); atanan = ara depo geçişi (fact_company_flow)', code]); }
+        [u[0][0], v, u[0][0] ? v / u[0][0] : 0, 'lpg_tr.db fact_facility_utilization (kapasite t × 250 devir); atanan = ara depo geçişi + aktarmayla tanker yüklemesi (fact_company_flow)', code]);
+      db.run('update REF_LPG_DEPO_KULLANIM set Aktarma_ton=? where Depolama_ID=?', [AKT.get(fid) || 0, code]); }
     db.run(`update REF_LPG_DEPO_KULLANIM set Atanan_ton=0, Kullanim_Orani=0 where Depolama_ID not in (${Pk.map(x => `'${x}'`).join(',')})`);
     // ulusal tablolar (2024 aylık ve 2016–2024 üretim lpg_tr.db'de yok: master değeri kalır)
     const AYS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -259,11 +274,12 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const DEP = dep.map(d => [d.Depolama_ID, (sad.get(d.Sirket_ID) || [d.Sirket_ID])[0], d.Il_ID, d.Ilce, pr(d.Kapasite_ton_yil || 0), pr(d.Atanan_ton || 0), d.Ic_Depo, d.Acik_Erisim, parseFloat(KO[d.Depolama_ID].Enlem), parseFloat(KO[d.Depolama_ID].Boylam)]);
   log('LPG akışı');
   const ly = tableCols('FACT_LPG_AKIS').includes('Yonlendiren_Sirket_ID') ? 'Yonlendiren_Sirket_ID' : 'NULL';
-  const lf = Q('select Sirket_ID,Terminal_ID,Depolama_ID,Il_ID,Tedarik_Tipi,Urun,sum(Miktar_ton) t,sum(Ton_km) tk,sum(Maliyet_Esdeger_Ton_km) mk,sum(Miktar_ton*coalesce(Primer_km,0)) pk,sum(Miktar_ton*coalesce(Sekonder_km,0)) sk from FACT_LPG_AKIS group by 1,2,3,4,5,6');
+  const AKC = tableCols('FACT_LPG_AKIS').includes('Yukleme_Tesis_ID'), LYTL = AKC && hasTable('REF_LPG_YUKLEME_TESIS') ? QA('select Kod, Ad, Il_ID, Ton, Kapasite_t from REF_LPG_YUKLEME_TESIS order by Ton desc').map(r => [r[0], r[1], r[2], pr(r[3]), pr(r[4] || 0)]) : [], LYTI = new Map(LYTL.map((r, i) => [r[0], i]));
+  const lf = Q(`select Sirket_ID,Terminal_ID,Depolama_ID,Il_ID,Tedarik_Tipi,Urun,sum(Miktar_ton) t,sum(Ton_km) tk,sum(Maliyet_Esdeger_Ton_km) mk,sum(Miktar_ton*coalesce(Primer_km,0)) pk,sum(Miktar_ton*coalesce(Sekonder_km,0)) sk${AKC ? ',Yukleme_Tesis_ID yt,Aktarma_Modu am,sum(Miktar_ton*coalesce(Aktarma_km,0)) ak' : ''} from FACT_LPG_AKIS group by 1,2,3,4,5,6${AKC ? ',Yukleme_Tesis_ID,Aktarma_Modu' : ''}`);
   const LFS = Q(`select Sirket_ID,Terminal_ID,${ly} y,sum(Miktar_ton) t,count(distinct Il_ID) n,sum(Ton_km) tk from FACT_LPG_AKIS where Tedarik_Tipi='Dağıtıcı alımı' group by 1,2,3`)
     .filter(r => r.t > 0.5).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), sg(r.y), pr(r.t, 1), r.n, pr(r.tk / r.t, 1)]);
   const TTL = { 'Kendi ithalatı': 0, 'Dağıtıcı alımı': 1, 'Rafineri alımı': 2, 'Stoktan satış': 3 }, LU = { 'LPG-Otogaz': 0, 'LPG-Tüplü': 1, 'LPG-Dökme': 2 };
-  const LF = lf.filter(r => r.t > 0).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.Depolama_ID ? didx.get(r.Depolama_ID) : -1, r.Il_ID, TTL[r.Tedarik_Tipi], LU[r.Urun], pr(r.t, 1), pr(r.tk / r.t, 1), pr(r.mk / r.t, 1), pr(r.pk / r.t, 1), pr(r.sk / r.t, 1)]);
+  const LF = lf.filter(r => r.t > 0).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.Depolama_ID ? didx.get(r.Depolama_ID) : -1, r.Il_ID, TTL[r.Tedarik_Tipi], LU[r.Urun], pr(r.t, 1), pr(r.tk / r.t, 1), pr(r.mk / r.t, 1), pr(r.pk / r.t, 1), pr(r.sk / r.t, 1), r.yt ? LYTI.get(r.yt) ?? -1 : -1, r.am === 'Boru hattı' ? 1 : r.am === 'Karayolu' ? 2 : 0, r.yt ? pr(r.ak / r.t, 1) : 0]);
   log('Akaryakıt akışı');
   const af = Q(`select Sirket_ID,Terminal_ID,Il_ID,Urun,Kaynak_ID,Leg1_Tasima_Modu,Teslim_Noktasi_ID,case when Leg1_Tasima_Modu like 'Rafineri tahsisinden%' then Yonlendiren_Sirket_ID end y,coalesce(Leg1_Tasiyan_Tipi,'?') tt,Leg1_Tasiyan_Sirket_ID ts,max(case when Dagilim_Yontemi like 'Tahmin%' then 1 else 0 end) est,sum(Miktar_ton) t,sum(Leg2_Ton_km) tk,sum(coalesce(Ithal_ton,0)) it from FACT_AKARYAKIT_AKIS group by 1,2,3,4,5,6,7,8,9,10`);
   const AUR = { 'Benzin': 0, 'Motorin': 1, 'Fuel Oil': 2, 'Havacılık': 3, 'Denizcilik': 4, 'Gazyağı': 5, 'Diğer': 6 };
@@ -359,7 +375,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const LIHR = hasTable('FACT_LPG_IHRACAT') ? Q('select Terminal_ID t, Sirket_ID s, sum(Ton) v from FACT_LPG_IHRACAT group by 1,2').filter(r => r.v >= 1).map(r => [r.t && tix.has(r.t) ? tix.get(r.t) : -1, sidx.has(r.s) ? sidx.get(r.s) : -1, pr(r.v)]) : [];
   const LTAS = hasTable('REF_LPG_TASIMA_OZET') ? QA('select Mod, Bacak, Ton, Ton_km, Navlun_USD, Sefer from REF_LPG_TASIMA_OZET').map(r => [r[0], r[1], pr(r[2]), pr(r[3]), pr(r[4]), pr(r[5] || 0)]) : [];
   const LBAY = hasTable('REF_LPG_BAYI') ? Q('select Il_ID i, Sirket_ID s, sum(Bayi) n from REF_LPG_BAYI group by 1,2').filter(r => sidx.has(r.s)).map(r => [r.i, sidx.get(r.s), r.n]) : [];
-  const d = { luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  const d = { lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -476,7 +492,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {};
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {};
   keep.il = d.il.map(r => [r[0], r[1]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
