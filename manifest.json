@@ -1,15 +1,15 @@
 {
- "surum": "1.0.34",
+ "surum": "1.0.35",
  "kabuk": 1,
- "tarih": "2026-10-21T21:49:19+03:00",
- "notlar": "LPG istasyon ağı: TURKISH OIL istasyonları Bpet altında",
+ "tarih": "2026-10-21T22:16:46+03:00",
+ "notlar": "LPG istasyon ağı: 17 akaryakıt dağıtıcısının ad eşlemesi (PDM anomali düzeltmeleri)",
  "dosyalar": {
   "ui/index.html": "a4113dc5e76912bc297ba877482c33f4561552443496040f3c31b33c82bd14b2",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "5460c0537c791b9a0614ec53b896a3fa2f78a60c67c020893fcf19347b0e9688",
   "ui/panel.css": "255b479808ac57c9b221ca30c9774c9bb9a49e7e4b0a90ac53162986d90c6e43",
   "ui/panel.js": "f36b780c6ebd69a51a8ad1810bdde85c3e732c4f61532754940119c3121afdea",
-  "pipeline.js": "03f7b95d45d4510d1e87bcfea67bac4bd5bf1e56b6653ed75d912fee8d57f2cf",
+  "pipeline.js": "5d76d4b4a9eb265f0e7180d00eb9fa5472696bb81b9781db6d82e1b59dcf7592",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
