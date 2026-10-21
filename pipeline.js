@@ -202,7 +202,7 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     if (LT_.has('fact_fuel_network_lpg_supply')) {
       const nk = x => String(x || '').replace(/I/g, 'ı').replace(/İ/g, 'i').toLowerCase().replace(/[^a-z0-9çğıöşü]/g, '');
       const MA = new Map(); for (const [, a1, a2] of MQ('select Sirket_ID, Sirket_Adi, Konsolide_Adi from DIM_SIRKET')) for (const a_ of [a2, a1]) if (a_ && !MA.has(nk(a_))) MA.set(nk(a_), a_);
-      const OV = { 'SHELL & TURCAS': 'Shell&Turcas', 'SOCAR TURKEY': 'Socar', 'TURKEY': 'Bpet', 'YALNIZ LPG İSTASYONU': 'Yalnız LPG istasyonu', 'PETROL OFİSİ': 'Petrol Ofisi' };
+      const OV = { 'SHELL & TURCAS': 'Shell&Turcas', 'SOCAR TURKEY': 'Socar', 'TURKEY': 'Bpet', 'TURKISH OIL': 'Bpet', 'YALNIZ LPG İSTASYONU': 'Yalnız LPG istasyonu', 'PETROL OFİSİ': 'Petrol Ofisi' };
       const ad = x => OV[x] || MA.get(nk(x)) || String(x).split(/\s+/).map(w => w.slice(0, 1) + (/[ÇĞİÖŞÜ]/.test(w) ? w.slice(1).replace(/I/g, 'ı').replace(/İ/g, 'i').toLowerCase() : w.slice(1).toLowerCase())).join(' ');
       for (const [fd, fc, lc, il, n_, t_, sg, rn] of LQ('select fuel_distributor, fuel_company_id, lpg_company_id, province_id, station_count, otogaz_t, same_group, relation_note from fact_fuel_network_lpg_supply where year=2025'))
         db.run('insert into LPG_AKARYAKIT_AGI values (?,?,?,?,?,?,?,?)', [ad(fd), fc !== null ? sid(fc, 0) : null, sid(lc, 0), il, n_, t_, sg, rn]);
