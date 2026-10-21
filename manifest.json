@@ -1,15 +1,15 @@
 {
- "surum": "1.0.35",
+ "surum": "1.0.36",
  "kabuk": 1,
- "tarih": "2026-10-21T22:16:46+03:00",
- "notlar": "LPG istasyon ağı: 17 akaryakıt dağıtıcısının ad eşlemesi (PDM anomali düzeltmeleri)",
+ "tarih": "2026-10-21T22:35:50+03:00",
+ "notlar": "Yeni sayfalar: Akaryakıt ve LPG altında Tedarik zinciri (harita + kaynak/terminal/il/ilçe tabloları)",
  "dosyalar": {
-  "ui/index.html": "a4113dc5e76912bc297ba877482c33f4561552443496040f3c31b33c82bd14b2",
+  "ui/index.html": "ef45de7d770825dcf9fc93c8b696116ce15ebb54e9ac356dc10cfa7c6fa989d3",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
-  "ui/app.js": "5460c0537c791b9a0614ec53b896a3fa2f78a60c67c020893fcf19347b0e9688",
-  "ui/panel.css": "255b479808ac57c9b221ca30c9774c9bb9a49e7e4b0a90ac53162986d90c6e43",
-  "ui/panel.js": "f36b780c6ebd69a51a8ad1810bdde85c3e732c4f61532754940119c3121afdea",
-  "pipeline.js": "5d76d4b4a9eb265f0e7180d00eb9fa5472696bb81b9781db6d82e1b59dcf7592",
+  "ui/app.js": "494b49d99b18a6be6745b09c7ae95c89c15c6c0f02e413bc1afa1f63e907930c",
+  "ui/panel.css": "018030454bb33ac5cf1d0543d4981550e82d7c5c883e01fd5ef55d09a124e7da",
+  "ui/panel.js": "23ce8ade2f5efb37060e7895996a7887ccbc9bc3a632fdc2aeacd849355e873d",
+  "pipeline.js": "c2650f27a273e0e2a936a4314e6cc1809f99f98e510b89348bd7d18ec930fc06",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

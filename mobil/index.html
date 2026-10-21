@@ -142,6 +142,7 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
 .wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
 .wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
+.wrap[data-sayfa="lpgzin"]>:not(header):not(nav):not(.lzin-only):not(footer){display:none}.wrap:not([data-sayfa="lpgzin"]) .lzin-only{display:none}.wrap[data-sayfa="akzin"]>:not(header):not(nav):not(.azin-only):not(footer){display:none}.wrap:not([data-sayfa="akzin"]) .azin-only{display:none}
 .wrap[data-sayfa="lpgtas"]>:not(header):not(nav):not(.ltas-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtas"]) .ltas-only{display:none}
 .wrap[data-sayfa="lpgbay"]>:not(header):not(nav):not(.lbay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgbay"]) .lbay-only{display:none}
 .pill.s{background:#EEF1F3;color:#5E6B75}.lu{display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:12.5px;white-space:nowrap}.lu i{width:8px;height:8px;border-radius:2px}
@@ -398,6 +399,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" role="tab" id="tab-lpgtah" data-sayfa="lpgtah" aria-selected="false"><span class="uz">Tedarik tahsisi terminal bazlı</span><span class="kz" aria-hidden="true">Tahsis · terminal</span></button>
     <button type="button" role="tab" id="tab-lpgmus" data-sayfa="lpgmus" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
     <button type="button" role="tab" id="tab-lpgtas" data-sayfa="lpgtas" aria-selected="false"><span class="uz">Taşıma</span><span class="kz" aria-hidden="true">Taşıma</span></button>
+    <button type="button" role="tab" id="tab-lpgzin" data-sayfa="lpgzin" aria-selected="false"><span class="uz">Tedarik zinciri</span><span class="kz" aria-hidden="true">Zincir</span></button>
     <button type="button" role="tab" id="tab-lpgbay" data-sayfa="lpgbay" aria-selected="false"><span class="uz">Bayiler</span><span class="kz" aria-hidden="true">Bayiler</span></button>
     <button type="button" role="tab" id="tab-lpgtrm" data-sayfa="lpgtrm" aria-selected="false"><span class="uz">Terminaller</span><span class="kz" aria-hidden="true">Terminaller</span></button>
   </nav>
@@ -409,6 +411,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" role="tab" id="tab-tahsis" data-sayfa="tahsis" aria-selected="false"><span class="uz">Tedarik tahsisi terminal bazlı</span><span class="kz" aria-hidden="true">Tahsis · terminal</span></button>
     <button type="button" role="tab" id="tab-musteri" data-sayfa="musteri" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
     <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><span class="uz">Taşıma</span><span class="kz" aria-hidden="true">Taşıma</span></button>
+    <button type="button" role="tab" id="tab-akzin" data-sayfa="akzin" aria-selected="false"><span class="uz">Tedarik zinciri</span><span class="kz" aria-hidden="true">Zincir</span></button>
     <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><span class="uz">Takas</span><span class="kz" aria-hidden="true">Takas</span></button>
     <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><span class="uz">Bayiler</span><span class="kz" aria-hidden="true">Bayiler</span></button>
     <button type="button" role="tab" id="tab-akterm" data-sayfa="akterm" aria-selected="false"><span class="uz">Terminaller</span><span class="kz" aria-hidden="true">Terminaller</span></button>
@@ -715,11 +718,37 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <h3 class="lsub">Şirket akışı</h3>
     <div class="kpis" id="k-ltas"></div>
     <div class="scroll"><table id="t-ltas"></table></div>
-    <div id="ltas-zincir"></div>
     <ul class="notes">
       <li>Taşıma modu kartları LPG veritabanının <span class="yil">2025</span> çok modlu en düşük navlun modelidir (fact_land_transport): karayolu primer / sekonder, boru hattı (küme içi) ve gözlenen kabotaj seferleri; navlun USD, <span class="yil">2025</span> ortalama kuru.</li>
-      <li>Tedarik zinciri (şirket seçilince): her akış satırı arz tesisi → ana depo (tanker yükleme; aktarma deposu ya da arz tesisinin kendisi) → ara depo → il yoluyla izlenir. İlçe kırılımı LPG veritabanının depo bazında ilçe paylarıdır (fact_company_flow_district_share, v1.5) ve tahmindir: otogazda şirketin istasyonlarının <span class="yil">2025</span> satışı, en yakın depo önce gelecek şekilde depolara atanır (şirketin o ilde istasyonu yoksa ildeki tüm istasyonlar, düşük güven); tüplüde vekil ilçe nüfusudur (TürkiyeAPI 2025, düşük güven); dökme il düzeyinde kalır. Büyükşehirlerde eski "Merkez" ilçesine kayıtlı istasyonlar bayi adresindeki mahalle adıyla güncel ilçeye eşlendi (TürkiyeAPI mahalle listesi, MIT); adresinde mahalle olmayan birkaç istasyon "Merkez" olarak kalır.</li>
       <li>Şirket akışı: FACT_LPG_AKIS (LPG veritabanı şirket akışı). Arz tesisi: ürünün geldiği ithalat terminali ya da rafineri. Depoya aktarma: arz tesisiyle aynı ilçedeki şirket deposuna boru hattı ya da kısa karayolu aktarması; tanker o depodan yüklenir. Ara depo: primer bacağın vardığı depo. Ort. km: aktarma + primer + sekonder.</li>
+    </ul>
+  </section>
+  <!-- Tedarik zinciri sayfaları (kullanıcı 21.10.2026 22:27: "tedarik zinciri haritalarını hem akaryakıt hem de lpg altında ayrı sayfalarda gösterelim") -->
+  <div class="filters lpgf lzin-only" role="search" aria-label="LPG tedarik zinciri filtreleri">
+    <div class="f"><label for="f-lz-s">Şirket</label><select id="f-lz-s"></select></div>
+    <div class="f"><label for="f-lz-u">Ürün</label><select id="f-lz-u"></select></div>
+    <button type="button" class="clear" id="clear-lz">Filtreleri temizle</button>
+  </div>
+  <section class="lzin-only" aria-labelledby="h-lzin">
+    <div class="head"><h2 id="h-lzin">LPG tedarik zinciri</h2><span class="sub" id="s-lzin"></span></div>
+    <p class="lead">Seçilen şirketin LPG'si ithalat terminali ya da rafineriden çıkar, tankere ana depoda yüklenir, bir kısmı ara depoya uğrar ve il ile ilçelere dağıtılır. Bir yükleme noktasına tıklayınca yalnız onun beslediği yerler kalır.</p>
+    <div id="lzin-zincir"></div>
+    <ul class="notes">
+      <li>Her akış satırı arz tesisi → ana depo (tanker yükleme; aktarma deposu ya da arz tesisinin kendisi) → ara depo → il yoluyla izlenir. İlçe kırılımı LPG veritabanının depo bazında ilçe paylarıdır (fact_company_flow_district_share, v1.5) ve tahmindir: otogazda şirketin istasyonlarının <span class="yil">2025</span> satışı, en yakın depo önce gelecek şekilde depolara atanır (şirketin o ilde istasyonu yoksa ildeki tüm istasyonlar, düşük güven); tüplüde vekil ilçe nüfusudur (TürkiyeAPI 2025, düşük güven); dökme il düzeyinde kalır. Büyükşehirlerde eski "Merkez" ilçesine kayıtlı istasyonlar bayi adresindeki mahalle adıyla güncel ilçeye eşlendi (TürkiyeAPI mahalle listesi, MIT); adresinde mahalle olmayan birkaç istasyon "Merkez" olarak kalır.</li>
+    </ul>
+  </section>
+  <div class="filters azin-only" role="search" aria-label="Akaryakıt tedarik zinciri filtreleri">
+    <div class="f"><label for="f-az-s">Şirket</label><select id="f-az-s"></select></div>
+    <div class="f"><label for="f-az-u">Ürün</label><select id="f-az-u"><option value="bm">Benzin + motorin</option><option value="0">Benzin</option><option value="1">Motorin</option></select></div>
+    <button type="button" class="clear" id="clear-az">Filtreleri temizle</button>
+  </div>
+  <section class="azin-only" aria-labelledby="h-azin">
+    <div class="head"><h2 id="h-azin">Akaryakıt tedarik zinciri</h2><span class="sub" id="s-azin"></span></div>
+    <p class="lead">Seçilen şirketin benzin ve motorini rafineriden, kendi ithalatından ya da başka dağıtıcıdan gelir. Ürün yükleme terminaline taşınır ve oradan il ile ilçelere dağıtılır. Bir terminale tıklayınca yalnız onun beslediği yerler kalır.</p>
+    <div id="azin-zincir"></div>
+    <ul class="notes">
+      <li>Akış: FACT_AKARYAKIT_AKIS (şirket × yükleme terminali × il × ürün; Leg1 taşıma modu). Kaynak: rafineri (tahsis dahil), kendi ithalatı, başka dağıtıcıdan alım (terminal içi devir) ya da açılış stoku. Rafineri ile terminal arasındaki çizgi Leg1 modudur (deniz yolu, boru hattı, demiryolu, karayolu).</li>
+      <li>İlçe kırılımı FACT_AKARYAKIT_ILCE'den gelir (şirketin ilçe satışı ve ilçeyi besleyen terminal). Aynı il birden çok terminalden besleniyorsa terminale özgü ilçe payı varsa o, yoksa şirketin o ildeki ilçe payları kullanılır. İlçe verisi yalnız benzin ve motorin içindir; tahmin içerir.</li>
     </ul>
   </section>
   <div class="filters lpgf lbay-only" role="search" aria-label="LPG bayi filtreleri">

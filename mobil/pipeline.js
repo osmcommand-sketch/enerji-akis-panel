@@ -438,7 +438,15 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   // rafineri üretimi (EPDK Tablo 1.1, Toplam satırı): benzin = 95 + 98 oktan, motorin = motorin + biodizelli
   const RU_ = new Map(hasTable('REF_EPDK_RAFINERI_URETIM') ? QA("select Urun, sum(Uretim_ton) from REF_EPDK_RAFINERI_URETIM where Rafineri='Toplam' group by 1") : []), ru = k => RU_.get(k) || 0;
   const RUR = [pr(ru('Kurşunsuz Benzin 95 Oktan') + ru('Kurşunsuz Benzin 98 Oktan')), pr(ru('Motorin') + ru('Motorin (Biodizel ihtiva eden)'))];
-  const d = { rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  // akaryakıt ilçe dağılımı (FACT_AKARYAKIT_ILCE) – akaryakıt tedarik zinciri haritası
+  const AILK = [], AIK_ = new Map(), AIC = [];
+  if (hasTable('FACT_AKARYAKIT_ILCE')) for (const r of Q('select Sirket_ID s,Urun u,Il_ID i,Mevcut_Terminal_ID t,Ilce_ID k,Ilce c,sum(Miktar_ton) v from FACT_AKARYAKIT_ILCE where Miktar_ton>0 group by 1,2,3,4,5,6 order by 1,2,3,4,5')) {
+    if (!sidx.has(r.s) || !(r.u in AUR) || r.v < 0.05) continue;
+    const k = IK[r.k];
+    if (!AIK_.has(r.k)) { AIK_.set(r.k, AILK.length); AILK.push([r.i, tt(r.c || (k ? k.Ilce : '')), k ? pr(parseFloat(k.Enlem), 4) : null, k ? pr(parseFloat(k.Boylam), 4) : null]); }
+    AIC.push([sidx.get(r.s), AUR[r.u], r.i, tix.has(r.t) ? tix.get(r.t) : -1, AIK_.get(r.k), pr(r.v, 1)]);
+  }
+  const d = { aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -448,7 +456,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const ixs = new Map(); d.sir.forEach((s, i) => ixs.set(s[0], i));
   const m = new Map(); for (const [b, a] of K) if (ixs.has(b) && ixs.has(a)) m.set(ixs.get(b), ixs.get(a));
   const uye = new Map(); for (const [b, a] of m) { if (!uye.has(a)) uye.set(a, []); uye.get(a).push(d.sir[b][1]); }
-  for (const t of ['af', 'lf', 'sep', 'by']) for (const r of d[t]) if (m.has(r[0])) r[0] = m.get(r[0]);
+  for (const t of ['af', 'lf', 'sep', 'by', 'aic']) for (const r of (d[t] || [])) if (m.has(r[0])) r[0] = m.get(r[0]);
   for (const r of d.af) { if (r.length > 11 && m.has(r[11])) r[11] = m.get(r[11]); if (r.length > 13 && m.has(r[13])) r[13] = m.get(r[13]); }
   for (const r of d.tr) if (m.has(r[0])) r[0] = m.get(r[0]);
   for (const r of d.tk) { if (m.has(r[0])) r[0] = m.get(r[0]); if (m.has(r[2])) r[2] = m.get(r[2]); }
@@ -555,7 +563,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.yilnot = d.yilnot || '';
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],

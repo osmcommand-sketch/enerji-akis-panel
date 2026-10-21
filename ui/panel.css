@@ -110,6 +110,7 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
 .wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
 .wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
+.wrap[data-sayfa="lpgzin"]>:not(header):not(nav):not(.lzin-only):not(footer){display:none}.wrap:not([data-sayfa="lpgzin"]) .lzin-only{display:none}.wrap[data-sayfa="akzin"]>:not(header):not(nav):not(.azin-only):not(footer){display:none}.wrap:not([data-sayfa="akzin"]) .azin-only{display:none}
 .wrap[data-sayfa="lpgtas"]>:not(header):not(nav):not(.ltas-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtas"]) .ltas-only{display:none}
 .wrap[data-sayfa="lpgbay"]>:not(header):not(nav):not(.lbay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgbay"]) .lbay-only{display:none}
 .pill.s{background:#EEF1F3;color:#5E6B75}.lu{display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:12.5px;white-space:nowrap}.lu i{width:8px;height:8px;border-radius:2px}
