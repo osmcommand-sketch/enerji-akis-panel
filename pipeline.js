@@ -409,7 +409,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const LSIN = hasTable('LPG_DAGITICI_SINIF') ? Q('select Sirket_ID s, Sinif c, Segment g, Pay p, Tedarik_Modeli m, Altyapi a from LPG_DAGITICI_SINIF').filter(r => sidx.has(r.s)).map(r => [sidx.get(r.s), r.c || '', r.g || '', pr(r.p || 0, 4), r.m || '', r.a || '']) : [];
   const LAGI = hasTable('LPG_AKARYAKIT_AGI') ? Q('select Akaryakit f, Sirket_ID s, Il_ID i, sum(Istasyon) n, sum(Otogaz_t) t, max(Ayni_Grup) g from LPG_AKARYAKIT_AGI group by 1,2,3').filter(r => sidx.has(r.s)).map(r => [r.f, sidx.get(r.s), r.i, r.n, pr(r.t, 1), r.g || 0]) : [];
   // ilçe payları (v1.4)
-  const LILK = [], LK_ = new Map(), LZP = [], YM_ = { ISTASYON_SIRKET: 0, ISTASYON_IL: 1, BAYI_SAYISI_VEKIL: 2 };
+  const LILK = [], LK_ = new Map(), LZP = [], YM_ = { ISTASYON_SIRKET: 0, ISTASYON_IL: 1, BAYI_SAYISI_VEKIL: 2, NUFUS_VEKIL: 3 };
   if (hasTable('REF_LPG_ILCE_PAY')) {
     const g = Q('select Sirket_ID s,Il_ID i,Urun u,Sevk_Tip p,Sevk_Kod k,Ilce c,sum(Pay) y,sum(Pay*coalesce(Ilce_km,0)) km,max(Yontem) m from REF_LPG_ILCE_PAY group by 1,2,3,4,5,6 order by 1,2,3,4,5,6');
     const tot = new Map(); for (const r of g) { const k = [r.s, r.i, r.u, r.p, r.k].join('|'); tot.set(k, (tot.get(k) || 0) + r.y); }
