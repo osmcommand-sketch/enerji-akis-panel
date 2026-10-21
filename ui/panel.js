@@ -967,7 +967,7 @@ function lpgIthalat(){
   for(const r of LITH){ if(okG(r)) io.set(r[0],(io.get(r[0])||0)+r[3]); if(okI(r)) go.set(r[1],(go.get(r[1])||0)+r[3]); }
   if(S.lith>=0&&!(io.get(S.lith)>=0.5)) S.lith=-1; if(S.lgum>=0&&!(go.get(S.lgum)>=0.5)) S.lgum=-1;
   fLI.innerHTML=`<option value="-1">Tüm ithalatçılar (${io.size})</option>`+[...io].sort((a,b)=>b[1]-a[1]).map(([a,v])=>`<option value="${a}">${esc(SIR[a][1])} · ${ton(v)}</option>`).join(""); fLI.value=String(S.lith);
-  fLG.innerHTML=`<option value="-1">Tüm terminaller (${go.size})</option>`+[...go].sort((a,b)=>b[1]-a[1]).map(([t,v])=>`<option value="${t}">${esc(TERM[t][1])} · ${ton(v)}</option>`).join(""); fLG.value=String(S.lgum);
+  fLG.innerHTML=`<option value="-1">Tüm terminaller (${go.size})</option>`+[...go].sort((a,b)=>b[1]-a[1]).map(([t,v])=>`<option value="${t}">${esc(TERM[t][1])} · ${esc(HUB[TERM[t][2]].ad)} · ${ton(v)}</option>`).join(""); fLG.value=String(S.lgum);
   const R=LITH.filter(r=>okI(r)&&okG(r)), T=R.reduce((a,r)=>a+r[3],0), TUM=LITH.reduce((a,r)=>a+r[3],0);
   // kendi ithalatıyla bayi / tüketici satışı (şirket × terminal)
   const KND=new Map(); for(const f of LF) if(f[4]===0){ const k=f[0]+"|"+f[1]; KND.set(k,(KND.get(k)||0)+f[6]); }
@@ -982,7 +982,7 @@ function lpgIthalat(){
     <div class="lseg" aria-hidden="true"><i style="flex:${kendi} 0 0;background:var(--lpg)"></i><i style="flex:${Math.max(0,T-kendi)} 0 0;background:#E8B48A"></i></div></div>`);
   if(!fil) k.push(`<div class="kpi"><span>İhracat · 2025</span><b>${ton(Y[3]||0)}</b><span>arz içindeki payı ${pct((Y[3]||0)/((Y[1]+Y[2])||1))} · yurt içi satış ${ton(Y[4]||0)}</span></div>`);
   document.getElementById("k-lpgi").innerHTML=k.join("");
-  document.getElementById("h-lpgi").textContent="LPG ithalatı"+(S.lith>=0?" – "+SIR[S.lith][1]:"")+(S.lgum>=0?" · "+TERM[S.lgum][1]:"");
+  document.getElementById("h-lpgi").textContent="LPG ithalatı"+(S.lith>=0?" – "+SIR[S.lith][1]:"")+(S.lgum>=0?" · "+TERM[S.lgum][1]+" · "+HUB[TERM[S.lgum][2]].ad:"");
   document.getElementById("s-lpgi").textContent=`${ton(T)}${fil?" · ülkenin "+pct(T/TUM):""}`;
   document.getElementById("l-lpgi").textContent="Türkiye LPG arzının çoğu ithalattır. Kartlar ve tablo ithalatçı ile terminal filtresine göre değişir; menşe ülke ve aylık arz ülke genelidir (2025).";
   // menşe ülke
@@ -1225,7 +1225,7 @@ function lpgRafineriler(){
   const alc=new Map(); for(const r of LTr) alc.set(r[0],(alc.get(r[0])||0)+r[4]);
   if(S.lrS>=0&&!alc.has(S.lrS)) S.lrS=-1;
   lsel("f-lr-s",sirOpts(alc),S.lrS,`Tüm alıcılar (${alc.size})`);
-  lsel("f-lr-r",LURET.slice().sort((a,b)=>b[1]-a[1]).map(([t,v])=>[t,`${TERM[t][1]} · ${ton(v)}`]),S.lrR,"Tüm rafineriler");
+  lsel("f-lr-r",LURET.slice().sort((a,b)=>b[1]-a[1]).map(([t,v])=>[t,`${TERM[t][1]} · ${HUB[TERM[t][2]].ad} · ${ton(v)}`]),S.lrR,"Tüm rafineriler");
   const okR=t=>S.lrR<0||t===S.lrR, okS=s=>S.lrS<0||s===S.lrS;
   const P=LURET.filter(r=>okR(r[0])), PT=P.reduce((a,r)=>a+r[1],0);
   const E=LIHR.filter(r=>RAFT.has(r[0])&&okR(r[0])).reduce((a,r)=>a+r[2],0);
@@ -1248,7 +1248,7 @@ function lpgRafineriler(){
     const ab=new Map(); for(const r of A) if(r[3]===t) ab.set(r[0],(ab.get(r[0])||0)+r[4]);
     const kb=new Map(); for(const f of F) if(f[1]===t&&f[4]===2){ const o=kb.get(f[0])||kb.set(f[0],{v:0,km:0,il:new Set()}).get(f[0]); o.v+=f[6]; o.km+=f[6]*f[7]; o.il.add(f[3]); }
     const gT=[...ab.values()].reduce((a,b)=>a+b,0), gK=[...kb.values()].reduce((a,o)=>a+o.v,0), ex=LIHR.filter(r=>r[0]===t).reduce((a,r)=>a+r[2],0);
-    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)}<br><span class="muted">üretim ${ton(pv)} · ihracat ${ton(ex)}</span></td><td><b>${ton(gT)}</b></td><td>${cell(gK)}</td><td>${cell(Math.max(0,gT-gK))}</td><td>${pct(PT?pv/PT:0)}</td><td></td><td></td></tr>`);
+    out.push(`<tr class="grp tg"><td class="l"><b>${esc(TERM[t][1])}</b>${LIS(t,1)}<br><span class="muted">${esc(HUB[TERM[t][2]].ad)} · üretim ${ton(pv)} · ihracat ${ton(ex)}</span></td><td><b>${ton(gT)}</b></td><td>${cell(gK)}</td><td>${cell(Math.max(0,gT-gK))}</td><td>${pct(PT?pv/PT:0)}</td><td></td><td></td></tr>`);
     for(const [s,v] of [...ab].sort((a,b)=>b[1]-a[1])){ const o=kb.get(s)||{v:0,km:0,il:new Set()};
       out.push(`<tr class="sub"><td class="l ind">${esc(SIR[s][1])}</td><td>${ton(v)}</td><td>${cell(o.v)}</td><td>${cell(Math.max(0,v-o.v))}</td><td>${pct(gT?v/gT:0)}</td><td>${o.il.size||"–"}</td><td>${o.v?nf.format(o.km/o.v):"–"}</td></tr>`); }
   }
