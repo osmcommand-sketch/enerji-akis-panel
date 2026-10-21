@@ -1,15 +1,15 @@
 {
- "surum": "1.0.28",
+ "surum": "1.0.29",
  "kabuk": 1,
- "tarih": "2026-10-21T12:12:01+03:00",
- "notlar": "LPG Taşıma: şirket seçilince tedarik zinciri (arz tesisi → ana/ara depo → il → ilçe)",
+ "tarih": "2026-10-21T12:20:02+03:00",
+ "notlar": "LPG Taşıma: tedarik zinciri haritası (arz tesisi → ana/ara depo → ilçe)",
  "dosyalar": {
   "ui/index.html": "72f31f7c9deba112d6e393c0342bab4562aaad81bb85450273e9b194590134c3",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "5460c0537c791b9a0614ec53b896a3fa2f78a60c67c020893fcf19347b0e9688",
-  "ui/panel.css": "983b7f2e57951cbcbb5b4478ac6b2afde966ab98609044ffeb955f08ed771b5f",
-  "ui/panel.js": "49c0138d1ac6e0b57c10e6637a2999bd6913cee0adf22d4bd08f71d69b584f7a",
-  "pipeline.js": "667b8c399e4d3a6fbdee97defcd12ca79b5896486c1f1bc7b991ef65d47392b2",
+  "ui/panel.css": "8c4bb1231da695e8db71196521f543a242831b09ac30d172a3c349cc67242d63",
+  "ui/panel.js": "6bddd5ac85bb43e7823a2e9f2adb26b94b6bd613cfb9e44c22ac362ecc70c92b",
+  "pipeline.js": "8f8533e4aafb574ca0b82f4334791521abcf0b2f1c95723bfc885f3040c49d8c",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

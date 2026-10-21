@@ -1353,7 +1353,9 @@ function lpgTasima(){
   document.getElementById("t-ltas").innerHTML=`<thead><tr><th class="l">Arz tesisi / şirket</th><th>Miktar</th><th>Pay</th><th>Depoya aktarma</th><th>Ara depo üzerinden</th><th>İl</th><th>Ort. km</th><th>Primer km</th><th>Ton-km (M)</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="9" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
   lpgZincir(R);
 }
-const LILC=new Map(); for(const [s_,i,c,v] of (D.lilc||[])){ const k=s_+"|"+i; (LILC.get(k)||LILC.set(k,[]).get(k)).push([c,v]); }
+const LILC=new Map(); for(const [s_,i,c,v,la,lo] of (D.lilc||[])){ const k=s_+"|"+i; (LILC.get(k)||LILC.set(k,[]).get(k)).push([c,v,la,lo]); }
+const ILLL=new Map(D.il.map(r=>[r[0],[r[2],r[3]]])), TKOD=new Map(TERM.map((t,i)=>[t[0],i])), DKOD=new Map(LDEP.map((d,i)=>[d[0],i]));
+const LZC=["#0F6E8C","#C2410C","#7A3E9D","#2F855A","#B7791F","#BE185D","#1D4ED8","#0E7490","#9A3412","#4D7C0F"];
 for(const v of LILC.values()) v.sort((a,b)=>b[1]-a[1]);
 function lpgZincir(R){
   const el=document.getElementById("ltas-zincir"); if(!el) return;
@@ -1392,11 +1394,67 @@ function lpgZincir(R){
       h2+=`<tr class="sub"><td class="l ind">${esc(IL.get(i)||"?")}</td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${x.o>=0.5?ton(x.o)+" otogaz":"–"}</td><td class="l lz-ilc">${ic}</td></tr>`;
     }
   }
-  el.innerHTML=`<h3 class="lsub">Tedarik zinciri · arz tesisinden depolara</h3>
+  // harita (kullanıcı 21.10.2026 12:15 "harita üzerinde görelim")
+  if(S.lzS!==S.lsS){ S.lzS=S.lsS; S.lzF=null; }
+  const yer=(tp,id)=>{ if(tp==="t"){ const h=HUB[TERM[id][2]]; return [h.lat,h.lon]; }
+    if(tp==="r"){ const d=LDEP[id]; return d&&d[8]!=null?[d[8],d[9]]:ILLL.get(d?d[2]:0); }
+    const y=LYT[id]; if(!y) return null; if(TKOD.has(y[0])){ const h=HUB[TERM[TKOD.get(y[0])][2]]; return [h.lat,h.lon]; }
+    if(DKOD.has(y[0])){ const d=LDEP[DKOD.get(y[0])]; if(d[8]!=null) return [d[8],d[9]]; } return ILLL.get(y[2]); };
+  const PK=[...B].sort((a,b)=>b[1].v-a[1].v).map(([k])=>k), RENK=new Map(PK.map((k,i)=>[k,LZC[i]||"#94A3B8"]));
+  if(S.lzF&&!B.has(S.lzF)) S.lzF=null;
+  const adK=k=>{ const tp=k[0], id=+k.slice(1); return tp==="r"?(LDEP[id]?LDEP[id][1]+" "+tc(LDEP[id][3]):"?"):tp==="a"?(LYT[id]?LYT[id][1]:"?"):TERM[id][1]; };
+  // kenarlar: arz → ana → ara (ton), nokta → ilçe / il
+  const E1=new Map(), add=(m,k,v)=>m.set(k,(m.get(k)||0)+v);
+  const ILC=new Map(), ILG=new Map(), ILV=new Map();   // ilçe: k|il|ad → {la,lo,v,by:Map}; il geneli: k|il → v
+  for(const f of R){ const ana=f[12]&&f[11]>=0?f[11]:-1, son=f[2]>=0?"r"+f[2]:(ana>=0?"a"+ana:"t"+f[1]);
+    if(S.lzF&&son!==S.lzF) continue;
+    add(ILV,f[3],f[6]);
+    if(ana>=0) add(E1,"t"+f[1]+">a"+ana,f[6]);
+    if(f[2]>=0) add(E1,(ana>=0?"a"+ana:"t"+f[1])+">r"+f[2],f[6]); }
+  for(const [k,o] of B){ if(S.lzF&&k!==S.lzF) continue;
+    for(const [i,x] of o.il){ const L=LILC.get(S.lsS+"|"+i)||[], LT=L.reduce((a,r)=>a+r[1],0);
+      const g=x.v-(LT?x.o:0); if(g>=0.5) add(ILG,k+"|"+i,g);
+      if(LT&&x.o>=0.5) for(const [c,v,la,lo] of L){ if(la==null) continue; const q=x.o*v/LT; if(q<0.5) continue; const kk=i+"|"+c; const z=ILC.get(kk)||ILC.set(kk,{la,lo,c,i,v:0,by:new Map()}).get(kk); z.v+=q; add(z.by,k,q); } } }
+  const VB=svgM.getAttribute("viewBox"), W=+VB.split(/\s+/)[2], u=W/1000;
+  const mxIl=Math.max(1,...ILV.values()), mxE=Math.max(1,...E1.values()), mxZ=Math.max(1,...[...ILC.values()].map(z=>z.v)), mxG=Math.max(1,...ILG.values());
+  let m="";
+  for(const [n,d] of Object.entries(GEO.p)){ const v=ILV.get(+n)||0, f=v>=0.5?`rgba(217,113,31,${(0.12+0.5*Math.sqrt(v/mxIl)).toFixed(2)})`:"var(--c0)";
+    m+=`<path class="il" d="${d}" fill="${f}"><title>${esc(IL.get(+n)||"")}${v>=0.5?": "+ton(v):""}</title></path>`; }
+  // nokta → ilçe çizgileri
+  let ln="", dt="";
+  for(const z of ILC.values()){ const [x2,y2]=pj(z.la,z.lo); const dom=[...z.by].sort((a,b)=>b[1]-a[1])[0][0];
+    for(const [k,q] of z.by){ const p0=yer(k[0],+k.slice(1)); if(!p0) continue; const [x1,y1]=pj(p0[0],p0[1]);
+      ln+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${RENK.get(k)}" stroke-opacity="${S.lzF?0.55:0.2}" stroke-width="${(0.5*u+1.6*u*Math.sqrt(q/mxZ)).toFixed(2)}"/>`; }
+    dt+=`<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="${(1.3*u+5*u*Math.sqrt(z.v/mxZ)).toFixed(2)}" fill="${RENK.get(dom)}" fill-opacity=".85" stroke="#fff" stroke-width="${(0.4*u).toFixed(2)}"><title>${esc(z.c)} (${esc(IL.get(z.i)||"")}) · otogaz ${ton(z.v)}${z.by.size>1?"\n"+[...z.by].sort((a,b)=>b[1]-a[1]).map(([k,q])=>adK(k)+": "+ton(q)).join("\n"):" · "+adK(dom)}</title></circle>`; }
+  for(const [kk,g] of ILG){ const [k,i]=kk.split("|"), p0=yer(k[0],+k.slice(1)), c=ILLL.get(+i); if(!p0||!c) continue; const [x1,y1]=pj(p0[0],p0[1]), [x2,y2]=pj(c[0],c[1]);
+    ln+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${RENK.get(k)}" stroke-opacity=".3" stroke-dasharray="${2*u} ${2*u}" stroke-width="${(0.7*u).toFixed(2)}"/>`;
+    dt+=`<rect x="${(x2-2.6*u).toFixed(1)}" y="${(y2-2.6*u).toFixed(1)}" width="${(5.2*u).toFixed(1)}" height="${(5.2*u).toFixed(1)}" fill="#fff" stroke="${RENK.get(k)}" stroke-width="${(1.2*u).toFixed(2)}"><title>${esc(IL.get(+i)||"")} il geneli (tüplü / dökme, ilçe verisi yok) · ${ton(g)} · ${esc(adK(k))}</title></rect>`; }
+  // arz → ana → ara kalın çizgiler
+  let e1="";
+  for(const [kk,v] of E1){ const [a,b]=kk.split(">"), p0=yer(a[0],+a.slice(1)), p1=yer(b[0],+b.slice(1)); if(!p0||!p1) continue; const [x1,y1]=pj(p0[0],p0[1]), [x2,y2]=pj(p1[0],p1[1]); if(Math.hypot(x2-x1,y2-y1)<2*u) continue;
+    e1+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${b[0]==="a"?"#0F6E8C":"#5B3A1E"}" stroke-opacity=".8" stroke-linecap="round" stroke-width="${(1.2*u+6*u*Math.sqrt(v/mxE)).toFixed(2)}"><title>${esc(adK(a))} → ${esc(adK(b))}: ${ton(v)}${b[0]==="a"?" (aktarma)":""}</title></line>`; }
+  // düğümler: arz tesisleri (kare), ana depo (elmas), ara depo (daire)
+  let nd="", lb="";
+  const arzlar=new Map(); for(const f of R){ const ana=f[12]&&f[11]>=0?f[11]:-1, son=f[2]>=0?"r"+f[2]:(ana>=0?"a"+ana:"t"+f[1]); if(S.lzF&&son!==S.lzF) continue; add(arzlar,f[1],f[6]); }
+  const yerli=new Set();
+  for(const [t,v] of arzlar){ const [x,y]=pj(HUB[TERM[t][2]].lat,HUB[TERM[t][2]].lon), r=3.4*u, rf=RF(t), k="t"+t, cl=B.has(k)?RENK.get(k):"#15222C";
+    nd+=`<rect class="lzn" data-k="${k}" x="${(x-r).toFixed(1)}" y="${(y-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" ${rf?`transform="rotate(45 ${x.toFixed(1)} ${y.toFixed(1)})"`:""} fill="${cl}" stroke="#fff" stroke-width="${(0.8*u).toFixed(2)}"><title>${rf?"Rafineri":"İthalat terminali"}: ${esc(TERM[t][1])} · ${esc(HUB[TERM[t][2]].ad)} · ${ton(v)}</title></rect>`;
+    const yk=Math.round(x/(12*u))+"|"+Math.round(y/(12*u)); if(!yerli.has(yk)){ yerli.add(yk); lb+=`<text x="${(x+5*u).toFixed(1)}" y="${(y-4*u).toFixed(1)}" style="font-size:${(9*u).toFixed(1)}px">${esc(HUB[TERM[t][2]].ad.split(" (")[0])}</text>`; } }
+  for(const k of PK){ if(k[0]==="t") continue; if(S.lzF&&k!==S.lzF&&!(E1.has(k+">"+S.lzF))) { if(S.lzF) continue; } const p0=yer(k[0],+k.slice(1)); if(!p0) continue; const [x,y]=pj(p0[0],p0[1]), r=(k[0]==="r"?3.8:3)*u;
+    nd+=k[0]==="r"?`<circle class="lzn" data-k="${k}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${RENK.get(k)}" stroke="#fff" stroke-width="${(1*u).toFixed(2)}"><title>Ara depo: ${esc(adK(k))} · ${ton(B.get(k).v)}</title></circle>`
+      :`<rect class="lzn" data-k="${k}" x="${(x-r).toFixed(1)}" y="${(y-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" transform="rotate(45 ${x.toFixed(1)} ${y.toFixed(1)})" fill="${RENK.get(k)}" stroke="#fff" stroke-width="${(1*u).toFixed(2)}"><title>Ana depo (aktarma): ${esc(adK(k))} · ${ton(B.get(k).v)}</title></rect>`;
+    const yk=Math.round(x/(12*u))+"|"+Math.round(y/(12*u)); if(k[0]==="r"&&!yerli.has(yk)){ yerli.add(yk); lb+=`<text x="${(x+5*u).toFixed(1)}" y="${(y+3*u).toFixed(1)}" style="font-size:${(9*u).toFixed(1)}px">${esc(tc(LDEP[+k.slice(1)][3]))}</text>`; } }
+  const pan=PK.map(k=>{ const tp=k[0], o=B.get(k); return `<button type="button" data-k="${k}" aria-pressed="${S.lzF===k}"><i style="background:${RENK.get(k)}${tp==="t"?";border-radius:2px":""}"></i><span>${esc(adK(k))}<small>${TIP[tp]==="arz tesisi"?(RF(+k.slice(1))?"rafineri":"ithalat terminali")+" · doğrudan tanker":TIP[tp]} · ${o.il.size} il</small></span><b>${ton(o.v)}</b></button>`; }).join("");
+  const harita=`<h3 class="lsub">Tedarik zinciri haritası${S.lzF?" · "+esc(adK(S.lzF)):""}</h3>
+    <div class="lz-hg"><div class="mapbox"><svg id="lz-map" viewBox="${VB}" role="img" aria-label="${esc(SIR[S.lsS][1])} LPG tedarik zinciri haritası: arz tesisleri, depolar ve beslenen ilçeler">${m}<g>${ln}</g><g>${e1}</g><g>${dt}</g><g>${nd}</g><g>${lb}</g></svg></div>
+    <div class="lz-pan" role="group" aria-label="Yükleme noktaları"><p class="muted" style="font-size:12px;margin:0 0 4px">Son yükleme noktaları · bir noktaya tıklayın, yalnız onun beslediği yerler görünsün.</p>${S.lzF?`<button type="button" data-k=""><i style="background:var(--line)"></i><span>Tümünü göster</span><b></b></button>`:""}${pan}</div></div>
+    <div class="lz-leg"><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C"/></svg>ithalat terminali</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C" transform="rotate(45 9 6)"/></svg>rafineri / ana depo (aktarma)</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.5" fill="#5B3A1E"/></svg>ara depo</span><span><svg viewBox="0 0 18 12"><line x1="1" y1="6" x2="17" y2="6" stroke="#0F6E8C" stroke-width="3"/></svg>aktarma</span><span><svg viewBox="0 0 18 12"><line x1="1" y1="6" x2="17" y2="6" stroke="#5B3A1E" stroke-width="3"/></svg>ara depoya taşıma (kalınlık: ton)</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4" fill="#C2410C"/></svg>ilçe (otogaz, <span class="tag">tahmin</span>)</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#fff" stroke="#C2410C" stroke-width="1.6"/></svg>il geneli (tüplü / dökme)</span><span>Renk: ürünü yükleyen nokta · il dolgusu: şirketin il hacmi</span></div>`;
+  el.innerHTML=harita+`<h3 class="lsub">Tedarik zinciri · arz tesisinden depolara</h3>
     <div class="scroll"><table id="t-lz1"><thead><tr><th class="l">Arz tesisi / ana depo (tanker yükleme)</th><th class="l">Ara depo</th><th>Miktar</th><th>Pay</th><th>Beslenen il</th></tr></thead><tbody>${h1}</tbody></table></div>
     <h3 class="lsub">Depoların beslediği il ve ilçeler</h3>
     <p class="muted" style="font-size:12px;margin:-4px 0 8px">${B.size} yükleme noktası · ${new Set(R.map(f=>f[3])).size} il · ${nIlce.size} ilçe (otogaz). Pay sütunu: depo satırında şirket toplamına, il satırında deponun toplamına göre.</p>
     <div class="scroll"><table id="t-lz2"><thead><tr><th class="l">Son yükleme noktası / il</th><th>Miktar</th><th>Pay</th><th>Otogaz</th><th class="l">İlçeler (otogaz, istasyon satışına göre <span class="tag">tahmin</span>)</th></tr></thead><tbody>${h2}</tbody></table></div>`;
+  el.querySelectorAll("[data-k]").forEach(e=>e.addEventListener("click",()=>{ const k=e.dataset.k||null; S.lzF=S.lzF===k?null:k; lpgZincir(R); }));
 }
 for(const [id,k] of [["f-ls-s","lsS"],["f-ls-u","lsU"]]) document.getElementById(id).addEventListener("change",e=>{S[k]=+e.target.value; render();});
 document.getElementById("f-ls-r").addEventListener("change",e=>{S.lsR=e.target.value; render();});
