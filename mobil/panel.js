@@ -1545,7 +1545,7 @@ const ulkeKisa=u=>String(u).replace("Rusya Federasyonu","Rusya").replace("A.B.D.
 function ithalSvg(L,u,baslik,mxRef){
   let ln="",pk="",gt=""; const KT=new Map(), KU=new Map(); let mx=1;
   const parca=[]; for(const [p,v,M] of L){ if(!ROTA.kiyi(p)) continue; const T=[...M.values()].reduce((a,b)=>a+b,0)||1;
-    const g=new Map(); for(const [ul,q] of M){ let k=kapiOf(ul); if(!k){ k=["g_kuzey","g_bati","g_dogu"].sort((a,b)=>ROTA.kapiMes(a,p)-ROTA.kapiMes(b,p))[0]; }
+    const g=new Map(); for(const [ul0,q] of M){ let ul=ul0, k; const ix=String(ul0).indexOf("|"); if(ix>0){ k=ul0.slice(0,ix); ul=ul0.slice(ix+1); } else k=kapiOf(ul); if(!k){ k=["g_kuzey","g_bati","g_dogu"].sort((a,b)=>ROTA.kapiMes(a,p)-ROTA.kapiMes(b,p))[0]; }
       g.set(k,(g.get(k)||0)+v*q/T); const ku=KU.get(k)||KU.set(k,new Map()).get(k); ku.set(ul||"menşe bilinmiyor",(ku.get(ul||"menşe bilinmiyor")||0)+v*q/T); }
     for(const [k,q] of g){ if(q<0.5) continue; parca.push([p,k,q]); KT.set(k,(KT.get(k)||0)+q); if(q>mx) mx=q; } }
   if(mxRef) mx=Math.max(mx,mxRef);
@@ -1558,7 +1558,9 @@ function ithalSvg(L,u,baslik,mxRef){
     gt+=`<text x="${(x+dx*u).toFixed(1)}" y="${(y+dy*u).toFixed(1)}" text-anchor="${k==="g_kuzey"?"end":"start"}" style="font-size:${(8.5*u).toFixed(1)}px;fill:#B4235A">${esc(t)}</text>`; }
   return {ln,pk,gt,KT};
 }
-const IUL_=D.iul||[], LKG_=D.lkg||[];
+const IUL_=D.iul||[], LKG_=D.lkg||[], IMX_=D.imx||[];
+// IM-EX kargo payı: şirket × terminal × ürün → Map("kapı|ülke" → ton); terminal kaydı yoksa şirketin tüm terminalleri
+const imxPay=(s_,t,uu)=>{ const M=new Map(), M2=new Map(); for(const r of IMX_){ if(r[0]!==s_||r[2]!==uu) continue; const k=(r[3]||kapiOf(r[4])||"g_bati")+"|"+r[4]; if(r[1]===t) M.set(k,(M.get(k)||0)+r[5]); M2.set(k,(M2.get(k)||0)+r[5]); } return M.size?[M,"terminal"]:M2.size?[M2,"şirket"]:null; };
 const menseYazi=M=>{ const T=[...M.values()].reduce((a,b)=>a+b,0)||1; return [...M].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([u,v])=>`${esc(ulkeKisa(u||"bilinmiyor"))} %${Math.round(100*v/T)}`).join(" · "); };
 // SVG yol ve piktogram
 const rotaD=p=>p.map((q,i)=>{ const [x,y]=pj(q[0],q[1]); return (i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1); }).join("");
@@ -1629,7 +1631,11 @@ function akZincir(R,SID,elId){
     const x=o.t.get(f[1])||o.t.set(f[1],{v:0,il:new Set(),m:new Map(),u:[0,0]}).get(f[1]); x.v+=f[6]; x.il.add(f[2]); add(x.m,legMod(modAd(f)),f[6]); if(f[3]<2) x.u[f[3]]+=f[6]; }
   let h1="";
   for(const [g,o] of [...A].sort((a,b)=>b[1].v-a[1].v)){
-    const mns=o.k.tip==="ithalat"?(()=>{ const M=new Map(); for(const [t,x] of o.t) for(const uu of [0,1]) for(const r of IUL_){ const T_=IUL_.reduce((a,q)=>a+q[1+uu],0)||1; if(r[1+uu]>0) M.set(r[0],(M.get(r[0])||0)+x.u[uu]*r[1+uu]/T_); } return M.size?`<br><span class="muted">menşe (ülke geneli EPDK payı): ${menseYazi(M)}</span>`:""; })():"";
+    const mns=o.k.tip==="ithalat"?(()=>{ const M=new Map(); let imx=0, ulk=0;
+      for(const [t,x] of o.t) for(const uu of [0,1]){ if(x.u[uu]<0.5) continue; const ip=imxPay(SID,t,uu);
+        if(ip){ imx+=x.u[uu]; const T_=[...ip[0].values()].reduce((a,b)=>a+b,0)||1; for(const [k,v] of ip[0]){ const ul=k.slice(k.indexOf("|")+1); M.set(ul,(M.get(ul)||0)+x.u[uu]*v/T_); } }
+        else { ulk+=x.u[uu]; const T_=IUL_.reduce((a,q)=>a+q[1+uu],0)||1; for(const r of IUL_) if(r[1+uu]>0) M.set(r[0],(M.get(r[0])||0)+x.u[uu]*r[1+uu]/T_); } }
+      return M.size?`<br><span class="muted">menşe (${imx>=ulk?"IM-EX kargoları":"ülke geneli EPDK payı"}): ${menseYazi(M)}</span>`:""; })():"";
     h1+=`<tr class="grp tg"><td class="l" colspan="2"><span class="lz-tip">${o.k.tip}</span><b>${esc(o.k.ad)}</b>${o.k.raf>=0?` <span class="muted">· ${esc(HUB[TERM[o.k.raf][2]].ad)}</span>`:""}${mns}</td><td><b>${ton(o.v)}</b></td><td>${pct(o.v/TT)}</td><td></td></tr>`;
     for(const [t,x] of [...o.t].sort((a,b)=>b[1].v-a[1].v))
       h1+=`<tr class="sub"><td class="l ind">${esc(TERM[t][1])} <span class="muted">· ${esc(HUB[TERM[t][2]].ad)}</span></td><td class="l"><span class="muted">${[...x.m].sort((a,b)=>b[1]-a[1]).map(([m])=>esc(m)).join(" · ")}</span></td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${x.il.size}</td></tr>`;
@@ -1684,7 +1690,7 @@ function akZincir(R,SID,elId){
   // ithalat: kendi ithalatı yapılan terminallere menşe yönünden deniz rotası (ülke geneli EPDK menşe payı, ürün bazında)
   const ITM=new Map(); for(const f of R){ if(S.azF&&"t"+f[1]!==S.azF) continue; if(kay(f).tip!=="ithalat") continue; const o=ITM.get(f[1])||ITM.set(f[1],[0,0]).get(f[1]); o[f[3]<2?f[3]:1]+=f[6]; }
   const mensU=uu=>new Map(IUL_.map(r=>[r[0],r[1+uu]]).filter(r=>r[1]>0));
-  const IL_=[]; for(const [t,o] of ITM) for(const uu of [0,1]) if(o[uu]>=0.5) IL_.push([yerT(t),o[uu],mensU(uu)]);
+  const IL_=[]; for(const [t,o] of ITM) for(const uu of [0,1]) if(o[uu]>=0.5){ const ip=imxPay(SID,t,uu); IL_.push([yerT(t),o[uu],ip?ip[0]:mensU(uu)]); }
   const IS=ithalSvg(IL_,u,p=>{ for(const [t] of ITM){ const q=yerT(t); if(q[0]===p[0]&&q[1]===p[1]) return TERM[t][1]; } return ""; },mxE);
   let nd="", lb=""; const yerli=new Set();
   const etk=(x,y,t,dy)=>{ const yk=Math.round(x/(12*u))+"|"+Math.round(y/(12*u)); if(yerli.has(yk)) return; yerli.add(yk); lb+=`<text x="${(x+5*u).toFixed(1)}" y="${(y+dy*u).toFixed(1)}" style="font-size:${(9*u).toFixed(1)}px">${esc(t)}</text>`; };
@@ -1698,7 +1704,7 @@ function akZincir(R,SID,elId){
   el.innerHTML=`<h3 class="lsub">Tedarik zinciri haritası${S.azF?" · "+esc(TERM[+S.azF.slice(1)][1]):""}</h3>
     <div class="lz-hg"><div class="mapbox"><svg id="az-map" viewBox="${VB}" role="img" aria-label="${esc(SIR[SID][1])} akaryakıt tedarik zinciri haritası: rafineriler, yükleme terminalleri ve beslenen ilçeler">${m}<g>${ln}</g><g>${e1}</g><g>${IS.ln}</g><g>${dt}</g><g>${nd}</g><g>${pk}</g><g>${IS.pk}</g><g>${lb}${IS.gt}</g></svg></div>
     <div class="lz-pan" role="group" aria-label="Yükleme terminalleri"><p class="muted" style="font-size:12px;margin:0 0 4px">Yükleme terminalleri · bir terminale tıklayın, yalnız onun beslediği yerler görünsün.</p>${S.azF?`<button type="button" data-k=""><i style="background:var(--line)"></i><span>Tümünü göster</span><b></b></button>`:""}${pan}</div></div>
-    <div class="lz-leg"><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C" transform="rotate(45 9 6)"/></svg>rafineri</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.5" fill="#0F6E8C"/></svg>yükleme terminali</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.2" fill="#0F6E8C" stroke="#15222C" stroke-width="1.6"/></svg>kendi ithalatı yapılan terminal</span><span><svg viewBox="0 0 30 14"><line x1="1" y1="7" x2="29" y2="7" stroke="#B4235A" stroke-opacity=".6" stroke-width="3" stroke-dasharray="4 2"/></svg>ithalat (menşe yönünden; ülke geneli EPDK menşe payı, <span class="tag">tahmin</span>)</span>${leg}<span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4" fill="#C2410C"/></svg>ilçe (<span class="tag">tahmin</span>)</span><span>Rafineri çizgisinin rengi ve simgesi taşıma modu, kalınlığı ton; deniz yolu kıyı seyir hattı, demiryolu ana hat üzerinden (yaklaşık) · ilçe rengi: yükleyen terminal · il dolgusu: şirketin il hacmi</span></div>
+    <div class="lz-leg"><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C" transform="rotate(45 9 6)"/></svg>rafineri</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.5" fill="#0F6E8C"/></svg>yükleme terminali</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.2" fill="#0F6E8C" stroke="#15222C" stroke-width="1.6"/></svg>kendi ithalatı yapılan terminal</span><span><svg viewBox="0 0 30 14"><line x1="1" y1="7" x2="29" y2="7" stroke="#B4235A" stroke-opacity=".6" stroke-width="3" stroke-dasharray="4 2"/></svg>ithalat (IM-EX kargo rotası; giriş kapısı ve menşe)</span>${leg}<span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4" fill="#C2410C"/></svg>ilçe (<span class="tag">tahmin</span>)</span><span>Rafineri çizgisinin rengi ve simgesi taşıma modu, kalınlığı ton; deniz yolu kıyı seyir hattı, demiryolu ana hat üzerinden (yaklaşık) · ilçe rengi: yükleyen terminal · il dolgusu: şirketin il hacmi</span></div>
     <h3 class="lsub">Kaynaktan yükleme terminallerine${S.azF?` · <span class="lz-sec">${esc(TERM[+S.azF.slice(1)][1])}</span>`:""}</h3>
     <div class="scroll"><table id="t-az1"><thead><tr><th class="l">Kaynak / yükleme terminali</th><th class="l">Taşıma modu</th><th>Miktar</th><th>Pay</th><th>Beslenen il</th></tr></thead><tbody>${h1}</tbody></table></div>
     <h3 class="lsub">Terminallerin beslediği il ve ilçeler${S.azF?` · <span class="lz-sec">${esc(TERM[+S.azF.slice(1)][1])}</span>`:""}</h3>

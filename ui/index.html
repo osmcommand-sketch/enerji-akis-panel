@@ -397,7 +397,7 @@
     <div id="azin-zincir"></div>
     <ul class="notes">
       <li>Akış: FACT_AKARYAKIT_AKIS (şirket × yükleme terminali × il × ürün; Leg1 taşıma modu). Kaynak: rafineri (tahsis dahil), kendi ithalatı, başka dağıtıcıdan alım (terminal içi devir) ya da açılış stoku. Rafineri ile terminal arasındaki çizgi Leg1 modudur (deniz yolu, boru hattı, demiryolu, karayolu).</li>
-      <li>İthalat (kesikli çizgi): şirketin kendi ithalatıyla yüklediği hacim, terminale menşe yönünden (Karadeniz, Ege / Batı Akdeniz, Doğu Akdeniz / Süveyş) kıyı seyir hattıyla çizilir. Akaryakıtta şirket bazında menşe verisi olmadığı için ülke geneli EPDK menşe payı (ürün bazında, REF_EPDK_ITHALAT_ULKE) kullanılır; tahmindir.</li>
+      <li>İthalat (kesikli çizgi): şirketin kendi ithalatıyla yüklediği hacim, terminale menşe yönünden (Karadeniz, Ege / Batı Akdeniz, Doğu Akdeniz / Süveyş) kıyı seyir hattıyla çizilir. Akaryakıtta menşe ve giriş kapısı IM-EX ithal kargolarından gelir (REF_IMEX_KARGO; şirket × terminal × ürün payı; Rusya'nın Baltık kargoları Cebelitarık – Ege yönünden). Kargo tablosu tonaj değil pay olarak kullanılır; terminalde kargo kaydı yoksa şirketin diğer terminallerindeki pay, o da yoksa ülke geneli EPDK menşe payı kullanılır. Eyl–Ara kargoları tahmindir.</li>
       <li>İlçe kırılımı FACT_AKARYAKIT_ILCE'den gelir (şirketin ilçe satışı ve ilçeyi besleyen terminal). Aynı il birden çok terminalden besleniyorsa terminale özgü ilçe payı varsa o, yoksa şirketin o ildeki ilçe payları kullanılır. İlçe verisi yalnız benzin ve motorin içindir; tahmin içerir.</li>
     </ul>
   </section>

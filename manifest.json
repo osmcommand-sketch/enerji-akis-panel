@@ -1,15 +1,15 @@
 {
- "surum": "1.0.39",
+ "surum": "1.0.40",
  "kabuk": 1,
- "tarih": "2026-10-21T23:29:37+03:00",
- "notlar": "Tedarik zinciri: ithalat menşe yönünden deniz rotasıyla (akaryakıt ülke geneli EPDK payı, LPG şirket line-up)",
+ "tarih": "2026-10-21T23:47:35+03:00",
+ "notlar": "Akaryakıt tedarik zinciri: ithalat rotası ve menşe IM-EX kargolarından (REF_IMEX_KARGO)",
  "dosyalar": {
-  "ui/index.html": "a1c99769d1b2ef27669afb69b4dd6c209b919f636987a04d174cb41223a48403",
+  "ui/index.html": "903dfa2ad6c511756b5dd499447732e72ef24ed167d6d085dd2dd250e3077f8d",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "494b49d99b18a6be6745b09c7ae95c89c15c6c0f02e413bc1afa1f63e907930c",
   "ui/panel.css": "d8e8fbd26a4e31cbf414416ee867663c6688b4ca70a7775b6f654a7461a9817f",
-  "ui/panel.js": "0e3b8de5a59b82a25fe00d18c744be585167a4add2487dc29b29cffc818b2b2a",
-  "pipeline.js": "8f27bfbc660f5e9535bd8dce19da8cd2813becfc76243926e447e4522d2f0a99",
+  "ui/panel.js": "e4f759bc43a4a6ba6daa8332726820a34a4eef6aaf6dc04aaa00e8c63759a15d",
+  "pipeline.js": "2b20827ee1d9c2f2c1ff29766b04aaaefd0d0d1017823bc17d6fc8c2bc3f16c8",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
