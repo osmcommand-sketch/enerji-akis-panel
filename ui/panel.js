@@ -1,7 +1,7 @@
 
 const D=JSON.parse(document.getElementById("data").textContent);
 const IL=new Map(D.il.map(r=>[r[0],r[1]])), TERM=D.term, HUB=D.hub, KAY=D.kay, SIR=D.sir, UG=D.ug, SEP=D.sep;
-{ const k=D.lpgk; if(k&&k.kaynak) document.getElementById("lpgk").textContent=" · LPG: "+(k.ad||"LPG veritabanı")+(k.tarih?" ("+k.tarih+")":"")+" (LPG Specialist)"; }
+{ const k=D.lpgk; if(k&&k.kaynak) document.getElementById("lpgk").textContent=k.kaynak==="master lpg_"?" · LPG tabloları aynı veritabanında (LPG Specialist"+(k.tarih?", "+k.tarih:"")+")":" · LPG: "+(k.ad||"LPG veritabanı")+(k.tarih?" ("+k.tarih+")":"")+" (LPG Specialist)"; }
 const TED=["Kendi ithalatı","Dağıtıcıdan alım","Rafineriden alım","Stoktan satış"];   // 3: açılış stoku (LPG veritabanı, 20.10.2026)
 const AURUN=["Benzin","Motorin","Fuel Oil","Havacılık","Denizcilik","Gazyağı","Diğer"], LURUN=["Otogaz","Tüplü","Dökme"];
 // afR: [şirket, terminal, il, ürün, kaynak, mod, ton, km, tahmin, havalimanı] · lfR: [şirket, terminal, depo, il, tedarik, ürün, ton, km, km_maliyet]
@@ -127,6 +127,9 @@ function sepet(){
 
 /* ---------- Etki alanı haritası ---------- */
 const GEO=JSON.parse(document.getElementById("geo").textContent);
+const YIL=D.yil||2025;   // baz yıl (2026 geçişi, kullanıcı 21.10.2026 17:35)
+document.querySelectorAll(".yil").forEach(e=>e.textContent=YIL);
+{ const yn=document.getElementById("yilnot"); if(yn&&D.yilnot) yn.textContent=" · "+D.yilnot; }
 const secim=()=>MUS()||TKS()||S.sid>=0||S.term!=null;
 const secimAd=()=>TKS()?["takas"+(S.sid>=0?" · satıcı "+SIR[S.sid][1]:"")+(S.alc>=0?" · alıcı "+SIR[S.alc][1]:""),S.term!=null?TERM[S.term][1]:null].filter(Boolean).join(" · "):[S.sid>=0?SIR[S.sid][1]+(MUS()&&S.mm<0?" (müşterileriyle)":""):MUS()&&S.mm<0?"dağıtıcılar arası satış":null,MUS()&&S.mm>=0?SIR[S.mm][1]+" alımları":null,S.term!=null?TERM[S.term][1]:null].filter(Boolean).join(" · ");
 let PAY=new Map(), ILT=new Map(), ILS=new Map();
@@ -657,7 +660,7 @@ function rafineriler(){
         return `<div class="rz-e${ok?"":" uy"}"><span class="rz-n">${g==="Star Rafineri"?"Star":g} <span style="color:${u?MT:BZ}">${u?"motorin":"benzin"}</span></span><span class="rz-v"><b>${ton(c*1000)}</b> / ${ton(e*1000)}<em>${e?pct(c/e):""}</em></span><span class="rz-chip ${ok?"ok":"uy"}">${ok?"✓ örtüşüyor":"⚠ fark"}</span>`
           +`<span class="rz-bl" title="Ticari satış ${ton(c*1000)} · EPDK ${ton(e*1000)}"><span class="tr" style="width:${w(e)}%"></span><span class="fl" style="width:${w(c)}%"></span><span class="mk" style="left:${w(e)}%"></span></span>`
           +`<span class="rz-dt">Akış ${ton(a*1000)} · tablo ${ton(t*1000)}${ok?"":` · <strong>${nt}</strong>`}</span></div>`;}).join("")
-        +`<p class="rz-not">Akış ve tablo fiziksel rafineriye göre (akış: FACT_AKARYAKIT_AKIS kaynak rafineri; tablo: tedarik tahsisi, rafineri satışı + kendi ithalatı karşılığı rafineriden yüklenen) ve birbirine eşit olmalı. Ticari: tahsisteki satıcı rafineri, EPDK ile karşılaştırılır. Kaynak: EPDK 2025 Petrol Piyasası Gelişim Raporu Tablo 4.1, serbest dolaşım. Tolerans ±%0,5.</p></div>`; } }
+        +`<p class="rz-not">Akış ve tablo fiziksel rafineriye göre (akış: FACT_AKARYAKIT_AKIS kaynak rafineri; tablo: tedarik tahsisi, rafineri satışı + kendi ithalatı karşılığı rafineriden yüklenen) ve birbirine eşit olmalı. Ticari: tahsisteki satıcı rafineri, EPDK ile karşılaştırılır. Kaynak: EPDK ${YIL} Petrol Piyasası Gelişim Raporu Tablo 4.1${YIL>2025?' (Oca–Ağu raporu + PDM Eyl–Ara tahmini)':''}, serbest dolaşım. Tolerans ±%0,5.</p></div>`; } }
   k+=`</div>`;
   document.getElementById("k-raf").innerHTML=k;
   const head=`<tr><th class="l">Alıcı / ${sec?"":"rafineri · "}yükleme terminali</th><th>Kendi<br>benzin</th><th>Kendi<br>motorin</th><th>Kendi<br>toplam</th><th>Toptan<br>benzin</th><th>Toptan<br>motorin</th><th>Toptan<br>toplam</th><th>Toplam</th><th>Pay</th><th class="l">Mod</th><th class="l">Kademe · ciro primi (motorin)</th></tr>`;
@@ -972,19 +975,19 @@ function lpgIthalat(){
   // kendi ithalatıyla bayi / tüketici satışı (şirket × terminal)
   const KND=new Map(); for(const f of LF) if(f[4]===0){ const k=f[0]+"|"+f[1]; KND.set(k,(KND.get(k)||0)+f[6]); }
   let kendi=0; const seen=new Set(); for(const r of R){ const k=r[0]+"|"+r[1]; if(!seen.has(k)){ seen.add(k); kendi+=Math.min(KND.get(k)||0, R.filter(x=>x[0]===r[0]&&x[1]===r[1]).reduce((a,x)=>a+x[3],0)); } }
-  const Y=LYIL.find(r=>r[0]==="2025")||[], fil=S.lith>=0||S.lgum>=0;   // yalnız 2025 (kullanıcı 20.10.2026)
+  const Y=LYIL.find(r=>r[0]===String(YIL))||[], fil=S.lith>=0||S.lgum>=0;   // yalnız baz yıl (kullanıcı 20.10.2026)
   const ayMax=LAY.reduce((m,r)=>r[2]>m[2]?r:m,LAY[0]||["",0,0]);
   const k=[];
-  k.push(`<div class="kpi"><span>${fil?"Seçimin ithalatı":"LPG ithalatı · 2025"}</span><b>${ton(T)}</b><span>${fil?"ülke ithalatının "+pct(T/TUM):`aylık ort. ${ton((Y[2]||0)/12)} · en yüksek ${esc(ayMax[0])} ${ton(ayMax[2])}`}</span></div>`);
+  k.push(`<div class="kpi"><span>${fil?"Seçimin ithalatı":"LPG ithalatı · "+YIL}</span><b>${ton(T)}</b><span>${fil?"ülke ithalatının "+pct(T/TUM):`aylık ort. ${ton((Y[2]||0)/12)} · en yüksek ${esc(ayMax[0])} ${ton(ayMax[2])}`}</span></div>`);
   if(!fil) k.push(`<div class="kpi"><span>Arzdaki payı</span><b>${pct(Y[2]/(Y[1]+Y[2]))}</b><span>üretim ${ton(Y[1])} · ithalat ${ton(Y[2])}</span></div>`);
   k.push(`<div class="kpi"><span>İthalatçı · terminal</span><b>${new Set(R.map(r=>r[0])).size} · ${new Set(R.map(r=>r[1])).size}</b><span>terminal başına ort. ${nf1.format(new Set(R.map(r=>r[0]+'|'+r[1])).size/(new Set(R.map(r=>r[1])).size||1))} ithalatçı</span></div>`);
   k.push(`<div class="kpi"><span>Kendi bayisine / tüketiciye</span><b>${ton(kendi)}</b><span>ithalatın ${pct(kendi/(T||1))} · kalan ${ton(Math.max(0,T-kendi))} başka dağıtıcıya, ihracata ya da stoğa</span>
     <div class="lseg" aria-hidden="true"><i style="flex:${kendi} 0 0;background:var(--lpg)"></i><i style="flex:${Math.max(0,T-kendi)} 0 0;background:#E8B48A"></i></div></div>`);
-  if(!fil) k.push(`<div class="kpi"><span>İhracat · 2025</span><b>${ton(Y[3]||0)}</b><span>arz içindeki payı ${pct((Y[3]||0)/((Y[1]+Y[2])||1))} · yurt içi satış ${ton(Y[4]||0)}</span></div>`);
+  if(!fil) k.push(`<div class="kpi"><span>İhracat · ${YIL}</span><b>${ton(Y[3]||0)}</b><span>arz içindeki payı ${pct((Y[3]||0)/((Y[1]+Y[2])||1))} · yurt içi satış ${ton(Y[4]||0)}</span></div>`);
   document.getElementById("k-lpgi").innerHTML=k.join("");
   document.getElementById("h-lpgi").textContent="LPG ithalatı"+(S.lith>=0?" – "+SIR[S.lith][1]:"")+(S.lgum>=0?" · "+TERM[S.lgum][1]+" · "+HUB[TERM[S.lgum][2]].ad:"");
   document.getElementById("s-lpgi").textContent=`${ton(T)}${fil?" · ülkenin "+pct(T/TUM):""}`;
-  document.getElementById("l-lpgi").textContent="Türkiye LPG arzının çoğu ithalattır. Kartlar ve tablo ithalatçı ile terminal filtresine göre değişir (2025).";
+  document.getElementById("l-lpgi").textContent="Türkiye LPG arzının çoğu ithalattır. Kartlar ve tablo ithalatçı ile terminal filtresine göre değişir ("+YIL+").";
   // tablo: terminal → ithalatçı (kullanıcı 21.10.2026: gümrük müdürlüğü ayrımına gerek yok)
   const G=new Map(); for(const r of R){ const t=G.get(r[1])||G.set(r[1],{v:0,s:new Map()}).get(r[1]); t.v+=r[3]; t.s.set(r[0],(t.s.get(r[0])||0)+r[3]); }
   const head=`<tr><th class="l">Terminal / ithalatçı</th><th>İthalat</th><th>Pay</th><th>Kendi bayisine / tüketiciye</th><th>Başka dağıtıcıya, ihracat, stok</th></tr>`;
@@ -1223,9 +1226,9 @@ function lpgRafineriler(){
   const ad=(S.lrR>=0?TERM[S.lrR][1]:"Tüm rafineriler")+(S.lrS>=0?" – "+SIR[S.lrS][1]:"");
   document.getElementById("h-lraf").textContent=ad+" – LPG";
   document.getElementById("s-lraf").textContent=`${P.length} rafineri · üretim ${ton(PT)}`;
-  document.getElementById("l-lraf").textContent="Rafinerilerin 2025 LPG üretimi ve kullanımı: yurt içinde dağıtıcılara satılan (ilk alıcı), ihraç edilen ve rafineri sahasından bayiye / tüketiciye yüklenen LPG. Alıcı seçince o şirketin rafineri alımları görünür.";
+  document.getElementById("l-lraf").textContent="Rafinerilerin "+YIL+" LPG üretimi ve kullanımı: yurt içinde dağıtıcılara satılan (ilk alıcı), ihraç edilen ve rafineri sahasından bayiye / tüketiciye yüklenen LPG. Alıcı seçince o şirketin rafineri alımları görünür.";
   const k=[`<div class="kg">`,
-    kompKart("Rafineri LPG üretimi",P.sort((a,b)=>b[1]-a[1]).map((r,i)=>({l:TERM[r[0]][1],v:r[1],c:RR[i%4]})),{buyuk:ton(PT),alt:"2025 · EPDK",span:5}),
+    kompKart("Rafineri LPG üretimi",P.sort((a,b)=>b[1]-a[1]).map((r,i)=>({l:TERM[r[0]][1],v:r[1],c:RR[i%4]})),{buyuk:ton(PT),alt:YIL+" · EPDK",span:5}),
     kompKart("Üretimin kullanımı",[{l:"Yurt içi dağıtıcılara",v:ATall,c:"#0F6E8C",s:`${alc.size} alıcı (ilk alıcı)`},{l:"İhracat",v:E,c:"#7553B5",s:"tesis bazlı tahmin"},{l:"Stok ve rafineri içi",v:Math.max(0,PT-ATall-E),c:"#B7C3CC",s:"üretim − satış − ihracat"}],{T:PT,span:7}),
     kompKart(S.lrS>=0?SIR[S.lrS][1]+" · rafineriden yükleme":"Rafineri sahasından yükleme",[0,1,2].map(u=>({l:"LPG "+LPGU[u].toLocaleLowerCase("tr-TR"),v:U[u],c:LPGU_R[u]})),{buyuk:ton(U[0]+U[1]+U[2]),alt:"bayi ve tüketiciye, ürüne göre",span:5}),
     siraKart(S.lrS>=0?"Rafineriler":"Alıcılar (rafineri alımı)",S.lrS>=0?(()=>{const m=new Map(); for(const r of A) m.set(TERM[r[3]][1],(m.get(TERM[r[3]][1])||0)+r[4]); return [...m];})():[...(()=>{const m=new Map(); for(const r of A) m.set(SIR[r[0]][1],(m.get(SIR[r[0]][1])||0)+r[4]); return m;})()],{span:7,n:6,c:"#0F6E8C",sag:ton(AT)}),`</div>`];
@@ -1326,7 +1329,7 @@ function lpgTasima(){
   const TA=LTAS.reduce((a,r)=>a+r[4],0), TT_=LTAS.reduce((a,r)=>a+r[2],0);
   const mk=LTAS.slice().sort((a,b)=>b[2]-a[2]).map(r=>{ const m=LTAS_AD[r[0]+"|"+r[1]]||[r[0]+" · "+r[1],"","#8A97A3"];
     return `<div class="kpi ltk" style="border-top:3px solid ${m[2]}"><span>${esc(m[0])}</span><b>${ton(r[2])}</b><span>${esc(m[1])}</span><span>ort. ${nf.format(r[3]/(r[2]||1))} km · ${nf.format(r[4]/(r[2]||1))} USD/t${r[5]?` · ${nf.format(r[5])} sefer`:""}</span></div>`; }).join("");
-  document.getElementById("k-ltas-m").innerHTML=LTAS.length?mk+`<div class="kpi ltk" style="border-top:3px solid var(--ink)"><span>Toplam navlun · 2025</span><b>${nf2.format(TA/1e6)} M USD</b><span>${nf.format(TA/3946405)} USD / satılan ton</span><span>${ton(TT_)} taşıma (bacak toplamı)</span></div>`:'<p class="muted">Piyasa geneli taşıma özeti için LPG veritabanı gerekir.</p>';
+  document.getElementById("k-ltas-m").innerHTML=LTAS.length?mk+`<div class="kpi ltk" style="border-top:3px solid var(--ink)"><span>Toplam navlun · ${YIL}</span><b>${nf2.format(TA/1e6)} M USD</b><span>${nf.format(TA/(LF.reduce((a,f)=>a+f[6],0)||1))} USD / satılan ton</span><span>${ton(TT_)} taşıma (bacak toplamı)</span></div>`:'<p class="muted">Piyasa geneli taşıma özeti için LPG veritabanı gerekir.</p>';
   // şirket akışı kartları
   const dir=R.filter(f=>f[2]<0).reduce((a,f)=>a+f[6],0), dep=T-dir, B=[[0,100],[100,250],[250,500],[500,1e9]], BV=B.map(([a,b])=>R.filter(f=>f[7]>=a&&f[7]<b).reduce((q,f)=>q+f[6],0));
   const DM=new Map(); for(const f of R) if(f[2]>=0){ const d=LDEP[f[2]]; const k=d?`${d[1]} ${String(d[3]||"").toLocaleLowerCase("tr-TR").replace(/(^|\s)\S/g,m=>m.toLocaleUpperCase("tr-TR"))} (${IL.get(d[2])||""})`:"?"; DM.set(k,(DM.get(k)||0)+f[6]); }
