@@ -239,7 +239,7 @@
 
   <div class="filters lpgf lpgi-only" role="search" aria-label="LPG ithalat filtreleri">
     <div class="f"><label for="f-lith">İthalatçı</label><select id="f-lith"></select></div>
-    <div class="f"><label for="f-lgum">Liman bölgesi</label><select id="f-lgum"></select></div>
+    <div class="f"><label for="f-lgum">Terminal</label><select id="f-lgum"></select></div>
     <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
   </div>
 
@@ -254,10 +254,10 @@
   </section>
 
   <section class="lpgi-only" aria-labelledby="h-lpgi-t">
-    <div class="head"><h2 id="h-lpgi-t">Liman bölgesi · terminal · ithalatçı</h2><span class="sub" id="s-lpgi-t"></span></div>
+    <div class="head"><h2 id="h-lpgi-t">Terminal · ithalatçı</h2><span class="sub" id="s-lpgi-t"></span></div>
     <div class="scroll"><table id="t-lpgi"></table></div>
     <ul class="notes">
-      <li>Şirket × terminal ithalatı model tahminidir (FACT_LPG_ITHALAT; gümrük grubu ithalatının ithalatçılara IPF ile dağıtımı); ulusal toplam EPDK ile aynıdır.</li>
+      <li>Şirket × terminal ithalatı model tahminidir (LPG veritabanı; her ithalatçı kendi terminalinde, yoksa grup terminalinde); şirket toplamları EPDK ile aynıdır.</li>
       <li>Kendi bayisine / tüketiciye: ithalatçının bu terminalden kendi ithalatıyla yaptığı satış (FACT_LPG_AKIS, kaynak "Kendi ithalatı"). Kalan kısım başka dağıtıcılara satılır, ihraç edilir ya da stoğa girer.</li>
       <li>Menşe ülke, aylık seri ve yıllık arz ülke genelidir (EPDK LPG Piyasası Sektör Raporu 2025); ithalatçı ya da liman filtresinden etkilenmez.</li>
     </ul>
