@@ -1351,6 +1351,52 @@ function lpgTasima(){
     if(C.length>N) out.push(`<tr class="sub"><td class="l ind muted">+${C.length-N} şirket daha</td><td>${ton(C.slice(N).reduce((q,x)=>q+x[1].v,0))}</td><td colspan="7"></td></tr>`);
   }
   document.getElementById("t-ltas").innerHTML=`<thead><tr><th class="l">Arz tesisi / şirket</th><th>Miktar</th><th>Pay</th><th>Depoya aktarma</th><th>Ara depo üzerinden</th><th>İl</th><th>Ort. km</th><th>Primer km</th><th>Ton-km (M)</th></tr></thead><tbody>${out.join("")||'<tr><td colspan="9" class="empty">Bu seçimde akış yok.</td></tr>'}</tbody>`;
+  lpgZincir(R);
+}
+const LILC=new Map(); for(const [s_,i,c,v] of (D.lilc||[])){ const k=s_+"|"+i; (LILC.get(k)||LILC.set(k,[]).get(k)).push([c,v]); }
+for(const v of LILC.values()) v.sort((a,b)=>b[1]-a[1]);
+function lpgZincir(R){
+  const el=document.getElementById("ltas-zincir"); if(!el) return;
+  if(S.lsS<0){ el.innerHTML=`<h3 class="lsub">Tedarik zinciri</h3><p class="muted lz-bos">Bir şirket seçin: hangi ithalat terminalinden ya da rafineriden hangi ana ve ara depolara ne kadar LPG taşıdığı ve depoların hangi il ve ilçeleri beslediği burada görünür.</p>`; return; }
+  const tc=x=>String(x||"").toLocaleLowerCase("tr-TR").replace(/(^|\s)\S/g,m=>m.toLocaleUpperCase("tr-TR"));
+  const RF=t=>(TMETA[t]||[])[6]==="Rafineri", lisL=t=>RF(t)?"":LIS(t,1);
+  const arzAd=(t,b)=>`${b?"<b>":""}${esc(TERM[t][1])}${b?"</b>":""}${lisL(t)} <span class="muted">· ${esc(HUB[TERM[t][2]].ad)}</span>`;
+  const anaAd=(k,b)=>{ const y=LYT[k]; return y?`${b?"<b>":""}${esc(y[1])}${b?"</b>":""} <span class="muted">· ${esc(IL.get(y[2])||"")}</span>`:"?"; };
+  const araAd=(k,b)=>{ const d=LDEP[k]; return d?`${b?"<b>":""}${esc(d[1])} ${esc(tc(d[3]))}${b?"</b>":""} <span class="muted">· ${esc(IL.get(d[2])||"")}</span>`:"?"; };
+  const MOD=["","boru hattı","karayolu"], T=R.reduce((a,f)=>a+f[6],0)||1;
+  // 1) arz tesisi → ana depo → ara depo
+  const A=new Map();
+  for(const f of R){ const o=A.get(f[1])||A.set(f[1],{v:0,il:new Set(),k:new Map()}).get(f[1]); o.v+=f[6]; o.il.add(f[3]);
+    const ana=f[12]&&f[11]>=0?f[11]:-1, key=ana+"|"+f[2]; const x=o.k.get(key)||o.k.set(key,{ana,ara:f[2],m:f[12]||0,v:0,il:new Set()}).get(key); x.v+=f[6]; x.il.add(f[3]); }
+  let h1="";
+  for(const [t,o] of [...A].sort((a,b)=>b[1].v-a[1].v)){
+    h1+=`<tr class="grp tg"><td class="l" colspan="2"><span class="lz-tip">${RF(t)?"rafineri":"ithalat terminali"}</span><b>${esc(TERM[t][1])}</b>${lisL(t)}<br><span class="muted">${esc(HUB[TERM[t][2]].ad)}</span></td><td><b>${ton(o.v)}</b></td><td>${pct(o.v/T)}</td><td>${o.il.size}</td></tr>`;
+    for(const x of [...o.k.values()].sort((a,b)=>b.v-a.v))
+      h1+=`<tr class="sub"><td class="l ind">${x.ana>=0?anaAd(x.ana)+`<br><span class="muted">${MOD[x.m]} aktarması</span>`:`<span class="muted">arz tesisinden tanker</span>`}</td><td class="l">${x.ara>=0?araAd(x.ara):`<span class="muted">ara depo yok · doğrudan bayi / tüketici</span>`}</td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${x.il.size}</td></tr>`;
+  }
+  // 2) son yükleme noktası (ara depo > ana depo > arz tesisi) → il → ilçe (otogaz)
+  const B=new Map();
+  for(const f of R){ const k=f[2]>=0?"r"+f[2]:(f[12]&&f[11]>=0?"a"+f[11]:"t"+f[1]);
+    const o=B.get(k)||B.set(k,{v:0,il:new Map()}).get(k); o.v+=f[6]; const i=o.il.get(f[3])||o.il.set(f[3],{v:0,o:0}).get(f[3]); i.v+=f[6]; if(f[5]===0) i.o+=f[6]; }
+  const TIP={r:"ara depo",a:"ana depo",t:"arz tesisi"};   // arz tesisi: tanker doğrudan ithalat terminalinden / rafineriden yüklenir
+  let h2="", nIlce=new Set();
+  for(const [k,o] of [...B].sort((a,b)=>b[1].v-a[1].v)){
+    const tp=k[0], id=+k.slice(1), ad=tp==="r"?araAd(id,1):tp==="a"?anaAd(id,1):arzAd(id,1);
+    h2+=`<tr class="grp tg"><td class="l"><span class="lz-tip">${tp==="t"&&RF(id)?"rafineri":TIP[tp]}</span>${ad}</td><td><b>${ton(o.v)}</b></td><td>${pct(o.v/T)}</td><td>${o.il.size} il</td><td class="l"></td></tr>`;
+    for(const [i,x] of [...o.il].sort((a,b)=>b[1].v-a[1].v)){
+      const L=LILC.get(S.lsS+"|"+i)||[], LT=L.reduce((a,r)=>a+r[1],0); let ic;
+      if(x.o<0.5) ic=`<span class="muted">otogaz yok · il geneli</span>`;
+      else if(!LT) ic=`<span class="muted">ilçe verisi yok</span>`;
+      else { const P=L.map(([c,v])=>[c,x.o*v/LT]).filter(r=>r[1]>=0.5); P.forEach(r=>nIlce.add(i+"|"+r[0])); const N=10;
+        ic=P.slice(0,N).map(([c,v])=>`<b>${esc(c)}</b> ${ton(v)}`).join(" · ")+(P.length>N?` · <span class="muted">+${P.length-N} ilçe ${ton(P.slice(N).reduce((a,r)=>a+r[1],0))}</span>`:""); }
+      h2+=`<tr class="sub"><td class="l ind">${esc(IL.get(i)||"?")}</td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${x.o>=0.5?ton(x.o)+" otogaz":"–"}</td><td class="l lz-ilc">${ic}</td></tr>`;
+    }
+  }
+  el.innerHTML=`<h3 class="lsub">Tedarik zinciri · arz tesisinden depolara</h3>
+    <div class="scroll"><table id="t-lz1"><thead><tr><th class="l">Arz tesisi / ana depo (tanker yükleme)</th><th class="l">Ara depo</th><th>Miktar</th><th>Pay</th><th>Beslenen il</th></tr></thead><tbody>${h1}</tbody></table></div>
+    <h3 class="lsub">Depoların beslediği il ve ilçeler</h3>
+    <p class="muted" style="font-size:12px;margin:-4px 0 8px">${B.size} yükleme noktası · ${new Set(R.map(f=>f[3])).size} il · ${nIlce.size} ilçe (otogaz). Pay sütunu: depo satırında şirket toplamına, il satırında deponun toplamına göre.</p>
+    <div class="scroll"><table id="t-lz2"><thead><tr><th class="l">Son yükleme noktası / il</th><th>Miktar</th><th>Pay</th><th>Otogaz</th><th class="l">İlçeler (otogaz, istasyon satışına göre <span class="tag">tahmin</span>)</th></tr></thead><tbody>${h2}</tbody></table></div>`;
 }
 for(const [id,k] of [["f-ls-s","lsS"],["f-ls-u","lsU"]]) document.getElementById(id).addEventListener("change",e=>{S[k]=+e.target.value; render();});
 document.getElementById("f-ls-r").addEventListener("change",e=>{S.lsR=e.target.value; render();});

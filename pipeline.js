@@ -167,6 +167,9 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     for (const r of LQ('select mode, flow_type, sum(quantity_t), sum(quantity_t*distance_km), sum(quantity_t*cost_usd_per_t), sum(trips) from fact_land_transport where period_id between 202501 and 202512 group by 1,2')) db.run('insert into REF_LPG_TASIMA_OZET values (?,?,?,?,?,?)', r);
     db.run('drop table if exists REF_LPG_BAYI'); db.run('create table REF_LPG_BAYI (Il_ID integer, Sirket_ID text, Bayi integer)');
     for (const [il, cid, nb] of LQ('select d.province_id, h.company_id, count(*) from ref_dealer_distributor_hist h join ref_dealer d using(dealer_id) where h.year=2025 group by 1,2')) { const s_ = sid(cid, 0); if (s_) db.run('insert into REF_LPG_BAYI values (?,?,?)', [il, s_, nb]); }
+    // ilçe dağılımı: istasyon bazlı otogaz satışı (fact_station_lpg 2025)
+    db.run('drop table if exists REF_LPG_ILCE'); db.run('create table REF_LPG_ILCE (Sirket_ID text, Il_ID integer, Ilce text, Ton real)');
+    for (const [cid, il, ilce, q] of LQ('select lpg_company_id, province_id, district, sum(otogaz_t) from fact_station_lpg where year=2025 and lpg_company_id is not null group by 1,2,3')) { const s_ = sid(cid, 0); if (s_ && q) db.run('insert into REF_LPG_ILCE values (?,?,?,?)', [s_, il, ilce, q]); }
     // dağıtıcı sınıfları ve akaryakıt ağı × LPG tedarikçisi
     const LT_ = new Set(LQ("select name from sqlite_master where type in ('table','view')").map(r => r[0]));
     db.run('drop table if exists LPG_DAGITICI_SINIF'); db.run('create table LPG_DAGITICI_SINIF (Sirket_ID text, Sinif text, Segment text, Sira integer, Pay real, Satis_t real, Bayi integer, Il integer, Tedarik_Modeli text, Altyapi text)');
@@ -389,9 +392,10 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const LIHR = hasTable('FACT_LPG_IHRACAT') ? Q('select Terminal_ID t, Sirket_ID s, sum(Ton) v from FACT_LPG_IHRACAT group by 1,2').filter(r => r.v >= 1).map(r => [r.t && tix.has(r.t) ? tix.get(r.t) : -1, sidx.has(r.s) ? sidx.get(r.s) : -1, pr(r.v)]) : [];
   const LTAS = hasTable('REF_LPG_TASIMA_OZET') ? QA('select Mod, Bacak, Ton, Ton_km, Navlun_USD, Sefer from REF_LPG_TASIMA_OZET').map(r => [r[0], r[1], pr(r[2]), pr(r[3]), pr(r[4]), pr(r[5] || 0)]) : [];
   const LBAY = hasTable('REF_LPG_BAYI') ? Q('select Il_ID i, Sirket_ID s, sum(Bayi) n from REF_LPG_BAYI group by 1,2').filter(r => sidx.has(r.s)).map(r => [r.i, sidx.get(r.s), r.n]) : [];
+  const LILC = hasTable('REF_LPG_ILCE') ? Q('select Sirket_ID s, Il_ID i, Ilce c, sum(Ton) v from REF_LPG_ILCE group by 1,2,3').filter(r => sidx.has(r.s) && r.v >= 0.05).map(r => [sidx.get(r.s), r.i, tt(r.c), pr(r.v, 1)]) : [];
   const LSIN = hasTable('LPG_DAGITICI_SINIF') ? Q('select Sirket_ID s, Sinif c, Segment g, Pay p, Tedarik_Modeli m, Altyapi a from LPG_DAGITICI_SINIF').filter(r => sidx.has(r.s)).map(r => [sidx.get(r.s), r.c || '', r.g || '', pr(r.p || 0, 4), r.m || '', r.a || '']) : [];
   const LAGI = hasTable('LPG_AKARYAKIT_AGI') ? Q('select Akaryakit f, Sirket_ID s, Il_ID i, sum(Istasyon) n, sum(Otogaz_t) t, max(Ayni_Grup) g from LPG_AKARYAKIT_AGI group by 1,2,3').filter(r => sidx.has(r.s)).map(r => [r.f, sidx.get(r.s), r.i, r.n, pr(r.t, 1), r.g || 0]) : [];
-  const d = { lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  const d = { lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -508,7 +512,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {};
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {};
   keep.il = d.il.map(r => [r[0], r[1]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
