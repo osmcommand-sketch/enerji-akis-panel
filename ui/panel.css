@@ -122,7 +122,7 @@ tr.kendi td{background:var(--surface-2)}
 #lbay-map{width:100%;height:auto;display:block}#lbay-map .il{stroke:var(--edge,#fff);stroke-width:.6;cursor:pointer}#lbay-map .il.sel{stroke:var(--ink);stroke-width:1.4}
 .lbay-only{--s1:#FBE0C8;--s2:#F2AE6F;--s3:#D9711F}button.lnk{border:0;background:none;padding:0;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);cursor:pointer}
 @media (max-width:1100px){.lbay-only .hg{grid-template-columns:1fr}.lbay-only .ilpan{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px}}
-#k-lpgi .kpi{flex:1 1 190px;border-top:3px solid var(--lpg)}
+#k-lpgi .kpi{flex:1 1 190px;border-top:3px solid var(--lpg)}.ubal{margin:0 0 12px}.ubal .kpi{flex:1 1 170px;border-top:3px solid var(--ink)}.ubal.lpg .kpi{border-top-color:var(--lpg)}.ubal .kpi>span:first-child{font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}.ubal .kpi b{font-size:22px;font-variant-numeric:tabular-nums}.ubal .kpi>span:last-child{font-size:12px;color:var(--ink-3)}
 .lgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px}
 @media (max-width:860px){.lgrid{grid-template-columns:minmax(0,1fr)}}
 .lbox{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}

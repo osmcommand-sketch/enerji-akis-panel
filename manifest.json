@@ -1,15 +1,15 @@
 {
- "surum": "1.0.32",
+ "surum": "1.0.33",
  "kabuk": 1,
- "tarih": "2026-10-21T18:25:44+03:00",
- "notlar": "2026 baz yılı: Enerji Master DB 2026 (LPG aynı dosyada, lpg_ tabloları); başlık ve notlar yıla bağlı",
+ "tarih": "2026-10-21T18:57:57+03:00",
+ "notlar": "Rafineriler (akaryakıt ve LPG): üretim, ithalat, ihracat, yurt içi satış KPI'ları; LPG 2026 yıllık denge düzeltmesi",
  "dosyalar": {
-  "ui/index.html": "7cd57a3d95fcbc6934a39f96569d74dff9f8fd5569896fff35054f16fd0581e7",
+  "ui/index.html": "a4113dc5e76912bc297ba877482c33f4561552443496040f3c31b33c82bd14b2",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "5460c0537c791b9a0614ec53b896a3fa2f78a60c67c020893fcf19347b0e9688",
-  "ui/panel.css": "8c4bb1231da695e8db71196521f543a242831b09ac30d172a3c349cc67242d63",
-  "ui/panel.js": "a61a53c68b61565d92df912bad1fd63ff631e67cdb8d214b6537dca8969cd419",
-  "pipeline.js": "311537bdfe583b39c57698cca49c888ecb4cd625e178152f02ba0ca07a019d70",
+  "ui/panel.css": "255b479808ac57c9b221ca30c9774c9bb9a49e7e4b0a90ac53162986d90c6e43",
+  "ui/panel.js": "f36b780c6ebd69a51a8ad1810bdde85c3e732c4f61532754940119c3121afdea",
+  "pipeline.js": "db43f5ceeb925fbe30737fd2ca3c036676bae6ebc7ae4071949b840f8a8edf3c",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

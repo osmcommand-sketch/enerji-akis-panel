@@ -148,9 +148,11 @@
 
   <section class="raf-only" aria-labelledby="h-raf">
     <div class="head"><h2 id="h-raf">Rafineriler</h2><span class="sub" id="s-raf"></span></div>
+    <div class="kpis ubal" id="u-raf" aria-label="Ülke geneli benzin ve motorin dengesi"></div>
     <div class="kpis" id="k-raf"></div>
     <div class="scroll"><table id="t-raf"></table></div>
     <ul class="notes">
+      <li>Üst kartlar ülke geneli benzin + motorin dengesidir: üretim EPDK Tablo 1.1 rafineri üretimi (benzin = 95 + 98 oktan, motorin = motorin + biodizelli); ithalat, ihracat ve yurt içi satış EPDK ürün grubu dengesi (v_urun_grubu_denge). Rafineri ve şirket filtresinden etkilenmez.</li>
       <li>Kaynak: Enerji Master DB tedarik tahsisi (REF_TEDARIK_TAHSIS; rafineri satırları) ve rafineri satış koşulları (REF_TAHSIS_RAFINERI_KOSUL). Tahsis, şirketlerin rafineri alımını en düşük navlunla ve motorin tedarik tablosuna göre dağıtır.</li>
       <li>Alıcı satırı şirketin o rafineriden toplam alımıdır; altında yükleme terminali kırılımı ve taşıma modu yer alır. "Toptan için" sütunu alıcının başka dağıtıcılara toptan satışının karşılığı olarak yaptığı alımdır (ör. Güzel'in Aytemiz adına aldığı ürün).</li>
       <li>Ciro primi ve kademe, alıcının Tüpraş (tüm rafineriler toplamı) ya da Star motorin alımına göredir; Tüpraş benzinde ciro primi yoktur.</li>
@@ -312,9 +314,11 @@
   <section class="lraf-only" aria-labelledby="h-lraf">
     <div class="head"><h2 id="h-lraf">LPG rafinerileri</h2><span class="sub" id="s-lraf"></span></div>
     <p class="lead" id="l-lraf"></p>
+    <div class="kpis ubal lpg" id="u-lraf" aria-label="Ülke geneli LPG dengesi"></div>
     <div class="kpis" id="k-lraf"></div>
     <div class="scroll"><table id="t-lraf"></table></div>
     <ul class="notes">
+      <li>Üst kartlar ülke geneli LPG dengesidir (LPG veritabanı aylık arz–talep dengesi, fact_supply_balance); arz = üretim + ithalat. Alıcı ve rafineri filtresinden etkilenmez.</li>
       <li>Üretim: rafineri bazında <span class="yil">2025</span> LPG üretimi (EPDK, LPG veritabanı fact_production). İhracat: rafineri tesisinden ihracat tahmini (fact_export, tesis dağılımı).</li>
       <li>Rafineriden alım: rafineriden ilk alan dağıtıcı (ticari). Kendi bayisine / tüketiciye: aynı dağıtıcının rafineri sahasından kendi satışı için yüklediği LPG; kalan kısım başka dağıtıcılara satılır.</li>
     </ul>

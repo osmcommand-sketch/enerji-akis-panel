@@ -615,8 +615,13 @@ const fR=document.getElementById("f-raf");
 const RAF_AD=(()=>{const m=new Map(); for(const r of (TD.th||[])) if(r[2]===1){const a=TD.sat[r[1]]; m.set(a,(m.get(a)||0)+r[6]);} return [...m].sort((a,b)=>b[1]-a[1]);})();
 // Mod KPI'si taşıma moduna göre: takas öneki ve 'Rafineri tahsisinden alım (…)' sarmalı ayrılır (db_83: 49 Leg1 etiketi)
 const modBaz=x=>{ x=String(x??"?"); for(let i=0;i<3;i++){ const m=x.match(/^Rafineri tahsisinden alım \((.*)\)$/); if(m) x=m[1]; x=x.replace(/^[^;]*takası\); */,""); } return x; };
+// ülke dengesi KPI'ları (kullanıcı 21.10.2026 18:54: rafineriler sayfalarına üretim, ithalat, ihracat, yurt içi satış)
+const ubalK=(L)=>L.map(([a,v,alt])=>`<div class="kpi"><span>${a}</span><b>${ton(v)}</b><span>${alt}</span></div>`).join("");
+const UBAL_A=()=>{ const ug=id=>(D.ug||[]).find(r=>r[0]===id)||[], b=ug("UG1"), m=ug("UG2"), ru=D.rur||[0,0], f=(x,y)=>`benzin ${kisa(x||0)} · motorin ${kisa(y||0)}`;
+  return ubalK([[`Üretim · ${YIL}`,(ru[0]||0)+(ru[1]||0),f(ru[0],ru[1])+" · rafineri"],[`İthalat · ${YIL}`,(b[7]||0)+(m[7]||0),f(b[7],m[7])],[`İhracat · ${YIL}`,(b[8]||0)+(m[8]||0),f(b[8],m[8])],[`Yurt içi satış · ${YIL}`,(b[3]||0)+(m[3]||0),f(b[3],m[3])]]); };
 function rafineriler(){
   const sec=S.raf||"", tum=S.sid<0;
+  document.getElementById("u-raf").innerHTML=UBAL_A();
   fR.innerHTML='<option value="">Tüm rafineriler</option>'+RAF_AD.map(([a,v])=>`<option value="${esc(a)}">${esc(a)} · ${ton(v)}</option>`).join(""); fR.value=sec;
   const G=new Map(), RT=new Map(), MDT=new Map(), KU=[[0,0],[0,0]]; let TB=0,TM=0,TT=0;
   for(const r of (TD.th||[])){ if(r[2]!==1) continue; const ad=TD.sat[r[1]]; if(sec&&ad!==sec) continue; if(!tum&&r[0]!==S.sid) continue;
@@ -1233,6 +1238,9 @@ function lpgRafineriler(){
     kompKart(S.lrS>=0?SIR[S.lrS][1]+" · rafineriden yükleme":"Rafineri sahasından yükleme",[0,1,2].map(u=>({l:"LPG "+LPGU[u].toLocaleLowerCase("tr-TR"),v:U[u],c:LPGU_R[u]})),{buyuk:ton(U[0]+U[1]+U[2]),alt:"bayi ve tüketiciye, ürüne göre",span:5}),
     siraKart(S.lrS>=0?"Rafineriler":"Alıcılar (rafineri alımı)",S.lrS>=0?(()=>{const m=new Map(); for(const r of A) m.set(TERM[r[3]][1],(m.get(TERM[r[3]][1])||0)+r[4]); return [...m];})():[...(()=>{const m=new Map(); for(const r of A) m.set(SIR[r[0]][1],(m.get(SIR[r[0]][1])||0)+r[4]); return m;})()],{span:7,n:6,c:"#0F6E8C",sag:ton(AT)}),`</div>`];
   document.getElementById("k-lraf").innerHTML=k.join("");
+  { const Y=LYIL.find(r=>r[0]===String(YIL))||[], p=Y[1]||0, i=Y[2]||0, e=Y[3]||0, sa=Y[4]||0, U3=[0,1,2].map(u=>LF.reduce((a,f)=>a+(f[5]===u?f[6]:0),0)), UT=U3[0]+U3[1]+U3[2]||1;
+    document.getElementById("u-lraf").innerHTML=ubalK([[`Üretim · ${YIL}`,p,`${LURET.length} rafineri · arzın ${pct(p/((p+i)||1))}`],[`İthalat · ${YIL}`,i,`arzın ${pct(i/((p+i)||1))}`],[`İhracat · ${YIL}`,e,`arzın ${pct(e/((p+i)||1))}`],
+      [`Yurt içi satış · ${YIL}`,sa,`otogaz ${pct(U3[0]/UT)} · tüplü ${pct(U3[1]/UT)} · dökme ${pct(U3[2]/UT)}`]]); }
   // tablo: rafineri → alıcı
   const out=[], head=`<tr><th class="l">Rafineri / alıcı</th><th>Rafineriden alım</th><th>Kendi bayisine / tüketiciye</th><th>Başka dağıtıcıya (toptan)</th><th>Pay</th><th>İl</th><th>Ort. km</th></tr>`;
   for(const [t,pv] of P){

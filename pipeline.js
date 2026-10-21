@@ -172,6 +172,8 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     for (const [y, v] of LQ("select year, sum(value) from fact_epdk_report where topic='EXPORT_COUNTRY' group by 1")) hs(y, 'e', v);
     for (const [y, v] of LQ("select year, sum(value) from fact_epdk_report where topic='SALES_HISTORY' group by 1")) hs(y, 's', v);
     for (const [y, v] of LQ('select period_id/100, sum(production_t) from fact_supply_balance group by 1')) hs(y, 'p', v);
+    // EPDK yıllık rapor tabloları olmayan yıl (2026 tahmini): ithalat / ihracat / satış aylık arz-talep dengesinden
+    for (const [y, i_, e_, s_] of LQ('select period_id/100, sum(import_t), sum(export_t), sum(domestic_sales_t) from fact_supply_balance group by 1')) { const o = hist.get(y) || hist.set(y, {}).get(y); for (const [k_, v_] of [['i', i_], ['e', e_], ['s', s_]]) if (!(k_ in o)) o[k_] = v_; }
     if (!MQ('select 1 from REF_LPG_ULUSAL_YILLIK where Year=?', [String(YIL)]).length) db.run('insert into REF_LPG_ULUSAL_YILLIK (Year) values (?)', [String(YIL)]);
     for (const [y, h] of hist) db.run('update REF_LPG_ULUSAL_YILLIK set "Production t"=coalesce(?,"Production t"), "Imports t"=coalesce(?,"Imports t"), "Exports t"=coalesce(?,"Exports t"), "Sales total t"=coalesce(?,"Sales total t") where Year=?',
       [h.p ?? null, h.i ?? null, h.e ?? null, h.s ?? null, String(y)]);
@@ -433,7 +435,10 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
       LZP.push([sidx.get(r.s), r.i, LU[r.u], r.p + ix, LK_.get(kk), pr(r.y / tot.get([r.s, r.i, r.u, r.p, r.k].join('|')), 4), r.y ? pr(r.km / r.y) : 0, YM_[r.m] || 0]);
     }
   }
-  const d = { yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  // rafineri üretimi (EPDK Tablo 1.1, Toplam satırı): benzin = 95 + 98 oktan, motorin = motorin + biodizelli
+  const RU_ = new Map(hasTable('REF_EPDK_RAFINERI_URETIM') ? QA("select Urun, sum(Uretim_ton) from REF_EPDK_RAFINERI_URETIM where Rafineri='Toplam' group by 1") : []), ru = k => RU_.get(k) || 0;
+  const RUR = [pr(ru('Kurşunsuz Benzin 95 Oktan') + ru('Kurşunsuz Benzin 98 Oktan')), pr(ru('Motorin') + ru('Motorin (Biodizel ihtiva eden)'))];
+  const d = { rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -550,7 +555,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.yilnot = d.yilnot || '';
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.yilnot = d.yilnot || '';
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
