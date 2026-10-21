@@ -83,7 +83,7 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     for (const [col, typ] of [['Yukleme_Tesis_ID', 'text'], ['Aktarma_Modu', 'text'], ['Aktarma_km', 'real']]) if (!MQ('pragma table_info(FACT_LPG_AKIS)').some(r => r[1] === col)) db.run(`alter table FACT_LPG_AKIS add column ${col} ${typ}`);
     const ins = db.prepare(`insert into FACT_LPG_AKIS (LPG_Akis_ID, Donem, Sirket_ID, Il_ID, Urun, Terminal_ID, Tedarik_Tipi, Rota, Depolama_ID, Primer_km, Sekonder_km,
       Tarife_km, Miktar_ton, Yonlendiren_Sirket_ID, Ithal_ton, Yerli_ton, Karayolu_km, Ton_km, Maliyet_Esdeger_Ton_km, Depo_Tarife_TL, Konsolide_Sirket_ID, Yukleme_Tesis_ID, Aktarma_Modu, Aktarma_km) values (?,?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?,0,?,?,?,?)`);
-    let n = 0; const AKT = new Map();
+    let n = 0; const AKT = new Map(), DISP = new Map();   // (şirket, il, segment, sevk tesisi) → panel son yükleme noktası
     const yk_ = YENI ? 'load_facility_id, transfer_mode, sum(quantity_t*coalesce(transfer_km,0))' : 'NULL, NULL, 0';
     for (const [cid, lf, vf, il, seg, st, sup, q, imp, dom, pk, sk, dk, yf, tm, tk] of LQ(`select company_id, ${OF}, via_facility_id, province_id, segment_id, supply_type, supplier_company_id,
         sum(quantity_t), sum(import_share_t), sum(domestic_t), sum(quantity_t*coalesce(primary_km,0)), sum(quantity_t*coalesce(secondary_km,0)), sum(quantity_t*coalesce(distance_km,0)), ${yk_}
@@ -92,11 +92,22 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
       const s = sid(cid, q), t = TID.get(lf), dep = vf !== null ? (FACP.get(vf) || null) : null;
       if (s === null || t === undefined) { ek('akış (şirket/tesis eşleşmedi)', q); continue; }
       const yk = (yf !== null && yf !== lf) ? (FAC.get(yf) || 'L' + yf) : null; if (yk) AKT.set(yf, (AKT.get(yf) || 0) + q);
+      { const dk_ = [cid, il, seg, vf !== null ? vf : (yf !== null ? yf : lf)].join('|'), v_ = dep ? 'r|' + dep : (yk ? 'a|' + yk : 't|' + t); (DISP.get(dk_) || DISP.set(dk_, new Set()).get(dk_)).add(v_); }
       n++;
       ins.run(['N' + String(n).padStart(6, '0'), '2025', s, il, SEG[seg], t, TT[st], dep ? 'Depo üzerinden' : 'Doğrudan', dep, pk / q, sk / q, q,
         st === 'WHOLESALE' ? sid(sup, q) : null, imp || 0, dom || 0, dk / q, dk, dk, KS.get(s) || s, yk, yk ? ({ PIPELINE: 'Boru hattı', ROAD: 'Karayolu' }[tm] || tm) : null, yk ? tk / q : null]);
     }
     ins.free();
+    // ilçe payları (lpg_tr.db v1.4, fact_company_flow_district_share)
+    db.run('drop table if exists REF_LPG_ILCE_PAY'); db.run('create table REF_LPG_ILCE_PAY (Sirket_ID text, Il_ID integer, Urun text, Sevk_Tip text, Sevk_Kod text, Ilce text, Pay real, Ilce_km real, Yontem text, Guven text)');
+    if (LQ("select name from sqlite_master where type='table' and name='fact_company_flow_district_share'").length) {
+      const insP = db.prepare('insert into REF_LPG_ILCE_PAY values (?,?,?,?,?,?,?,?,?,?)');
+      for (const [cid, il, seg, df, ilce, pay, km, me, cf] of LQ('select company_id, province_id, segment_id, dispatch_facility_id, district, share, district_km, method, confidence from fact_company_flow_district_share where year=2025 and district is not null and share>0')) {
+        const s_ = sid(cid, 0); if (!s_) continue;
+        for (const v_ of (DISP.get([cid, il, seg, df].join('|')) || [])) { const [tp, kod] = [v_.slice(0, 1), v_.slice(2)]; if (kod) insP.run([s_, il, SEG[seg], tp, kod, ilce, pay, km, me, cf]); }
+      }
+      insP.free();
+    }
     for (const [d_] of MQ('select distinct Depolama_ID from FACT_LPG_AKIS where Depolama_ID is not null and Depolama_ID not in (select Depolama_ID from REF_LPG_DEPO_KULLANIM)')) {
       const t_ = MQ('select LPG_Captive_Ithalatci_ID, Il_ID, Ilce, Ilce_ID, LPG_Kapasite_m3 from DIM_TERMINAL where Terminal_ID=?', [d_]);
       if (t_.length) db.run("insert into REF_LPG_DEPO_KULLANIM (Depolama_ID, Sirket_ID, Il_ID, Ilce, Ilce_ID, Kapasite_m3, Kapasite_ton_yil, Ic_Depo, Atanan_ton, Kullanim_Orani, Acik_Erisim, Varsayim) values (?,?,?,?,?,?,0,0,0,0,0,'terminal ara depo olarak (lpg_tr.db)')", [d_, ...t_[0]]); }
@@ -397,7 +408,19 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const LILC = hasTable('REF_LPG_ILCE') ? Q('select Sirket_ID s, Il_ID i, Ilce c, sum(Ton) v from REF_LPG_ILCE group by 1,2,3').filter(r => sidx.has(r.s) && r.v >= 0.05).map(r => [sidx.get(r.s), r.i, tt(r.c), pr(r.v, 1), ...ilk(r.i, r.c)]) : [];
   const LSIN = hasTable('LPG_DAGITICI_SINIF') ? Q('select Sirket_ID s, Sinif c, Segment g, Pay p, Tedarik_Modeli m, Altyapi a from LPG_DAGITICI_SINIF').filter(r => sidx.has(r.s)).map(r => [sidx.get(r.s), r.c || '', r.g || '', pr(r.p || 0, 4), r.m || '', r.a || '']) : [];
   const LAGI = hasTable('LPG_AKARYAKIT_AGI') ? Q('select Akaryakit f, Sirket_ID s, Il_ID i, sum(Istasyon) n, sum(Otogaz_t) t, max(Ayni_Grup) g from LPG_AKARYAKIT_AGI group by 1,2,3').filter(r => sidx.has(r.s)).map(r => [r.f, sidx.get(r.s), r.i, r.n, pr(r.t, 1), r.g || 0]) : [];
-  const d = { lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  // ilçe payları (v1.4)
+  const LILK = [], LK_ = new Map(), LZP = [], YM_ = { ISTASYON_SIRKET: 0, ISTASYON_IL: 1, BAYI_SAYISI_VEKIL: 2 };
+  if (hasTable('REF_LPG_ILCE_PAY')) {
+    const g = Q('select Sirket_ID s,Il_ID i,Urun u,Sevk_Tip p,Sevk_Kod k,Ilce c,sum(Pay) y,sum(Pay*coalesce(Ilce_km,0)) km,max(Yontem) m from REF_LPG_ILCE_PAY group by 1,2,3,4,5,6 order by 1,2,3,4,5,6');
+    const tot = new Map(); for (const r of g) { const k = [r.s, r.i, r.u, r.p, r.k].join('|'); tot.set(k, (tot.get(k) || 0) + r.y); }
+    const IX = { r: didx, a: LYTI, t: tix };
+    for (const r of g) {
+      const ix = IX[r.p] ? IX[r.p].get(r.k) : undefined; if (ix === undefined || !sidx.has(r.s) || !(r.u in LU)) continue;
+      const kk = r.i + '|' + r.c; if (!LK_.has(kk)) { LK_.set(kk, LILK.length); LILK.push([r.i, tt(r.c), ...ilk(r.i, r.c)]); }
+      LZP.push([sidx.get(r.s), r.i, LU[r.u], r.p + ix, LK_.get(kk), pr(r.y / tot.get([r.s, r.i, r.u, r.p, r.k].join('|')), 4), r.y ? pr(r.km / r.y) : 0, YM_[r.m] || 0]);
+    }
+  }
+  const d = { lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -514,7 +537,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {};
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {};
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],

@@ -1354,6 +1354,7 @@ function lpgTasima(){
   lpgZincir(R);
 }
 const LILC=new Map(); for(const [s_,i,c,v,la,lo] of (D.lilc||[])){ const k=s_+"|"+i; (LILC.get(k)||LILC.set(k,[]).get(k)).push([c,v,la,lo]); }
+const LZPM=new Map(); for(const [s_,i,u_,k,x,p] of (D.lzp||[])){ const kk=`${s_}|${i}|${u_}|${k}`; (LZPM.get(kk)||LZPM.set(kk,[]).get(kk)).push([x,p]); }
 const ILLL=new Map(D.il.map(r=>[r[0],[r[2],r[3]]])), TKOD=new Map(TERM.map((t,i)=>[t[0],i])), DKOD=new Map(LDEP.map((d,i)=>[d[0],i]));
 const LZC=["#0F6E8C","#C2410C","#7A3E9D","#2F855A","#B7791F","#BE185D","#1D4ED8","#0E7490","#9A3412","#4D7C0F"];
 for(const v of LILC.values()) v.sort((a,b)=>b[1]-a[1]);
@@ -1376,22 +1377,26 @@ function lpgZincir(R){
     for(const x of [...o.k.values()].sort((a,b)=>b.v-a.v))
       h1+=`<tr class="sub"><td class="l ind">${x.ana>=0?anaAd(x.ana)+`<br><span class="muted">${MOD[x.m]} aktarması</span>`:`<span class="muted">arz tesisinden tanker</span>`}</td><td class="l">${x.ara>=0?araAd(x.ara):`<span class="muted">ara depo yok · doğrudan bayi / tüketici</span>`}</td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${x.il.size}</td></tr>`;
   }
-  // 2) son yükleme noktası (ara depo > ana depo > arz tesisi) → il → ilçe (otogaz)
+  // 2) son yükleme noktası (ara depo > ana depo > arz tesisi) → il → ilçe (lpg_tr.db v1.4 ilçe payları; yoksa otogaz istasyon payı)
+  const LK=D.lilk||[];
+  const dag=(f,k)=>{ const P=LZPM.get(`${f[0]}|${f[3]}|${f[5]}|${k}`); if(P) return P.map(([x,p])=>[x,LK[x][1],LK[x][2],LK[x][3],f[6]*p]);
+    if(LK.length||f[5]!==0) return null; const L=LILC.get(f[0]+"|"+f[3]); if(!L) return null; const LT=L.reduce((a,r)=>a+r[1],0); return LT?L.map(([c,v,la,lo])=>["L"+f[3]+c,c,la,lo,f[6]*v/LT]):null; };
   const B=new Map();
   for(const f of R){ const k=f[2]>=0?"r"+f[2]:(f[12]&&f[11]>=0?"a"+f[11]:"t"+f[1]);
-    const o=B.get(k)||B.set(k,{v:0,il:new Map()}).get(k); o.v+=f[6]; const i=o.il.get(f[3])||o.il.set(f[3],{v:0,o:0}).get(f[3]); i.v+=f[6]; if(f[5]===0) i.o+=f[6]; }
+    const o=B.get(k)||B.set(k,{v:0,il:new Map()}).get(k); o.v+=f[6]; const i=o.il.get(f[3])||o.il.set(f[3],{v:0,g:0,u:[0,0,0],z:new Map()}).get(f[3]); i.v+=f[6];
+    const P=dag(f,k); if(!P){ i.g+=f[6]; continue; } i.u[f[5]]+=f[6];
+    for(const [x,c,la,lo,q] of P){ const z=i.z.get(x)||i.z.set(x,{c,la,lo,v:0}).get(x); z.v+=q; } }
   const TIP={r:"ara depo",a:"ana depo",t:"arz tesisi"};   // arz tesisi: tanker doğrudan ithalat terminalinden / rafineriden yüklenir
   let h2="", nIlce=new Set();
   for(const [k,o] of [...B].sort((a,b)=>b[1].v-a[1].v)){
     const tp=k[0], id=+k.slice(1), ad=tp==="r"?araAd(id,1):tp==="a"?anaAd(id,1):arzAd(id,1);
     h2+=`<tr class="grp tg"><td class="l"><span class="lz-tip">${tp==="t"&&RF(id)?"rafineri":TIP[tp]}</span>${ad}</td><td><b>${ton(o.v)}</b></td><td>${pct(o.v/T)}</td><td>${o.il.size} il</td><td class="l"></td></tr>`;
     for(const [i,x] of [...o.il].sort((a,b)=>b[1].v-a[1].v)){
-      const L=LILC.get(S.lsS+"|"+i)||[], LT=L.reduce((a,r)=>a+r[1],0); let ic;
-      if(x.o<0.5) ic=`<span class="muted">otogaz yok · il geneli</span>`;
-      else if(!LT) ic=`<span class="muted">ilçe verisi yok</span>`;
-      else { const P=L.map(([c,v])=>[c,x.o*v/LT]).filter(r=>r[1]>=0.5); P.forEach(r=>nIlce.add(i+"|"+r[0])); const N=10;
-        ic=P.slice(0,N).map(([c,v])=>`<b>${esc(c)}</b> ${ton(v)}`).join(" · ")+(P.length>N?` · <span class="muted">+${P.length-N} ilçe ${ton(P.slice(N).reduce((a,r)=>a+r[1],0))}</span>`:""); }
-      h2+=`<tr class="sub"><td class="l ind">${esc(IL.get(i)||"?")}</td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${x.o>=0.5?ton(x.o)+" otogaz":"–"}</td><td class="l lz-ilc">${ic}</td></tr>`;
+      const P=[...x.z.values()].filter(z=>z.v>=0.5).sort((a,b)=>b.v-a.v), N=10; P.forEach(z=>nIlce.add(i+"|"+z.c));
+      let ic=P.slice(0,N).map(z=>`<b>${esc(z.c)}</b> ${ton(z.v)}`).join(" · ")+(P.length>N?` · <span class="muted">+${P.length-N} ilçe ${ton(P.slice(N).reduce((a,z)=>a+z.v,0))}</span>`:"");
+      if(x.g>=0.5) ic+=(ic?" · ":"")+`<span class="muted">il geneli ${ton(x.g)}${x.u[0]+x.u[1]<0.5?"":" (dökme)"}</span>`;
+      const ud=[x.u[0]>=0.5?"otogaz "+ton(x.u[0]):"",x.u[1]>=0.5?"tüplü "+ton(x.u[1]):""].filter(Boolean).join("<br>");
+      h2+=`<tr class="sub"><td class="l ind">${esc(IL.get(i)||"?")}</td><td>${ton(x.v)}</td><td>${pct(x.v/o.v)}</td><td>${ud||"–"}</td><td class="l lz-ilc">${ic}</td></tr>`;
     }
   }
   // harita (kullanıcı 21.10.2026 12:15 "harita üzerinde görelim")
@@ -1412,9 +1417,8 @@ function lpgZincir(R){
     if(ana>=0) add(E1,"t"+f[1]+">a"+ana,f[6]);
     if(f[2]>=0) add(E1,(ana>=0?"a"+ana:"t"+f[1])+">r"+f[2],f[6]); }
   for(const [k,o] of B){ if(S.lzF&&k!==S.lzF) continue;
-    for(const [i,x] of o.il){ const L=LILC.get(S.lsS+"|"+i)||[], LT=L.reduce((a,r)=>a+r[1],0);
-      const g=x.v-(LT?x.o:0); if(g>=0.5) add(ILG,k+"|"+i,g);
-      if(LT&&x.o>=0.5) for(const [c,v,la,lo] of L){ if(la==null) continue; const q=x.o*v/LT; if(q<0.5) continue; const kk=i+"|"+c; const z=ILC.get(kk)||ILC.set(kk,{la,lo,c,i,v:0,by:new Map()}).get(kk); z.v+=q; add(z.by,k,q); } } }
+    for(const [i,x] of o.il){ if(x.g>=0.5) add(ILG,k+"|"+i,x.g);
+      for(const [kk,z0] of x.z){ if(z0.la==null||z0.v<0.5) continue; const z=ILC.get(kk)||ILC.set(kk,{la:z0.la,lo:z0.lo,c:z0.c,i,v:0,by:new Map()}).get(kk); z.v+=z0.v; add(z.by,k,z0.v); } } }
   const VB=svgM.getAttribute("viewBox"), W=+VB.split(/\s+/)[2], u=W/1000;
   const mxIl=Math.max(1,...ILV.values()), mxE=Math.max(1,...E1.values()), mxZ=Math.max(1,...[...ILC.values()].map(z=>z.v)), mxG=Math.max(1,...ILG.values());
   let m="";
@@ -1425,10 +1429,10 @@ function lpgZincir(R){
   for(const z of ILC.values()){ const [x2,y2]=pj(z.la,z.lo); const dom=[...z.by].sort((a,b)=>b[1]-a[1])[0][0];
     for(const [k,q] of z.by){ const p0=yer(k[0],+k.slice(1)); if(!p0) continue; const [x1,y1]=pj(p0[0],p0[1]);
       ln+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${RENK.get(k)}" stroke-opacity="${S.lzF?0.55:0.2}" stroke-width="${(0.5*u+1.6*u*Math.sqrt(q/mxZ)).toFixed(2)}"/>`; }
-    dt+=`<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="${(1.3*u+5*u*Math.sqrt(z.v/mxZ)).toFixed(2)}" fill="${RENK.get(dom)}" fill-opacity=".85" stroke="#fff" stroke-width="${(0.4*u).toFixed(2)}"><title>${esc(z.c)} (${esc(IL.get(z.i)||"")}) · otogaz ${ton(z.v)}${z.by.size>1?"\n"+[...z.by].sort((a,b)=>b[1]-a[1]).map(([k,q])=>adK(k)+": "+ton(q)).join("\n"):" · "+adK(dom)}</title></circle>`; }
+    dt+=`<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="${(1.3*u+5*u*Math.sqrt(z.v/mxZ)).toFixed(2)}" fill="${RENK.get(dom)}" fill-opacity=".85" stroke="#fff" stroke-width="${(0.4*u).toFixed(2)}"><title>${esc(z.c)} (${esc(IL.get(z.i)||"")}) · ${ton(z.v)}${z.by.size>1?"\n"+[...z.by].sort((a,b)=>b[1]-a[1]).map(([k,q])=>adK(k)+": "+ton(q)).join("\n"):" · "+adK(dom)}</title></circle>`; }
   for(const [kk,g] of ILG){ const [k,i]=kk.split("|"), p0=yer(k[0],+k.slice(1)), c=ILLL.get(+i); if(!p0||!c) continue; const [x1,y1]=pj(p0[0],p0[1]), [x2,y2]=pj(c[0],c[1]);
     ln+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${RENK.get(k)}" stroke-opacity=".3" stroke-dasharray="${2*u} ${2*u}" stroke-width="${(0.7*u).toFixed(2)}"/>`;
-    dt+=`<rect x="${(x2-2.6*u).toFixed(1)}" y="${(y2-2.6*u).toFixed(1)}" width="${(5.2*u).toFixed(1)}" height="${(5.2*u).toFixed(1)}" fill="#fff" stroke="${RENK.get(k)}" stroke-width="${(1.2*u).toFixed(2)}"><title>${esc(IL.get(+i)||"")} il geneli (tüplü / dökme, ilçe verisi yok) · ${ton(g)} · ${esc(adK(k))}</title></rect>`; }
+    dt+=`<rect x="${(x2-2.6*u).toFixed(1)}" y="${(y2-2.6*u).toFixed(1)}" width="${(5.2*u).toFixed(1)}" height="${(5.2*u).toFixed(1)}" fill="#fff" stroke="${RENK.get(k)}" stroke-width="${(1.2*u).toFixed(2)}"><title>${esc(IL.get(+i)||"")} il geneli (dökme; sanayi tüketicisinin konumu yok) · ${ton(g)} · ${esc(adK(k))}</title></rect>`; }
   // arz → ana → ara kalın çizgiler
   let e1="";
   for(const [kk,v] of E1){ const [a,b]=kk.split(">"), p0=yer(a[0],+a.slice(1)), p1=yer(b[0],+b.slice(1)); if(!p0||!p1) continue; const [x1,y1]=pj(p0[0],p0[1]), [x2,y2]=pj(p1[0],p1[1]); if(Math.hypot(x2-x1,y2-y1)<2*u) continue;
@@ -1448,12 +1452,12 @@ function lpgZincir(R){
   const harita=`<h3 class="lsub">Tedarik zinciri haritası${S.lzF?" · "+esc(adK(S.lzF)):""}</h3>
     <div class="lz-hg"><div class="mapbox"><svg id="lz-map" viewBox="${VB}" role="img" aria-label="${esc(SIR[S.lsS][1])} LPG tedarik zinciri haritası: arz tesisleri, depolar ve beslenen ilçeler">${m}<g>${ln}</g><g>${e1}</g><g>${dt}</g><g>${nd}</g><g>${lb}</g></svg></div>
     <div class="lz-pan" role="group" aria-label="Yükleme noktaları"><p class="muted" style="font-size:12px;margin:0 0 4px">Son yükleme noktaları · bir noktaya tıklayın, yalnız onun beslediği yerler görünsün.</p>${S.lzF?`<button type="button" data-k=""><i style="background:var(--line)"></i><span>Tümünü göster</span><b></b></button>`:""}${pan}</div></div>
-    <div class="lz-leg"><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C"/></svg>ithalat terminali</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C" transform="rotate(45 9 6)"/></svg>rafineri / ana depo (aktarma)</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.5" fill="#5B3A1E"/></svg>ara depo</span><span><svg viewBox="0 0 18 12"><line x1="1" y1="6" x2="17" y2="6" stroke="#0F6E8C" stroke-width="3"/></svg>aktarma</span><span><svg viewBox="0 0 18 12"><line x1="1" y1="6" x2="17" y2="6" stroke="#5B3A1E" stroke-width="3"/></svg>ara depoya taşıma (kalınlık: ton)</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4" fill="#C2410C"/></svg>ilçe (otogaz, <span class="tag">tahmin</span>)</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#fff" stroke="#C2410C" stroke-width="1.6"/></svg>il geneli (tüplü / dökme)</span><span>Renk: ürünü yükleyen nokta · il dolgusu: şirketin il hacmi</span></div>`;
+    <div class="lz-leg"><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C"/></svg>ithalat terminali</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#15222C" transform="rotate(45 9 6)"/></svg>rafineri / ana depo (aktarma)</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4.5" fill="#5B3A1E"/></svg>ara depo</span><span><svg viewBox="0 0 18 12"><line x1="1" y1="6" x2="17" y2="6" stroke="#0F6E8C" stroke-width="3"/></svg>aktarma</span><span><svg viewBox="0 0 18 12"><line x1="1" y1="6" x2="17" y2="6" stroke="#5B3A1E" stroke-width="3"/></svg>ara depoya taşıma (kalınlık: ton)</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="4" fill="#C2410C"/></svg>ilçe (otogaz + tüplü, <span class="tag">tahmin</span>)</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#fff" stroke="#C2410C" stroke-width="1.6"/></svg>il geneli (dökme)</span><span>Renk: ürünü yükleyen nokta · il dolgusu: şirketin il hacmi</span></div>`;
   el.innerHTML=harita+`<h3 class="lsub">Tedarik zinciri · arz tesisinden depolara</h3>
     <div class="scroll"><table id="t-lz1"><thead><tr><th class="l">Arz tesisi / ana depo (tanker yükleme)</th><th class="l">Ara depo</th><th>Miktar</th><th>Pay</th><th>Beslenen il</th></tr></thead><tbody>${h1}</tbody></table></div>
     <h3 class="lsub">Depoların beslediği il ve ilçeler</h3>
-    <p class="muted" style="font-size:12px;margin:-4px 0 8px">${B.size} yükleme noktası · ${new Set(R.map(f=>f[3])).size} il · ${nIlce.size} ilçe (otogaz). Pay sütunu: depo satırında şirket toplamına, il satırında deponun toplamına göre.</p>
-    <div class="scroll"><table id="t-lz2"><thead><tr><th class="l">Son yükleme noktası / il</th><th>Miktar</th><th>Pay</th><th>Otogaz</th><th class="l">İlçeler (otogaz, istasyon satışına göre <span class="tag">tahmin</span>)</th></tr></thead><tbody>${h2}</tbody></table></div>`;
+    <p class="muted" style="font-size:12px;margin:-4px 0 8px">${B.size} yükleme noktası · ${new Set(R.map(f=>f[3])).size} il · ${nIlce.size} ilçe. Pay sütunu: depo satırında şirket toplamına, il satırında deponun toplamına göre.</p>
+    <div class="scroll"><table id="t-lz2"><thead><tr><th class="l">Son yükleme noktası / il</th><th>Miktar</th><th>Pay</th><th>İlçeye dağıtılan</th><th class="l">İlçeler <span class="tag">tahmin</span></th></tr></thead><tbody>${h2}</tbody></table></div>`;
   el.querySelectorAll("[data-k]").forEach(e=>e.addEventListener("click",()=>{ const k=e.dataset.k||null; S.lzF=S.lzF===k?null:k; lpgZincir(R); }));
 }
 for(const [id,k] of [["f-ls-s","lsS"],["f-ls-u","lsU"]]) document.getElementById(id).addEventListener("change",e=>{S[k]=+e.target.value; render();});
