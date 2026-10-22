@@ -291,10 +291,10 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const tt = (x) => { if (!x) return x; const lo = x.replace(/I/g, 'ı').replace(/İ/g, 'i').toLowerCase();
     return lo.split(' ').map(w => w ? (({ i: 'İ', 'ı': 'I' })[w[0]] || w[0].toUpperCase()) + w.slice(1) : w).join(' '); };
   const term = Q("select t.*, h.Akaryakit_ton, h.LPG_Arz_ton from DIM_TERMINAL t left join v_terminal_hub h using(Terminal_ID) where coalesce(t.Tesis_Tipi,'')<>'Havalimanı teslim noktası' order by Terminal_ID");
-  const HAVA = Q('select h.Terminal_ID,h.IATA,h.Havalimani_Adi,h.Il_ID,h.Enlem,h.Boylam,h.Toplam_m3,h.Gumruklu_m3 from REF_HAVALIMANI h order by h.Toplam_m3 desc');
+  const HAVA = Q('select h.Terminal_ID,h.IATA,h.Havalimani_Adi,h.Il_ID,h.Enlem,h.Boylam,h.Toplam_m3,h.Gumruklu_m3,h.Ihrac_m3 from REF_HAVALIMANI h order by h.Toplam_m3 desc');
   const aix = new Map(); HAVA.forEach((h, i) => { if (!aix.has(h.Terminal_ID)) aix.set(h.Terminal_ID, i); });
   HAVA.forEach((h, i) => aix.set(h.Terminal_ID, i));   // Python dict: son değer kalır
-  const AIR = HAVA.map(h => [h.IATA, h.Havalimani_Adi, h.Il_ID, h.Enlem, h.Boylam, pr(h.Toplam_m3 || 0), pr(h.Gumruklu_m3 || 0)]);
+  const AIR = HAVA.map(h => [h.IATA, h.Havalimani_Adi, h.Il_ID, h.Enlem, h.Boylam, pr(h.Toplam_m3 || 0), pr(h.Gumruklu_m3 || 0), pr(h.Ihrac_m3 || 0), h.Terminal_ID]);
   const hubs = [], hidx = new Map(), hkey = (k) => JSON.stringify([k.Enlem, k.Boylam]);
   for (const t of term) {
     const k = KO[t.Terminal_ID], key = hkey(k);
@@ -326,7 +326,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const TTL = { 'Kendi ithalatı': 0, 'Dağıtıcı alımı': 1, 'Rafineri alımı': 2, 'Stoktan satış': 3 }, LU = { 'LPG-Otogaz': 0, 'LPG-Tüplü': 1, 'LPG-Dökme': 2 };
   const LF = lf.filter(r => r.t > 0).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.Depolama_ID ? didx.get(r.Depolama_ID) : -1, r.Il_ID, TTL[r.Tedarik_Tipi], LU[r.Urun], pr(r.t, 1), pr(r.tk / r.t, 1), pr(r.mk / r.t, 1), pr(r.pk / r.t, 1), pr(r.sk / r.t, 1), r.yt ? LYTI.get(r.yt) ?? -1 : -1, r.am === 'Boru hattı' ? 1 : r.am === 'Karayolu' ? 2 : r.am === 'Deniz yolu (kabotaj)' ? 3 : 0, r.yt ? pr(r.ak / r.t, 1) : 0, r.ys && sidx.has(r.ys) ? sidx.get(r.ys) : -1, pr(r.it || 0, 1)]);
   log('Akaryakıt akışı');
-  const af = Q(`select Sirket_ID,Terminal_ID,Il_ID,Urun,Kaynak_ID,Leg1_Tasima_Modu,Teslim_Noktasi_ID,case when Leg1_Tasima_Modu like 'Rafineri tahsisinden%' then Yonlendiren_Sirket_ID end y,coalesce(Leg1_Tasiyan_Tipi,'?') tt,Leg1_Tasiyan_Sirket_ID ts,max(case when Dagilim_Yontemi like 'Tahmin%' then 1 else 0 end) est,sum(Miktar_ton) t,sum(Leg2_Ton_km) tk,sum(coalesce(Ithal_ton,0)) it from FACT_AKARYAKIT_AKIS group by 1,2,3,4,5,6,7,8,9,10`);
+  const af = Q(`select Sirket_ID,Terminal_ID,Il_ID,Urun,Kaynak_ID,Leg1_Tasima_Modu,Teslim_Noktasi_ID,case when Leg1_Tasima_Modu like 'Rafineri tahsisinden%' then Yonlendiren_Sirket_ID end y,coalesce(Leg1_Tasiyan_Tipi,'?') tt,Leg1_Tasiyan_Sirket_ID ts,max(case when Dagilim_Yontemi like 'Tahmin%' then 1 else 0 end) est,sum(Miktar_ton) t,sum(Leg2_Ton_km) tk,sum(coalesce(Ithal_ton,0)) it,sum(case when Satis_Turu like 'Yabanc%' then Miktar_ton else 0 end) ih from FACT_AKARYAKIT_AKIS group by 1,2,3,4,5,6,7,8,9,10`);
   const AUR = { 'Benzin': 0, 'Motorin': 1, 'Fuel Oil': 2, 'Havacılık': 3, 'Denizcilik': 4, 'Gazyağı': 5, 'Diğer': 6 };
   const KAY = Q('select Kaynak_ID,Kaynak_Adi,Kaynak_Tipi,Sirket_ID from DIM_KAYNAK order by Kaynak_ID');
   const kix = new Map(); KAY.forEach((k, i) => kix.set(k.Kaynak_ID, i));
@@ -336,7 +336,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const AF = af.filter(r => r.t > 0).map(r => {
     if (!TTX.has(r.tt)) TTX.set(r.tt, TTX.size);
     return [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.Il_ID, AUR[r.Urun], kix.get(r.Kaynak_ID), mix.get(r.Leg1_Tasima_Modu || '?'), pr(r.t, 1), r.t ? pr(r.tk / r.t, 1) : 0, r.est,
-      aix.has(r.Teslim_Noktasi_ID) ? aix.get(r.Teslim_Noktasi_ID) : -1, pr(r.it, 1), r.y ? sg(r.y) : -1, TTX.get(r.tt), r.ts ? sg(r.ts) : -1];
+      aix.has(r.Teslim_Noktasi_ID) ? aix.get(r.Teslim_Noktasi_ID) : -1, pr(r.it, 1), r.y ? sg(r.y) : -1, TTX.get(r.tt), r.ts ? sg(r.ts) : -1, pr(r.ih || 0, 1)];
   });
   const LTED = Q('select * from FACT_LPG_TEDARIK').filter(r => r.Ton >= 1)
     .map(r => [sg(r.Alici_Sirket_ID), r.Tedarikci_Tipi, r.Tedarikci_Sirket_ID ? (sad.get(r.Tedarikci_Sirket_ID) || [null])[0] : null, r.Tedarikci_Terminal_ID ? (tix.has(r.Tedarikci_Terminal_ID) ? tix.get(r.Tedarikci_Terminal_ID) : -1) : -1, pr(r.Ton)])
@@ -582,7 +582,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],

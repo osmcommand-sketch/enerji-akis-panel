@@ -48,6 +48,12 @@
           <button type="button" role="tab" id="tab-lpgtrm" data-sayfa="lpgtrm" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3v9c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 8c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Terminaller</button>
         </div>
       </div>
+      <div class="grp g-hava">
+        <div class="gh"><i></i>Havacılık</div>
+        <div class="pipe">
+          <button type="button" role="tab" id="tab-hava" data-sayfa="hava" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15.5 13.5 11V5.5a1.5 1.5 0 0 0-3 0V11L3 15.5v2l7.5-2.3V19l-2 1.5V22l3.5-1 3.5 1v-1.5l-2-1.5v-3.8l7.5 2.3z"/></svg>Havacılık yakıtları</button>
+        </div>
+      </div>
     </nav>
     <div class="veri" id="veri" hidden>
       <span>Açık veritabanı</span>
@@ -389,6 +395,32 @@
       <li hidden>İthalat (kesikli çizgi): şirketin ithalat terminallerine gelen hacim (FACT_LPG_ITHALAT), menşe yönünden kıyı seyir hattıyla çizilir. Menşe payı şirketin gemi line-up kayıtlarından (fact_cargo, Eyl–Ara tahmini seferler dahil); menşesi bilinmeyen partiler terminale en yakın giriş yönüne yazılır.</li>
       <li>Tedarikçi: ürünün kaynağı – rafineri alımı (rafineri), kendi ithalatı, başka dağıtıcıdan alım (satıcı dağıtıcı) ya da stok (LPG veritabanı şirket akışı supply_type / supplier_company_id). Tedarikçi seçilince harita, yükleme noktaları ve tablolar yalnız o kaynaktan gelen hacmi gösterir. Yükleme yolu: tanker yüklemesinden önceki aktarma (boru hattı, karayolu, deniz yolu kabotajı) ya da doğrudan tanker.</li>
       <li>Her akış satırı arz tesisi → ana depo (tanker yükleme; aktarma deposu ya da arz tesisinin kendisi) → ara depo → il yoluyla izlenir. İlçe kırılımı LPG veritabanının depo bazında ilçe paylarıdır (fact_company_flow_district_share, v1.5) ve tahmindir: otogazda şirketin istasyonlarının <span class="yil">2025</span> satışı, en yakın depo önce gelecek şekilde depolara atanır (şirketin o ilde istasyonu yoksa ildeki tüm istasyonlar, düşük güven); tüplüde vekil ilçe nüfusudur (TürkiyeAPI 2025, düşük güven); dökme il düzeyinde kalır. Büyükşehirlerde eski "Merkez" ilçesine kayıtlı istasyonlar bayi adresindeki mahalle adıyla güncel ilçeye eşlendi (TürkiyeAPI mahalle listesi, MIT); adresinde mahalle olmayan birkaç istasyon "Merkez" olarak kalır.</li>
+    </ul>
+  </section>
+  <div class="filters hava-only" role="search" aria-label="Havacılık filtreleri">
+    <div class="f"><label for="f-hv-s">İkmal şirketi</label><select id="f-hv-s"></select></div>
+    <div class="f"><label for="f-hv-a">Havalimanı</label><select id="f-hv-a"></select></div>
+    <div class="f"><label for="f-hv-t">Satış türü</label><select id="f-hv-t"><option value="">Tümü</option><option value="i">Yabancıya ihrakiye</option><option value="y">Yurt içi</option></select></div>
+    <button type="button" class="clear" id="clear-hv">Filtreleri temizle</button>
+  </div>
+  <section class="hava-only" aria-labelledby="h-hava">
+    <div class="head"><h2 id="h-hava">Havacılık yakıtları</h2><span class="sub" id="s-hava"></span></div>
+    <p class="lead">Jet yakıtının havalimanlarına nereden geldiği: antrepo ithalatı, rafineriler ya da başka dağıtıcı; havalimanı deposuna taşıma ve havalimanında ikmali yapan şirketler. Bir havalimanına tıklayınca sayfa o havalimanına daralır.</p>
+    <div class="kpis" id="k-hava"></div>
+    <div id="hv-harita"></div>
+  </section>
+  <section class="hava-only" aria-labelledby="h-hva">
+    <div class="head"><h2 id="h-hva">Havalimanları</h2><span class="sub" id="s-hva"></span></div>
+    <div class="scroll"><table id="t-hva" class="hvt"></table></div>
+  </section>
+  <section class="hava-only" aria-labelledby="h-hvs">
+    <div class="head"><h2 id="h-hvs">İkmal şirketleri</h2><span class="sub" id="s-hvs"></span></div>
+    <div class="scroll"><table id="t-hvs" class="hvt"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB FACT_AKARYAKIT_AKIS, ürün Havacılık (<span class="yil">2025</span>); teslim noktası havalimanı (REF_HAVALIMANI, Teslim_Noktasi_ID). İkmal şirketi: havalimanında yakıtı uçağa veren dağıtıcı (EPDK ihrakiye / dağıtıcı satışı).</li>
+      <li>İthal: akış satırındaki ithal ton (antrepoya tahliye edilen ithal jet yakıtı ve dağıtıcıların ithal ürünü); yerli: rafineri ürünü. Yabancıya ihrakiye: yabancı bayraklı uçağa ya da dış hatta verilen yakıt (Satis_Turu); yurt içi: kalan.</li>
+      <li>Haritada rafineriden havalimanı deposuna giden çizgi Leg1 taşıma modudur (deniz yolu kıyı seyir hattından, diğerleri düz). Havalimanı dışındaki bir terminalden yüklenen yakıt için terminalden havalimanına ince çizgi çizilir. Daire alanı tonla orantılı; mavi dilim ithal payıdır.</li>
+      <li>"Bildirim (m³)": havalimanının <span class="yil">2025</span> yakıt bildirimi (kullanıcı verisi "Bilgi Talebi – 02.10.2026"; gümrüklü + ihraç), karşılaştırma içindir; modeldeki tonaj EPDK şirket satışından gelir.</li>
     </ul>
   </section>
   <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
