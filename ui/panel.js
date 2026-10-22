@@ -1542,7 +1542,10 @@ const kapiOf=u=>{ const x=String(u||"").toLocaleLowerCase("tr-TR");
   return x?"g_bati":null; };
 const ulkeKisa=u=>String(u).replace("Rusya Federasyonu","Rusya").replace("A.B.D.","ABD");
 // L: [[[lat,lon] terminal, ton, Map(ülke→ton)]] → SVG (rota, piktogram, kapı etiketi)
+// İthal rotaları haritada şimdilik gösterilmiyor (kullanıcı 22.10.2026 13:56); true yapınca geri gelir
+const ITHAL_ROTA=false;
 function ithalSvg(L,u,baslik,mxRef){
+  if(!ITHAL_ROTA) return {ln:"",pk:"",gt:"",KT:new Map()};
   let ln="",pk="",gt=""; const KT=new Map(), KU=new Map(); let mx=1;
   const parca=[]; for(const [p,v,M] of L){ if(!ROTA.kiyi(p)) continue; const T=[...M.values()].reduce((a,b)=>a+b,0)||1;
     const g=new Map(); for(const [ul0,q] of M){ let ul=ul0, k; const ix=String(ul0).indexOf("|"); if(ix>0){ k=ul0.slice(0,ix); ul=ul0.slice(ix+1); } else k=kapiOf(ul); if(!k){ k=["g_kuzey","g_bati","g_dogu"].sort((a,b)=>ROTA.kapiMes(a,p)-ROTA.kapiMes(b,p))[0]; }
