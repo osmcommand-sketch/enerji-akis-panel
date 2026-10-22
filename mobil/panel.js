@@ -1632,8 +1632,8 @@ function hvDenge(H0){
   return `<details class="nt" open style="margin-top:10px"><summary><b>EPDK ${YIL} havacılık dengesi ve model akışı</b> <span class="muted">· ülke geneli</span></summary>
     <div class="scroll"><table><thead><tr><th class="l">Kalem</th><th>EPDK ${YIL}</th><th>Model akışı</th><th>Fark</th><th class="l">Not</th></tr></thead><tbody>`
     +sat("Rafineri üretimi (jet)",E[0],null,`ihracat ${E[4]?ton(E[4]):"–"} düşülünce yurt içine ${E[0]&&E[4]!=null?ton(E[0]-E[4]):"–"} kalır`)
-    +sat("İthalat",E[1],M_I,"modelde havalimanına giden ithal ürün (TFS antrepo tahliyesi + PO)")
-    +sat("Rafineriden yurt içi + ihrakiye",E[2]!=null&&E[3]!=null&&E[1]!=null?E[2]+E[3]-E[1]:null,M_R,"EPDK türetilmiş: satış + ihrakiye − ithalat")
+    +sat("İthalat",E[1],M_I,"akışta ithalatın yurt içi + ihrakiye payı; ihracata giden pay (TFS ≈60 kt) ve Star'ın kendi ihracatına karşılık 45 kt'ı havalimanı akışında yok; bu iki kalem düşülünce fark kapanır")
+    +sat("Rafineriden yurt içi + ihrakiye",E[2]!=null&&E[3]!=null&&E[1]!=null?E[2]+E[3]-E[1]:null,M_R,"EPDK türetilmiş: satış + ihrakiye − ithalat (ithalatın tamamı düşülür; akışta yalnız havalimanına giden ithal payı)")
     +sat("Yurt içi satış",E[2],M_T-M_IH,"")
     +sat("Yabancıya ihrakiye",E[3],M_IH,"")
     +sat("İhracat",E[4],null,"havalimanı akışında yok (rafineri ihracatı)")
