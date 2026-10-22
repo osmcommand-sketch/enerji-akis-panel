@@ -1644,7 +1644,7 @@ function havaSayfa(){
   const sv=new Map(), av=new Map();
   for(const f of H0){ if(S.hvA<0||f[9]===S.hvA) sv.set(f[0],(sv.get(f[0])||0)+hvV(f)); if(S.hvS<0||f[0]===S.hvS) av.set(f[9],(av.get(f[9])||0)+hvV(f)); }
   if(S.hvS>=0&&!sv.has(S.hvS)) S.hvS=-1; if(S.hvA>=0&&!av.has(S.hvA)) S.hvA=-1;
-  lsel("f-hv-s",sirOpts(sv),S.hvS,"Tüm ikmal şirketleri");
+  lsel("f-hv-s",sirOpts(sv),S.hvS,"Tüm satıcı şirketler");
   lsel("f-hv-a",[...av].filter(x=>x[1]>=0.5).sort((a,b)=>b[1]-a[1]).map(([a,v])=>[a,`${AIR_[a][0]} · ${AIR_[a][1]} · ${ton(v)}`]),S.hvA,"Tüm havalimanları");
   document.getElementById("f-hv-t").value=S.hvT;
   const H=H0.filter(f=>(S.hvS<0||f[0]===S.hvS)&&(S.hvA<0||f[9]===S.hvA));
@@ -1654,25 +1654,25 @@ function havaSayfa(){
   const KY=new Map(), SR=new Map(); for(const f of H){ add(KY,hvKay(f).ad,v(f)); add(SR,SIR[f[0]][1],v(f)); }
   const nA=new Set(H.map(f=>f[9])).size, nS=new Set(H.map(f=>f[0])).size;
   document.getElementById("h-hava").textContent=[S.hvA>=0?`${AIR_[S.hvA][1]} (${AIR_[S.hvA][0]})`:null,S.hvS>=0?SIR[S.hvS][1]:null].filter(Boolean).join(" · ")||"Havacılık yakıtları";
-  document.getElementById("s-hava").textContent=`${YIL} · ${ton(T)} · ${nA} havalimanı · ${nS} ikmal şirketi${S.hvT?" · "+(S.hvT==="i"?"yabancıya ihrakiye":"yurt içi"):""}`;
+  document.getElementById("s-hava").textContent=`${YIL} · ${ton(T)} · ${nA} havalimanı · ${nS} satıcı şirket${S.hvT?" · "+(S.hvT==="i"?"yabancıya ihrakiye":"yurt içi"):""}`;
   document.getElementById("k-hava").innerHTML=`<div class="kg">`
     +kompKart("Havacılık yakıtı",[{l:"İthal",v:TI,c:HV_C.i,s:"antrepo ithalatı ve dağıtıcıların ithal ürünü"},{l:"Yerli",v:T-TI,c:HV_C.y,s:"rafineri ürünü"}],{buyuk:ton(T),alt:`${nA} havalimanı · ${nS} şirket`,span:3})
     +kompKart("Satış türü",[{l:"Yabancıya ihrakiye",v:IH,c:"#0F6E8C",s:"dış hat / yabancı uçak"},{l:"Yurt içi",v:YI,c:"#8CC3D3",s:"iç hat"}],{T,span:3})
-    +siraKart("Kaynak",[...KY],{span:3,n:5,c:"#5B3A1E"})+siraKart("İkmal şirketi",[...SR],{span:3,n:5,c:"#0F6E8C"})+`</div>`+hvDenge(H0);
+    +siraKart("Kaynak",[...KY],{span:3,n:5,c:"#5B3A1E"})+siraKart("Satıcı şirket",[...SR],{span:3,n:5,c:"#0F6E8C"})+`</div>`+hvDenge(H0);
   havaHarita(H,v,it);
   // havalimanı tablosu
   const A=new Map(); for(const f of H){ const o=A.get(f[9])||A.set(f[9],{v:0,i:0,ih:0,s:new Map(),k:new Map(),y:new Map()}).get(f[9]);
     o.v+=v(f); o.i+=it(f); o.ih+=S.hvT==="y"?0:(f[14]||0); add(o.s,SIR[f[0]][1],v(f)); add(o.k,hvKay(f).ad,v(f)); if(hvDis(f)) add(o.y,TERM[f[1]][1],v(f)); }
   const top=(m,n=3)=>{ const t=[...m.values()].reduce((a,b)=>a+b,0)||1; return [...m].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,x])=>`${esc(k)} ${pct(x/t)}`).join(" · ")+(m.size>n?` <span class="muted">+${m.size-n}</span>`:""); };
   const AR=[...A].sort((a,b)=>b[1].v-a[1].v);
-  document.getElementById("t-hva").innerHTML=`<thead><tr><th class="l">Havalimanı</th><th>Toplam</th><th>Pay</th><th>İthal</th><th>Yabancıya ihrakiye</th><th class="l">İkmal şirketleri</th><th class="l">Kaynak</th><th class="l">Havalimanı dışından yükleme</th><th>Bildirim (m³)</th></tr></thead><tbody>`
+  document.getElementById("t-hva").innerHTML=`<thead><tr><th class="l">Havalimanı</th><th>Toplam</th><th>Pay</th><th>İthal</th><th>Yabancıya ihrakiye</th><th class="l">Satıcı şirketler (EPDK)</th><th class="l">Kaynak</th><th class="l">Havalimanı dışından yükleme</th><th>Bildirim (m³)</th></tr></thead><tbody>`
     +AR.map(([a,o])=>`<tr data-hva="${a}" tabindex="0" aria-selected="${S.hvA===a}"><td class="l"><b>${esc(AIR_[a][0])}</b> ${esc(AIR_[a][1])} <span class="muted">· ${esc(IL.get(AIR_[a][2])||"")}</span></td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${pct(o.v?o.i/o.v:0)}</td><td>${S.hvT==="y"?"–":pct(o.v?o.ih/o.v:0)}</td><td class="l muted">${top(o.s)}</td><td class="l muted">${top(o.k)}</td><td class="l muted">${o.y.size?[...o.y].sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k,x])=>`${esc(k)} ${ton(x)}`).join(" · "):"–"}</td><td>${AIR_[a][5]?nf.format(AIR_[a][5]):"–"}</td></tr>`).join("")
     +(AR.length>1?`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td><b>${ton(T)}</b></td><td>%100</td><td>${pct(T?TI/T:0)}</td><td>${S.hvT==="y"?"–":pct(T?IH/T:0)}</td><td></td><td></td><td></td><td>${nf.format(AR.reduce((q,[a])=>q+(AIR_[a][5]||0),0))}</td></tr>`:"")+`</tbody>`;
   document.getElementById("s-hva").textContent=`${AR.length} havalimanı · tonaja göre`;
   // şirket tablosu
   const SS=new Map(); for(const f of H){ const o=SS.get(f[0])||SS.set(f[0],{v:0,i:0,ih:0,a:new Map(),k:new Map()}).get(f[0]); o.v+=v(f); o.i+=it(f); o.ih+=S.hvT==="y"?0:(f[14]||0); add(o.a,AIR_[f[9]][0],v(f)); add(o.k,hvKay(f).ad,v(f)); }
   const SRr=[...SS].sort((a,b)=>b[1].v-a[1].v);
-  document.getElementById("t-hvs").innerHTML=`<thead><tr><th class="l">İkmal şirketi</th><th>Toplam</th><th>Pay</th><th>İthal</th><th>Yabancıya ihrakiye</th><th>Havalimanı</th><th class="l">Başlıca havalimanları</th><th class="l">Kaynak</th></tr></thead><tbody>`
+  document.getElementById("t-hvs").innerHTML=`<thead><tr><th class="l">Satıcı şirket</th><th>Toplam</th><th>Pay</th><th>İthal</th><th>Yabancıya ihrakiye</th><th>Havalimanı</th><th class="l">Başlıca havalimanları</th><th class="l">Kaynak</th></tr></thead><tbody>`
     +SRr.map(([s_,o])=>`<tr data-hvs="${s_}" tabindex="0" aria-selected="${S.hvS===s_}"><td class="l"><b>${esc(SIR[s_][1])}</b></td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${pct(o.v?o.i/o.v:0)}</td><td>${S.hvT==="y"?"–":pct(o.v?o.ih/o.v:0)}</td><td>${o.a.size}</td><td class="l muted">${top(o.a,4)}</td><td class="l muted">${top(o.k)}</td></tr>`).join("")+`</tbody>`;
   document.getElementById("s-hvs").textContent=`${SRr.length} şirket`;
   for(const tr of document.querySelectorAll("#t-hva tr[data-hva]")){ const f=()=>{ const a=+tr.dataset.hva; S.hvA=S.hvA===a?-1:a; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
