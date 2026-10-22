@@ -104,7 +104,7 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
       { const dk_ = [cid, il, seg, vf !== null ? vf : (yf !== null ? yf : lf)].join('|'), v_ = dep ? 'r|' + dep : (yk ? 'a|' + yk : 't|' + t); (DISP.get(dk_) || DISP.set(dk_, new Set()).get(dk_)).add(v_); }
       n++;
       ins.run(['N' + String(n).padStart(6, '0'), String(YIL), s, il, SEG[seg], t, TT[st], dep ? 'Depo üzerinden' : 'Doğrudan', dep, pk / q, sk / q, q,
-        st === 'WHOLESALE' ? sid(sup, q) : null, imp || 0, dom || 0, dk / q, dk, dk, KS.get(s) || s, yk, yk ? ({ PIPELINE: 'Boru hattı', ROAD: 'Karayolu' }[tm] || tm) : null, yk ? tk / q : null]);
+        st === 'WHOLESALE' ? sid(sup, q) : null, imp || 0, dom || 0, dk / q, dk, dk, KS.get(s) || s, yk, yk ? ({ PIPELINE: 'Boru hattı', ROAD: 'Karayolu', SEA: 'Deniz yolu (kabotaj)' }[tm] || tm) : null, yk ? tk / q : null]);
     }
     ins.free();
     // ithalat menşei (fact_cargo): şirket × menşe ülke
