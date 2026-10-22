@@ -397,6 +397,7 @@
     <div class="head"><h2 id="h-trn">Transit ticaret</h2><span class="sub" id="s-trn"></span></div>
     <p class="lead">Akaryakıt modelinde olmayan liman tesislerine gelen IM-EX ithal kargoları ve aynı tesisten yapılan ihracat. İthalatın aynı yıl içinde aynı tesisten aynı ürünle ihraç edilen kısmı transit sayılır; kalanı yurt içine ya da stoğa gider. Akış şemasında bir tesise tıklayınca sayfa o tesise daralır.</p>
     <div class="kpis" id="k-trn"></div>
+    <div id="trn-map"></div>
     <div class="trs" id="trn-sankey"></div>
     <div class="trlg" id="trn-lg"></div>
   </section>
@@ -416,7 +417,7 @@
       <li>Kaynak: Enerji Master DB REF_TRANSIT_TICARET (tesis × ürün × ay ithalat, ihracat ve eşleşme) ve REF_IMEX_KARGO kayıtları (Kapsam = 'Transit ticaret (izleme)'; giriş kapısı, menşe, yükleme limanı, alıcı). Bu tesisler akaryakıt modelinde terminal olarak yer almaz; tesis adları IM-EX'teki yazımdır.</li>
       <li>Transit (yıllık): tesis ve ürün bazında yıllık ithalat ile yıllık ihracatın küçüğü (Transit_yillik_ton). Aynı ay eşleşme daha dar tanımdır (her ayda ithalat ile ihracatın küçüğü); aylık grafikte gösterilir. Kalan ithalat = ithalat − transit (yıllık); PDM bunu sonraki adımda yurt içi satış ve stoğa dönüştürecek.</li>
       <li>İhracat ithalattan fazla olabilir (ör. fuel oil): fark, tesisin ithalat dışındaki kaynaktan (rafineri, yurt içi alım) yaptığı ihracattır ve transit sayılmaz.</li>
-      <li>Eylül–Aralık kargoları tahmindir. Tesis konumları veritabanında olmadığı için akış harita yerine şema olarak çizilir.</li>
+      <li>Eylül–Aralık kargoları tahmindir. Harita: tesis konumu EPDK depolama lisansı, tarife belgesi ya da açık kaynaktan (REF_TRANSIT_TESIS; güven düzeyi tesis ipucunda). Daireye tıklayınca sayfa o tesise daralır. Akış şeması giriş kapısı ya da menşe ülkeden tesise ve çıkışa giden hacmi gösterir; ithal rotaları haritada şimdilik çizilmez.</li>
     </ul>
   </section>
   <div class="filters azin-only" role="search" aria-label="Akaryakıt tedarik zinciri filtreleri">
