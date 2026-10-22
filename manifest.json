@@ -1,10 +1,10 @@
 {
- "surum": "1.0.47",
+ "surum": "1.0.48",
  "kabuk": 1,
- "tarih": "2026-10-22T14:39:36+03:00",
- "notlar": "Tedarik zinciri: ürün KPI'ları (ithal/yerli); haritada terminal seçimi tüm tabloları süzer",
+ "tarih": "2026-10-22T14:52:27+03:00",
+ "notlar": "Rafineri satış koşulları notu 2026",
  "dosyalar": {
-  "ui/index.html": "2a81ed65a97d383340b1b5c510da382bf54e75684a758faf41863fbaad6c733f",
+  "ui/index.html": "fd29f374ba9c00938a25086fbe3df370873feb1191ef1f72c988c0581fde2b3b",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "5b6fdb40f783483d80cdf43e5337fbd2cbd3743ac9842fbe60faaecc733bfb50",
   "ui/panel.css": "cea883b388c65293ea9ca2aacffe7922661c59779a0a0b8554e05839f1d35f10",
