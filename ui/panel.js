@@ -1596,6 +1596,107 @@ const AICM=new Map(), AICI=new Map();
 for(const [s_,u_,i,t,x,v] of (D.aic||[])){ const a=`${s_}|${u_}|${i}|${t}`, b=`${s_}|${u_}|${i}`; (AICM.get(a)||AICM.set(a,new Map()).get(a)).set(x,(AICM.get(a).get(x)||0)+v); (AICI.get(b)||AICI.set(b,new Map()).get(b)).set(x,(AICI.get(b).get(x)||0)+v); }
 const AILK=D.ailk||[], RAFTI=new Map(TERM.map((t,i)=>[t[1],i]));
 S.azU="bm"; S.azF=null;
+
+/* ---------- Transit ticaret (kullanıcı 22.10.2026: "transit datası IMEX'ten oluşturulacak") ---------- */
+const TRT_=D.trt||[], TRN_=D.trn||[], TRK_=D.trk||[];
+const TR_KR={g_kuzey:"#2A5591",g_bati:"#0F6E8C",g_dogu:"#B7791F","":"#6F7E89"};
+const TR_C={tr:"#7553B5",kal:"#8A6238"};
+if(S.trT===undefined){ S.trT=-1; S.trU=""; S.trL="k"; }
+function transitSayfa(){
+  const okT=r=>S.trT<0||r[0]===S.trT, okU=r=>!S.trU||r[1]===S.trU;
+  // filtre seçenekleri
+  const tv=new Map(), uv=new Map();
+  for(const r of TRN_){ if(okU(r)) tv.set(r[0],(tv.get(r[0])||0)+r[3]+r[4]); if(okT(r)) uv.set(r[1],(uv.get(r[1])||0)+r[3]+r[4]); }
+  lsel("f-tr-t",[...tv].sort((a,b)=>b[1]-a[1]).map(([t,v])=>[t,`${TRT_[t]} · ${ton(v)}`]),S.trT,"Tüm tesisler");
+  const fu=document.getElementById("f-tr-u"); fu.innerHTML=`<option value="">Tüm ürünler</option>`+[...uv].sort((a,b)=>b[1]-a[1]).map(([u])=>`<option value="${esc(u)}">${esc(u)}</option>`).join(""); fu.value=S.trU;
+  for(const b of document.querySelectorAll("[data-trl]")) b.setAttribute("aria-pressed",String(b.dataset.trl===S.trL));
+  const R=TRN_.filter(r=>okT(r)&&okU(r)), K=TRK_.filter(r=>okT(r)&&okU(r));
+  // tesis × ürün yıllık
+  const TU=new Map();
+  for(const r of R){ const k=r[0]+"|"+r[1]; const o=TU.get(k)||TU.set(k,{t:r[0],u:r[1],i:0,e:0,ta:0}).get(k); o.i+=r[3]; o.e+=r[4]; o.ta+=r[5]; }
+  for(const o of TU.values()){ o.tr=Math.min(o.i,o.e); o.k=o.i-o.tr; }
+  const L=[...TU.values()], sum=f=>L.reduce((a,o)=>a+f(o),0);
+  const I=sum(o=>o.i), E=sum(o=>o.e), TR=sum(o=>o.tr), KL=sum(o=>o.k), TA=sum(o=>o.ta);
+  document.getElementById("h-trn").textContent=(S.trT>=0?TRT_[S.trT]+" – ":"")+(S.trT>=0?"transit ticaret":"Transit ticaret")+(S.trU?" · "+S.trU:"");
+  document.getElementById("s-trn").textContent=`${YIL} · ${new Set(L.map(o=>o.t)).size} tesis · ${new Set(L.map(o=>o.u)).size} ürün · ${K.reduce((a,r)=>a+1,0)} kargo grubu`;
+  const urV=new Map(); for(const o of L) urV.set(o.u,(urV.get(o.u)||0)+o.tr);
+  document.getElementById("k-trn").innerHTML=`<div class="kg">`
+    +kompKart("İthalat (IM-EX)",[{l:"Transit – yeniden ihraç",v:TR,c:TR_C.tr,s:"aynı tesisten aynı ürün ihracatı"},{l:"Kalan ithalat",v:KL,c:TR_C.kal,s:"yurt içi satış ya da stok"}],{buyuk:ton(I),alt:`transit oranı ${pct(I?TR/I:0)}`,span:4})
+    +kompKart("İhracat",[{l:"Transit (ithalattan)",v:TR,c:TR_C.tr},{l:"Diğer kaynaktan ihracat",v:E-TR,c:"#B7791F",s:"rafineri ya da yurt içi alım"}],{buyuk:ton(E),alt:"aynı tesislerden",span:4})
+    +siraKart("Transit – ürün",[...urV],{c:TR_C.tr,span:4,n:6,sag:`aynı ay eşleşme ${ton(TA)}`})+`</div>`;
+  transitSema(K,L);
+  transitAy(R);
+  // tesis tablosu
+  const TS=new Map(); for(const o of L){ const x=TS.get(o.t)||TS.set(o.t,{i:0,e:0,tr:0,k:0,u:[]}).get(o.t); x.i+=o.i; x.e+=o.e; x.tr+=o.tr; x.k+=o.k; x.u.push(o); }
+  const top3=(rows,ix)=>{ const M=new Map(); for(const r of rows) if(r[ix]) M.set(r[ix],(M.get(r[ix])||0)+r[8]); const T=[...M.values()].reduce((a,b)=>a+b,0)||1; return [...M].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${esc(k)} ${pct(v/T)}`).join(" · "); };
+  const KK=(t,u)=>K.filter(r=>r[0]===t&&(u==null||r[1]===u));
+  const cells=o=>`<td>${ton(o.i)}</td><td>${ton(o.e)}</td><td><b>${ton(o.tr)}</b></td><td>${ton(o.k)}</td><td>${o.i>0.5?pct(o.tr/o.i):"–"}</td>`;
+  const out=[];
+  for(const [t,x] of [...TS].sort((a,b)=>(b[1].i+b[1].e)-(a[1].i+a[1].e))){
+    out.push(`<tr class="grp tg" tabindex="0" data-trt="${t}"><td class="l"><b>${esc(TRT_[t])}</b> <span class="muted">· ${x.u.length} ürün</span></td>${cells(x)}<td class="l muted">${top3(KK(t),5)}</td><td class="l muted">${top3(KK(t),7)}</td></tr>`);
+    for(const o of x.u.sort((a,b)=>(b.i+b.e)-(a.i+a.e))) out.push(`<tr class="sub"><td class="l ind">${esc(o.u)}</td>${cells(o)}<td class="l muted">${top3(KK(t,o.u),5)}</td><td class="l muted">${top3(KK(t,o.u),7)}</td></tr>`);
+  }
+  if(TS.size) out.push(`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td><b>${ton(I)}</b></td><td><b>${ton(E)}</b></td><td><b>${ton(TR)}</b></td><td><b>${ton(KL)}</b></td><td>${I?pct(TR/I):"–"}</td><td></td><td></td></tr>`);
+  document.getElementById("t-trn").innerHTML=`<thead><tr><th class="l">Tesis → ürün</th><th>İthalat</th><th>İhracat</th><th>Transit</th><th>Kalan ithalat</th><th>Transit / ithalat</th><th class="l">Başlıca menşe (IM-EX)</th><th class="l">Başlıca alıcı (IM-EX)</th></tr></thead><tbody>${out.length?out.join(""):'<tr><td colspan="8" class="empty">Bu filtrelerle transit kaydı yok.</td></tr>'}</tbody>`;
+  document.getElementById("s-trn-t").textContent="yıllık · transit = ithalat ile ihracatın küçüğü";
+  // kargo tablosu
+  const AY=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+  const KS=[...K].sort((a,b)=>b[8]-a[8]);
+  document.getElementById("t-trnk").innerHTML=`<thead><tr><th class="l">Tesis</th><th class="l">Ürün</th><th class="l">Ay</th><th class="l">Giriş kapısı</th><th class="l">Menşe</th><th class="l">Yükleme limanı</th><th class="l">Alıcı</th><th>Ton</th></tr></thead><tbody>${KS.length?KS.map(r=>`<tr><td class="l">${esc(TRT_[r[0]])}</td><td class="l">${esc(r[1])}</td><td class="l">${AY[r[2]-1]||r[2]}${r[2]>=9?' <span class="tag">tahmin</span>':""}</td><td class="l"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${TR_KR[r[4]]};margin-right:6px"></i>${esc(r[3]||"–")}</td><td class="l">${esc(r[5]||"–")}</td><td class="l">${esc(r[6]||"–")}</td><td class="l">${esc(r[7]||"–")}</td><td>${ton(r[8])}</td></tr>`).join(""):'<tr><td colspan="8" class="empty">Bu filtrelerle kargo yok.</td></tr>'}</tbody>`;
+  document.getElementById("s-trn-k").textContent=`${KS.length} satır · ${ton(K.reduce((a,r)=>a+r[8],0))} · tonaja göre sıralı`;
+}
+function transitSema(K,L){
+  const el=document.getElementById("trn-sankey"), lg=document.getElementById("trn-lg");
+  // sol: kapı ya da menşe → tesis (IM-EX kargo tonu, tesisin ithalatına ölçekli); tesis → transit / kalan
+  const lk=S.trL==="m"?(r=>r[5]||"Bilinmiyor"):(r=>r[3]||"Bilinmiyor"), lc=new Map();
+  const iT=new Map(); for(const o of L) iT.set(o.t,(iT.get(o.t)||0)+o.i);
+  const kT=new Map(); for(const r of K) kT.set(r[0],(kT.get(r[0])||0)+r[8]);
+  const E1=new Map(); for(const r of K){ const f=(iT.get(r[0])||0)/(kT.get(r[0])||1); const k=lk(r)+"\u0001"+r[0]; E1.set(k,(E1.get(k)||0)+r[8]*f); if(!lc.has(lk(r))) lc.set(lk(r),S.trL==="m"?null:TR_KR[r[4]]); }
+  const tr=new Map(), kl=new Map(); for(const o of L){ tr.set(o.t,(tr.get(o.t)||0)+o.tr); kl.set(o.t,(kl.get(o.t)||0)+o.k); }
+  const sol=new Map(), orta=new Map(); for(const [k,v] of E1){ const [a,t]=k.split("\u0001"); sol.set(a,(sol.get(a)||0)+v); orta.set(+t,(orta.get(+t)||0)+v); }
+  const TOT=[...orta.values()].reduce((a,b)=>a+b,0);
+  if(TOT<1){ el.innerHTML=`<p class="muted lz-bos">Bu filtrelerle ithalat kaydı yok; tesisin yalnız ihracatı var.</p>`; lg.innerHTML=""; return; }
+  const PAL=["#2A5591","#0F6E8C","#B7791F","#3B7D4F","#A3485A","#5E6AA8","#8A6238","#4B8FA6","#9C7A2B","#6F7E89"];
+  let pi=0; for(const [a] of [...sol].sort((x,y)=>y[1]-x[1])) if(!lc.get(a)) lc.set(a,PAL[pi++%PAL.length]);
+  const W=960, pad=10, nw=12, x0=200, x1=W/2-nw/2, x2=W-170-nw;
+  const solL=[...sol].sort((a,b)=>b[1]-a[1]), ortaL=[...orta].sort((a,b)=>b[1]-a[1]), sagL=[["tr",[...tr].reduce((a,[t,v])=>a+(orta.has(t)?v:0),0)],["kal",[...kl].reduce((a,[t,v])=>a+(orta.has(t)?v:0),0)]].filter(x=>x[1]>=0.5);
+  const H=300, sc=360/TOT;
+  const yer=(L_,gap)=>{ let y=0; const M=new Map(); for(const [k,v] of L_){ const h=Math.max(v*sc,1.5); M.set(k,{y,h,o:0,i:0}); y+=Math.max(h,30)+gap; } M.son=y-gap; return M; };
+  const gS=yer(solL,6), gO=yer(ortaL,6), gR=yer(sagL,24), HH=Math.max(gS.son,gO.son,gR.son,H-pad*2);
+  for(const g of [gS,gO,gR]){ const d=pad+(HH-g.son)/2; for(const o of g.values()) o.y+=d; }
+  const band=(xa,ya,xb,yb,h,c,t)=>{ const m=(xa+xb)/2; return `<path class="lk" d="M${xa},${ya+h/2}C${m},${ya+h/2} ${m},${yb+h/2} ${xb},${yb+h/2}" stroke="${c}" stroke-width="${Math.max(h,1)}"><title>${esc(t)}</title></path>`; };
+  let p="";
+  for(const [k,v] of [...E1].sort((a,b)=>b[1]-a[1])){ const [a,t]=k.split("\u0001"), s=gS.get(a), o=gO.get(+t), h=v*sc;
+    p+=band(x0+nw,s.y+s.o,x1,o.y+o.i,h,lc.get(a),`${a} → ${TRT_[t]}: ${ton(v)}`); s.o+=h; o.i+=h; }
+  for(const [t] of ortaL){ const o=gO.get(t); let off=0; for(const [g,m] of [["tr",tr],["kal",kl]]){ const v=m.get(t)||0; if(v<0.5) continue; const r=gR.get(g), h=v*sc;
+    p+=band(x1+nw,o.y+off,x2,r.y+r.i,h,TR_C[g],`${TRT_[t]} → ${g==="tr"?"transit":"kalan ithalat"}: ${ton(v)}`); off+=h; r.i+=h; } }
+  const lbl=(x,y,h,a,b,anc)=>`<text x="${x}" y="${y+h/2-1}" text-anchor="${anc}" dominant-baseline="middle">${esc(a)}</text><text class="m" x="${x}" y="${y+h/2+13}" text-anchor="${anc}" dominant-baseline="middle">${b}</text>`;
+  for(const [a,v] of solL){ const s=gS.get(a); p+=`<rect x="${x0}" y="${s.y}" width="${nw}" height="${s.h}" fill="${lc.get(a)}" rx="2"/>`+lbl(x0-6,s.y,s.h,a.length>30?a.slice(0,29)+"…":a,ton(v),"end"); }
+  for(const [t,v] of ortaL){ const o=gO.get(t); p+=`<g class="nd" tabindex="0" role="button" data-trt="${t}" aria-label="${esc(TRT_[t])} tesisine daralt"><rect x="${x1}" y="${o.y}" width="${nw}" height="${o.h}" fill="${S.trT===t?"var(--ink)":"#4B5B67"}" rx="2"/>`+lbl(x1+nw+6,o.y,Math.max(o.h,16),TRT_[t],ton(v),"start")+`</g>`; }
+  for(const [g,v] of sagL){ const r=gR.get(g); p+=`<rect x="${x2}" y="${r.y}" width="${nw}" height="${r.h}" fill="${TR_C[g]}" rx="2"/>`+lbl(x2+nw+6,r.y,r.h,g==="tr"?"Transit – yeniden ihraç":"Kalan ithalat",`${ton(v)} · ${pct(v/TOT)}`,"start"); }
+  const bas=(x,t,a)=>`<text class="m" x="${x}" y="12" text-anchor="${a}">${t}</text>`;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${HH+pad*2+14}" role="img" aria-label="Transit ticaret akış şeması: ${S.trL==="m"?"menşe ülke":"giriş kapısı"}, tesis, transit ve kalan ithalat"><g transform="translate(0,14)">${p}</g>${bas(x0+nw,S.trL==="m"?"MENŞE ÜLKE":"GİRİŞ KAPISI","end")}${bas(x1,"TESİS","start")}${bas(x2,"ÇIKIŞ","start")}</svg>`;
+  lg.innerHTML=S.trL==="m"?"":`<span><i style="background:${TR_KR.g_kuzey}"></i>Karadeniz yönü</span><span><i style="background:${TR_KR.g_bati}"></i>Ege / Batı Akdeniz yönü</span><span><i style="background:${TR_KR.g_dogu}"></i>Doğu Akdeniz / Süveyş yönü</span>`;
+  for(const g of el.querySelectorAll("[data-trt]")){ const f=()=>{ const t=+g.dataset.trt; S.trT=S.trT===t?-1:t; render(); }; g.addEventListener("click",f); g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }); }
+}
+function transitAy(R){
+  const el=document.getElementById("trn-ay"), M=Array.from({length:12},()=>[0,0,0]);
+  for(const r of R){ const a=r[2]-1; if(a<0||a>11) continue; M[a][0]+=r[3]; M[a][1]+=r[4]; M[a][2]+=r[5]; }
+  const mx=Math.max(1,...M.map(m=>Math.max(m[0],m[1]))), W=960, H=220, l=54, b=26, t=10, cw=(W-l-8)/12, bw=Math.min(22,cw/2-6);
+  const y=v=>t+(H-t-b)*(1-v/mx), AY=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+  const st=niceStep(mx); let g="";
+  for(let v=0;v<=mx+1e-6;v+=st) g+=`<line x1="${l}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${l-6}" y="${y(v)}" text-anchor="end" dominant-baseline="middle">${ton(v)}</text>`;
+  M.forEach((m,i)=>{ const x=l+i*cw+cw/2, op=i>=8?0.5:1;
+    g+=`<g opacity="${op}"><rect x="${x-bw-2}" y="${y(m[0])}" width="${bw}" height="${y(0)-y(m[0])}" fill="#2A5591" rx="2"><title>${AY[i]} ithalat ${ton(m[0])}</title></rect><rect x="${x-bw-2}" y="${y(m[2])}" width="${bw}" height="${y(0)-y(m[2])}" fill="#7553B5" rx="2"><title>${AY[i]} aynı ay transit ${ton(m[2])}</title></rect><rect x="${x+2}" y="${y(m[1])}" width="${bw}" height="${y(0)-y(m[1])}" fill="#B7791F" rx="2"><title>${AY[i]} ihracat ${ton(m[1])}</title></rect></g><text x="${x}" y="${H-8}" text-anchor="middle">${AY[i]}</text>`; });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Aylık ithalat, ihracat ve aynı ay transit">${g}</svg>`;
+  const T=M.reduce((a,m)=>a+m[2],0); document.getElementById("s-trn-ay").textContent=`aynı ay eşleşen transit ${ton(T)}`;
+}
+function niceStep(mx){ const r=mx/4, p=Math.pow(10,Math.floor(Math.log10(r))), n=r/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
+document.getElementById("f-tr-t").addEventListener("change",e=>{S.trT=+e.target.value; render();});
+document.getElementById("f-tr-u").addEventListener("change",e=>{S.trU=e.target.value; render();});
+document.getElementById("clear-tr").addEventListener("click",()=>{S.trT=-1; S.trU=""; render();});
+for(const b of document.querySelectorAll("[data-trl]")) b.addEventListener("click",()=>{S.trL=b.dataset.trl; render();});
+document.getElementById("t-trn").addEventListener("click",e=>{ const tr=e.target.closest("tr[data-trt]"); if(!tr) return; const t=+tr.dataset.trt; S.trT=S.trT===t?-1:t; render(); });
 function akZinSayfa(){
   const okU=f=>S.azU==="bm"?(f[3]===0||f[3]===1):f[3]===+S.azU;
   const sv=new Map(); for(const f of AF) if(okU(f)) sv.set(f[0],(sv.get(f[0])||0)+f[6]);
@@ -1802,6 +1903,7 @@ function render(){
   if(S.sayfa==="lpgtas"){ lpgTasima(); return; }
   if(S.sayfa==="lpgzin"){ lpgZinSayfa(); return; }
   if(S.sayfa==="akzin"){ akZinSayfa(); return; }
+  if(S.sayfa==="transit"){ transitSayfa(); return; }
   if(S.sayfa==="lpgbay"){ lpgBayiler(); return; }
   if(S.sayfa==="akterm"){ akTerminaller(); return; }
   if(TAH()){ tahsis(); return; }
@@ -1852,5 +1954,5 @@ document.addEventListener("click",e=>{
   render();
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("tr[tabindex]")) e.target.click()});
-if(location.hash==="#tahsis") S.sayfa="tahsis"; else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
+if(location.hash==="#tahsis") S.sayfa="tahsis"; else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
 render();

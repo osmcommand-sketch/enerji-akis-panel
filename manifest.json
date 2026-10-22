@@ -1,15 +1,15 @@
 {
- "surum": "1.0.40",
+ "surum": "1.0.41",
  "kabuk": 1,
- "tarih": "2026-10-21T23:47:35+03:00",
- "notlar": "Akaryakıt tedarik zinciri: ithalat rotası ve menşe IM-EX kargolarından (REF_IMEX_KARGO)",
+ "tarih": "2026-10-22T11:51:09+03:00",
+ "notlar": "Transit ticaret sayfası (IM-EX); ithal kargo rotası yalnız akaryakıt modeli kapsamı",
  "dosyalar": {
-  "ui/index.html": "903dfa2ad6c511756b5dd499447732e72ef24ed167d6d085dd2dd250e3077f8d",
+  "ui/index.html": "0304eb07842af910e50094d4a90fb2b08cfaedde718b699aa195efa2f7394e13",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
-  "ui/app.js": "494b49d99b18a6be6745b09c7ae95c89c15c6c0f02e413bc1afa1f63e907930c",
-  "ui/panel.css": "d8e8fbd26a4e31cbf414416ee867663c6688b4ca70a7775b6f654a7461a9817f",
-  "ui/panel.js": "e4f759bc43a4a6ba6daa8332726820a34a4eef6aaf6dc04aaa00e8c63759a15d",
-  "pipeline.js": "2b20827ee1d9c2f2c1ff29766b04aaaefd0d0d1017823bc17d6fc8c2bc3f16c8",
+  "ui/app.js": "5b6fdb40f783483d80cdf43e5337fbd2cbd3743ac9842fbe60faaecc733bfb50",
+  "ui/panel.css": "d92875dcdb8f536986d36688d47a023885132e0b6c185848568429ba7649e6d3",
+  "ui/panel.js": "f7964f55eea90595a0dc65e1aeec62d975dce5cde25906cc02452a4aaabccccf",
+  "pipeline.js": "47ed593394432ea846e0c037fc9462c1e2b6cec628c0a776da9be886f0b811aa",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

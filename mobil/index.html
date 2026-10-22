@@ -142,7 +142,7 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
 .wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
 .wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
-.wrap[data-sayfa="lpgzin"]>:not(header):not(nav):not(.lzin-only):not(footer){display:none}.wrap:not([data-sayfa="lpgzin"]) .lzin-only{display:none}.wrap[data-sayfa="akzin"]>:not(header):not(nav):not(.azin-only):not(footer){display:none}.wrap:not([data-sayfa="akzin"]) .azin-only{display:none}
+.wrap[data-sayfa="lpgzin"]>:not(header):not(nav):not(.lzin-only):not(footer){display:none}.wrap:not([data-sayfa="lpgzin"]) .lzin-only{display:none}.wrap[data-sayfa="akzin"]>:not(header):not(nav):not(.azin-only):not(footer){display:none}.wrap[data-sayfa="transit"]>:not(header):not(nav):not(.trn-only):not(footer){display:none}.wrap:not([data-sayfa="transit"]) .trn-only{display:none}.trs{overflow-x:auto;-webkit-overflow-scrolling:touch}.trs svg{width:100%;min-width:780px;height:auto;display:block}.trm svg{min-width:620px}.trs .nd{cursor:pointer}.trs .nd:focus-visible rect{outline:2px solid var(--ink)}.trs text{font:12px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}.trs text.m{fill:var(--ink-3);font-size:11px}.trs path.lk{fill:none;stroke-opacity:.38}.trs path.lk:hover{stroke-opacity:.6}.trm text{font:11px var(--f-body);fill:var(--ink-3)}.trlg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink-2)}.trlg i{display:inline-block;width:12px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{font:500 13px var(--f-body);background:var(--surface);color:var(--ink-2);border:0;padding:7px 12px;cursor:pointer}.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}.wrap:not([data-sayfa="akzin"]) .azin-only{display:none}
 .wrap[data-sayfa="lpgtas"]>:not(header):not(nav):not(.ltas-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtas"]) .ltas-only{display:none}
 .wrap[data-sayfa="lpgbay"]>:not(header):not(nav):not(.lbay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgbay"]) .lbay-only{display:none}
 .pill.s{background:#EEF1F3;color:#5E6B75}.lu{display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:12.5px;white-space:nowrap}.lu i{width:8px;height:8px;border-radius:2px}
@@ -413,6 +413,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><span class="uz">Taşıma</span><span class="kz" aria-hidden="true">Taşıma</span></button>
     <button type="button" role="tab" id="tab-akzin" data-sayfa="akzin" aria-selected="false"><span class="uz">Tedarik zinciri</span><span class="kz" aria-hidden="true">Zincir</span></button>
     <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><span class="uz">Takas</span><span class="kz" aria-hidden="true">Takas</span></button>
+    <button type="button" role="tab" id="tab-transit" data-sayfa="transit" aria-selected="false"><span class="uz">Transit ticaret</span><span class="kz" aria-hidden="true">Transit</span></button>
     <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><span class="uz">Bayiler</span><span class="kz" aria-hidden="true">Bayiler</span></button>
     <button type="button" role="tab" id="tab-akterm" data-sayfa="akterm" aria-selected="false"><span class="uz">Terminaller</span><span class="kz" aria-hidden="true">Terminaller</span></button>
   </nav>
@@ -736,6 +737,38 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <ul class="notes">
       <li>İthalat (kesikli çizgi): şirketin ithalat terminallerine gelen hacim (FACT_LPG_ITHALAT), menşe yönünden kıyı seyir hattıyla çizilir. Menşe payı şirketin gemi line-up kayıtlarından (fact_cargo, Eyl–Ara tahmini seferler dahil); menşesi bilinmeyen partiler terminale en yakın giriş yönüne yazılır.</li>
       <li>Her akış satırı arz tesisi → ana depo (tanker yükleme; aktarma deposu ya da arz tesisinin kendisi) → ara depo → il yoluyla izlenir. İlçe kırılımı LPG veritabanının depo bazında ilçe paylarıdır (fact_company_flow_district_share, v1.5) ve tahmindir: otogazda şirketin istasyonlarının <span class="yil">2025</span> satışı, en yakın depo önce gelecek şekilde depolara atanır (şirketin o ilde istasyonu yoksa ildeki tüm istasyonlar, düşük güven); tüplüde vekil ilçe nüfusudur (TürkiyeAPI 2025, düşük güven); dökme il düzeyinde kalır. Büyükşehirlerde eski "Merkez" ilçesine kayıtlı istasyonlar bayi adresindeki mahalle adıyla güncel ilçeye eşlendi (TürkiyeAPI mahalle listesi, MIT); adresinde mahalle olmayan birkaç istasyon "Merkez" olarak kalır.</li>
+    </ul>
+  </section>
+  <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
+    <div class="f"><label for="f-tr-t">Tesis</label><select id="f-tr-t"></select></div>
+    <div class="f"><label for="f-tr-u">Ürün</label><select id="f-tr-u"></select></div>
+    <div class="f"><label>Sol sütun</label><div class="seg" role="group" aria-label="Akış şemasının sol sütunu"><button type="button" data-trl="k" aria-pressed="true">Giriş kapısı</button><button type="button" data-trl="m" aria-pressed="false">Menşe ülke</button></div></div>
+    <button type="button" class="clear" id="clear-tr">Filtreleri temizle</button>
+  </div>
+  <section class="trn-only" aria-labelledby="h-trn">
+    <div class="head"><h2 id="h-trn">Transit ticaret</h2><span class="sub" id="s-trn"></span></div>
+    <p class="lead">Akaryakıt modelinde olmayan liman tesislerine gelen IM-EX ithal kargoları ve aynı tesisten yapılan ihracat. İthalatın aynı yıl içinde aynı tesisten aynı ürünle ihraç edilen kısmı transit sayılır; kalanı yurt içine ya da stoğa gider. Akış şemasında bir tesise tıklayınca sayfa o tesise daralır.</p>
+    <div class="kpis" id="k-trn"></div>
+    <div class="trs" id="trn-sankey"></div>
+    <div class="trlg" id="trn-lg"></div>
+  </section>
+  <section class="trn-only" aria-labelledby="h-trn-ay">
+    <div class="head"><h2 id="h-trn-ay">Aylık ithalat ve ihracat</h2><span class="sub" id="s-trn-ay"></span></div>
+    <div class="trs trm" id="trn-ay"></div>
+    <div class="trlg"><span><i style="background:#2A5591"></i>İthalat (IM-EX)</span><span><i style="background:#7553B5"></i>Aynı ay eşleşen transit</span><span><i style="background:#B7791F"></i>İhracat</span><span class="muted">Eyl–Ara: tahmini kargolar (açık renk)</span></div>
+  </section>
+  <section class="trn-only" aria-labelledby="h-trn-t">
+    <div class="head"><h2 id="h-trn-t">Tesis ve ürün</h2><span class="sub" id="s-trn-t"></span></div>
+    <div class="scroll"><table id="t-trn"></table></div>
+  </section>
+  <section class="trn-only" aria-labelledby="h-trn-k">
+    <div class="head"><h2 id="h-trn-k">IM-EX transit kargoları</h2><span class="sub" id="s-trn-k"></span></div>
+    <div class="scroll"><table id="t-trnk"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB REF_TRANSIT_TICARET (tesis × ürün × ay ithalat, ihracat ve eşleşme) ve REF_IMEX_KARGO kayıtları (Kapsam = 'Transit ticaret (izleme)'; giriş kapısı, menşe, yükleme limanı, alıcı). Bu tesisler akaryakıt modelinde terminal olarak yer almaz; tesis adları IM-EX'teki yazımdır.</li>
+      <li>Transit (yıllık): tesis ve ürün bazında yıllık ithalat ile yıllık ihracatın küçüğü (Transit_yillik_ton). Aynı ay eşleşme daha dar tanımdır (her ayda ithalat ile ihracatın küçüğü); aylık grafikte gösterilir. Kalan ithalat = ithalat − transit (yıllık); PDM bunu sonraki adımda yurt içi satış ve stoğa dönüştürecek.</li>
+      <li>İhracat ithalattan fazla olabilir (ör. fuel oil): fark, tesisin ithalat dışındaki kaynaktan (rafineri, yurt içi alım) yaptığı ihracattır ve transit sayılmaz.</li>
+      <li>Eylül–Aralık kargoları tahmindir. Tesis konumları veritabanında olmadığı için akış harita yerine şema olarak çizilir.</li>
     </ul>
   </section>
   <div class="filters azin-only" role="search" aria-label="Akaryakıt tedarik zinciri filtreleri">

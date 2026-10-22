@@ -29,6 +29,7 @@
           <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="12" height="7" rx="3.3"/><path d="M14 10h3.6l3.4 3.4V16h-7M2 16h19"/><circle cx="6" cy="17.6" r="1.7"/><circle cx="17.5" cy="17.6" r="1.7"/></svg>Taşıma</button>
           <button type="button" role="tab" id="tab-akzin" data-sayfa="akzin" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="6" r="1.6"/><circle cx="19" cy="18" r="1.6"/><circle cx="5" cy="18" r="1.6"/><path d="M6.8 7.4l3.4 3.2M13.7 10.8l3.8-3.6M13.7 13.2l3.8 3.6M10.2 13.4l-3.6 3.4"/></svg>Tedarik zinciri</button>
           <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v13l-3-3M17 20V7l3 3"/></svg>Takas</button>
+          <button type="button" role="tab" id="tab-transit" data-sayfa="transit" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h13l-3-3M21 16H8l3 3"/><circle cx="19" cy="8" r="1.5"/><circle cx="5" cy="16" r="1.5"/></svg>Transit ticaret</button>
           <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V6a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v14M4 20h11M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V8l-2-2M8 8h3"/></svg>Bayiler</button>
           <button type="button" role="tab" id="tab-akterm" data-sayfa="akterm" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3v9c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 8c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Terminaller</button>
         </div>
@@ -384,6 +385,38 @@
     <ul class="notes">
       <li>İthalat (kesikli çizgi): şirketin ithalat terminallerine gelen hacim (FACT_LPG_ITHALAT), menşe yönünden kıyı seyir hattıyla çizilir. Menşe payı şirketin gemi line-up kayıtlarından (fact_cargo, Eyl–Ara tahmini seferler dahil); menşesi bilinmeyen partiler terminale en yakın giriş yönüne yazılır.</li>
       <li>Her akış satırı arz tesisi → ana depo (tanker yükleme; aktarma deposu ya da arz tesisinin kendisi) → ara depo → il yoluyla izlenir. İlçe kırılımı LPG veritabanının depo bazında ilçe paylarıdır (fact_company_flow_district_share, v1.5) ve tahmindir: otogazda şirketin istasyonlarının <span class="yil">2025</span> satışı, en yakın depo önce gelecek şekilde depolara atanır (şirketin o ilde istasyonu yoksa ildeki tüm istasyonlar, düşük güven); tüplüde vekil ilçe nüfusudur (TürkiyeAPI 2025, düşük güven); dökme il düzeyinde kalır. Büyükşehirlerde eski "Merkez" ilçesine kayıtlı istasyonlar bayi adresindeki mahalle adıyla güncel ilçeye eşlendi (TürkiyeAPI mahalle listesi, MIT); adresinde mahalle olmayan birkaç istasyon "Merkez" olarak kalır.</li>
+    </ul>
+  </section>
+  <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
+    <div class="f"><label for="f-tr-t">Tesis</label><select id="f-tr-t"></select></div>
+    <div class="f"><label for="f-tr-u">Ürün</label><select id="f-tr-u"></select></div>
+    <div class="f"><label>Sol sütun</label><div class="seg" role="group" aria-label="Akış şemasının sol sütunu"><button type="button" data-trl="k" aria-pressed="true">Giriş kapısı</button><button type="button" data-trl="m" aria-pressed="false">Menşe ülke</button></div></div>
+    <button type="button" class="clear" id="clear-tr">Filtreleri temizle</button>
+  </div>
+  <section class="trn-only" aria-labelledby="h-trn">
+    <div class="head"><h2 id="h-trn">Transit ticaret</h2><span class="sub" id="s-trn"></span></div>
+    <p class="lead">Akaryakıt modelinde olmayan liman tesislerine gelen IM-EX ithal kargoları ve aynı tesisten yapılan ihracat. İthalatın aynı yıl içinde aynı tesisten aynı ürünle ihraç edilen kısmı transit sayılır; kalanı yurt içine ya da stoğa gider. Akış şemasında bir tesise tıklayınca sayfa o tesise daralır.</p>
+    <div class="kpis" id="k-trn"></div>
+    <div class="trs" id="trn-sankey"></div>
+    <div class="trlg" id="trn-lg"></div>
+  </section>
+  <section class="trn-only" aria-labelledby="h-trn-ay">
+    <div class="head"><h2 id="h-trn-ay">Aylık ithalat ve ihracat</h2><span class="sub" id="s-trn-ay"></span></div>
+    <div class="trs trm" id="trn-ay"></div>
+    <div class="trlg"><span><i style="background:#2A5591"></i>İthalat (IM-EX)</span><span><i style="background:#7553B5"></i>Aynı ay eşleşen transit</span><span><i style="background:#B7791F"></i>İhracat</span><span class="muted">Eyl–Ara: tahmini kargolar (açık renk)</span></div>
+  </section>
+  <section class="trn-only" aria-labelledby="h-trn-t">
+    <div class="head"><h2 id="h-trn-t">Tesis ve ürün</h2><span class="sub" id="s-trn-t"></span></div>
+    <div class="scroll"><table id="t-trn"></table></div>
+  </section>
+  <section class="trn-only" aria-labelledby="h-trn-k">
+    <div class="head"><h2 id="h-trn-k">IM-EX transit kargoları</h2><span class="sub" id="s-trn-k"></span></div>
+    <div class="scroll"><table id="t-trnk"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB REF_TRANSIT_TICARET (tesis × ürün × ay ithalat, ihracat ve eşleşme) ve REF_IMEX_KARGO kayıtları (Kapsam = 'Transit ticaret (izleme)'; giriş kapısı, menşe, yükleme limanı, alıcı). Bu tesisler akaryakıt modelinde terminal olarak yer almaz; tesis adları IM-EX'teki yazımdır.</li>
+      <li>Transit (yıllık): tesis ve ürün bazında yıllık ithalat ile yıllık ihracatın küçüğü (Transit_yillik_ton). Aynı ay eşleşme daha dar tanımdır (her ayda ithalat ile ihracatın küçüğü); aylık grafikte gösterilir. Kalan ithalat = ithalat − transit (yıllık); PDM bunu sonraki adımda yurt içi satış ve stoğa dönüştürecek.</li>
+      <li>İhracat ithalattan fazla olabilir (ör. fuel oil): fark, tesisin ithalat dışındaki kaynaktan (rafineri, yurt içi alım) yaptığı ihracattır ve transit sayılmaz.</li>
+      <li>Eylül–Aralık kargoları tahmindir. Tesis konumları veritabanında olmadığı için akış harita yerine şema olarak çizilir.</li>
     </ul>
   </section>
   <div class="filters azin-only" role="search" aria-label="Akaryakıt tedarik zinciri filtreleri">
