@@ -1622,6 +1622,23 @@ const hvKay=f=>{ const k=KAY[f[4]]||["","?","",-1]; if(k[2]==="Rafineri") return
 const pasta=(x,y,r,a,c1,c2)=>{ if(a<=0.001) return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c2}"/>`; if(a>=0.999) return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c1}"/>`;
   const t=2*Math.PI*a, x2=x+r*Math.sin(t), y2=y-r*Math.cos(t);
   return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c2}"/><path d="M${x} ${y}L${x} ${(y-r).toFixed(1)}A${r} ${r} 0 ${a>0.5?1:0} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}Z" fill="${c1}"/>`; };
+// EPDK havacılık dengesi ile model akışının mutabakatı (kullanıcı 22.10.2026 19:32: rakamlar 2026 tahminiyle örtüşmüyor)
+function hvDenge(H0){
+  const E=D.hvd||[]; if(!E.length||E.every(x=>!x)) return "";
+  const M_IH=H0.reduce((a,f)=>a+(f[14]||0),0), M_T=H0.reduce((a,f)=>a+f[6],0), M_I=H0.reduce((a,f)=>a+(f[10]||0),0);
+  const M_R=H0.filter(f=>(KAY[f[4]]||[])[2]==="Rafineri").reduce((a,f)=>a+f[6]-(f[10]||0),0);
+  const sat=(ad,e,m,not)=>{ const d=m==null||!e?null:m/e-1, ok=d!=null&&Math.abs(d)<=0.02;
+    return `<tr><td class="l">${ad}</td><td>${e?ton(e):"–"}</td><td>${m==null?"–":ton(m)}</td><td class="${d==null?"muted":ok?"":"neg"}">${d==null?"–":(ok?"✓ ":"⚠ ")+(d>=0?"+":"")+pct(d)}</td><td class="l muted">${not}</td></tr>`; };
+  return `<details class="nt" open style="margin-top:10px"><summary><b>EPDK ${YIL} havacılık dengesi ve model akışı</b> <span class="muted">· ülke geneli</span></summary>
+    <div class="scroll"><table><thead><tr><th class="l">Kalem</th><th>EPDK ${YIL}</th><th>Model akışı</th><th>Fark</th><th class="l">Not</th></tr></thead><tbody>`
+    +sat("Rafineri üretimi (jet)",E[0],null,`ihracat ${E[4]?ton(E[4]):"–"} düşülünce yurt içine ${E[0]&&E[4]!=null?ton(E[0]-E[4]):"–"} kalır`)
+    +sat("İthalat",E[1],M_I,"modelde havalimanına giden ithal ürün (TFS antrepo tahliyesi + PO)")
+    +sat("Rafineriden yurt içi + ihrakiye",E[2]!=null&&E[3]!=null&&E[1]!=null?E[2]+E[3]-E[1]:null,M_R,"EPDK türetilmiş: satış + ihrakiye − ithalat")
+    +sat("Yurt içi satış",E[2],M_T-M_IH,"")
+    +sat("Yabancıya ihrakiye",E[3],M_IH,"")
+    +sat("İhracat",E[4],null,"havalimanı akışında yok (rafineri ihracatı)")
+    +`</tbody></table></div><p class="muted" style="font-size:12px;margin:4px 0 0">EPDK ${YIL}: Oca–Ağu gerçekleşen + Eyl–Ara tahmin (EPDK_2026_Tahmini_Ek.xlsx; REF_EPDK_RAFINERI_URETIM, REF_EPDK_SIRKET_ITHALAT, REF_EPDK_SIRKET_IHRACAT, FACT_SATIS). ±%2 içi ✓.</p></details>`;
+}
 function havaSayfa(){
   const H0=AF.filter(f=>f[3]===3&&f[9]>=0&&hvV(f)>0);
   const sv=new Map(), av=new Map();
@@ -1641,7 +1658,7 @@ function havaSayfa(){
   document.getElementById("k-hava").innerHTML=`<div class="kg">`
     +kompKart("Havacılık yakıtı",[{l:"İthal",v:TI,c:HV_C.i,s:"antrepo ithalatı ve dağıtıcıların ithal ürünü"},{l:"Yerli",v:T-TI,c:HV_C.y,s:"rafineri ürünü"}],{buyuk:ton(T),alt:`${nA} havalimanı · ${nS} şirket`,span:3})
     +kompKart("Satış türü",[{l:"Yabancıya ihrakiye",v:IH,c:"#0F6E8C",s:"dış hat / yabancı uçak"},{l:"Yurt içi",v:YI,c:"#8CC3D3",s:"iç hat"}],{T,span:3})
-    +siraKart("Kaynak",[...KY],{span:3,n:5,c:"#5B3A1E"})+siraKart("İkmal şirketi",[...SR],{span:3,n:5,c:"#0F6E8C"})+`</div>`;
+    +siraKart("Kaynak",[...KY],{span:3,n:5,c:"#5B3A1E"})+siraKart("İkmal şirketi",[...SR],{span:3,n:5,c:"#0F6E8C"})+`</div>`+hvDenge(H0);
   havaHarita(H,v,it);
   // havalimanı tablosu
   const A=new Map(); for(const f of H){ const o=A.get(f[9])||A.set(f[9],{v:0,i:0,ih:0,s:new Map(),k:new Map(),y:new Map()}).get(f[9]);

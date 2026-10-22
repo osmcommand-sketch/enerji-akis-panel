@@ -1,15 +1,15 @@
 {
- "surum": "1.0.49",
+ "surum": "1.0.50",
  "kabuk": 1,
- "tarih": "2026-10-22T19:14:02+03:00",
- "notlar": "Yeni Havacılık yakıtları sayfası",
+ "tarih": "2026-10-22T19:54:51+03:00",
+ "notlar": "Havacılık: EPDK 2026 dengesi ve model akışı mutabakatı",
  "dosyalar": {
   "ui/index.html": "e78c742328e07bc1454bef5d57c3e582289e9d824787ae32989cd9bc6457c0dc",
   "ui/app.css": "c90456c44dce35d0754b84569fb6dda0c62941802519c4bd1dc7554de3ec918d",
   "ui/app.js": "7ec8e40e5a014322bd91f518b0b6f39f5a4298679e74b5d2ecde1a6705de2dc2",
-  "ui/panel.css": "cc4c2fa6ad4fa86bdaf93e0c2d6794a23c4cfbe3f5286ae7f519332649f1238e",
-  "ui/panel.js": "6a8d3c37e77887f36b3d9c6addde04bc24bae4660912f4c24a396a5bac407800",
-  "pipeline.js": "0895660cd6a86bc920323102bbf4a86db493743870ca98594569c38d13668fba",
+  "ui/panel.css": "00abd022a80bd987bd29b26cdcdd4e04b11153df4b1896e809edb40f2e8fe2b3",
+  "ui/panel.js": "90e6c5e837d23a7ff8df4264dd4e1139067558a005a83e5dee8a3b59d52d626d",
+  "pipeline.js": "5210f7ca381ac6daa7ff6be1f28b8ffbb94ec30809f8e9334e988d76b2cde642",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
