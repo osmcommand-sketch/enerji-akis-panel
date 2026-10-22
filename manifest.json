@@ -1,15 +1,15 @@
 {
- "surum": "1.0.45",
+ "surum": "1.0.46",
  "kabuk": 1,
- "tarih": "2026-10-22T14:18:44+03:00",
- "notlar": "Transit ticaret: tesis haritası; ithal lejantı gizlendi",
+ "tarih": "2026-10-22T14:27:16+03:00",
+ "notlar": "Tedarik zinciri: tedarikçi filtresi ve tablosu; LPG kabotaj aktarması",
  "dosyalar": {
-  "ui/index.html": "10709392866a42ecc966380b90a673f6f56573ccb6207983528b2fe2899f0bd6",
+  "ui/index.html": "1eee60d7d7e174a07e09ebd69b6e1147a261f296a282d98a6b5b4c22210612f0",
   "ui/app.css": "cba49071a3a9da04c6c0c7ab8dce4ca6e0e0d1f15ac2306876dd493c2c10666a",
   "ui/app.js": "5b6fdb40f783483d80cdf43e5337fbd2cbd3743ac9842fbe60faaecc733bfb50",
-  "ui/panel.css": "fb15f888c5316cf0ed4714445c50c47a9909ac3cd068e5a55a80da1277ff26a8",
-  "ui/panel.js": "a84a5f074b9c21ad64f30ea94ff4ba36986bb7a9384278aa2949cecafeb86380",
-  "pipeline.js": "ca8db36609deb77bcce7b3ffd6b939f947a5e9b39e66b39a9e242fd77a8594ec",
+  "ui/panel.css": "cea883b388c65293ea9ca2aacffe7922661c59779a0a0b8554e05839f1d35f10",
+  "ui/panel.js": "d1b9404433beafe4bdeb87ff887ae19b9d07007bd04fe759d356eb0fb5907b08",
+  "pipeline.js": "7216b7aa481b59f6c397e2af9bad4a0c0e08631829bcd7e61e5f5a52ff038a65",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

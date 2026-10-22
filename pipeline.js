@@ -320,11 +320,11 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   log('LPG akışı');
   const ly = tableCols('FACT_LPG_AKIS').includes('Yonlendiren_Sirket_ID') ? 'Yonlendiren_Sirket_ID' : 'NULL';
   const AKC = tableCols('FACT_LPG_AKIS').includes('Yukleme_Tesis_ID'), LYTL = AKC && hasTable('REF_LPG_YUKLEME_TESIS') ? QA('select Kod, Ad, Il_ID, Ton, Kapasite_t from REF_LPG_YUKLEME_TESIS order by Ton desc').map(r => [r[0], r[1], r[2], pr(r[3]), pr(r[4] || 0)]) : [], LYTI = new Map(LYTL.map((r, i) => [r[0], i]));
-  const lf = Q(`select Sirket_ID,Terminal_ID,Depolama_ID,Il_ID,Tedarik_Tipi,Urun,sum(Miktar_ton) t,sum(Ton_km) tk,sum(Maliyet_Esdeger_Ton_km) mk,sum(Miktar_ton*coalesce(Primer_km,0)) pk,sum(Miktar_ton*coalesce(Sekonder_km,0)) sk${AKC ? ',Yukleme_Tesis_ID yt,Aktarma_Modu am,sum(Miktar_ton*coalesce(Aktarma_km,0)) ak' : ''} from FACT_LPG_AKIS group by 1,2,3,4,5,6${AKC ? ',Yukleme_Tesis_ID,Aktarma_Modu' : ''}`);
+  const lf = Q(`select Sirket_ID,Terminal_ID,Depolama_ID,Il_ID,Tedarik_Tipi,Urun,sum(Miktar_ton) t,sum(Ton_km) tk,sum(Maliyet_Esdeger_Ton_km) mk,sum(Miktar_ton*coalesce(Primer_km,0)) pk,sum(Miktar_ton*coalesce(Sekonder_km,0)) sk,Yonlendiren_Sirket_ID ys${AKC ? ',Yukleme_Tesis_ID yt,Aktarma_Modu am,sum(Miktar_ton*coalesce(Aktarma_km,0)) ak' : ''} from FACT_LPG_AKIS group by 1,2,3,4,5,6,Yonlendiren_Sirket_ID${AKC ? ',Yukleme_Tesis_ID,Aktarma_Modu' : ''}`);
   const LFS = Q(`select Sirket_ID,Terminal_ID,${ly} y,sum(Miktar_ton) t,count(distinct Il_ID) n,sum(Ton_km) tk from FACT_LPG_AKIS where Tedarik_Tipi='Dağıtıcı alımı' group by 1,2,3`)
     .filter(r => r.t > 0.5).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), sg(r.y), pr(r.t, 1), r.n, pr(r.tk / r.t, 1)]);
   const TTL = { 'Kendi ithalatı': 0, 'Dağıtıcı alımı': 1, 'Rafineri alımı': 2, 'Stoktan satış': 3 }, LU = { 'LPG-Otogaz': 0, 'LPG-Tüplü': 1, 'LPG-Dökme': 2 };
-  const LF = lf.filter(r => r.t > 0).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.Depolama_ID ? didx.get(r.Depolama_ID) : -1, r.Il_ID, TTL[r.Tedarik_Tipi], LU[r.Urun], pr(r.t, 1), pr(r.tk / r.t, 1), pr(r.mk / r.t, 1), pr(r.pk / r.t, 1), pr(r.sk / r.t, 1), r.yt ? LYTI.get(r.yt) ?? -1 : -1, r.am === 'Boru hattı' ? 1 : r.am === 'Karayolu' ? 2 : 0, r.yt ? pr(r.ak / r.t, 1) : 0]);
+  const LF = lf.filter(r => r.t > 0).map(r => [sidx.get(r.Sirket_ID), tix.get(r.Terminal_ID), r.Depolama_ID ? didx.get(r.Depolama_ID) : -1, r.Il_ID, TTL[r.Tedarik_Tipi], LU[r.Urun], pr(r.t, 1), pr(r.tk / r.t, 1), pr(r.mk / r.t, 1), pr(r.pk / r.t, 1), pr(r.sk / r.t, 1), r.yt ? LYTI.get(r.yt) ?? -1 : -1, r.am === 'Boru hattı' ? 1 : r.am === 'Karayolu' ? 2 : r.am === 'Deniz yolu (kabotaj)' ? 3 : 0, r.yt ? pr(r.ak / r.t, 1) : 0, r.ys && sidx.has(r.ys) ? sidx.get(r.ys) : -1]);
   log('Akaryakıt akışı');
   const af = Q(`select Sirket_ID,Terminal_ID,Il_ID,Urun,Kaynak_ID,Leg1_Tasima_Modu,Teslim_Noktasi_ID,case when Leg1_Tasima_Modu like 'Rafineri tahsisinden%' then Yonlendiren_Sirket_ID end y,coalesce(Leg1_Tasiyan_Tipi,'?') tt,Leg1_Tasiyan_Sirket_ID ts,max(case when Dagilim_Yontemi like 'Tahmin%' then 1 else 0 end) est,sum(Miktar_ton) t,sum(Leg2_Ton_km) tk,sum(coalesce(Ithal_ton,0)) it from FACT_AKARYAKIT_AKIS group by 1,2,3,4,5,6,7,8,9,10`);
   const AUR = { 'Benzin': 0, 'Motorin': 1, 'Fuel Oil': 2, 'Havacılık': 3, 'Denizcilik': 4, 'Gazyağı': 5, 'Diğer': 6 };
@@ -476,6 +476,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const uye = new Map(); for (const [b, a] of m) { if (!uye.has(a)) uye.set(a, []); uye.get(a).push(d.sir[b][1]); }
   for (const t of ['af', 'lf', 'sep', 'by', 'aic', 'lkg', 'imx']) for (const r of (d[t] || [])) if (m.has(r[0])) r[0] = m.get(r[0]);
   for (const r of d.af) { if (r.length > 11 && m.has(r[11])) r[11] = m.get(r[11]); if (r.length > 13 && m.has(r[13])) r[13] = m.get(r[13]); }
+  for (const r of d.lf) if (r.length > 14 && m.has(r[14])) r[14] = m.get(r[14]);
   for (const r of d.tr) if (m.has(r[0])) r[0] = m.get(r[0]);
   for (const r of d.tk) { if (m.has(r[0])) r[0] = m.get(r[0]); if (m.has(r[2])) r[2] = m.get(r[2]); }
   for (const k of d.kay) if (m.has(k[3])) k[3] = m.get(k[3]);

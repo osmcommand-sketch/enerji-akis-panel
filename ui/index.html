@@ -376,14 +376,17 @@
   <div class="filters lpgf lzin-only" role="search" aria-label="LPG tedarik zinciri filtreleri">
     <div class="f"><label for="f-lz-s">Şirket</label><select id="f-lz-s"></select></div>
     <div class="f"><label for="f-lz-u">Ürün</label><select id="f-lz-u"></select></div>
+    <div class="f"><label for="f-lz-k">Tedarikçi</label><select id="f-lz-k"></select></div>
     <button type="button" class="clear" id="clear-lz">Filtreleri temizle</button>
   </div>
   <section class="lzin-only" aria-labelledby="h-lzin">
     <div class="head"><h2 id="h-lzin">LPG tedarik zinciri</h2><span class="sub" id="s-lzin"></span></div>
     <p class="lead">Seçilen şirketin LPG'si ithalat terminali ya da rafineriden çıkar, tankere ana depoda yüklenir, bir kısmı ara depoya uğrar ve il ile ilçelere dağıtılır. Bir yükleme noktasına tıklayınca yalnız onun beslediği yerler kalır.</p>
+    <div id="lzin-ted"></div>
     <div id="lzin-zincir"></div>
     <ul class="notes">
       <li hidden>İthalat (kesikli çizgi): şirketin ithalat terminallerine gelen hacim (FACT_LPG_ITHALAT), menşe yönünden kıyı seyir hattıyla çizilir. Menşe payı şirketin gemi line-up kayıtlarından (fact_cargo, Eyl–Ara tahmini seferler dahil); menşesi bilinmeyen partiler terminale en yakın giriş yönüne yazılır.</li>
+      <li>Tedarikçi: ürünün kaynağı – rafineri alımı (rafineri), kendi ithalatı, başka dağıtıcıdan alım (satıcı dağıtıcı) ya da stok (LPG veritabanı şirket akışı supply_type / supplier_company_id). Tedarikçi seçilince harita, yükleme noktaları ve tablolar yalnız o kaynaktan gelen hacmi gösterir. Yükleme yolu: tanker yüklemesinden önceki aktarma (boru hattı, karayolu, deniz yolu kabotajı) ya da doğrudan tanker.</li>
       <li>Her akış satırı arz tesisi → ana depo (tanker yükleme; aktarma deposu ya da arz tesisinin kendisi) → ara depo → il yoluyla izlenir. İlçe kırılımı LPG veritabanının depo bazında ilçe paylarıdır (fact_company_flow_district_share, v1.5) ve tahmindir: otogazda şirketin istasyonlarının <span class="yil">2025</span> satışı, en yakın depo önce gelecek şekilde depolara atanır (şirketin o ilde istasyonu yoksa ildeki tüm istasyonlar, düşük güven); tüplüde vekil ilçe nüfusudur (TürkiyeAPI 2025, düşük güven); dökme il düzeyinde kalır. Büyükşehirlerde eski "Merkez" ilçesine kayıtlı istasyonlar bayi adresindeki mahalle adıyla güncel ilçeye eşlendi (TürkiyeAPI mahalle listesi, MIT); adresinde mahalle olmayan birkaç istasyon "Merkez" olarak kalır.</li>
     </ul>
   </section>
@@ -423,13 +426,16 @@
   <div class="filters azin-only" role="search" aria-label="Akaryakıt tedarik zinciri filtreleri">
     <div class="f"><label for="f-az-s">Şirket</label><select id="f-az-s"></select></div>
     <div class="f"><label for="f-az-u">Ürün</label><select id="f-az-u"><option value="bm">Benzin + motorin</option><option value="0">Benzin</option><option value="1">Motorin</option></select></div>
+    <div class="f"><label for="f-az-k">Tedarikçi</label><select id="f-az-k"></select></div>
     <button type="button" class="clear" id="clear-az">Filtreleri temizle</button>
   </div>
   <section class="azin-only" aria-labelledby="h-azin">
     <div class="head"><h2 id="h-azin">Akaryakıt tedarik zinciri</h2><span class="sub" id="s-azin"></span></div>
     <p class="lead">Seçilen şirketin benzin ve motorini rafineriden, kendi ithalatından ya da başka dağıtıcıdan gelir. Ürün yükleme terminaline taşınır ve oradan il ile ilçelere dağıtılır. Bir terminale tıklayınca yalnız onun beslediği yerler kalır.</p>
+    <div id="azin-ted"></div>
     <div id="azin-zincir"></div>
     <ul class="notes">
+      <li>Tedarikçi: fiziksel kaynak – rafineri (tahsisten alım dahil, ürünün çıktığı rafineri), kendi ithalatı, başka dağıtıcıdan alım (terminal içi devir; satıcı dağıtıcı) ya da açılış stoku. Tedarikçi seçilince harita, terminaller ve tablolar yalnız o kaynaktan gelen hacmi gösterir. Taşıma (Leg1): kaynaktan yükleme terminaline taşıma modu.</li>
       <li>Akış: FACT_AKARYAKIT_AKIS (şirket × yükleme terminali × il × ürün; Leg1 taşıma modu). Kaynak: rafineri (tahsis dahil), kendi ithalatı, başka dağıtıcıdan alım (terminal içi devir) ya da açılış stoku. Rafineri ile terminal arasındaki çizgi Leg1 modudur (deniz yolu, boru hattı, demiryolu, karayolu).</li>
       <li hidden>İthalat (kesikli çizgi): şirketin kendi ithalatıyla yüklediği hacim, terminale menşe yönünden (Karadeniz, Ege / Batı Akdeniz, Doğu Akdeniz / Süveyş) kıyı seyir hattıyla çizilir. Akaryakıtta menşe ve giriş kapısı IM-EX ithal kargolarından gelir (REF_IMEX_KARGO; şirket × terminal × ürün payı; Rusya'nın Baltık kargoları Cebelitarık – Ege yönünden). Kargo tablosu tonaj değil pay olarak kullanılır; terminalde kargo kaydı yoksa şirketin diğer terminallerindeki pay, o da yoksa ülke geneli EPDK menşe payı kullanılır. Eyl–Ara kargoları tahmindir.</li>
       <li>İlçe kırılımı FACT_AKARYAKIT_ILCE'den gelir (şirketin ilçe satışı ve ilçeyi besleyen terminal). Aynı il birden çok terminalden besleniyorsa terminale özgü ilçe payı varsa o, yoksa şirketin o ildeki ilçe payları kullanılır. İlçe verisi yalnız benzin ve motorin içindir; tahmin içerir.</li>
