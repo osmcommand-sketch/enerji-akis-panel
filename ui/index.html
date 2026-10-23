@@ -159,12 +159,13 @@
     <div class="head"><h2 id="h-raf">Rafineriler</h2><span class="sub" id="s-raf"></span></div>
     <div class="kpis ubal" id="u-raf" aria-label="Ülke geneli benzin ve motorin dengesi"></div>
     <div class="kpis" id="k-raf"></div>
-    <div class="scroll"><table id="t-raf"></table></div>
+    <div class="scroll" hidden><table id="t-raf"></table></div>
+    <div id="raf-uretim"></div>
     <ul class="notes">
       <li>Üst kartlar ülke geneli benzin + motorin dengesidir: üretim EPDK Tablo 1.1 rafineri üretimi (benzin = 95 + 98 oktan, motorin = motorin + biodizelli); ithalat, ihracat ve yurt içi satış EPDK ürün grubu dengesi (v_urun_grubu_denge). Rafineri ve şirket filtresinden etkilenmez.</li>
       <li>Kaynak: Enerji Master DB tedarik tahsisi (REF_TEDARIK_TAHSIS; rafineri satırları) ve rafineri satış koşulları (REF_TAHSIS_RAFINERI_KOSUL). Tahsis, şirketlerin rafineri alımını en düşük navlunla ve motorin tedarik tablosuna göre dağıtır.</li>
-      <li>Alıcı satırı şirketin o rafineriden toplam alımıdır; altında yükleme terminali kırılımı ve taşıma modu yer alır. "Toptan için" sütunu alıcının başka dağıtıcılara toptan satışının karşılığı olarak yaptığı alımdır (ör. Güzel'in Aytemiz adına aldığı ürün).</li>
-      <li>Ciro primi ve kademe, alıcının Tüpraş (tüm rafineriler toplamı) ya da Star motorin alımına göredir; Tüpraş benzinde ciro primi yoktur.</li>
+      <li hidden>Alıcı satırı şirketin o rafineriden toplam alımıdır; altında yükleme terminali kırılımı ve taşıma modu yer alır. "Toptan için" sütunu alıcının başka dağıtıcılara toptan satışının karşılığı olarak yaptığı alımdır (ör. Güzel'in Aytemiz adına aldığı ürün).</li>
+      <li hidden>Ciro primi ve kademe, alıcının Tüpraş (tüm rafineriler toplamı) ya da Star motorin alımına göredir; Tüpraş benzinde ciro primi yoktur.</li>
     </ul>
   </section>
 

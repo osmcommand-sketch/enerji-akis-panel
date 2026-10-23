@@ -479,7 +479,9 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const TTC_ = hasTable('REF_TRANSIT_TICARET') ? tableCols('REF_TRANSIT_TICARET') : [];
   const ttip = new Map(TTC_.includes('Tesis_Tipi') ? Q('select distinct Tesis f,Tesis_Tipi p from REF_TRANSIT_TICARET').map(r => [r.f, (r.p || '').startsWith('Model terminali') ? 1 : 0]) : []);
   const TRTT = TRT.map(f => ttip.get(f) || 0);
-  const d = { trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  const RPU = hasTable('REF_EPDK_RAFINERI_URETIM') ? Q(`select Rafineri r,Urun u,sum(Uretim_ton) v from REF_EPDK_RAFINERI_URETIM where Donem='${YIL}' and Rafineri<>'Toplam' group by 1,2 order by 1,2`).map(r => [r.r, r.u, pr(r.v || 0)]) : [];
+  const RKAP = Q("select Kaynak_Adi a,Ham_Petrol_Kapasite_ton_yil k from DIM_KAYNAK where Kaynak_Tipi='Rafineri' and Ham_Petrol_Kapasite_ton_yil is not null").map(r => [r.a, pr(r.k)]);
+  const d = { rpu: RPU, rkap: RKAP, trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -597,7 +599,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air', 'hvd', 'trs', 'tryt', 'trtt']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air', 'hvd', 'trs', 'tryt', 'trtt', 'rpu', 'rkap']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],

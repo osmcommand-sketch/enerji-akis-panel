@@ -1,15 +1,15 @@
 {
- "surum": "1.0.58",
+ "surum": "1.0.59",
  "kabuk": 1,
- "tarih": "2026-10-23T11:52:54+03:00",
- "notlar": "Transit: ithal giriş / transit çıkış etiketleri",
+ "tarih": "2026-10-23T18:25:23+03:00",
+ "notlar": "Rafineriler: alıcı tablosu yerine rafineri bazında üretim görselleri",
  "dosyalar": {
-  "ui/index.html": "2ada4e1e76390162b205cb44e5029d97c611086ca522cc3eaab4ab4293a77154",
+  "ui/index.html": "c45b1116fa3d68ff73147c9cec9074252c91d284bdb7a21765a14eccbe216c04",
   "ui/app.css": "c90456c44dce35d0754b84569fb6dda0c62941802519c4bd1dc7554de3ec918d",
   "ui/app.js": "7ec8e40e5a014322bd91f518b0b6f39f5a4298679e74b5d2ecde1a6705de2dc2",
-  "ui/panel.css": "f69f353ede2aabbfe54207165a34bbcbd34aaa25b055fd07c0c64656e16e04ff",
-  "ui/panel.js": "4300ff84767dd3f7d00ca592511469d77dc36cb7186303c56461847e0691b580",
-  "pipeline.js": "ce9230892e97a32619813aa6bfbbc9ca22be339e3e949ad81ec4961ac85015b9",
+  "ui/panel.css": "c0697e45b9d601306bd395f4c4c03d786171ab8bb464c4a7764c53381de7b59e",
+  "ui/panel.js": "aa5d8043f20bc17a73e34fd728cde1e3cf6a4999bf491944a7e0644c616c415b",
+  "pipeline.js": "4796bd289ff7d84e71504c3e344007f1fbf62a1c42c7b58780e7f9f50a52f51c",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

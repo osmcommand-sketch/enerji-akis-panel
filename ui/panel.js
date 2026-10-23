@@ -619,6 +619,50 @@ const modBaz=x=>{ x=String(x??"?"); for(let i=0;i<3;i++){ const m=x.match(/^Rafi
 const ubalK=(L)=>L.map(([a,v,alt])=>`<div class="kpi"><span>${a}</span><b>${ton(v)}</b><span>${alt}</span></div>`).join("");
 const UBAL_A=()=>{ const ug=id=>(D.ug||[]).find(r=>r[0]===id)||[], b=ug("UG1"), m=ug("UG2"), ru=D.rur||[0,0], f=(x,y)=>`benzin ${kisa(x||0)} · motorin ${kisa(y||0)}`;
   return ubalK([[`Üretim · ${YIL}`,(ru[0]||0)+(ru[1]||0),f(ru[0],ru[1])+" · rafineri"],[`İthalat · ${YIL}`,(b[7]||0)+(m[7]||0),f(b[7],m[7])],[`İhracat · ${YIL}`,(b[8]||0)+(m[8]||0),f(b[8],m[8])],[`Yurt içi satış · ${YIL}`,(b[3]||0)+(m[3]||0),f(b[3],m[3])]]); };
+/* ---------- Rafineri üretimi (kullanıcı 23.10.2026 18:20: alıcı tablosu yerine rafineri bazında üretim görselleri) ---------- */
+const RU_G=[["Benzin",/Benzin/,"#2F855A"],["Motorin",/Motorin/,"#2A5591"],["Jet yakıtı",/Jet/,"#0F6E8C"],["Fuel oil · kalorifer",/Fuel Oil|Kalorifer/,"#5B3A1E"],["Denizcilik",/Denizcilik/,"#1D4ED8"],["LPG",/^LPG$/,"#F0A15F"],["Nafta",/Nafta/,"#B7791F"],["Bitümen",/Bitümen/,"#15222C"],["Petrol koku",/Koku/,"#6F7E89"],["Ara ürün · diğer",/./,"#A3485A"]];
+const RU_TOP=/Toplam/;
+function rafUretim(){
+  const el=document.getElementById("raf-uretim"), RP=D.rpu||[]; if(!el) return; if(!RP.length){ el.innerHTML=""; return; }
+  const sec=S.raf||"", okR=r=>!sec||(sec==="Star Rafineri"?r==="Star Rafineri":r.startsWith(sec));
+  const KAP=new Map(D.rkap||[]), RAFS=[...new Set(RP.map(r=>r[0]))].filter(okR);
+  const grp=u=>RU_G.findIndex(g=>g[1].test(u));
+  const O=new Map(RAFS.map(r=>[r,{g:RU_G.map(()=>0),neg:0,negU:[],gen:0,ak:0,u:new Map()}]));
+  for(const [r,u,v] of RP){ if(!O.has(r)) continue; const o=O.get(r);
+    if(u==="Genel Toplam"){ o.gen=v; continue; } if(u==="Akaryakıtlar Toplamı"){ o.ak=v; continue; } if(RU_TOP.test(u)) continue;
+    if(v<0){ o.neg+=-v; o.negU.push([u,-v]); continue; } if(v<0.5) continue; o.g[grp(u)]+=v; o.u.set(u,v); }
+  const L=[...O].sort((a,b)=>b[1].gen-a[1].gen), Tg=L.reduce((a,[,o])=>a+o.gen,0), mxG=Math.max(1,...L.map(([,o])=>o.g.reduce((a,b)=>a+b,0)));
+  // 1) rafineri kartları
+  const kart=([r,o])=>{ const P=o.g.reduce((a,b)=>a+b,0)||1, k=KAP.get(r);
+    const bar=o.g.map((v,i)=>v>0.5?`<i style="flex:${v.toFixed(0)} 1 0;background:${RU_G[i][2]}" title="${RU_G[i][0]}: ${ton(v)}"></i>`:"").join("");
+    const top=o.g.map((v,i)=>[i,v]).filter(x=>x[1]>0.5).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    return `<div class="kc"><div class="kc-h"><span>${esc(r)}</span><span>${Tg?pct(o.gen/Tg):""}</span></div>
+      <div class="kc-big"><b>${ton(o.gen)}</b><span>genel toplam</span></div>
+      <div class="ru-bar" role="img" aria-label="${esc(r)} ürün dağılımı">${bar}</div>
+      <div class="ru-l">${top.map(([i,v])=>`<div><i style="background:${RU_G[i][2]}"></i><span>${RU_G[i][0]}</span><b>${ton(v)}</b><em>${pct(v/P)}</em></div>`).join("")}</div>
+      <p class="kc-not" style="margin:0">Akaryakıt ${ton(o.ak)} · diğer ürünler ${ton(Math.max(0,o.gen-o.ak))}${k?` · ham petrol kapasitesi ${ton(k)}`:""}${o.neg>0.5?`<br>net ara ürün girdisi ${ton(o.neg)} (${o.negU.sort((a,b)=>b[1]-a[1]).slice(0,2).map(([u,v])=>esc(u.replace(/ \(.*\)/,""))+" "+ton(v)).join(", ")})`:""}</p></div>`; };
+  // 2) ürün profili: rafineri başına ton ölçekli yatay yığılmış çubuk
+  const W=960, rowH=34, l=150, r_=90, H=L.length*rowH+30, sx=v=>(W-l-r_)*v/mxG;
+  let bars=""; L.forEach(([r,o],k)=>{ let x=l; const y=10+k*rowH; const P=o.g.reduce((a,b)=>a+b,0);
+    bars+=`<text x="${l-8}" y="${y+14}" text-anchor="end">${esc(r)}</text>`;
+    o.g.forEach((v,i)=>{ if(v<0.5) return; const w=sx(v); bars+=`<rect x="${x.toFixed(1)}" y="${y}" width="${Math.max(w,0.5).toFixed(1)}" height="20" fill="${RU_G[i][2]}"><title>${esc(r)} · ${RU_G[i][0]}: ${ton(v)} (${pct(v/(P||1))})</title></rect>`+(w>46?`<text x="${(x+w/2).toFixed(1)}" y="${y+14}" text-anchor="middle" style="fill:#fff;font-size:10px">${pct(v/(P||1)).replace(",0","")}</text>`:""); x+=w; });
+    bars+=`<text class="m" x="${(x+6).toFixed(1)}" y="${y+14}">${ton(P)}</text>`; });
+  const leg=RU_G.map(g=>`<span><i style="background:${g[2]}"></i>${g[0]}</span>`).join("");
+  // 3) ürün × rafineri ısı tablosu
+  const gT=RU_G.map((_,i)=>L.reduce((a,[,o])=>a+o.g[i],0)), mxC=Math.max(1,...L.flatMap(([,o])=>o.g));
+  const cell=(v,i)=>v<0.5?`<td class="muted">–</td>`:`<td class="h" style="background:color-mix(in srgb, ${RU_G[i][2]} ${Math.round(8+52*Math.sqrt(v/mxC))}%, transparent)" title="${ton(v)}">${ton(v)}</td>`;
+  const cols=RU_G.map((g,i)=>[g,i]).filter(([,i])=>gT[i]>0.5);
+  const tbl=`<div class="scroll"><table class="ruh"><thead><tr><th class="l">Rafineri</th>${cols.map(([g])=>`<th>${g[0]}</th>`).join("")}<th>Net ara ürün girdisi</th><th>Genel toplam</th></tr></thead><tbody>`
+    +L.map(([r,o])=>`<tr><td class="l"><b>${esc(r)}</b></td>${cols.map(([,i])=>cell(o.g[i],i)).join("")}<td class="muted">${o.neg>0.5?"−"+ton(o.neg):"–"}</td><td><b>${ton(o.gen)}</b></td></tr>`).join("")
+    +`<tr class="grp tg"><td class="l"><b>Toplam</b></td>${cols.map(([,i])=>`<td><b>${ton(gT[i])}</b></td>`).join("")}<td class="muted">−${ton(L.reduce((a,[,o])=>a+o.neg,0))}</td><td><b>${ton(Tg)}</b></td></tr></tbody></table></div>`;
+  el.innerHTML=`<div class="head" style="margin-top:8px"><h3>Rafineri üretimi · ${YIL}</h3><span class="sub">${L.length} rafineri · genel toplam ${ton(Tg)} · ${esc(D.yilnot||"")}</span></div>
+    <div class="ru-g">${L.map(kart).join("")}</div>
+    <div class="head" style="margin-top:12px"><h3>Ürün profili</h3><span class="sub">pozitif net üretim, ton ölçekli; çubuk içi yüzde rafinerinin ürün payı</span></div>
+    <div class="ru-svg"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rafineri bazında ürün profili">${bars}</svg></div>
+    <div class="trlg">${leg}</div>
+    <div class="head" style="margin-top:12px"><h3>Ürün × rafineri</h3><span class="sub">hücre rengi tonla koyulaşır</span></div>${tbl}
+    <ul class="notes"><li>Kaynak: EPDK Tablo 1.1 karşılığı rafineri üretimi (REF_EPDK_RAFINERI_URETIM; ${YIL}: Oca–Ağu gerçekleşen + Eyl–Ara tahmin). Ürün grupları: benzin = 95 + 98 oktan; motorin = motorin + biodizelli + yüksek kükürtlü; fuel oil = fuel oil, yüksek kükürtlü fuel oil, kalorifer yakıtı ve atmosferik straight run fuel oil; ara ürün · diğer = HVGO, diğer ara ürünler, rafineri gazı, baz yağ, beyaz ispirto, gazyağı ve diğer ürünler.</li><li>EPDK tablosunda bazı ara ürünler eksi değerlidir (rafinerinin dışarıdan aldığı ya da başka üniteye verdiği ara ürün, ör. Tüpraş İzmit atmosferik straight run fuel oil, HVGO, nafta). Bunlar çubuklara katılmaz, "net ara ürün girdisi" olarak ayrı gösterilir; genel toplam EPDK'daki değerdir. Ham petrol kapasitesi DIM_KAYNAK'tan.</li></ul>`;
+}
 function rafineriler(){
   const sec=S.raf||"", tum=S.sid<0;
   document.getElementById("u-raf").innerHTML=UBAL_A();
@@ -2139,7 +2183,7 @@ function render(){
   if(KAYN()){ kaynakDag(); return; }
   if(ITH()){ ithalat(); return; }
   if(BAY()){ bayiler(); return; }
-  if(RAFP()){ rafineriler(); return; }
+  if(RAFP()){ rafineriler(); rafUretim(); return; }
   if(TASP()){ tasima(); return; }
   if(TKS()){ const av=new Map(); for(const f of AF) if(isTk(f)&&(S.sid<0||f[11]===S.sid)) av.set(f[0],(av.get(f[0])||0)+f[6]);
     if(S.alc>=0&&!av.has(S.alc)) S.alc=-1;
