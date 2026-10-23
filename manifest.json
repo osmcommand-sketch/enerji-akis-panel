@@ -1,14 +1,14 @@
 {
- "surum": "1.0.53",
+ "surum": "1.0.54",
  "kabuk": 1,
- "tarih": "2026-10-22T23:35:25+03:00",
- "notlar": "LPG Taşıma: Boğaz yasağı, stok ve zincirleme satış notu",
+ "tarih": "2026-10-23T10:05:47+03:00",
+ "notlar": "LPG tedarik zinciri: terminal ve aktarma noktası tek düğüm",
  "dosyalar": {
   "ui/index.html": "94357fcb542185278d0a04f8f7e3e6d1969df968edf64b813cd996e855a9abf5",
   "ui/app.css": "c90456c44dce35d0754b84569fb6dda0c62941802519c4bd1dc7554de3ec918d",
   "ui/app.js": "7ec8e40e5a014322bd91f518b0b6f39f5a4298679e74b5d2ecde1a6705de2dc2",
   "ui/panel.css": "00abd022a80bd987bd29b26cdcdd4e04b11153df4b1896e809edb40f2e8fe2b3",
-  "ui/panel.js": "eff216673b9be6d91896de4f2099e2a8fc3888f59d7315790a13711294cabc61",
+  "ui/panel.js": "a171aec0712f35678b6d7a6d47e253599d41fe056fd27ce814ebb080d1482c42",
   "pipeline.js": "5210f7ca381ac6daa7ff6be1f28b8ffbb94ec30809f8e9334e988d76b2cde642",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
