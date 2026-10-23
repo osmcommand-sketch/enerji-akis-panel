@@ -2227,5 +2227,6 @@ document.addEventListener("click",e=>{
   render();
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("tr[tabindex]")) e.target.click()});
-if(location.hash==="#tahsis") S.sayfa="tahsis"; else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
+if(location.hash==="#tahsis") S.sayfa="kaynak";   // terminal bazlı tahsis sayfaları kaldırıldı (kullanıcı 23.10.2026 20:27)
+ else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
 render();
