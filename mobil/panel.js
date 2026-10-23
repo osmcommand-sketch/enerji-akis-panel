@@ -1001,24 +1001,24 @@ function lpgTicaret(){
   { const P=new Map(); for(const r of R){ const k=r[2]+"|"+r[0]; const o=P.get(k)||P.set(k,{sat:r[2],al:r[0],sn:r[2],an:SIR[r[0]][1],v:0}).get(k); o.v+=r[4]; }
     const L=[...P.values()].filter(o=>o.v>=0.5).sort((a,b)=>b.v-a.v).map(o=>({...o,on:S.lsat===o.sat&&S.lmus===o.al,seg:[["var(--lpg)",o.v]]}));
     ciftListe(document.getElementById("cf-lpgm"),L.length>1?L:[],{T,bas:"En büyük satıcı → müşteri ilişkileri",alt:`Bir ilişkiye tıklayınca satıcı ve müşteri filtrelenir.${L.length>10?" İlk 10 / "+L.length+".":""}`}); }
-  // satıcı → müşteri tablosu
+  // satıcı → müşteri tablosu: satıcı satırı kapalı, tıklayınca müşteriler açılır (kullanıcı 23.10.2026 21:09)
   const g=new Map(); for(const r of R){ const o=g.get(r[2])||g.set(r[2],{v:0,m:new Map()}).get(r[2]); o.v+=r[4]; o.m.set(r[0],(o.m.get(r[0])||0)+r[4]); }
-  const gs=[...g].sort((a,b)=>b[1].v-a[1].v), LIM=S.lsat||S.lmus>=0||S.hepsiL?1e9:6, mx=Math.max(...[...g.values()].flatMap(o=>[...o.m.values()]),1);
-  const head=`<tr><th class="l">Satıcı / müşteri</th><th>Miktar</th><th>Satıcı içinde</th><th>Müşterinin dağıtıcı alımında</th></tr>`;
+  const gs=[...g].sort((a,b)=>b[1].v-a[1].v), ayr=S.lsat||S.lmus>=0, oto=ayr||gs.length<=2, acik=S.lpgAc||(S.lpgAc=new Set());
+  const mxS=Math.max(1,...gs.map(([,o])=>o.v)), mx=Math.max(...[...g.values()].flatMap(o=>[...o.m.values()]),1);
+  const head=`<tr><th class="l">Satıcı / müşteri</th><th>Miktar</th><th>Pay</th><th class="l">En büyük müşteriler</th><th>Müşterinin dağıtıcı alımında</th></tr>`;
   let body="";
   for(const [n,o] of gs){
-    body+=`<tr class="tg grp lsat"><td class="l"><b>${esc(n)}</b><br><span class="muted">${o.m.size} müşteri</span></td><td><b>${ton(o.v)}</b></td><td><span class="muted">piyasanın ${pct(o.v/TUM)}</span></td><td></td></tr>`;
-    const ms=[...o.m].sort((a,b)=>b[1]-a[1]);
-    const ayr=S.lsat||S.lmus>=0;
-    for(const [a,v] of ms.slice(0,LIM)){
+    const ms=[...o.m].sort((a,b)=>b[1]-a[1]), ac=oto||acik.has(n);
+    const ilk3=ms.slice(0,3).map(([a,v])=>`${esc(SIR[a][1])} <span class="muted">${pct(v/o.v)}</span>`).join(" · ")+(ms.length>3?` <span class="muted">+${ms.length-3}</span>`:"");
+    body+=`<tr class="lr${ac?" ac":""}" tabindex="0" data-lac="${esc(n)}" aria-expanded="${ac}"><td class="l"><span class="car" aria-hidden="true">›</span><b>${esc(n)}</b><br><span class="muted" style="margin-left:14px">${ms.length} müşteri</span></td><td style="white-space:nowrap"><span class="pbar" style="width:${Math.max(2,Math.round(40*o.v/mxS))}px"></span><b>${ton(o.v)}</b></td><td><span class="muted">piyasanın</span> ${pct(o.v/TUM)}</td><td class="l">${ilk3}</td><td></td></tr>`;
+    if(!ac) continue;
+    for(const [a,v] of ms){
       const tm=[...(LPT.get(n+"|"+a)||new Map())].filter(([,x])=>x>=0.5).sort((x,y)=>y[1]-x[1]);
-      body+=`<tr class="sub" tabindex="0" data-lmus="${a}"><td class="l ind">${esc(SIR[a][1])}${!ayr&&tm.length?`<br><span class="muted">${tm.length} terminal · ${esc(TERM[tm[0][0]][1])}${tm.length>1?" +"+(tm.length-1):""}</span>`:""}</td><td><span class="pbar" style="width:${Math.max(2,Math.round(44*v/mx))}px"></span>${cell(v)}</td><td>${pct(v/o.v)}</td><td>${pct(v/(LMUS.get(a)||1))}</td></tr>`;
-      if(ayr) for(const [t,x] of tm) body+=`<tr class="sub"><td class="l ind2"><span class="muted">${(esc(TERM[t][1])+LIS(t,1))} · ${esc(HUB[TERM[t][2]].ad)}</span></td><td><span class="muted">${cell(x)}</span></td><td><span class="muted">${pct(x/v)}</span></td><td></td></tr>`;
+      body+=`<tr class="sub" tabindex="0" data-lmus="${a}"><td class="l ind">${esc(SIR[a][1])}${!ayr&&tm.length?`<br><span class="muted">${tm.length} terminal · ${esc(TERM[tm[0][0]][1])}${tm.length>1?" +"+(tm.length-1):""}</span>`:""}</td><td><span class="pbar" style="width:${Math.max(2,Math.round(44*v/mx))}px"></span>${cell(v)}</td><td>${pct(v/o.v)} <span class="muted">satıcının</span></td><td></td><td>${pct(v/(LMUS.get(a)||1))}</td></tr>`;
+      if(ayr) for(const [t,x] of tm) body+=`<tr class="sub"><td class="l ind2"><span class="muted">${(esc(TERM[t][1])+LIS(t,1))} · ${esc(HUB[TERM[t][2]].ad)}</span></td><td><span class="muted">${cell(x)}</span></td><td><span class="muted">${pct(x/v)}</span></td><td></td><td></td></tr>`;
     }
-    if(ms.length>LIM){ const rest=ms.slice(LIM), rv=rest.reduce((x,y)=>x+y[1],0); body+=`<tr class="sub"><td class="l ind muted">+${rest.length} müşteri daha</td><td><span class="muted">${ton(rv)}</span></td><td><span class="muted">${pct(rv/o.v)}</span></td><td></td></tr>`; }
   }
-  const more=!(S.lsat||S.lmus>=0)?`<tr><td colspan="4" class="empty"><button type="button" class="clear" id="hepsiL">${S.hepsiL?"Satıcı başına ilk 6 müşteriyi göster":"Tüm müşterileri göster"}</button></td></tr>`:"";
-  document.getElementById("t-lpgm").innerHTML=`<thead>${head}</thead><tbody>${body?body+more:`<tr><td colspan="4" class="empty">Bu seçimde dağıtıcılar arası LPG satışı yok.</td></tr>`}</tbody>`;
+  document.getElementById("t-lpgm").innerHTML=`<thead>${head}</thead><tbody>${body||`<tr><td colspan="5" class="empty">Bu seçimde dağıtıcılar arası LPG satışı yok.</td></tr>`}</tbody>`;
   // müşterinin yükleme terminalleri (fiziksel akış)
   const sec=document.getElementById("sec-lpgt"); sec.hidden=S.lmus<0;
   if(S.lmus>=0){
@@ -1031,7 +1031,7 @@ function lpgTicaret(){
       (ts.length?ts.map(([i,o,v])=>`<tr><td class="l"><b>${(esc(TERM[i][1])+LIS(i,1))}</b> <span class="muted">· ${esc(HUB[TERM[i][2]].ad)}</span></td><td>${cell(o.k)}</td><td>${cell(o.d)}</td><td>${cell(o.r)}</td><td><b>${ton(v)}</b></td><td>${pct(v/TT)}</td><td>${o.il.size}</td><td>${nf.format(o.tk/v)}</td><td class="l"><span class="muted">${satT(i)}</span></td></tr>`).join(""):`<tr><td colspan="9" class="empty">Bu şirketin bayi / tüketici satışı yok (yalnız toptan).</td></tr>`)+`</tbody>`;
   }
 }
-document.getElementById("t-lpgm").addEventListener("click",e=>{ if(e.target.id==="hepsiL"){S.hepsiL=!S.hepsiL; render(); return;} const tr=e.target.closest("[data-lmus]"); if(tr){S.lmus=+tr.dataset.lmus; render();} });
+document.getElementById("t-lpgm").addEventListener("click",e=>{ { const r=e.target.closest("tr[data-lac]"); if(r){ const A=S.lpgAc||(S.lpgAc=new Set()), k=r.dataset.lac; A.has(k)?A.delete(k):A.add(k); render(); return; } } const tr=e.target.closest("[data-lmus]"); if(tr){S.lmus=+tr.dataset.lmus; render();} });
 /* ---------- LPG · ithalat (kullanıcı 16.10.2026 14:50) ---------- */
 const LITH=D.lith||[], LULKE=D.lulke||[], LAY=D.lay||[], LYIL=D.lyil||[];   // LITH: [şirket, terminal, gümrük grubu, ton]
 const fLI=document.getElementById("f-lith"), fLG=document.getElementById("f-lgum");

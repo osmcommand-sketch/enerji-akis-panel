@@ -267,7 +267,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 @media (max-width:600px){.cf{grid-template-columns:minmax(0,1fr) 4.6rem;gap:4px 8px}.cf .cf-b{grid-column:1/-1;grid-row:2}.cf .cf-p{display:none}}
 #t-mus tr.mr{cursor:pointer}#t-mus tr.mr td{vertical-align:top}#t-mus .car{display:inline-block;width:14px;color:var(--ink-3);transition:transform .15s}#t-mus tr.mr.ac .car{transform:rotate(90deg)}
 #t-mus .uc{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
-#t-mus td.l{white-space:normal}#t-mus td:nth-child(3){min-width:180px}#t-mus td:first-child{min-width:200px}#t-mus tr.mr td{background:var(--surface);font-size:13.5px;border-top:1px solid var(--line)}#t-mus tr.mr:hover td{background:var(--surface-2)}#t-mus tr.mr.ac td{background:var(--surface-2)}#t-mus tr.mr td b{font-weight:600}#t-mus tr.sub td{background:var(--surface)}
+#t-mus td.l{white-space:normal}#t-lpgm tr.lr{cursor:pointer}#t-lpgm tr.lr td{background:var(--surface);font-size:13.5px;border-top:1px solid var(--line);vertical-align:top}#t-lpgm tr.lr:hover td,#t-lpgm tr.lr.ac td{background:var(--surface-2)}#t-lpgm tr.lr td b{font-weight:600}#t-lpgm .car{display:inline-block;width:14px;color:var(--ink-3);transition:transform .15s}#t-lpgm tr.lr.ac .car{transform:rotate(90deg)}#t-lpgm td:first-child{min-width:190px}#t-lpgm td:nth-child(4){white-space:normal;min-width:240px;text-align:left}#t-mus td:nth-child(3){min-width:180px}#t-mus td:first-child{min-width:200px}#t-mus tr.mr td{background:var(--surface);font-size:13.5px;border-top:1px solid var(--line)}#t-mus tr.mr:hover td{background:var(--surface-2)}#t-mus tr.mr.ac td{background:var(--surface-2)}#t-mus tr.mr td b{font-weight:600}#t-mus tr.sub td{background:var(--surface)}
 .yol h3{margin:2px 0 0}
 .yol-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
 .yol-c{display:flex;flex-wrap:wrap;align-items:stretch;gap:4px}
@@ -600,7 +600,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <p class="lead" id="l-lpgm"></p>
     <div class="kpis" id="k-lpgm"></div>
     <div id="cf-lpgm" class="cf-box"></div>
-    <div class="head" style="margin-top:14px"><h3>Satıcı bazında ayrıntı</h3><span class="sub">Müşteriye tıklayınca yükleme terminalleri görünür.</span></div>
+    <div class="head" style="margin-top:14px"><h3>Satıcı bazında ayrıntı</h3><span class="sub">Satıcıya tıklayınca müşterileri açılır; müşteriye tıklayınca yükleme terminalleri görünür.</span></div>
     <div class="scroll"><table id="t-lpgm"></table></div>
     <ul class="notes">
       <li>Satış tablosu ticari alımdır (FACT_LPG_TEDARIK): alıcının bir dağıtıcıdan yıllık LPG alımı; toptancıların yeniden sattığı ürün de dahildir. Rafineri alımları (Tüpraş, Star) bu sayfada yalnız özet kartında yer alır.</li>
