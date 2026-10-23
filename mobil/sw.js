@@ -1,5 +1,5 @@
-/* Enerji Akış telefon – çevrimdışı önbellek. Sürüm 1.0.51 (a40c434ec8); yeni sürüm yayınlanınca önbellek yenilenir. */
-const ON = 'enerji-mobil-1.0.51-a40c434ec8', DOS = ["./", "index.html", "panel.js", "pipeline.js", "mobil.js", "worker.js", "sql-wasm.js", "sql-wasm.wasm", "res/tr_svg.json", "res/ilce_koordinat.csv", "res/terminal_depo_koordinat.csv", "icon-192.png", "icon-512.png", "icon-180.png", "manifest.webmanifest"];
+/* Enerji Akış telefon – çevrimdışı önbellek. Sürüm 1.0.52 (f891b61103); yeni sürüm yayınlanınca önbellek yenilenir. */
+const ON = 'enerji-mobil-1.0.52-f891b61103', DOS = ["./", "index.html", "panel.js", "pipeline.js", "mobil.js", "worker.js", "sql-wasm.js", "sql-wasm.wasm", "res/tr_svg.json", "res/ilce_koordinat.csv", "res/terminal_depo_koordinat.csv", "icon-192.png", "icon-512.png", "icon-180.png", "manifest.webmanifest"];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(ON).then((c) => c.addAll(DOS.map((f) => new Request(f, { cache: 'reload' })))).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== ON).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 // Önce ağ (güncel sürüm), ağ yoksa önbellek

@@ -1812,7 +1812,32 @@ function dzDenge(H0){
     +sat("İhracat",E[3],null,"bunker akışında yok (Tüpraş ihracatı: Aliağa %75, İzmit %25)")
     +`</tbody></table></div><p class="muted" style="font-size:12px;margin:4px 0 0">EPDK ${YIL}: Oca–Ağu gerçekleşen + Eyl–Ara tahmin (REF_EPDK_RAFINERI_URETIM, REF_DENIZCILIK_DENGE). ±%2 içi ✓.</p></details>`;
 }
+// 2025 EPDK denizcilik (kullanıcı 23.10.2026 21:51: 2025 ve tamamlanan 2026 karşılaştırması). Kaynak: EPDK 2025 Petrol Piyasası Gelişim Raporu ek Excel
+// (Enerji Master DB 2025: REF_EPDK_SIRKET_SATIS / IHRACAT / ITHALAT, REF_EPDK_RAFINERI_URETIM). Şirket: [yurt içi, yabancıya ihrakiye, ihracat, ithalat] ton
+const DZ25={yil:2025,s:{S003:[14674,133729,0,94233],S001:[45500,161465,0,107507],S020:[6391,96710,0,2976],S181:[0,111692,0,0],S005:[0,67367,0,0],S149:[0,298,0,0],S022:[0,8936,0,0],S170:[0,925,0,0],S145:[0,172,0,0],S090:[0,0,725494,0],S013:[35,0,0,0],S007:[53,0,0,0]},
+  t:{uretim:1129738,ithalat:204716,ihrakiye:581294,ihracat:725494,yurtici:66653}};
+function dzKarsi(){
+  const sx=new Map(SIR.map((r,i)=>[r[0],i])), R=new Map();
+  for(const [id,a] of Object.entries(DZ25.s)){ const i=sx.has(id)?sx.get(id):-1; if(i>=0) R.set(i,{a,b:[0,0,0,0]}); }
+  for(const r of DZS_) if(r[0]>=0){ const o=R.get(r[0])||R.set(r[0],{a:[0,0,0,0],b:[0,0,0,0]}).get(r[0]); o.b=[r[5],r[3],r[4],r[2]]; }
+  const sat=x=>x[0]+x[1], L=[...R].filter(([,o])=>sat(o.a)+sat(o.b)>=0.5).sort((x,y)=>sat(y[1].b)-sat(x[1].b)||sat(y[1].a)-sat(x[1].a));
+  const T25=L.reduce((q,[,o])=>q+sat(o.a),0), T26=L.reduce((q,[,o])=>q+sat(o.b),0), mx=Math.max(1,...L.flatMap(([,o])=>[sat(o.a),sat(o.b)]));
+  const dg=(a,b)=>{ const d=b-a; if(Math.abs(d)<0.5) return `<td>–</td><td>–</td>`; const c=d>0?"up":"dn"; return `<td class="${c}">${d>0?"+":"−"}${ton(Math.abs(d))}</td><td class="${c}">${a<0.5?"yeni":b/a>=10?"×"+nf.format(Math.round(b/a)):(d>0?"+":"")+pct(d/a)}</td>`; };
+  const t=v=>v>=0.5?ton(v):"–";
+  document.getElementById("t-dzk").innerHTML=`<thead><tr><th class="l" rowspan="2">Şirket</th><th class="g b" colspan="3">2025 · gerçekleşen</th><th class="g b" colspan="3">2026 · Oca–Ağu gerçekleşen + Eyl–Ara tahmin</th><th class="g b" colspan="2">Toplam satış değişimi</th></tr>
+    <tr><th class="b">Yurt içi</th><th>Yabancıya ihrakiye</th><th>Toplam satış</th><th class="b">Yurt içi</th><th>Yabancıya ihrakiye</th><th>Toplam satış</th><th class="b">ton</th><th>%</th></tr></thead><tbody>`
+    +L.filter(([,o])=>sat(o.a)+sat(o.b)>=0.5).map(([i,o])=>`<tr data-dzs="${i}" tabindex="0" aria-selected="${S.dzS===i}"><td class="l"><b>${esc(SIR[i][1])}</b></td><td class="b">${t(o.a[0])}</td><td>${t(o.a[1])}</td><td><span class="yb" style="width:${Math.round(36*sat(o.a)/mx)}px;background:#9DB7D9"></span><b>${t(sat(o.a))}</b></td><td class="b">${t(o.b[0])}</td><td>${t(o.b[1])}</td><td><span class="yb" style="width:${Math.round(36*sat(o.b)/mx)}px;background:#0F6E8C"></span><b>${t(sat(o.b))}</b></td>${dg(sat(o.a),sat(o.b)).replace('<td','<td data-x').replace('<td data-x class="','<td class="b ').replace('<td data-x>','<td class="b">')}</tr>`).join("")
+    +`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td class="b"><b>${t(L.reduce((q,[,o])=>q+o.a[0],0))}</b></td><td><b>${t(L.reduce((q,[,o])=>q+o.a[1],0))}</b></td><td><b>${t(T25)}</b></td><td class="b"><b>${t(L.reduce((q,[,o])=>q+o.b[0],0))}</b></td><td><b>${t(L.reduce((q,[,o])=>q+o.b[1],0))}</b></td><td><b>${t(T26)}</b></td>${dg(T25,T26).replace('<td class="','<td class="b ')}</tr></tbody>`;
+  const E=D.dzd||[], A=DZ25.t, row=(ad,a,b,not)=>`<tr><td class="l">${ad}</td><td class="b">${t(a)}</td><td>${t(b)}</td>${dg(a,b).replace('<td class="','<td class="b ').replace('<td>','<td class="b">')}<td class="l muted">${not||""}</td></tr>`;
+  document.getElementById("t-dzk2").innerHTML=`<thead><tr><th class="l">Ülke dengesi</th><th class="b">2025</th><th>2026</th><th class="b">Değişim</th><th>%</th><th class="l">Not</th></tr></thead><tbody>`
+    +row("Toplam satış",A.ihrakiye+A.yurtici,(E[2]||0)+(E[4]||0),"yabancıya ihrakiye + yurt içi")
+    +row("Yabancıya ihrakiye",A.ihrakiye,E[2],"")+row("Yurt içi satış",A.yurtici,E[4],"")
+    +row("Rafineri üretimi",A.uretim,E[0],"artık + damıtık denizcilik yakıtı")+row("İthalat",A.ithalat,E[1],"")+row("İhracat",A.ihracat,E[3],"Tüpraş")+`</tbody>`;
+  document.getElementById("s-dzk").textContent=`${L.length} şirket · toplam satış ${ton(T25)} → ${ton(T26)} (${T25?(T26>=T25?"+":"")+pct(T26/T25-1):"–"}) · filtreden etkilenmez; satıra tıklayınca şirket seçilir`;
+  for(const tr of document.querySelectorAll("#t-dzk tr[data-dzs]")){ const f=()=>{ const x=+tr.dataset.dzs; S.dzS=S.dzS===x?-1:x; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+}
 function denizSayfa(){
+  dzKarsi();
   const H0=AF.filter(f=>f[3]===DZ_U&&f[15]>=0&&dzV(f)>0);
   const sv=new Map(), lv=new Map();
   for(const f of H0){ if(S.dzL<0||f[15]===S.dzL) sv.set(f[0],(sv.get(f[0])||0)+dzV(f)); if(S.dzS<0||f[0]===S.dzS) lv.set(f[15],(lv.get(f[15])||0)+dzV(f)); }
