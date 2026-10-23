@@ -284,7 +284,7 @@ function yolMus(){
   const T=L.reduce((a,g)=>a+g.v,0), AU=["Benzin","Motorin","Fuel Oil","Havacılık","Denizcilik","Gazyağı","Diğer"];
   const dot=u=>`<span class="dot" style="background:${URENK["a"+u]?URENK["a"+u][2]:"var(--ink-3)"}"></span>`;
   const sat=s=>esc(SIR[s][1]), mus=esc(SIR[S.mm][1]);
-  const rows=L.slice(0,12).map(g=>{ const K=KAY[g.k], ky=String(K[2]||""), ithal=ky.startsWith("Dağıtıcı")||g.ith>g.v*0.5, p=yolParca(MOD[g.m]);
+  const YN=S.yolHep?12:5, rows=L.slice(0,YN).map(g=>{ const K=KAY[g.k], ky=String(K[2]||""), ithal=ky.startsWith("Dağıtıcı")||g.ith>g.v*0.5, p=yolParca(MOD[g.m]);
     const kaynak=ithal?`${esc(K[1])} ithalatı`:ky==="Rafineri"?`${esc(K[1])}`:esc(K[1]);
     const kAlt=ithal?"ithal ürün":p.a==="tahsis"?`${sat(g.s)} tahsisi`:ky==="Rafineri"?"rafineri ürünü":"kaynak";
     const anl={tahsis:"satıcının rafineri tahsisinden",devir:"terminalde devir (dağıtıcıdan alım)",ud:"takas – ürün değişimi",by:"takas – bayi yönlendirmesi",diger:"satıcı üzerinden"}[p.a];
@@ -297,7 +297,15 @@ function yolMus(){
     const not=`${mus} ← ${sat(g.s)}: ${ithal?esc(K[1])+" ithal ürünü":esc(K[1])+" ürünü"}, ${anl}; ${p.y.startsWith("Terminal içi")?"teslim "+esc(TERM[g.t][1])+" terminalinde":"taşıma "+esc(p.y)+" · varış "+esc(TERM[g.t][1])}${p.tk?` · ${esc(p.tk)}`:""}.`;
     return `<div class="yol-r"><div class="yol-c">${chain}</div><div class="yol-t"><b>${ton(g.v)}</b>${us}<span class="muted">${pct(g.v/T)}</span></div><p class="yol-n">${not}</p></div>`; }).join("");
   el.hidden=false;
-  el.innerHTML=`<div class="head"><h3>${mus} – ürün nereden, nasıl geliyor</h3><span class="sub">${L.length} yol · ${ton(T)}${L.length>12?" · ilk 12":""}</span></div>${rows}`;
+  el.innerHTML=`<div class="head"><h3>${mus} – ürün nereden, nasıl geliyor</h3><span class="sub">${L.length} yol · ${ton(T)}${L.length>YN?" · ilk "+YN:""}</span></div>${rows}${L.length>5?`<button type="button" class="clear" id="yolHep" style="align-self:center">${S.yolHep?"İlk 5 yolu göster":`Daha fazla yol göster (${Math.min(12,L.length)})`}</button>`:""}`;
+}
+// En büyük satıcı → müşteri ilişkileri (kullanıcı 23.10.2026: sayfa daha kolay okunsun)
+function ciftListe(el,L,o){ // L: [{sat,al,sn,an,v,seg:[[renk,v]]}]
+  if(!L.length){ el.innerHTML=""; return; }
+  const N=o.n||10, mx=L[0].v, T=o.T, gs=L.slice(0,N);
+  el.innerHTML=`<h3>${o.bas}</h3><p class="cf-s">${o.alt}</p><div class="cf-l">`+gs.map(g=>{
+    const w=Math.max(1,100*g.v/mx), seg=g.seg.filter(x=>x[1]>0).map(([c,v])=>`<i style="width:${(w*v/g.v).toFixed(2)}%;background:${c}"></i>`).join("");
+    return `<button type="button" class="cf${g.on?" on":""}" data-cs="${esc(String(g.sat))}" data-ca="${g.al}" aria-label="${esc(g.sn)} → ${esc(g.an)}: ${ton(g.v)}"><span class="cf-n"><b>${esc(g.an)}</b><span>← ${esc(g.sn)}</span></span><span class="cf-b" aria-hidden="true">${seg}</span><span class="cf-v">${ton(g.v)}</span><span class="cf-p">${pct(g.v/T)}</span></button>`;}).join("")+`</div>`+(o.leg||"");
 }
 function musteriler(){
   // Müşteri filtresi (kullanıcı 14.10.2026 14:23): seçenekler seçili satıcının (ya da tüm satıcıların) dağıtıcı müşterileri; kendi satışı hariç
@@ -316,26 +324,40 @@ function musteriler(){
     const te=teslim(f[5])+(ZIN[f[5]]?`<br><span class="zn">zincir: ${esc(s+" → "+zinSira(ZIN[f[5]]))}</span>`:""); o.tes.set(te,(o.tes.get(te)||0)+f[6]);
   }
   const grp=[...m.values()].filter(g=>g.v>0.5).sort((a,b)=>(a.al===a.sat)-(b.al===b.sat)||b.v-a.v);
-  const kay=o=>[...o.src].sort((a,b)=>b[1]-a[1]).filter((x,i)=>i===0||(i===1&&x[1]/o.v>=0.15)).map(x=>`${esc(x[0])} · ${pct(x[1]/o.v)}`).join("<br>");
-  const tes=o=>[...o.tes].sort((a,b)=>b[1]-a[1])[0][0];
   const dot=u=>`<span class="dot" style="background:${URENK["a"+u]?URENK["a"+u][2]:"var(--ink-3)"}"></span>`;
-  const LIM=30, gs=S.hepsiM?grp:grp.slice(0,LIM);
-  const head=`<tr><th class="l">Müşteri / terminal / ürün</th><th>Miktar</th><th>İl</th><th class="l">Teslim</th><th class="l">Ana kaynak</th></tr>`;
-  const body=gs.map(g=>{const kendi=g.al===g.sat;
-    const ozet=[...g.u].filter(([,v])=>v>0.5).sort((a,b)=>b[1]-a[1]).map(([u,v])=>`${dot(u)}${AU[u]} <b>${ton(v)}</b>`).join(" &nbsp; ");
-    let h=`<tr class="tg grp${kendi?" kendi":""}"><td class="l"><b>${kendi?"Kendi satışı":esc(SIR[g.al][1])}</b>${tum?`<br><span class="muted">satıcı: ${esc(SIR[g.sat][1])}</span>`:kendi?`<br><span class="muted">${esc(SIR[g.al][1])}</span>`:""}</td><td><b>${ton(g.v)}</b></td><td></td><td class="l" colspan="2"><span style="font-size:13px">${ozet}</span></td></tr>`;
-    const ts=[...g.t].filter(([,p])=>p.v>0.5).sort((a,b)=>b[1].v-a[1].v);
-    for(const [t,pt] of ts){
-      const us=[...pt.u].filter(([,o])=>o.v>0.5).sort((a,b)=>b[1].v-a[1].v);
-      if(us.length===1){const [u,o]=us[0];
-        h+=`<tr class="sub" tabindex="0" data-term="${t}"><td class="l ind"><b>${(esc(TERM[t][1])+LIS(t,0))}</b> <span class="muted">· ${esc(HUB[TERM[t][2]].ad)}</span><br>${dot(u)}<span class="muted">${AU[u]}</span></td><td><b>${cell(o.v)}</b></td><td>${o.il.size}</td><td class="l"><span class="muted">${tes(o)}</span></td><td class="l"><span class="muted">${kay(o)}</span></td></tr>`; continue;}
-      h+=`<tr class="sub" tabindex="0" data-term="${t}"><td class="l ind"><b>${(esc(TERM[t][1])+LIS(t,0))}</b> <span class="muted">· ${esc(HUB[TERM[t][2]].ad)} · ara toplam</span></td><td><b>${cell(pt.v)}</b></td><td>${pt.il.size}</td><td></td><td></td></tr>`;
-      for(const [u,o] of us) h+=`<tr class="sub"><td class="l ind2">${dot(u)}${AU[u]}</td><td>${cell(o.v)}</td><td>${o.il.size}</td><td class="l"><span class="muted">${tes(o)}</span></td><td class="l"><span class="muted">${kay(o)}</span></td></tr>`;
-    }
+  const rk=u=>URENK["a"+u]?URENK["a"+u][2]:"var(--ink-3)";
+  const urunler=mp=>[...mp].map(([u,x])=>[u,typeof x==="number"?x:x.v]).filter(([,v])=>v>0.5).sort((a,b)=>b[1]-a[1]).map(([u,v])=>`<span class="uc">${dot(u)}${AU[u]} <b>${ton(v)}</b></span>`).join("");
+  const topla=(it,fn)=>{const r=new Map(); for(const o of it) for(const [k,v] of fn(o)) r.set(k,(r.get(k)||0)+v); return [...r].sort((a,b)=>b[1]-a[1]);};
+  const ilk=(A,v,n)=>A.filter((x,i)=>i===0||(i<n&&x[1]/v>=0.15)).map(x=>`${x[0]} <span class="muted">${pct(x[1]/v)}</span>`).join("<br>");
+  // KPI kartları + en büyük ilişkiler
+  const satG=grp.filter(g=>g.al!==g.sat), vS=satG.reduce((a,g)=>a+g.v,0);
+  { const nS=new Set(satG.map(g=>g.sat)).size, nM=new Set(satG.map(g=>g.al)).size;
+    const sv=topla(satG,g=>[[g.sat,g.v]]), av=topla(satG,g=>[[g.al,g.v]]), uv=topla(satG,g=>g.u);
+    const k=[`<div class="kpi"><span>Dağıtıcılar arası satış</span><b>${ton(vS)}</b><span>${nS} satıcı → ${nM} müşteri</span></div>`];
+    if(sv.length) k.push(`<div class="kpi"><span>${S.sid>=0?"Satıcı":"En büyük satıcı"}</span><b>${esc(SIR[sv[0][0]][1])}</b><span>${S.sid>=0?"tüm satışı":"satışların "+pct(sv[0][1]/vS)} · ${ton(sv[0][1])}</span></div>`);
+    if(av.length) k.push(`<div class="kpi"><span>${S.mm>=0?"Müşteri":"En büyük müşteri"}</span><b>${esc(SIR[av[0][0]][1])}</b><span>${S.mm>=0?"toplam alımı":"alımların "+pct(av[0][1]/vS)} · ${ton(av[0][1])}</span></div>`);
+    if(uv.length) k.push(`<div class="kpi"><span>Ürün dağılımı</span><b>${AU[uv[0][0]]} ${pct(uv[0][1]/vS)}</b><span>${uv.slice(1,3).map(([u,v])=>`${AU[u]} ${pct(v/vS)}`).join(" · ")||"&nbsp;"}</span></div>`);
+    document.getElementById("k-mus").innerHTML=satG.length?k.join(""):"";
+    const L=satG.map(g=>({sat:g.sat,al:g.al,sn:SIR[g.sat][1],an:SIR[g.al][1],v:g.v,on:S.sid===g.sat&&S.mm===g.al,seg:[...g.u].sort((a,b)=>a[0]-b[0]).map(([u,v])=>[rk(u),v])}));
+    const ul=[...new Set(satG.flatMap(g=>[...g.u.keys()]))].sort((a,b)=>a-b);
+    ciftListe(document.getElementById("cf-mus"),L.length>1?L:[],{T:vS,bas:"En büyük satıcı → müşteri ilişkileri",alt:`Çubuk ürün dağılımını gösterir. Bir ilişkiye tıklayınca satıcı ve müşteri filtrelenir.${L.length>10?" İlk 10 / "+L.length+".":""}`,
+      leg:`<div class="cf-leg">${ul.map(u=>`<span>${dot(u)}${AU[u]}</span>`).join("")}</div>`});
+  }
+  // Tablo: müşteri satırı (kapalı) → tıklayınca terminaller (kullanıcı 23.10.2026; eski: müşteri → terminal → ürün üç seviye)
+  const LIM=30, gs=S.hepsiM?grp:grp.slice(0,LIM), acik=S.musAc||(S.musAc=new Set()), oto=gs.length<=3;
+  const head=`<tr><th class="l">Müşteri</th><th>Miktar</th><th class="l">Ürünler</th><th class="l">Yükleme terminali</th><th class="l">Nasıl teslim alıyor</th><th class="l">Ürünün kaynağı</th></tr>`;
+  const mx=Math.max(1,...gs.map(g=>g.v));
+  const body=gs.map(g=>{const kendi=g.al===g.sat, key=g.sat+"|"+g.al, ac=oto||acik.has(key);
+    const ts=[...g.t].filter(([,p])=>p.v>0.5).sort((a,b)=>b[1].v-a[1].v), us=[...g.t.values()].flatMap(p=>[...p.u.values()]);
+    const tesA=topla(us,o=>o.tes), kayA=topla(us,o=>o.src);
+    const tAd=ts.length?`${esc(TERM[ts[0][0]][1])}${ts.length>1?` <span class="muted">+${ts.length-1}</span>`:""}`:"";
+    let h=`<tr class="tg grp mr${kendi?" kendi":""}${ac?" ac":""}" tabindex="0" data-ac="${key}" aria-expanded="${ac}"><td class="l"><span class="car" aria-hidden="true">›</span><b>${kendi?"Kendi satışı":esc(SIR[g.al][1])}</b>${S.sid<0&&!kendi?`<br><span class="muted" style="margin-left:14px">satıcı: ${esc(SIR[g.sat][1])}</span>`:kendi?`<br><span class="muted" style="margin-left:14px">${esc(SIR[g.al][1])}</span>`:""}</td><td style="white-space:nowrap"><span class="pbar" style="background:var(--accent);width:${Math.max(2,Math.round(40*g.v/mx))}px"></span><b>${ton(g.v)}</b></td><td class="l">${urunler(g.u)}</td><td class="l">${tAd}<br><span class="muted">${ts.length} terminal</span></td><td class="l">${ilk(tesA,g.v,2)}</td><td class="l">${ilk(kayA.map(([k,v])=>[esc(k),v]),g.v,2)}</td></tr>`;
+    if(ac) for(const [t,pt] of ts){ const uo=[...pt.u.values()];
+      h+=`<tr class="sub" tabindex="0" data-term="${t}"><td class="l ind"><b>${(esc(TERM[t][1])+LIS(t,0))}</b><br><span class="muted">${esc(HUB[TERM[t][2]].ad)} · ${pt.il.size} il</span></td><td>${cell(pt.v)}</td><td class="l">${urunler(pt.u)}</td><td class="l"><span class="muted">${pct(pt.v/g.v)} bu müşterinin</span></td><td class="l"><span class="muted">${ilk(topla(uo,o=>o.tes),pt.v,2)}</span></td><td class="l"><span class="muted">${ilk(topla(uo,o=>o.src).map(([k,v])=>[esc(k),v]),pt.v,2)}</span></td></tr>`; }
     return h}).join("");
-  const more=grp.length>LIM?`<tr><td colspan="5" class="empty"><button type="button" class="clear" id="hepsiM">${S.hepsiM?`İlk ${LIM} müşteriyi göster`:`Tümünü göster (${grp.length} müşteri)`}</button></td></tr>`:"";
-  document.getElementById("t-mus").innerHTML=`<thead>${head}</thead><tbody>${body?body+more:`<tr><td colspan="5" class="empty">Bu seçimde dağıtıcı satışı yok.</td></tr>`}</tbody>`;
-  const sat=grp.filter(g=>g.al!==g.sat), nM=new Set(sat.map(g=>g.al)).size, vS=sat.reduce((a,g)=>a+g.v,0), vK=grp.reduce((a,g)=>a+g.v,0)-vS;
+  const more=grp.length>LIM?`<tr><td colspan="6" class="empty"><button type="button" class="clear" id="hepsiM">${S.hepsiM?`İlk ${LIM} müşteriyi göster`:`Tümünü göster (${grp.length} müşteri)`}</button></td></tr>`:"";
+  document.getElementById("t-mus").innerHTML=`<thead>${head}</thead><tbody>${body?body+more:`<tr><td colspan="6" class="empty">Bu seçimde dağıtıcı satışı yok.</td></tr>`}</tbody>`;
+  const nM=new Set(satG.map(g=>g.al)).size, vK=grp.reduce((a,g)=>a+g.v,0)-vS;
   document.getElementById("s-mus").textContent=grp.length?`${nM} müşteri · satış ${ton(vS)}${vK>0.5?` · kendi ${ton(vK)}`:""} · LPG hariç`:"";
   yolMus();
   document.getElementById("h-mus").textContent=(tum?"Dağıtıcılar arası satışlar":`${SIR[S.sid][1]} – müşteriler`)+(S.mm>=0?` → ${SIR[S.mm][1]}`:"");
@@ -975,6 +997,10 @@ function lpgTicaret(){
   document.getElementById("h-lpgm").textContent=(S.lsat?`${S.lsat} – müşteriler`:"LPG – dağıtıcılar arası ticaret")+(S.lmus>=0?` → ${SIR[S.lmus][1]}`:"");
   document.getElementById("s-lpgm").textContent=`${nS} satıcı · ${alc.size} müşteri · ${ton(T)}`;
   document.getElementById("l-lpgm").textContent="Dağıtıcıların birbirine yıllık LPG satışı (otogaz, tüplü ve dökme toplamı). Satıcı satırının altında müşterileri ve satıcının satışındaki payları yer alır. Müşteri seçince müşterinin LPG'sini hangi terminallerden yüklediği de görünür.";
+  // en büyük ilişkiler (kullanıcı 23.10.2026)
+  { const P=new Map(); for(const r of R){ const k=r[2]+"|"+r[0]; const o=P.get(k)||P.set(k,{sat:r[2],al:r[0],sn:r[2],an:SIR[r[0]][1],v:0}).get(k); o.v+=r[4]; }
+    const L=[...P.values()].filter(o=>o.v>=0.5).sort((a,b)=>b.v-a.v).map(o=>({...o,on:S.lsat===o.sat&&S.lmus===o.al,seg:[["var(--lpg)",o.v]]}));
+    ciftListe(document.getElementById("cf-lpgm"),L.length>1?L:[],{T,bas:"En büyük satıcı → müşteri ilişkileri",alt:`Bir ilişkiye tıklayınca satıcı ve müşteri filtrelenir.${L.length>10?" İlk 10 / "+L.length+".":""}`}); }
   // satıcı → müşteri tablosu
   const g=new Map(); for(const r of R){ const o=g.get(r[2])||g.set(r[2],{v:0,m:new Map()}).get(r[2]); o.v+=r[4]; o.m.set(r[0],(o.m.get(r[0])||0)+r[4]); }
   const gs=[...g].sort((a,b)=>b[1].v-a[1].v), LIM=S.lsat||S.lmus>=0||S.hepsiL?1e9:6, mx=Math.max(...[...g.values()].flatMap(o=>[...o.m.values()]),1);
@@ -2221,6 +2247,10 @@ document.addEventListener("click",e=>{
   if(e.target.id==="termX"){S.term=null; render(); return}
   if(e.target.id==="hepsi"){S.hepsi=!S.hepsi; terminaller(); return}
   if(e.target.id==="hepsiM"){S.hepsiM=!S.hepsiM; musteriler(); return}
+  if(e.target.id==="yolHep"){S.yolHep=!S.yolHep; musteriler(); return}
+  { const r=e.target.closest("tr[data-ac]"); if(r){ const A=S.musAc||(S.musAc=new Set()), k=r.dataset.ac; A.has(k)?A.delete(k):A.add(k); musteriler(); return; } }
+  { const c=e.target.closest("#cf-mus .cf"); if(c){ const sa=+c.dataset.cs, al=+c.dataset.ca; if(S.sid===sa&&S.mm===al){S.sid=-1; S.mm=-1;} else {S.sid=sa; S.mm=al;} S.term=null; render(); return; } }
+  { const c=e.target.closest("#cf-lpgm .cf"); if(c){ const sa=c.dataset.cs, al=+c.dataset.ca; if(S.lsat===sa&&S.lmus===al){S.lsat=""; S.lmus=-1;} else {S.lsat=sa; S.lmus=al;} render(); return; } }
   if(e.target.id==="hepsiT"){S.hepsiT=!S.hepsiT; tahsis(); return}
   const tr=e.target.closest("tr[data-term],tr[data-il]"); if(!tr) return;
   if(tr.dataset.term){const t=+tr.dataset.term; S.term=S.term===t?null:t;} else {const i=+tr.dataset.il; S.il=S.il===i?null:i;}

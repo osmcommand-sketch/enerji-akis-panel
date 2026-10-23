@@ -221,6 +221,21 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 }
 /* Tedarik yolu (kullanıcı 15.10.2026 14:41): satıcının hangi ürünü hangi yöntemle müşteri terminaline geliyor */
 .yol{display:flex;flex-direction:column;gap:8px}
+/* Dağıtıcılar arası ticaret – okunabilirlik (kullanıcı 23.10.2026) */
+#k-mus .kpi{flex:1 1 180px;border-top:3px solid var(--accent)}
+.cf-box{margin:12px 0 4px}.cf-box:empty{display:none}
+.cf-box h3{margin:0 0 2px}.cf-box .cf-s{font-size:12px;color:var(--ink-3);margin:0 0 8px}
+.cf-l{display:flex;flex-direction:column;gap:2px}
+.cf{display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr) 5.5rem 3.5rem;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;border-radius:8px;padding:6px 8px;cursor:pointer}
+.cf:hover,.cf:focus-visible{background:var(--surface-2)}.cf.on{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--accent)}
+.cf .cf-n{font-size:13px;line-height:1.3;min-width:0}.cf .cf-n b{font-weight:600}.cf .cf-n span{color:var(--ink-3);display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf .cf-b{display:flex;height:12px;border-radius:3px;overflow:hidden;background:transparent}.cf .cf-b i{display:block;height:100%}
+.cf .cf-v{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;font-size:13px}.cf .cf-p{text-align:right;color:var(--ink-3);font-size:12px;font-variant-numeric:tabular-nums}
+.cf-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink-2);margin-top:6px}
+@media (max-width:600px){.cf{grid-template-columns:minmax(0,1fr) 4.6rem;gap:4px 8px}.cf .cf-b{grid-column:1/-1;grid-row:2}.cf .cf-p{display:none}}
+#t-mus tr.mr{cursor:pointer}#t-mus tr.mr td{vertical-align:top}#t-mus .car{display:inline-block;width:14px;color:var(--ink-3);transition:transform .15s}#t-mus tr.mr.ac .car{transform:rotate(90deg)}
+#t-mus .uc{display:inline-flex;align-items:center;gap:4px;margin-right:10px;white-space:nowrap}
+#t-mus td.l{white-space:normal}#t-mus td:nth-child(3){min-width:180px}#t-mus td:first-child{min-width:200px}#t-mus tr.mr td{background:var(--surface);font-size:13.5px;border-top:1px solid var(--line)}#t-mus tr.mr:hover td{background:var(--surface-2)}#t-mus tr.mr.ac td{background:var(--surface-2)}#t-mus tr.mr td b{font-weight:600}#t-mus tr.sub td{background:var(--surface)}
 .yol h3{margin:2px 0 0}
 .yol-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
 .yol-c{display:flex;flex-wrap:wrap;align-items:stretch;gap:4px}
