@@ -773,13 +773,14 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
   </section>
   <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
     <div class="f"><label for="f-tr-t">Tesis</label><select id="f-tr-t"></select></div>
+    <div class="f"><label for="f-tr-p">Tesis tipi</label><select id="f-tr-p"><option value="">Tümü</option><option value="0">Model dışı tesis</option><option value="1">Model terminali (antrepo transit)</option></select></div>
     <div class="f"><label for="f-tr-u">Ürün</label><select id="f-tr-u"></select></div>
     <div class="f"><label>Sol sütun</label><div class="seg" role="group" aria-label="Akış şemasının sol sütunu"><button type="button" data-trl="k" aria-pressed="true">Giriş kapısı</button><button type="button" data-trl="m" aria-pressed="false">Menşe ülke</button></div></div>
     <button type="button" class="clear" id="clear-tr">Filtreleri temizle</button>
   </div>
   <section class="trn-only" aria-labelledby="h-trn">
     <div class="head"><h2 id="h-trn">Transit ticaret</h2><span class="sub" id="s-trn"></span></div>
-    <p class="lead">Akaryakıt modelinde olmayan liman tesislerine gelen IM-EX ithal kargoları ve aynı tesisten yapılan ihracat. İthalatın aynı yıl içinde aynı tesisten aynı ürünle ihraç edilen kısmı transit sayılır; kalanı yurt içine ya da stoğa gider. Akış şemasında bir tesise tıklayınca sayfa o tesise daralır.</p>
+    <p class="lead">Liman tesislerine gelen IM-EX ithal kargoları ve aynı tesisten yapılan ihracat: akaryakıt modelinde olmayan tesisler ve antrepo transiti yapan model terminalleri (ör. Opet Marmara, Nergis, Aves). İthalatın aynı yıl içinde aynı tesisten aynı ürünle ihraç edilen kısmı transit sayılır; kalanı yurt içine ya da stoğa gider. Akış şemasında bir tesise tıklayınca sayfa o tesise daralır.</p>
     <div class="kpis" id="k-trn"></div>
     <div id="trn-map"></div>
     <div class="trs" id="trn-sankey"></div>
@@ -806,6 +807,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <ul class="notes">
       <li>Kaynak: Enerji Master DB REF_TRANSIT_TICARET (tesis × ürün × ay ithalat, ihracat ve eşleşme) ve REF_IMEX_KARGO kayıtları (Kapsam = 'Transit ticaret (izleme)'; giriş kapısı, menşe, yükleme limanı, alıcı). Bu tesisler akaryakıt modelinde terminal olarak yer almaz; tesis adları IM-EX'teki yazımdır.</li>
       <li>Transit (yıllık): tesis ve ürün bazında yıllık ithalat ile yıllık ihracatın küçüğü (Transit_yillik_ton). Aynı ay eşleşme daha dar tanımdır (her ayda ithalat ile ihracatın küçüğü); aylık grafikte gösterilir. Kalan ithalat = ithalat − transit (yıllık); PDM bunu sonraki adımda yurt içi satış ve stoğa dönüştürecek.</li>
+      <li>Model terminali (antrepo transit): akaryakıt modelindeki bir terminalde IM-EX ithalatının aynı tesisten yeniden ihraç edilen kısmı (PDM 23.10.2026; IM-EX ihracat yükleme noktaları). Bu tesislerde "kalan ithalat" modeldeki yurt içi akışa girer; akış ithalatı EPDK şirket ithalatına ölçekli olduğundan bu satırlar izleme amaçlıdır. Rafineri iskelelerinin ihracatı üretim ihracatıdır, transit sayılmaz. NATO alımları askeri amaçlı olduğu için listede yok.</li>
       <li>İhracat ithalattan fazla olabilir (ör. fuel oil): fark, tesisin ithalat dışındaki kaynaktan (rafineri, yurt içi alım) yaptığı ihracattır ve transit sayılmaz.</li>
       <li>Eylül–Aralık kargoları tahmindir. Harita: tesis konumu EPDK depolama lisansı, tarife belgesi ya da açık kaynaktan (REF_TRANSIT_TESIS; güven düzeyi tesis ipucunda). Daireye tıklayınca sayfa o tesise daralır. Akış şeması giriş kapısı ya da menşe ülkeden tesise ve çıkışa giden hacmi gösterir; ithal rotaları haritada şimdilik çizilmez.</li>
     </ul>

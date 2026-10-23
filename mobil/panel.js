@@ -1725,9 +1725,11 @@ document.getElementById("clear-hv").addEventListener("click",()=>{S.hvS=-1; S.hv
 const TRT_=D.trt||[], TRN_=D.trn||[], TRK_=D.trk||[];
 const TR_KR={g_kuzey:"#2A5591",g_bati:"#0F6E8C",g_dogu:"#B7791F","":"#6F7E89"};
 const TR_C={tr:"#7553B5",kal:"#8A6238"};
-if(S.trT===undefined){ S.trT=-1; S.trU=""; S.trL="k"; }
+if(S.trT===undefined){ S.trT=-1; S.trU=""; S.trL="k"; S.trP=""; }
+const TRTT_=D.trtt||[];
 function transitSayfa(){
-  const okT=r=>S.trT<0||r[0]===S.trT, okU=r=>!S.trU||r[1]===S.trU;
+  const okP=r=>S.trP===""||String(TRTT_[r[0]]||0)===S.trP, okT=r=>(S.trT<0||r[0]===S.trT)&&okP(r), okU=r=>!S.trU||r[1]===S.trU;
+  document.getElementById("f-tr-p").value=S.trP;
   // filtre seçenekleri
   const tv=new Map(), uv=new Map();
   for(const r of TRN_){ if(okU(r)) tv.set(r[0],(tv.get(r[0])||0)+r[3]+r[4]); if(okT(r)) uv.set(r[1],(uv.get(r[1])||0)+r[3]+r[4]); }
@@ -1759,7 +1761,7 @@ function transitSayfa(){
   const cells=o=>`<td>${ton(o.i)}</td><td>${ton(o.e)}</td><td><b>${ton(o.tr)}</b></td><td>${ton(o.k)}</td><td>${o.i>0.5?pct(o.tr/o.i):"–"}</td>`;
   const out=[];
   for(const [t,x] of [...TS].sort((a,b)=>(b[1].i+b[1].e)-(a[1].i+a[1].e))){
-    out.push(`<tr class="grp tg" tabindex="0" data-trt="${t}"><td class="l"><b>${esc(TRT_[t])}</b>${(D.tryt||[]).includes(t)?' <span class="tag">yalnız transit</span>':""} <span class="muted">· ${x.u.length} ürün</span></td>${cells(x)}<td class="l muted">${top3(KK(t),5)}</td><td class="l muted">${top3(KK(t),7)}</td></tr>`);
+    out.push(`<tr class="grp tg" tabindex="0" data-trt="${t}"><td class="l"><b>${esc(TRT_[t])}</b>${(D.tryt||[]).includes(t)?' <span class="tag">yalnız transit</span>':""}${TRTT_[t]?' <span class="tag">model terminali</span>':""} <span class="muted">· ${x.u.length} ürün</span></td>${cells(x)}<td class="l muted">${top3(KK(t),5)}</td><td class="l muted">${top3(KK(t),7)}</td></tr>`);
     for(const o of x.u.sort((a,b)=>(b.i+b.e)-(a.i+a.e))) out.push(`<tr class="sub"><td class="l ind">${esc(o.u)}</td>${cells(o)}<td class="l muted">${top3(KK(t,o.u),5)}</td><td class="l muted">${top3(KK(t,o.u),7)}</td></tr>`);
   }
   if(TS.size) out.push(`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td><b>${ton(I)}</b></td><td><b>${ton(E)}</b></td><td><b>${ton(TR)}</b></td><td><b>${ton(KL)}</b></td><td>${I?pct(TR/I):"–"}</td><td></td><td></td></tr>`);
@@ -1871,7 +1873,8 @@ function transitAy(R){
 function niceStep(mx){ const r=mx/4, p=Math.pow(10,Math.floor(Math.log10(r))), n=r/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
 document.getElementById("f-tr-t").addEventListener("change",e=>{S.trT=+e.target.value; render();});
 document.getElementById("f-tr-u").addEventListener("change",e=>{S.trU=e.target.value; render();});
-document.getElementById("clear-tr").addEventListener("click",()=>{S.trT=-1; S.trU=""; render();});
+document.getElementById("clear-tr").addEventListener("click",()=>{S.trT=-1; S.trU=""; S.trP=""; render();});
+document.getElementById("f-tr-p").addEventListener("change",e=>{S.trP=e.target.value; S.trT=-1; render();});
 for(const b of document.querySelectorAll("[data-trl]")) b.addEventListener("click",()=>{S.trL=b.dataset.trl; render();});
 document.getElementById("t-trn").addEventListener("click",e=>{ const tr=e.target.closest("tr[data-trt]"); if(!tr) return; const t=+tr.dataset.trt; S.trT=S.trT===t?-1:t; render(); });
 // Ürün KPI'ları: ithal / yerli (kullanıcı 22.10.2026 14:32). rows: [ürün, ton, ithal ton]

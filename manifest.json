@@ -1,15 +1,15 @@
 {
- "surum": "1.0.56",
+ "surum": "1.0.57",
  "kabuk": 1,
- "tarih": "2026-10-23T11:19:00+03:00",
- "notlar": "Transit ticaret: tesis stoku ve kapasite grafikleri",
+ "tarih": "2026-10-23T11:43:38+03:00",
+ "notlar": "Transit: model terminalleri (antrepo transit), tesis tipi filtresi",
  "dosyalar": {
-  "ui/index.html": "75c9395878182ca87ffbb47c462fa2f799e262a61db2f42bcdc74f571745075a",
+  "ui/index.html": "3a5c6a5d3ec3938f74aeb644b795da4b0616eb5255587caff85916b877a8dc67",
   "ui/app.css": "c90456c44dce35d0754b84569fb6dda0c62941802519c4bd1dc7554de3ec918d",
   "ui/app.js": "7ec8e40e5a014322bd91f518b0b6f39f5a4298679e74b5d2ecde1a6705de2dc2",
   "ui/panel.css": "f69f353ede2aabbfe54207165a34bbcbd34aaa25b055fd07c0c64656e16e04ff",
-  "ui/panel.js": "0c6fa216d624ce54ed10b76ebd87218187bc25c99e37fdfb6621c2eda8e5b142",
-  "pipeline.js": "040be65ca0a41b3ac4ce2a30462bc92180b43fb1123ca2704b3f52a800b32d44",
+  "ui/panel.js": "b8da398ea4aa22deebecd2814207130434ea268967f0ef8729041c37efadaf9c",
+  "pipeline.js": "ce9230892e97a32619813aa6bfbbc9ca22be339e3e949ad81ec4961ac85015b9",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
