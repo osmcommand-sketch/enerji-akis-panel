@@ -1,15 +1,15 @@
 {
- "surum": "1.0.55",
+ "surum": "1.0.56",
  "kabuk": 1,
- "tarih": "2026-10-23T10:26:39+03:00",
- "notlar": "Rafineri adı eşleşmesi (tek ad kuralı)",
+ "tarih": "2026-10-23T11:19:00+03:00",
+ "notlar": "Transit ticaret: tesis stoku ve kapasite grafikleri",
  "dosyalar": {
-  "ui/index.html": "94357fcb542185278d0a04f8f7e3e6d1969df968edf64b813cd996e855a9abf5",
+  "ui/index.html": "75c9395878182ca87ffbb47c462fa2f799e262a61db2f42bcdc74f571745075a",
   "ui/app.css": "c90456c44dce35d0754b84569fb6dda0c62941802519c4bd1dc7554de3ec918d",
   "ui/app.js": "7ec8e40e5a014322bd91f518b0b6f39f5a4298679e74b5d2ecde1a6705de2dc2",
-  "ui/panel.css": "00abd022a80bd987bd29b26cdcdd4e04b11153df4b1896e809edb40f2e8fe2b3",
-  "ui/panel.js": "996530a746ab713a8c555d397868d18066dc8a119cad424095f940e2f03e522d",
-  "pipeline.js": "5210f7ca381ac6daa7ff6be1f28b8ffbb94ec30809f8e9334e988d76b2cde642",
+  "ui/panel.css": "f69f353ede2aabbfe54207165a34bbcbd34aaa25b055fd07c0c64656e16e04ff",
+  "ui/panel.js": "0c6fa216d624ce54ed10b76ebd87218187bc25c99e37fdfb6621c2eda8e5b142",
+  "pipeline.js": "040be65ca0a41b3ac4ce2a30462bc92180b43fb1123ca2704b3f52a800b32d44",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

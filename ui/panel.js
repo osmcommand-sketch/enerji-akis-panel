@@ -1751,6 +1751,7 @@ function transitSayfa(){
   transitHarita(L);
   transitSema(K,L);
   transitAy(R);
+  transitStok();
   // tesis tablosu
   const TS=new Map(); for(const o of L){ const x=TS.get(o.t)||TS.set(o.t,{i:0,e:0,tr:0,k:0,u:[]}).get(o.t); x.i+=o.i; x.e+=o.e; x.tr+=o.tr; x.k+=o.k; x.u.push(o); }
   const top3=(rows,ix)=>{ const M=new Map(); for(const r of rows) if(r[ix]) M.set(r[ix],(M.get(r[ix])||0)+r[8]); const T=[...M.values()].reduce((a,b)=>a+b,0)||1; return [...M].sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${esc(k)} ${pct(v/T)}`).join(" · "); };
@@ -1758,7 +1759,7 @@ function transitSayfa(){
   const cells=o=>`<td>${ton(o.i)}</td><td>${ton(o.e)}</td><td><b>${ton(o.tr)}</b></td><td>${ton(o.k)}</td><td>${o.i>0.5?pct(o.tr/o.i):"–"}</td>`;
   const out=[];
   for(const [t,x] of [...TS].sort((a,b)=>(b[1].i+b[1].e)-(a[1].i+a[1].e))){
-    out.push(`<tr class="grp tg" tabindex="0" data-trt="${t}"><td class="l"><b>${esc(TRT_[t])}</b> <span class="muted">· ${x.u.length} ürün</span></td>${cells(x)}<td class="l muted">${top3(KK(t),5)}</td><td class="l muted">${top3(KK(t),7)}</td></tr>`);
+    out.push(`<tr class="grp tg" tabindex="0" data-trt="${t}"><td class="l"><b>${esc(TRT_[t])}</b>${(D.tryt||[]).includes(t)?' <span class="tag">yalnız transit</span>':""} <span class="muted">· ${x.u.length} ürün</span></td>${cells(x)}<td class="l muted">${top3(KK(t),5)}</td><td class="l muted">${top3(KK(t),7)}</td></tr>`);
     for(const o of x.u.sort((a,b)=>(b.i+b.e)-(a.i+a.e))) out.push(`<tr class="sub"><td class="l ind">${esc(o.u)}</td>${cells(o)}<td class="l muted">${top3(KK(t,o.u),5)}</td><td class="l muted">${top3(KK(t,o.u),7)}</td></tr>`);
   }
   if(TS.size) out.push(`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td><b>${ton(I)}</b></td><td><b>${ton(E)}</b></td><td><b>${ton(TR)}</b></td><td><b>${ton(KL)}</b></td><td>${I?pct(TR/I):"–"}</td><td></td><td></td></tr>`);
@@ -1801,6 +1802,25 @@ function transitHarita(L){
   el.innerHTML=`<div class="mapbox trmap"><svg viewBox="${VB}" role="img" aria-label="Transit ticaret tesisleri haritası">${m}<g>${c}</g><g class="trlb">${lb}</g></svg></div>
     <div class="trlg"><span><i style="background:rgba(42,85,145,.4);border:1px solid #2A5591;border-radius:50%"></i>İthalat (IM-EX)</span><span><i style="background:#7553B5;border-radius:50%"></i>Transit – yeniden ihraç</span><span><i style="border:1.6px dashed #B7791F;border-radius:50%;background:none"></i>İhracat</span><span class="muted">Daire alanı tonla orantılı · konum: EPDK lisans / tarife belgesi ya da açık kaynak (REF_TRANSIT_TESIS); ayrıntı dairenin ipucunda${eks.length?" · konumu olmayan: "+esc(eks.join(", ")):""}</span></div>`;
   for(const g of el.querySelectorAll("[data-trt]")){ const f=()=>{ const t=+g.dataset.trt; S.trT=S.trT===t?-1:t; render(); }; g.addEventListener("click",f); g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }); }
+}
+function transitStok(){
+  const sec=document.getElementById("trn-stok-sec"), el=document.getElementById("trn-stok"), TRS=D.trs||[];
+  const tes=[...new Set(TRS.map(r=>r[0]))].filter(t=>S.trT<0||t===S.trT);
+  if(!tes.length){ sec.style.display="none"; return; } sec.style.display="";
+  const AY=["O","Ş","M","N","M","H","T","A","E","E","K","A"];
+  let tD=0;
+  el.innerHTML=tes.map(t=>{ const R=TRS.filter(r=>r[0]===t).sort((a,b)=>a[1]-b[1]), kap=Math.max(...R.map(r=>r[6])), mx=Math.max(kap,...R.map(r=>r[5]),...R.map(r=>r[4]))*1.08||1;
+    const W=300,H=140,l=34,b=18,tp=8, cw=(W-l-6)/12, y=v=>tp+(H-tp-b)*(1-v/mx), x=a=>l+(a-0.5)*cw;
+    const D_=R.reduce((a,r)=>a+r[4],0); tD+=D_;
+    const ar=`M${x(R[0][1])} ${y(0)}`+R.map(r=>`L${x(r[1]).toFixed(1)} ${y(r[5]).toFixed(1)}`).join("")+`L${x(R[R.length-1][1])} ${y(0)}Z`;
+    const g=`<line x1="${l}" x2="${W-6}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/><text x="${l-4}" y="${y(kap)+3}" text-anchor="end">${ton(kap)}</text>`
+      +R.map(r=>r[4]>0.5?`<rect x="${(x(r[1])-cw*0.28).toFixed(1)}" y="${y(r[4]).toFixed(1)}" width="${(cw*0.56).toFixed(1)}" height="${(y(0)-y(r[4])).toFixed(1)}" fill="#7553B5" rx="1"><title>${AY[r[1]-1]} dengeleme çıkışı ${ton(r[4])}</title></rect>`:"").join("")
+      +`<path d="${ar}" fill="#2A5591" fill-opacity=".22" stroke="#2A5591" stroke-width="1.4"/>`
+      +`<line x1="${l}" x2="${W-6}" y1="${y(kap).toFixed(1)}" y2="${y(kap).toFixed(1)}" stroke="#B42318" stroke-dasharray="4 3"/>`
+      +R.map(r=>`<circle cx="${x(r[1]).toFixed(1)}" cy="${y(r[5]).toFixed(1)}" r="2" fill="#2A5591"><title>${AY[r[1]-1]} · stok ${ton(r[5])} · ithalat ${ton(r[2])} · ihracat ${ton(r[3])}${r[4]>0.5?" · dengeleme "+ton(r[4]):""}</title></circle><text x="${x(r[1]).toFixed(1)}" y="${H-5}" text-anchor="middle">${AY[r[1]-1]}</text>`).join("");
+    const tam=R.filter(r=>r[5]>=r[6]-1).length, q=TRTS_[t];
+    return `<div class="kc"><div class="kc-h"><span>${esc(q&&q[9]?q[9]:TRT_[t])}</span><span>${(D.tryt||[]).includes(t)?"yalnız transit":""}</span></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(TRT_[t])} aylık stok ve kapasite">${g}</svg><p class="kc-not" style="margin:0">Kapasite ${ton(kap)} · en yüksek stok ${ton(Math.max(...R.map(r=>r[5])))}${tam?` · ${tam} ay tam dolu`:""}${D_>0.5?` · dengeleme çıkışı ${ton(D_)}`:" · aşım yok"}</p></div>`; }).join("");
+  document.getElementById("s-trn-s").textContent=`${tes.length} tesis · ${YIL}${tD>0.5?` · toplam dengeleme ${ton(tD)}`:""}`;
 }
 function transitSema(K,L){
   const el=document.getElementById("trn-sankey"), lg=document.getElementById("trn-lg");
