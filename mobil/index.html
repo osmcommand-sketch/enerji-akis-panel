@@ -805,10 +805,20 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <div id="dz-harita"></div>
   </section>
   <section class="dnz-only" aria-labelledby="h-dzk">
-    <div class="head"><h2 id="h-dzk">Denizcilik yakıtı satışları · 2025 ve 2026</h2><span class="sub" id="s-dzk"></span></div>
-    <p class="lead" style="margin-bottom:8px">Satış = yabancıya ihrakiye + yurt içi satış (EPDK). 2025 gerçekleşen yıl; 2026 tamamlanan yıl: Ocak–Ağustos gerçekleşen + Eylül–Aralık tahmin.</p>
-    <div class="scroll" style="max-height:none"><table id="t-dzk" class="hvt dzk"></table></div>
-    <div class="scroll" style="margin-top:12px"><table id="t-dzk2" class="dzk"></table></div>
+    <div class="head"><h2 id="h-dzk">Denizcilik yakıtı · 2025 ve 2026</h2><span class="sub" id="s-dzk"></span></div>
+    <div class="seg" role="group" aria-label="Karşılaştırma dönemi" style="margin:2px 0 10px"><button type="button" data-dzk="ay" aria-pressed="true">Aynı dönem · Ocak–Ağustos (gerçekleşen)</button><button type="button" data-dzk="yil" aria-pressed="false">Tam yıl · 2026 tahmin dahil</button></div>
+    <div id="dzk-ay">
+      <p class="lead" style="margin-bottom:8px">EPDK aylık Petrol Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir). İhrakiye burada EPDK aylık tanımıdır: yabancıya ihrakiye (ihrakiye-ihracat) + transit rejime tabi teslim + ÖTV'li / ÖTV'siz teslim.</p>
+      <div class="scroll" style="max-height:none"><table id="t-dzk3" class="dzk"></table></div>
+      <div id="dzk-grafik" class="ru-svg" style="margin-top:14px"></div>
+      <div class="head" style="margin-top:14px"><h3>Şirketler · Ocak–Ağustos 2026 teslim</h3><span class="sub" id="s-dzk4"></span></div>
+      <div class="scroll" style="max-height:none"><table id="t-dzk4" class="dzk"></table></div>
+    </div>
+    <div id="dzk-yil" hidden>
+      <p class="lead" style="margin-bottom:8px">Satış = yabancıya ihrakiye + yurt içi satış (EPDK yıllık tanım; transit rejim teslimi hariç). 2025 gerçekleşen yıl; 2026 tamamlanan yıl: Ocak–Ağustos gerçekleşen + Eylül–Aralık tahmin.</p>
+      <div class="scroll" style="max-height:none"><table id="t-dzk" class="hvt dzk"></table></div>
+      <div class="scroll" style="margin-top:12px"><table id="t-dzk2" class="dzk"></table></div>
+    </div>
   </section>
   <section class="dnz-only" aria-labelledby="h-dzl">
     <div class="head"><h2 id="h-dzl">Bunker limanları</h2><span class="sub" id="s-dzl"></span></div>

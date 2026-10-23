@@ -1816,7 +1816,52 @@ function dzDenge(H0){
 // (Enerji Master DB 2025: REF_EPDK_SIRKET_SATIS / IHRACAT / ITHALAT, REF_EPDK_RAFINERI_URETIM). Şirket: [yurt içi, yabancıya ihrakiye, ihracat, ithalat] ton
 const DZ25={yil:2025,s:{S003:[14674,133729,0,94233],S001:[45500,161465,0,107507],S020:[6391,96710,0,2976],S181:[0,111692,0,0],S005:[0,67367,0,0],S149:[0,298,0,0],S022:[0,8936,0,0],S170:[0,925,0,0],S145:[0,172,0,0],S090:[0,0,725494,0],S013:[35,0,0,0],S007:[53,0,0,0]},
   t:{uretim:1129738,ithalat:204716,ihrakiye:581294,ihracat:725494,yurtici:66653}};
+// Aynı dönem (kullanıcı 23.10.2026 22:04: EPDK aylık akaryakıt raporları Ocak–Ağustos 2026 + ekleri)
+// DZ_AY.g25/g26: ay × [üretim, ithalat, ihracat (ihrakiye-ihracat dahil), yurt içi satış, toplam teslim] · ih25/ih26: Tablo 5.3 toplam ihrakiye
+// ihk26: Tablo 5.2 [ihrakiye-ihracat, ÖTV'li, ÖTV'siz, transit rejim, diğer, toplam] · kum: Ağustos raporu Ocak–Ağustos kümülatif [2025, 2026]
+// DZ_T21: Ağustos eki Tablo 21 (Ocak–Ağustos 2026) [Sirket_ID, ad, ihrakiye-ihracat, diğer teslim (transit rejim vb.)]
+const DZ_AY={"g25":[[98966,28472,146075,3914,195436],[83862,18492,75014,5235,177552],[51372,18110,96206,7358,187433],[76482,6483,66688,4174,189816],[77702,15115,89876,4529,205097],[186166,17315,185186,6849,184539],[113654,17202,126546,5832,237133],[86245,9982,58993,3828,186721]],"g26":[[36061,9127,55823,2274,196324],[49748,15597,52538,1248,178874],[83453,8575,75983,1346,196172],[166381,2701,98578,1940,215297],[110390,2412,130503,1414,170555],[83563,9098,120693,3738,217671],[79546,11650,93895,2345,217566],[65842,8267,61435,3294,181120]],"ih25":[195436,177552,180283,180416,196147,173989,188939,171808],"ih26":[184779,165684,179591,188604,143446,196844,197565,170017],"ihk26":[[55823,206,2068,126473,209,184779],[52538,0,1248,111167,731,165684],[36018,167,1178,141633,595,179591],[53642,36,1904,132809,213,188604],[50709,92,1322,90472,850,143446],[55903,116,3622,135899,1304,196844],[68569,1011,1334,125798,852,197565],[61435,50,3001,103918,1612,170017]],"kum":{"uretim":[774449,674983],"ithalat":[131171,67427],"ihracat":[844584,689449],"yurtici":[41793,17600],"teslim":[1563802,1582664]}};
+const DZ_T21=[["S001","Petrol Ofi̇si̇",81138,384196],["S003","Opet Petrolcülük",115760,165456],["S020","Socar Turkey",87159,240912],["S005","Enerji̇ Petrol",42628,138840],["S022","Teco Petrolcülük",7043,0],["S142","Arkas Petrol",0,114378],["S138","A/B Petrol",0,345],["S149","Bunker Petrol",25720,62339],["S148","Brother Deni̇zci̇li̇k",0,33318],["S178","Temar Deni̇zci̇li̇k",0,2417],["S175","Seymen Petrol",0,111],["S145","As-mi̇ra Petrol",320,345],["S197","Aquas Petrol",0,1737],["","Makpet Enerji̇",0,2715],["S156","Erdem Petrol",0,261],["S205","Hali̇karnas Akaryakit",0,580],["S144","As Yakit",0,77],["S170","Mustafa Okanoğullari",242,0],["S181","Unerco Petrol",74628,0]];
+if(S.dzK===undefined) S.dzK="ay";
+function dzAyni(){
+  const K=DZ_AY.kum, sm=a=>a.reduce((x,y)=>x+y,0), I25=sm(DZ_AY.ih25), I26=sm(DZ_AY.ih26), P=i=>sm(DZ_AY.ihk26.map(r=>r[i]));
+  const t=v=>v==null?"–":v>=0.5?ton(v):"–";
+  const dg=(a,b)=>{ if(a==null||b==null) return `<td class="b">–</td><td>–</td>`; const d=b-a, c=d>0?"up":"dn"; return `<td class="b ${c}">${d>0?"+":"−"}${ton(Math.abs(d))}</td><td class="${c}">${(d>0?"+":"")+pct(a?d/a:0)}</td>`; };
+  const row=(ad,a,b,not,alt)=>`<tr${alt?' class="sub"':""}><td class="l${alt?" ind":""}">${alt?ad:`<b>${ad}</b>`}</td><td class="b">${t(a)}</td><td>${t(b)}</td>${dg(a,b)}<td class="l muted">${not||""}</td></tr>`;
+  document.getElementById("t-dzk3").innerHTML=`<thead><tr><th class="l">Ülke · Ocak–Ağustos</th><th class="b">2025</th><th>2026</th><th class="b">Değişim</th><th>%</th><th class="l">Not</th></tr></thead><tbody>`
+    +row("Toplam ihrakiye teslimi",I25,I26,"gemilere verilen yakıtın tamamı (Tablo 5.3, aylar toplamı)")
+    +row("Transit rejime tabi teslim",null,P(3),"antrepodan; yıllık modelde yok (bu sayfanın haritası ve tablolarında yok)",1)
+    +row("Yabancıya ihrakiye (ihrakiye-ihracat)",null,P(0),"yıllık modeldeki ihrakiye bu kalemdir",1)
+    +row("ÖTV'siz / ÖTV'li / diğer",null,P(1)+P(2)+P(4),"",1)
+    +row("Yurt içi satış (tüketim)",K.yurtici[0],K.yurtici[1],"")
+    +row("Toplam teslim",K.teslim[0],K.teslim[1],"yurt içi + ihraç kayıtlı + transit + ihrakiye-ihracat")
+    +row("Rafineri üretimi",K.uretim[0],K.uretim[1],"")
+    +row("İthalat",K.ithalat[0],K.ithalat[1],"")
+    +row("İhracat",K.ihracat[0],K.ihracat[1],"ihrakiye-ihracat dahil (EPDK aylık tanım)")+`</tbody>`;
+  // aylık grafik: toplam ihrakiye 2025 (açık) ve 2026 (yığılı: yabancıya ihrakiye, transit, diğer)
+  const AY=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu"], W=760, H=230, L=48, B=30, top=14, mx=Math.max(...DZ_AY.ih25,...DZ_AY.ih26)*1.1, y=v=>top+(H-top-B)*(1-v/mx), gw=(W-L-10)/8, bw=gw*0.32;
+  const C3=["#0F6E8C","#7553B5","#9FB3C0"]; let g="";
+  for(let k=0;k<=4;k++){ const v=mx*k/4, yy=y(v); g+=`<line x1="${L}" x2="${W-6}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" stroke="var(--line)"/><text class="m" x="${L-6}" y="${(yy+4).toFixed(1)}" text-anchor="end">${nf.format(Math.round(v/1000))}</text>`; }
+  DZ_AY.ih25.forEach((v,i)=>{ const x=L+gw*i+gw*0.14, r=DZ_AY.ihk26[i], parts=[[r[0],C3[0],"yabancıya ihrakiye"],[r[3],C3[1],"transit rejim"],[r[1]+r[2]+r[4],C3[2],"ÖTV'siz / ÖTV'li / diğer"]];
+    g+=`<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(y(0)-y(v)).toFixed(1)}" fill="#C9D3DA"><title>${AY[i]} 2025: ${ton(v)}</title></rect>`;
+    let acc=0; const x2=x+bw+3; for(const [pv,c,ad] of parts){ g+=`<rect x="${x2.toFixed(1)}" y="${y(acc+pv).toFixed(1)}" width="${bw.toFixed(1)}" height="${(y(acc)-y(acc+pv)).toFixed(1)}" fill="${c}"><title>${AY[i]} 2026 · ${ad}: ${ton(pv)}</title></rect>`; acc+=pv; }
+    const d=DZ_AY.ih26[i]/v-1; g+=`<text class="m" x="${(x+bw+1.5).toFixed(1)}" y="${(y(Math.max(v,acc))-4).toFixed(1)}" text-anchor="middle" style="fill:${d>=0?"#1A7F37":"#B42318"}">${(d>=0?"+":"")+pct(d)}</text><text x="${(x+bw+1.5).toFixed(1)}" y="${H-10}" text-anchor="middle">${AY[i]}</text>`; });
+  document.getElementById("dzk-grafik").innerHTML=`<p class="muted" style="font-size:12px;margin:0 0 4px">Aylık toplam ihrakiye teslimi (bin ton) · sol çubuk 2025, sağ çubuk 2026</p><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Aylık denizcilik ihrakiyesi 2025 ve 2026">${g}</svg>
+    <div class="trlg" style="margin-top:4px"><span><i style="background:#C9D3DA"></i>2025 toplam</span>${[["yabancıya ihrakiye",C3[0]],["transit rejim",C3[1]],["ÖTV'siz / ÖTV'li / diğer",C3[2]]].map(([a,c])=>`<span><i style="background:${c}"></i>2026 · ${a}</span>`).join("")}</div>`;
+  // şirketler (Ocak–Ağustos 2026)
+  const sx=new Map(SIR.map((r,i)=>[r[0],i])), Rw=DZ_T21.map(([id,ad,a,b])=>({i:sx.has(id)?sx.get(id):-1,ad:sx.has(id)?SIR[sx.get(id)][1]:ad,a,b,v:a+b})).sort((x,z)=>z.v-x.v), T=sm(Rw.map(r=>r.v)), mxv=Math.max(1,...Rw.map(r=>r.v));
+  const M=new Map(DZS_.filter(r=>r[0]>=0).map(r=>[r[0],r[3]]));
+  document.getElementById("t-dzk4").innerHTML=`<thead><tr><th class="l">Şirket</th><th class="b">Yabancıya ihrakiye<br><span class="muted">ihrakiye-ihracat</span></th><th>Diğer teslim<br><span class="muted">transit rejim vb.</span></th><th>Toplam</th><th>Pay</th><th class="b">Yıllık modelde<br><span class="muted">2026 ihrakiye</span></th></tr></thead><tbody>`
+    +Rw.map(r=>`<tr${r.i>=0?` data-dzs="${r.i}" tabindex="0" aria-selected="${S.dzS===r.i}"`:""}><td class="l"><b>${esc(r.ad)}</b></td><td class="b">${t(r.a)}</td><td>${t(r.b)}</td><td><span class="yb" style="width:${Math.round(36*r.v/mxv)}px;background:#0F6E8C"></span><b>${t(r.v)}</b></td><td>${pct(r.v/T)}</td><td class="b muted">${r.i>=0&&M.get(r.i)?ton(M.get(r.i)):"yok"}</td></tr>`).join("")
+    +`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td class="b"><b>${t(sm(Rw.map(r=>r.a)))}</b></td><td><b>${t(sm(Rw.map(r=>r.b)))}</b></td><td><b>${t(T)}</b></td><td>%100</td><td class="b"></td></tr></tbody>`;
+  document.getElementById("s-dzk4").textContent=`${Rw.length} şirket · EPDK Ağustos 2026 eki Tablo 21 · 2025 için şirket bazında aynı dönem verisi yok`;
+  for(const tr of document.querySelectorAll("#t-dzk4 tr[data-dzs]")){ const f=()=>{ const x=+tr.dataset.dzs; S.dzS=S.dzS===x?-1:x; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+  return {I25,I26};
+}
 function dzKarsi(){
+  for(const b of document.querySelectorAll("[data-dzk]")){ b.setAttribute("aria-pressed",String(b.dataset.dzk===S.dzK)); b.onclick=()=>{ S.dzK=b.dataset.dzk; render(); }; }
+  document.getElementById("dzk-ay").hidden=S.dzK!=="ay"; document.getElementById("dzk-yil").hidden=S.dzK==="ay";
+  const AYN=dzAyni();
   const sx=new Map(SIR.map((r,i)=>[r[0],i])), R=new Map();
   for(const [id,a] of Object.entries(DZ25.s)){ const i=sx.has(id)?sx.get(id):-1; if(i>=0) R.set(i,{a,b:[0,0,0,0]}); }
   for(const r of DZS_) if(r[0]>=0){ const o=R.get(r[0])||R.set(r[0],{a:[0,0,0,0],b:[0,0,0,0]}).get(r[0]); o.b=[r[5],r[3],r[4],r[2]]; }
@@ -1833,7 +1878,7 @@ function dzKarsi(){
     +row("Toplam satış",A.ihrakiye+A.yurtici,(E[2]||0)+(E[4]||0),"yabancıya ihrakiye + yurt içi")
     +row("Yabancıya ihrakiye",A.ihrakiye,E[2],"")+row("Yurt içi satış",A.yurtici,E[4],"")
     +row("Rafineri üretimi",A.uretim,E[0],"artık + damıtık denizcilik yakıtı")+row("İthalat",A.ithalat,E[1],"")+row("İhracat",A.ihracat,E[3],"Tüpraş")+`</tbody>`;
-  document.getElementById("s-dzk").textContent=`${L.length} şirket · toplam satış ${ton(T25)} → ${ton(T26)} (${T25?(T26>=T25?"+":"")+pct(T26/T25-1):"–"}) · filtreden etkilenmez; satıra tıklayınca şirket seçilir`;
+  document.getElementById("s-dzk").textContent=S.dzK==="ay"?`Ocak–Ağustos toplam ihrakiye ${ton(AYN.I25)} → ${ton(AYN.I26)} (${(AYN.I26>=AYN.I25?"+":"")+pct(AYN.I26/AYN.I25-1)}) · filtreden etkilenmez`:`${L.length} şirket · toplam satış ${ton(T25)} → ${ton(T26)} (${T25?(T26>=T25?"+":"")+pct(T26/T25-1):"–"}) · filtreden etkilenmez; satıra tıklayınca şirket seçilir`;
   for(const tr of document.querySelectorAll("#t-dzk tr[data-dzs]")){ const f=()=>{ const x=+tr.dataset.dzs; S.dzS=S.dzS===x?-1:x; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
 }
 function denizSayfa(){
