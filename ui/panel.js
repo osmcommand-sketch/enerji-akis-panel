@@ -1690,7 +1690,7 @@ const AIR_=D.air||[], HV_C={i:"#2A5591",y:"#B7791F"};
 if(S.hvS===undefined){ S.hvS=-1; S.hvA=-1; S.hvT=""; }
 const hvDis=f=>{ const h=HUB[TERM[f[1]][2]], a=AIR_[f[9]]; if(!h||h.lat==null) return false; const dy=(h.lat-a[3])*111, dx=(h.lon-a[4])*111*Math.cos(a[3]*Math.PI/180); return Math.hypot(dx,dy)>30; };   // havalimanı deposu değilse (30 km üstü)
 const hvV=f=>S.hvT==="i"?(f[14]||0):S.hvT==="y"?f[6]-(f[14]||0):f[6];
-const hvKay=f=>{ const k=KAY[f[4]]||["","?","",-1]; if(k[2]==="Rafineri") return {g:"r"+k[1],ad:k[1],tip:"rafineri",raf:RAFTI.has(k[1])?RAFTI.get(k[1]):-1};
+const hvKay=f=>{ const k=KAY[f[4]]||["","?","",-1]; if(k[2]==="Rafineri") return {g:"r"+k[1],ad:k[1],tip:"rafineri",raf:k[4]>=0?k[4]:RAFTI.has(k[1])?RAFTI.get(k[1]):-1};
   if(/^İthalat/.test(k[2])) return {g:"i",ad:/antrepo/i.test(MOD[f[5]]||"")?"İthalat (antrepo)":"İthalat",tip:"ithalat"};
   return {g:"d"+k[1],ad:k[1]+(f[10]>0.5?" (ithal ürün)":""),tip:"dağıtıcı"}; };
 const pasta=(x,y,r,a,c1,c2)=>{ if(a<=0.001) return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c2}"/>`; if(a>=0.999) return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c1}"/>`;
@@ -2020,7 +2020,7 @@ function akZincir(R,SID,elId){
   const URA=["benzin","motorin"], modAd=f=>String(MOD[f[5]]??"?");
   const legMod=m=>{ m=m.replace(/^Rafineri tahsisinden alım \((.*)\)( – .*)?$/,"$1").replace(/^Star \(Tüpraş takası\); /,""); return /Deniz/.test(m)?"deniz yolu":/Demiryolu/.test(m)?"demiryolu":/Boru/.test(m)?"boru hattı":/Karayolu/.test(m)?"karayolu":/Rafineri Sahası/.test(m)?"rafineri sahası":m.toLocaleLowerCase("tr-TR"); };
   // kaynak sınıfı
-  const kay=f=>{ const k=KAY[f[4]]||["","?","",-1]; if(k[2]==="Rafineri") return {g:"r"+k[1],ad:k[1],tip:"rafineri",raf:RAFTI.has(k[1])?RAFTI.get(k[1]):-1};
+  const kay=f=>{ const k=KAY[f[4]]||["","?","",-1]; if(k[2]==="Rafineri") return {g:"r"+k[1],ad:k[1],tip:"rafineri",raf:k[4]>=0?k[4]:RAFTI.has(k[1])?RAFTI.get(k[1]):-1};
     if(k[2]==="Stok") return {g:"s",ad:"Açılış stoku",tip:"stok"};
     if(k[3]===f[0]||/^İthalat/.test(k[2])) return {g:"i",ad:"Kendi ithalatı",tip:"ithalat"};
     return {g:"d"+k[1],ad:k[1],tip:"dağıtıcıdan alım"}; };

@@ -328,7 +328,8 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   log('Akaryakıt akışı');
   const af = Q(`select Sirket_ID,Terminal_ID,Il_ID,Urun,Kaynak_ID,Leg1_Tasima_Modu,Teslim_Noktasi_ID,case when Leg1_Tasima_Modu like 'Rafineri tahsisinden%' then Yonlendiren_Sirket_ID end y,coalesce(Leg1_Tasiyan_Tipi,'?') tt,Leg1_Tasiyan_Sirket_ID ts,max(case when Dagilim_Yontemi like 'Tahmin%' then 1 else 0 end) est,sum(Miktar_ton) t,sum(Leg2_Ton_km) tk,sum(coalesce(Ithal_ton,0)) it,sum(case when Satis_Turu like 'Yabanc%' then Miktar_ton else 0 end) ih from FACT_AKARYAKIT_AKIS group by 1,2,3,4,5,6,7,8,9,10`);
   const AUR = { 'Benzin': 0, 'Motorin': 1, 'Fuel Oil': 2, 'Havacılık': 3, 'Denizcilik': 4, 'Gazyağı': 5, 'Diğer': 6 };
-  const KAY = Q('select Kaynak_ID,Kaynak_Adi,Kaynak_Tipi,Sirket_ID from DIM_KAYNAK order by Kaynak_ID');
+  const KTID = Q('pragma table_info(DIM_KAYNAK)').some(r => r.name === 'Terminal_ID');   // PDM 23.10.2026: rafineri kaynakları Terminal_ID ile (yoksa ad eşleşmesi)
+  const KAY = Q('select Kaynak_ID,Kaynak_Adi,Kaynak_Tipi,Sirket_ID,' + (KTID ? 'Terminal_ID' : 'NULL') + ' as Terminal_ID from DIM_KAYNAK order by Kaynak_ID');
   const kix = new Map(); KAY.forEach((k, i) => kix.set(k.Kaynak_ID, i));
   const TTX = new Map();
   const MODS = [...new Set(af.map(r => r.Leg1_Tasima_Modu || '?'))].sort(cmp);
@@ -482,7 +483,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const RPU = hasTable('REF_EPDK_RAFINERI_URETIM') ? Q(`select Rafineri r,Urun u,sum(Uretim_ton) v from REF_EPDK_RAFINERI_URETIM where Donem='${YIL}' and Rafineri<>'Toplam' group by 1,2 order by 1,2`).map(r => [r.r, r.u, pr(r.v || 0)]) : [];
   const RKAP = Q("select Kaynak_Adi a,Ham_Petrol_Kapasite_ton_yil k from DIM_KAYNAK where Kaynak_Tipi='Rafineri' and Ham_Petrol_Kapasite_ton_yil is not null").map(r => [r.a, pr(r.k)]);
   const d = { rpu: RPU, rkap: RKAP, trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
-    kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID)]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
+    kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID), tix.has(k.Terminal_ID) ? tix.get(k.Terminal_ID) : -1]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
   log('Konsolidasyon');
