@@ -17,7 +17,7 @@ const zinSira=z=>String(z).split(" ← ").map(s=>s.replace(/ tahsisi$/,"").trim(
 const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1,atrU:[],ltrU:[]};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
 const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg",lpgraf:"lpg",lpgkay:"lpg",lpgtah:"lpg",lpgtas:"lpg",lpgzin:"lpg",lpgbay:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgraf"};
-const grupOf=sy=>(sy==="akis"||sy==="hava")?null:(SAYFA_GRUP[sy]||"akaryakit");
+const grupOf=sy=>(sy==="akis"||sy==="hava"||sy==="deniz")?null:(SAYFA_GRUP[sy]||"akaryakit");
 S.lsat=""; S.lmus=-1; S.hepsiL=false; S.lith=-1; S.lgum=-1;
 
 const nf=new Intl.NumberFormat("tr-TR",{maximumFractionDigits:0}), nf1=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:1,maximumFractionDigits:1}), nf2=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1791,6 +1791,111 @@ document.getElementById("f-hv-s").addEventListener("change",e=>{S.hvS=+e.target.
 document.getElementById("f-hv-a").addEventListener("change",e=>{S.hvA=+e.target.value; render();});
 document.getElementById("f-hv-t").addEventListener("change",e=>{S.hvT=e.target.value; render();});
 document.getElementById("clear-hv").addEventListener("click",()=>{S.hvS=-1; S.hvA=-1; S.hvT=""; render();});
+/* ---------- Denizcilik yakıtları (kullanıcı 23.10.2026 21:04; PDM paket 25: REF_BUNKER_LIMAN, REF_DENIZCILIK_DENGE) ---------- */
+const BNK_=D.bnk||[], DZS_=D.dzs||[], DZ_U=4;   // AU[4] = Denizcilik; AF[15] = bunker limanı
+if(S.dzS===undefined){ S.dzS=-1; S.dzL=-1; S.dzT=""; }
+const dzV=f=>S.dzT==="i"?(f[14]||0):S.dzT==="y"?f[6]-(f[14]||0):f[6];
+const dzDusuk=l=>/PDM varsayımı/.test(BNK_[l][9]||"")&&!/virahaber|denizhaber/.test(BNK_[l][9]||"");
+function dzDenge(H0){
+  const E=D.dzd||[]; if(!E.length||E.every(x=>!x)) return "";
+  const M_IH=H0.reduce((a,f)=>a+(f[14]||0),0), M_T=H0.reduce((a,f)=>a+f[6],0), M_I=H0.reduce((a,f)=>a+(f[10]||0),0);
+  const M_R=H0.filter(f=>(KAY[f[4]]||[])[2]==="Rafineri").reduce((a,f)=>a+f[6]-(f[10]||0),0);
+  const sat=(ad,e,m,not)=>{ const d=m==null||!e?null:m/e-1, ok=d!=null&&Math.abs(d)<=0.02;
+    return `<tr><td class="l">${ad}</td><td>${e?ton(e):"–"}</td><td>${m==null?"–":ton(m)}</td><td class="${d==null?"muted":ok?"":"neg"}">${d==null?"–":(ok?"✓ ":"⚠ ")+(d>=0?"+":"")+pct(d)}</td><td class="l muted">${not}</td></tr>`; };
+  return `<details class="nt" open style="margin-top:10px"><summary><b>EPDK ${YIL} denizcilik dengesi ve model akışı</b> <span class="muted">· ülke geneli</span></summary>
+    <div class="scroll"><table><thead><tr><th class="l">Kalem</th><th>EPDK ${YIL}</th><th>Model akışı</th><th>Fark</th><th class="l">Not</th></tr></thead><tbody>`
+    +sat("Rafineri üretimi (denizcilik)",E[0],null,`artık + damıtık; rafineri alımıyla fark ${E[0]&&E[5]?ton(Math.abs(E[5]-E[0])):"–"} (stok)`)
+    +sat("İthalat",E[1],M_I,"dağıtıcıların EPDK denizcilik ithalatı; ithalat noktası IM-EX")
+    +sat("Rafineriden ihrakiye + yurt içi",E[5]!=null&&E[3]!=null?E[5]-E[3]:null,M_R,"rafineri alımı − ihracat")
+    +sat("Yabancıya ihrakiye",E[2],M_IH,"")
+    +sat("Yurt içi satış",E[4],M_T-M_IH,"")
+    +sat("İhracat",E[3],null,"bunker akışında yok (Tüpraş ihracatı: Aliağa %75, İzmit %25)")
+    +`</tbody></table></div><p class="muted" style="font-size:12px;margin:4px 0 0">EPDK ${YIL}: Oca–Ağu gerçekleşen + Eyl–Ara tahmin (REF_EPDK_RAFINERI_URETIM, REF_DENIZCILIK_DENGE). ±%2 içi ✓.</p></details>`;
+}
+function denizSayfa(){
+  const H0=AF.filter(f=>f[3]===DZ_U&&f[15]>=0&&dzV(f)>0);
+  const sv=new Map(), lv=new Map();
+  for(const f of H0){ if(S.dzL<0||f[15]===S.dzL) sv.set(f[0],(sv.get(f[0])||0)+dzV(f)); if(S.dzS<0||f[0]===S.dzS) lv.set(f[15],(lv.get(f[15])||0)+dzV(f)); }
+  if(S.dzS>=0&&!sv.has(S.dzS)) S.dzS=-1; if(S.dzL>=0&&!lv.has(S.dzL)) S.dzL=-1;
+  lsel("f-dz-s",sirOpts(sv),S.dzS,"Tüm satıcı şirketler");
+  lsel("f-dz-l",[...lv].filter(x=>x[1]>=0.5).sort((a,b)=>b[1]-a[1]).map(([l,v])=>[l,`${BNK_[l][1]} · ${ton(v)}`]),S.dzL,"Tüm bunker limanları");
+  document.getElementById("f-dz-t").value=S.dzT;
+  const H=H0.filter(f=>(S.dzS<0||f[0]===S.dzS)&&(S.dzL<0||f[15]===S.dzL));
+  const v=dzV, it=f=>f[6]>0?f[10]*v(f)/f[6]:0, T=H.reduce((a,f)=>a+v(f),0), TI=H.reduce((a,f)=>a+it(f),0);
+  const IH=H.reduce((a,f)=>a+(S.dzT==="y"?0:(f[14]||0)),0), YI=T-IH;
+  const add=(m,k,x)=>m.set(k,(m.get(k)||0)+x);
+  const KY=new Map(), SR=new Map(); for(const f of H){ add(KY,hvKay(f).ad,v(f)); add(SR,SIR[f[0]][1],v(f)); }
+  const nL=new Set(H.map(f=>f[15])).size, nS=new Set(H.map(f=>f[0])).size;
+  document.getElementById("h-dnz").textContent=[S.dzL>=0?BNK_[S.dzL][1]:null,S.dzS>=0?SIR[S.dzS][1]:null].filter(Boolean).join(" · ")||"Denizcilik yakıtları";
+  document.getElementById("s-dnz").textContent=`${YIL} · ${ton(T)} · ${nL} liman · ${nS} satıcı şirket${S.dzT?" · "+(S.dzT==="i"?"yabancıya ihrakiye":"yurt içi"):""}`;
+  document.getElementById("k-dnz").innerHTML=`<div class="kg">`
+    +kompKart("Denizcilik yakıtı",[{l:"İthal",v:TI,c:HV_C.i,s:"dağıtıcıların ithal ürünü"},{l:"Yerli",v:T-TI,c:HV_C.y,s:"rafineri ürünü (Aliağa, İzmit)"}],{buyuk:ton(T),alt:`${nL} liman · ${nS} şirket`,span:3})
+    +kompKart("Satış türü",[{l:"Yabancıya ihrakiye",v:IH,c:"#0F6E8C",s:"yabancı bayraklı / uluslararası sefer"},{l:"Yurt içi",v:YI,c:"#8CC3D3",s:"kabotaj, balıkçı, yerli gemi"}],{T,span:3})
+    +siraKart("Kaynak",[...KY],{span:3,n:5,c:"#5B3A1E"})+siraKart("Satıcı şirket",[...SR],{span:3,n:5,c:"#0F6E8C"})+`</div>`+dzDenge(H0);
+  denizHarita(H,v,it);
+  const top=(m,n=3)=>{ const t=[...m.values()].reduce((a,b)=>a+b,0)||1; return [...m].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,x])=>`${esc(k)} ${pct(x/t)}`).join(" · ")+(m.size>n?` <span class="muted">+${m.size-n}</span>`:""); };
+  // liman tablosu
+  const L=new Map(); for(const f of H){ const o=L.get(f[15])||L.set(f[15],{v:0,i:0,ih:0,s:new Map(),k:new Map(),b:new Map(),km:0}).get(f[15]);
+    o.v+=v(f); o.i+=it(f); o.ih+=S.dzT==="y"?0:(f[14]||0); o.km+=f[7]*v(f); add(o.s,SIR[f[0]][1],v(f)); add(o.k,hvKay(f).ad,v(f)); add(o.b,TERM[f[1]][1],v(f)); }
+  const LR=[...L].sort((a,b)=>b[1].v-a[1].v);
+  document.getElementById("t-dzl").innerHTML=`<thead><tr><th class="l">Liman</th><th>Toplam</th><th>Pay</th><th>İthal</th><th>Yabancıya ihrakiye</th><th class="l">Satıcı şirketler</th><th class="l">Kaynak</th><th class="l">Besleme terminali</th><th>Deniz km</th></tr></thead><tbody>`
+    +LR.map(([l,o])=>`<tr data-dzl="${l}" tabindex="0" aria-selected="${S.dzL===l}"><td class="l"><b>${esc(BNK_[l][1])}</b> <span class="muted">· ${esc(IL.get(BNK_[l][2])||"")}</span>${dzDusuk(l)?` <span class="tag dg" title="${esc(BNK_[l][9])}">pay varsayım</span>`:""}</td><td><b>${ton(o.v)}</b></td><td>${pct(T?o.v/T:0)}</td><td>${pct(o.v?o.i/o.v:0)}</td><td>${S.dzT==="y"?"–":pct(o.v?o.ih/o.v:0)}</td><td class="l muted">${top(o.s)}</td><td class="l muted">${top(o.k)}</td><td class="l muted">${top(o.b,2)}</td><td>${o.v?nf.format(Math.round(o.km/o.v)):"–"}</td></tr>`).join("")
+    +(LR.length>1?`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td><b>${ton(T)}</b></td><td>%100</td><td>${pct(T?TI/T:0)}</td><td>${S.dzT==="y"?"–":pct(T?IH/T:0)}</td><td></td><td></td><td></td><td>${T?nf.format(Math.round(H.reduce((a,f)=>a+f[7]*v(f),0)/T)):"–"}</td></tr>`:"")+`</tbody>`;
+  document.getElementById("s-dzl").textContent=`${LR.length} liman · tonaja göre`;
+  // şirket tablosu: model akışı + EPDK şirket dengesi (ithalat, ihracat, rafineri alımı)
+  const SS=new Map(); for(const f of H){ const o=SS.get(f[0])||SS.set(f[0],{v:0,i:0,ih:0,l:new Map(),k:new Map()}).get(f[0]); o.v+=v(f); o.i+=it(f); o.ih+=S.dzT==="y"?0:(f[14]||0); add(o.l,BNK_[f[15]][1],v(f)); add(o.k,hvKay(f).ad,v(f)); }
+  const DZ=new Map(DZS_.filter(r=>r[0]>=0).map(r=>[r[0],r]));
+  const fil=S.dzL>=0||S.dzT;
+  if(!fil) for(const r of DZS_) if(r[0]>=0&&!SS.has(r[0])&&(S.dzS<0||r[0]===S.dzS)&&r[4]>0) SS.set(r[0],{v:0,i:0,ih:0,l:new Map(),k:new Map()});   // yalnız ihracatçı (Tüpraş)
+  const SRr=[...SS].sort((a,b)=>(b[1].v+((DZ.get(b[0])||[])[4]||0))-(a[1].v+((DZ.get(a[0])||[])[4]||0)));
+  document.getElementById("t-dzs").innerHTML=`<thead><tr><th class="l">Şirket</th><th>Bunker satışı</th><th>Pay</th><th>İthal</th><th>Yabancıya ihrakiye</th><th class="l">Başlıca limanlar</th><th class="l">Kaynak</th><th>EPDK ithalat</th><th>İhracat</th><th>Rafineri alımı</th><th class="l">İthalat / ihracat noktası</th></tr></thead><tbody>`
+    +SRr.map(([s_,o])=>{ const d=DZ.get(s_)||[]; const nk=d[7]>=0&&d[7]!=null?esc(TERM[d[7]][1]):d[8]?esc(String(d[8]).replace(/ \(IM-EX.*$/,"").replace(/T\d+ /g,"").replace(/ \/ /g," · ")):"–";
+      return `<tr data-dzs="${s_}" tabindex="0" aria-selected="${S.dzS===s_}"><td class="l"><b>${esc(SIR[s_][1])}</b></td><td><b>${o.v?ton(o.v):"–"}</b></td><td>${o.v?pct(T?o.v/T:0):"–"}</td><td>${o.v?pct(o.i/o.v):"–"}</td><td>${S.dzT==="y"||!o.v?"–":pct(o.ih/o.v)}</td><td class="l muted">${o.l.size?top(o.l,2):"–"}</td><td class="l muted">${o.k.size?top(o.k):"–"}</td><td>${d[2]?ton(d[2]):"–"}</td><td>${d[4]?ton(d[4]):"–"}</td><td>${d[6]?ton(d[6]):"–"}</td><td class="l muted">${nk}</td></tr>`; }).join("")+`</tbody>`;
+  document.getElementById("s-dzs").textContent=`${SRr.length} şirket · EPDK sütunları şirketin yıllık dengesidir (filtreden etkilenmez)`;
+  for(const tr of document.querySelectorAll("#t-dzl tr[data-dzl]")){ const f=()=>{ const a=+tr.dataset.dzl; S.dzL=S.dzL===a?-1:a; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+  for(const tr of document.querySelectorAll("#t-dzs tr[data-dzs]")){ const f=()=>{ const x=+tr.dataset.dzs; S.dzS=S.dzS===x?-1:x; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+}
+function denizHarita(H,v,it){
+  const el=document.getElementById("dz-harita"); if(!H.length){ el.innerHTML=`<p class="muted lz-bos">Bu filtrelerle denizcilik yakıtı yok.</p>`; return; }
+  const VB=svgM.getAttribute("viewBox"), W=+VB.split(/\s+/)[2], u=W/1000, add=(m,k,x)=>m.set(k,(m.get(k)||0)+x);
+  const yerT=t=>{ const h=HUB[TERM[t][2]]; return [h.lat,h.lon]; }, yerL=l=>[BNK_[l][3],BNK_[l][4]];
+  const LV=new Map(), LI=new Map(), ILV=new Map(), E1=new Map(), E2=new Map(), RAF=new Map(), BT=new Map();
+  const legMod=f=>{ const m=String(MOD[f[5]]||""); return /Deniz/.test(m)?"deniz yolu":/Boru/.test(m)?"boru hattı":/Demiryolu/.test(m)?"demiryolu":/Karayolu/.test(m)?"karayolu":""; };
+  for(const f of H){ const x=v(f); add(LV,f[15],x); add(LI,f[15],it(f)); add(ILV,BNK_[f[15]][2],x); add(BT,f[1],x); const k=hvKay(f);
+    if(k.tip==="rafineri"&&k.raf>=0){ add(RAF,k.raf,x); const md=legMod(f); if(k.raf!==f[1]&&md) add(E1,k.raf+">"+f[1]+">"+md,x); }
+    add(E2,f[1]+">"+f[15],x); }
+  const mxL=Math.max(1,...LV.values()), mxE=Math.max(1,...E1.values(),...E2.values()), mxIl=Math.max(1,...ILV.values());
+  let m=""; for(const [n,d] of Object.entries(GEO.p)){ const x=ILV.get(+n)||0; m+=`<path class="il" d="${d}" fill="${x>=0.5?`rgba(15,110,140,${(0.08+0.3*Math.sqrt(x/mxIl)).toFixed(2)})`:"var(--c0)"}"><title>${esc(IL.get(+n)||"")}${x>=0.5?": "+ton(x):""}</title></path>`; }
+  const MR={"deniz yolu":"#1D4ED8","boru hattı":"#0F6E8C","demiryolu":"#7A3E9D","karayolu":"#5B3A1E"}, BC="#0B7285";
+  let e="", pk="";
+  [...E1].sort((a,b)=>b[1]-a[1]).forEach(([kk,x],ix)=>{ const [a,b,md]=kk.split(">"), A_=yerT(+a), B_=yerT(+b), [x1,y1]=pj(...A_), [x2,y2]=pj(...B_); if(Math.hypot(x2-x1,y2-y1)<2*u) return;
+    const P=ROTA(md,A_,B_), c=MR[md], bs=`${esc(TERM[+a][1])} → ${esc(TERM[+b][1])} · ${md}: ${ton(x)}`;
+    e+=`<path d="${rotaD(P)}" fill="none" stroke="${c}" stroke-opacity=".6" stroke-linecap="round" stroke-width="${(0.8*u+5*u*Math.sqrt(x/mxE)).toFixed(2)}"><title>${bs}</title></path>`;
+    if(ix<10&&x>=0.03*mxE){ const [mx,my]=rotaOrta(P); pk+=piktoSvg(md,mx,my,1.2*u,c,bs); } });
+  for(const [kk,x] of E2){ const [t,l]=kk.split(">").map(Number), [x1,y1]=pj(...yerT(t)), [x2,y2]=pj(...yerL(l)); if(Math.hypot(x2-x1,y2-y1)<2*u) continue;
+    const P=ROTA("deniz yolu",yerT(t),yerL(l));   // kıyı seyir hattı (kara üstünden düz çizgi yerine)
+    e+=`<path d="${rotaD(P)}" fill="none" stroke="${BC}" stroke-opacity=".55" stroke-dasharray="${2*u} ${1.5*u}" stroke-linecap="round" stroke-width="${(0.6*u+3.5*u*Math.sqrt(x/mxE)).toFixed(2)}"><title>${esc(TERM[t][1])} → ${esc(BNK_[l][1])} · bunker teknesi: ${ton(x)}</title></path>`; }
+  let nd="", lb="";
+  for(const [t,x] of BT){ if(RAF.has(t)) continue; const [px,py]=pj(...yerT(t)), r=2.6*u; nd+=`<rect x="${(px-r).toFixed(1)}" y="${(py-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" fill="#fff" stroke="${BC}" stroke-width="${(1.2*u).toFixed(2)}"><title>Besleme terminali: ${esc(TERM[t][1])} · ${ton(x)}</title></rect>`; }
+  for(const [t,x] of RAF){ const [px,py]=pj(...yerT(t)), r=3.6*u; nd+=`<rect x="${(px-r).toFixed(1)}" y="${(py-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" transform="rotate(45 ${px.toFixed(1)} ${py.toFixed(1)})" fill="#15222C" stroke="#fff" stroke-width="${(0.9*u).toFixed(2)}"><title>Rafineri: ${esc(TERM[t][1])} · ${ton(x)}</title></rect>`;
+    lb+=`<text x="${(px+5*u).toFixed(1)}" y="${(py-4*u).toFixed(1)}" style="font-size:${(9*u).toFixed(1)}px">${esc(TERM[t][1])}</text>`; }
+  const LL=[...LV].sort((a,b)=>b[1]-a[1]);
+  for(const [l,x] of [...LL].reverse()){ const [px,py]=pj(...yerL(l)), r=Math.max(2.4*u,18*u*Math.sqrt(x/mxL)), sel=S.dzL===l;
+    nd+=`<g class="lzn" data-dzl="${l}" tabindex="0" role="button" aria-label="${esc(BNK_[l][1])} limanına daralt" style="cursor:pointer"><title>${esc(BNK_[l][1])} · ${ton(x)} · ithal ${pct(x?(LI.get(l)||0)/x:0)}</title>${pasta(+px.toFixed(1),+py.toFixed(1),+r.toFixed(1),x?(LI.get(l)||0)/x:0,HV_C.i,HV_C.y)}<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="${sel?"var(--ink)":"#fff"}" stroke-width="${((sel?1.6:0.8)*u).toFixed(2)}"/></g>`; }
+  LL.slice(0,7).forEach(([l,x])=>{ const [px,py]=pj(...yerL(l)), r=Math.max(2.4*u,18*u*Math.sqrt(x/mxL)); lb+=`<text x="${(px+r+3*u).toFixed(1)}" y="${(py+3*u).toFixed(1)}" style="font-size:${(10*u).toFixed(1)}px;font-weight:600">${esc(String(BNK_[l][1]).replace(/ demir yeri$/,""))}</text>`; });
+  const pan=LL.map(([l,x])=>`<button type="button" data-dzl="${l}" aria-pressed="${S.dzL===l}"><i style="background:linear-gradient(90deg,${HV_C.i} ${Math.round(100*(LI.get(l)||0)/x)}%,${HV_C.y} 0);border-radius:50%"></i><span>${esc(BNK_[l][1])}<small>${esc(IL.get(BNK_[l][2])||"")} · ithal ${pct(x?(LI.get(l)||0)/x:0)}${dzDusuk(l)?" · pay varsayım":""}</small></span><b>${ton(x)}</b></button>`).join("");
+  const leg=`<span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="5" fill="${HV_C.y}"/><path d="M9 6L9 1A5 5 0 0 1 14 6Z" fill="${HV_C.i}"/></svg>bunker limanı (mavi dilim: ithal)</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" transform="rotate(45 9 6)" fill="#15222C"/></svg>rafineri</span><span><svg viewBox="0 0 18 12"><rect x="5" y="2" width="8" height="8" fill="#fff" stroke="${BC}" stroke-width="1.5"/></svg>besleme terminali</span>`
+    +Object.entries(MR).filter(([a])=>[...E1.keys()].some(k=>k.endsWith(">"+a))).map(([a,c])=>`<span><svg viewBox="0 0 30 14"><line x1="1" y1="7" x2="29" y2="7" stroke="${c}" stroke-width="3"/></svg>${a}</span>`).join("")
+    +`<span><svg viewBox="0 0 30 14"><line x1="1" y1="7" x2="29" y2="7" stroke="${BC}" stroke-opacity=".7" stroke-width="2" stroke-dasharray="3 2"/></svg>bunker teknesi (terminalden limana)</span>`;
+  el.innerHTML=`<div class="lz-hg"><div class="mapbox"><svg viewBox="${VB}" role="img" aria-label="Denizcilik yakıtı haritası: rafineriler, besleme terminalleri ve bunker limanları">${m}<g>${e}</g><g>${pk}</g><g>${nd}</g><g style="pointer-events:none" class="trlb">${lb}</g></svg></div>
+    <div class="lz-pan" role="group" aria-label="Bunker limanları"><p class="muted" style="font-size:12px;margin:0 0 4px">Bunker limanları · tıklayınca sayfa o limana daralır.</p>${S.dzL>=0?`<button type="button" data-dzl="-1"><i style="background:var(--line)"></i><span>Tümünü göster</span><b></b></button>`:""}${pan}</div></div>
+    <div class="lz-leg">${leg}</div>`;
+  for(const g of el.querySelectorAll("[data-dzl]")){ const f=()=>{ const a=+g.dataset.dzl; S.dzL=a<0||S.dzL===a?-1:a; render(); }; g.addEventListener("click",f); g.addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); f(); } }); }
+}
+document.getElementById("f-dz-s").addEventListener("change",e=>{S.dzS=+e.target.value; render();});
+document.getElementById("f-dz-l").addEventListener("change",e=>{S.dzL=+e.target.value; render();});
+document.getElementById("f-dz-t").addEventListener("change",e=>{S.dzT=e.target.value; render();});
+document.getElementById("clear-dz").addEventListener("click",()=>{S.dzS=-1; S.dzL=-1; S.dzT=""; render();});
 /* ---------- Transit ticaret (kullanıcı 22.10.2026: "transit datası IMEX'ten oluşturulacak") ---------- */
 const TRT_=D.trt||[], TRN_=D.trn||[], TRK_=D.trk||[];
 const TR_KR={g_kuzey:"#2A5591",g_bati:"#0F6E8C",g_dogu:"#B7791F","":"#6F7E89"};
@@ -2203,6 +2308,7 @@ function render(){
   if(S.sayfa==="akzin"){ akZinSayfa(); return; }
   if(S.sayfa==="transit"){ transitSayfa(); return; }
   if(S.sayfa==="hava"){ havaSayfa(); return; }
+  if(S.sayfa==="deniz"){ denizSayfa(); return; }
   if(S.sayfa==="lpgbay"){ lpgBayiler(); return; }
   if(S.sayfa==="akterm"){ akTerminaller(); return; }
   if(TAH()){ tahsis(); return; }
@@ -2258,5 +2364,5 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("tr[tabindex]")) e.target.click()});
 if(location.hash==="#tahsis") S.sayfa="kaynak";   // terminal bazlı tahsis sayfaları kaldırıldı (kullanıcı 23.10.2026 20:27)
- else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
+ else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#deniz") S.sayfa="deniz"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
 render();

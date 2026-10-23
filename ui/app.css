@@ -37,7 +37,7 @@ nav.tabs.side button[aria-selected="true"] svg{opacity:1;color:var(--gc)}
 nav.tabs.side .pipe button[aria-selected="true"]::before{content:"";position:absolute;left:-11px;top:6px;bottom:6px;width:2px;border-radius:1px;background:var(--gc)}
 nav.tabs.side button:focus-visible{outline:2px solid #9FD3E3;outline-offset:-2px}
 nav.tabs.side .top button{padding-left:10px}
-.g-akis{--gc:#5FC1D6}.g-ak{--gc:#7FB0EA}.g-lpg{--gc:#F0A15F}.g-hava{--gc:#9DB7D9}
+.g-akis{--gc:#5FC1D6}.g-ak{--gc:#7FB0EA}.g-lpg{--gc:#F0A15F}.g-hava{--gc:#9DB7D9}.g-deniz{--gc:#7CC4C9}
 
 .veri[hidden]{display:none}
 #lpgi-yil svg{max-height:300px}
