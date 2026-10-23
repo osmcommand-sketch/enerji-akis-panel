@@ -1612,7 +1612,7 @@ document.getElementById("f-lz-k").addEventListener("change",e=>{S.lzK=e.target.v
 // akaryakıt: kaynak (rafineri / kendi ithalatı / dağıtıcıdan alım / stok) → yükleme terminali → il → ilçe (FACT_AKARYAKIT_ILCE)
 const AICM=new Map(), AICI=new Map();
 for(const [s_,u_,i,t,x,v] of (D.aic||[])){ const a=`${s_}|${u_}|${i}|${t}`, b=`${s_}|${u_}|${i}`; (AICM.get(a)||AICM.set(a,new Map()).get(a)).set(x,(AICM.get(a).get(x)||0)+v); (AICI.get(b)||AICI.set(b,new Map()).get(b)).set(x,(AICI.get(b).get(x)||0)+v); }
-const AILK=D.ailk||[], RAFTI=new Map(TERM.map((t,i)=>[t[1],i]));
+const AILK=D.ailk||[], RAFTI=(()=>{ const m=new Map(); TERM.forEach((t,i)=>{ const b=String(t[1]).replace(/ \(.*\)$/,""); if(!m.has(b)) m.set(b,i); m.set(t[1],i); }); return m; })();   // ad + parantezsiz taban ad (PDM 23.10.2026 tek ad kuralı: "Tüpraş Aliağa (İzmir Rafinerisi)")
 S.azU="bm"; S.azF=null;
 
 /* ---------- Havacılık yakıtları (kullanıcı 22.10.2026 19:05) ---------- */
