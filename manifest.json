@@ -1,15 +1,15 @@
 {
- "surum": "1.0.66",
+ "surum": "1.0.67",
  "kabuk": 1,
- "tarih": "2026-10-23T22:08:46+03:00",
- "notlar": "Denizcilik: Ocak–Ağustos 2025/2026 aynı dönem karşılaştırması (EPDK aylık raporlar)",
+ "tarih": "2026-10-25T13:36:05+03:00",
+ "notlar": "Paket 26: antrepo ihrakiyesi katmanı (Havacılık, Denizcilik), gemiye motorin (MGO), aylık raporlarla güncel 2026 tahmini",
  "dosyalar": {
-  "ui/index.html": "10d2071101e15321dcedb8722e8a5489123daeb00ccd162b5fcccc8cb29993e9",
+  "ui/index.html": "87d72fed055c4c255511d3ddbec075adfb93cdf51cf8616f66c7ea77be96e549",
   "ui/app.css": "ed15bc9fc32831d3568c7e36f8c41a9f660d76d978b79d80d3b3e7982e856844",
   "ui/app.js": "2709d9c301f334838dbbd9fe8346cdc1432604d8c829068965b03f2384dd416f",
-  "ui/panel.css": "b9350b176d00cd580e8c445d11c5924bac419f38bf8bb0042d815bb34339b872",
-  "ui/panel.js": "ea378e7e09bf193d3f2173b9d53d03bb0aa9140abeac25b89d7cc37041cd0e35",
-  "pipeline.js": "642c076794b121bde095131d28301bf180c62f66798d56cb2d073bd58d0658bd",
+  "ui/panel.css": "0a45ea6a8daf1dae6210d45c11365816330369e15538ec0085cbd25dd738c7bc",
+  "ui/panel.js": "3d7eb0f91fb3bda9eb6f63679544cf874c7d2fb881969f83429788b445423b28",
+  "pipeline.js": "7d7ef0c96cd08e1b35beaad475c745e5b4fcd14bd807b9eb554ebf783339300e",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

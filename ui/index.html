@@ -416,7 +416,7 @@
   </div>
   <section class="hava-only" aria-labelledby="h-hava">
     <div class="head"><h2 id="h-hava">Havacılık yakıtları</h2><span class="sub" id="s-hava"></span></div>
-    <p class="lead">Jet yakıtının havalimanlarına nereden geldiği: antrepo ithalatı, rafineriler ya da başka dağıtıcı; havalimanı deposuna taşıma ve havalimanında ikmali yapan şirketler. Bir havalimanına tıklayınca sayfa o havalimanına daralır.</p>
+    <p class="lead">Jet yakıtının havalimanlarına nereden geldiği: ithalat (TFS antrepo tahliyesi dahil), rafineriler, başka dağıtıcı ya da antrepodaki gümrüksüz transit ürünle ihrakiye (mor); havalimanı deposuna taşıma ve havalimanında ikmali yapan şirketler. Bir havalimanına tıklayınca sayfa o havalimanına daralır.</p>
     <div class="kpis" id="k-hava"></div>
     <div id="hv-harita"></div>
   </section>
@@ -443,7 +443,7 @@
   </div>
   <section class="dnz-only" aria-labelledby="h-dnz">
     <div class="head"><h2 id="h-dnz">Denizcilik yakıtları</h2><span class="sub" id="s-dnz"></span></div>
-    <p class="lead">Gemi yakıtının (bunker) limanlara nereden geldiği: rafineriler (Tüpraş Aliağa ve İzmit) ya da dağıtıcıların ithalatı; kıyıdaki besleme terminali ve bunker teknesiyle gemiye teslim. Bir limana tıklayınca sayfa o limana daralır.</p>
+    <p class="lead">Gemi yakıtının (bunker) limanlara nereden geldiği: rafineriler (Tüpraş Aliağa ve İzmit), dağıtıcıların ithalatı ya da antrepodaki gümrüksüz transit ürün (mor); kıyıdaki besleme terminali ya da transit tesisinden bunker teknesiyle gemiye teslim. Bir limana tıklayınca sayfa o limana daralır.</p>
     <div class="kpis" id="k-dnz"></div>
     <div id="dz-harita"></div>
   </section>
@@ -458,7 +458,7 @@
       <div class="scroll" style="max-height:none"><table id="t-dzk4" class="dzk"></table></div>
     </div>
     <div id="dzk-yil" hidden>
-      <p class="lead" style="margin-bottom:8px">Satış = yabancıya ihrakiye + yurt içi satış (EPDK yıllık tanım; transit rejim teslimi hariç). 2025 gerçekleşen yıl; 2026 tamamlanan yıl: Ocak–Ağustos gerçekleşen + Eylül–Aralık tahmin.</p>
+      <p class="lead" style="margin-bottom:8px">Satış = yabancıya ihrakiye (EPDK Tablo 8, serbest dolaşım) + yurt içi satış. 2025 gerçekleşen yıl; 2026 tamamlanan yıl: Ocak–Ağustos gerçekleşen + Eylül–Aralık tahmin. 2026 antrepo ihrakiyesi (1,47 Mt) ve gemiye motorin bu karşılaştırmada yok – 2025 için şirket bazında karşılığı yok; aynı dönem görünümünde ülke toplamı olarak var.</p>
       <div class="scroll" style="max-height:none"><table id="t-dzk" class="hvt dzk"></table></div>
       <div class="scroll" style="margin-top:12px"><table id="t-dzk2" class="dzk"></table></div>
     </div>
@@ -474,8 +474,13 @@
       <li>Kaynak: Enerji Master DB FACT_AKARYAKIT_AKIS, ürün Denizcilik (<span class="yil">2025</span>); teslim noktası bunker limanı (REF_BUNKER_LIMAN, Teslim_Noktasi_ID). Şirket dengesi REF_DENIZCILIK_DENGE: rafineri alımı = yabancıya ihrakiye + ihracat + yurt içi − ithalat (havacılıkla aynı yöntem). İthalat noktası IM-EX fuel oil ve gasoil kargolarından (PO → PO Derince, Opet → Opet Marmara, Socar → Solventaş Dilovası).</li>
       <li>Liman payları: İstanbul %75 ve İzmir bölgesi %6 sektör kaynağına dayanır; diğer limanların payı PDM varsayımıdır (düşük güven, tabloda etiketli). Yabancıya ihrakiye şirket × liman dağılımıyla, yurt içi satış ildeki bunker limanına atanır.</li>
       <li>Haritada rafineriden besleme terminaline giden çizgi Leg1 taşıma modudur; besleme terminalinden limana kesikli çizgi bunker teknesiyle deniz taşımasıdır (ortalama ≈ 97 km). Daire alanı tonla orantılı; mavi dilim ithal payıdır.</li>
-      <li>Sektör kaynaklarına göre Türkiye'de gemilere yılda ≈ 2,3–2,8 Mt yakıt verilir. EPDK'daki 0,66 Mt ihrakiye ile aradaki fark büyük ölçüde antrepodan transit bunkerdir (IM-EX transit: Opet Marmara fuel oil, Likit gasoil …); bu sayfada yoktur, Transit ticaret sayfasındadır.</li>
+      <li>Antrepo katmanı (PDM 23.10.2026): toplam ihrakiye EPDK lisans sahiplerine göre ihrakiye teslim tablosundan (Tablo 15 / aylık Tablo 22) – denizcilik 2,13 Mt. EPDK ihracat tablosundaki yabancıya ihrakiye (Tablo 8, 0,66 Mt) serbest dolaşım ürünüdür (rafineri ya da EPDK ithalatı); aşan 1,47 Mt gümrüksüz transit ürünle yapılan ihrakiyedir (mor). Besleme noktası IM-EX transit tesisleri: Opet Marmara, Limaş, Likit, Safi Port, Toros, Altıntel (arz = IM-EX fuel oil + gasoil ithalatı − ihracatı; en kısa deniz mesafesi). Sektör kaynaklarındaki ≈ 2,3–2,8 Mt ile uyumlu; kalan fark gemiye motorindir (MGO, aşağıda).</li>
     </ul>
+  </section>
+  <section class="dnz-only" aria-labelledby="h-mgo">
+    <div class="head"><h2 id="h-mgo">Gemiye motorin (MGO)</h2><span class="sub" id="s-mgo"></span></div>
+    <p class="lead" style="margin-bottom:8px">EPDK ihrakiye teslim tablosunda (Tablo 15) motorin türleri – gemilere verilen motorin (marine gasoil). Ayrı katmandır: motorin akışına ve EPDK motorin dengesine eklenmez; yukarıdaki denizcilik toplamlarında yoktur. Satıcı şirket ve liman filtreleri bu bölüme de uygulanır.</p>
+    <div class="mgo-g"><div class="scroll" style="max-height:none"><table id="t-mgo-l" class="hvt"></table></div><div class="scroll" style="max-height:none"><table id="t-mgo-s" class="hvt"></table></div></div>
   </section>
   <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
     <div class="f"><label for="f-tr-t">Tesis</label><select id="f-tr-t"></select></div>
