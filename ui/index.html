@@ -22,6 +22,7 @@
         <div class="gh"><i></i>Akaryakıt</div>
         <div class="pipe">
           <button type="button" role="tab" id="tab-rafineri" data-sayfa="rafineri" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V8h3v12M10.5 20V4h3v16M15.5 20v-6.5c0-1 1-1.8 2.5-1.8s2.5.8 2.5 1.8V20M3 20h18"/></svg>Rafineriler</button>
+          <button type="button" role="tab" id="tab-rafurun" data-sayfa="rafurun" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"/><path d="M7 15h10"/></svg>Rafineri ürünleri</button>
           <button type="button" role="tab" id="tab-ithalat" data-sayfa="ithalat" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h18l-2.6 4.4H5.6z"/><path d="M6 15v-2.6h8.5V15M14.5 15V9h3.2l1.3 6"/></svg>İthalat</button>
           <button type="button" role="tab" id="tab-kaynak" data-sayfa="kaynak" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"/><path d="M8.5 12H13M13 12l5-5M13 12l5 5M13 12h6"/></svg>Tahsis kaynak bazlı</button>
           <button type="button" role="tab" id="tab-musteri" data-sayfa="musteri" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Dağıtıcılar arası ticaret</button>
@@ -265,6 +266,32 @@
     <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
   </div>
 
+  <div class="filters rfu-only" role="search" aria-label="Rafineri ürünleri filtreleri">
+    <div class="f"><label for="f-rfu-u">Ürün</label><select id="f-rfu-u"></select></div>
+    <div class="f"><label for="f-rfu-r">Rafineri</label><select id="f-rfu-r"></select></div>
+    <button type="button" class="clear" id="clear-rfu">Filtreleri temizle</button>
+  </div>
+  <section class="rfu-only" aria-labelledby="h-rfu">
+    <div class="head"><h2 id="h-rfu">Rafineri ürünleri · akaryakıt dışı</h2><span class="sub" id="s-rfu"></span></div>
+    <p class="lead">Bitüm, nafta, petrol koku, baz yağ ve diğer rafineri ürünleri: dağıtıcı kanalından değil, rafineriden doğrudan sanayiye, petrokimyaya ve asfalt plentlerine gider. Ayrı katmandır: akaryakıt ülke tüketimine ve diğer sayfalara eklenmez. Rafineri gazı ve ara ürünler rafinerinin kendi tüketimidir.</p>
+    <div class="kg rfu-k" id="k-rfu"></div>
+    <div id="rfu-harita" style="margin-top:12px"></div>
+  </section>
+  <section class="rfu-only" aria-labelledby="h-rfud">
+    <div class="head"><h2 id="h-rfud">Denge · ürün bazında</h2><span class="sub" id="s-rfud"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-rfud" class="rfu"></table></div>
+    <div class="head" style="margin-top:16px"><h3>Rafineri × ürün · üretim</h3><span class="sub">kt · negatif = ara ürün tüketimi</span></div>
+    <div class="scroll" style="max-height:none"><table id="t-rfum" class="rfu"></table></div>
+  </section>
+  <section class="rfu-only" aria-labelledby="h-rfua">
+    <div class="head"><h2 id="h-rfua">Akış · rafineriden alıcıya</h2><span class="sub" id="s-rfua"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-rfua" class="rfu"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB REF_RAFINERI_URUN, REF_RAFINERI_URUN_AKIS, REF_RAFINERI_URUN_ITHALAT (PDM 26.10.2026). Üretim EPDK 2026 tahmini Tablo 1.1 (akaryakıt kapsamı dışı toplam 9,25 Mt); ihracat EPDK rafinerici "Diğer" ihracatı (Tüpraş 1,83, Star 0,71 Mt) – Star IM-EX kargolarıyla, Tüpraş'ta tanker dışı kısım bitüm + petrol koku varsayımıyla bölündü (düşük güven).</li>
+      <li>Akış varsayımları (fabrika listeleri olmadığı için "varsayım" etiketli): bitüm il talebi motorin satış payıyla, rafineri → il en kısa mesafe; nafta ve Star reformatı Petkim Aliağa'ya boru hattıyla; petrol koku rafineri yakınındaki çimento illerine eşit payla; baz yağ Kocaeli / İstanbul / İzmir madeni yağ üreticilerine.</li>
+      <li>İthalat: rafineri iskelesi IM-EX fuel oil (ara ürün beslemesi) ve nafta kargoları, EPDK rafinerici "Diğer" ithalatına ölçekli (Tüpraş 2,41, Star 0,52 Mt). Stok farkı yalnız Tüpraş İzmit nafta ve diğer ürünlerde (IM-EX ihracatı üretimi aşıyor).</li>
+    </ul>
+  </section>
   <section class="lay-only" aria-labelledby="h-lay">
     <div class="head"><h2 id="h-lay">LPG · Ocak–Ağustos 2025 ve 2026</h2><span class="sub" id="s-lay"></span></div>
     <p class="lead">Aynı dönem karşılaştırması, tamamı gerçekleşen: EPDK aylık LPG Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir). Eylül–Aralık tahmini bu sayfada yoktur.</p>
@@ -495,9 +522,12 @@
     </ul>
   </section>
   <section class="dnz-only" aria-labelledby="h-mgo">
-    <div class="head"><h2 id="h-mgo">Gemiye motorin (MGO)</h2><span class="sub" id="s-mgo"></span></div>
-    <p class="lead" style="margin-bottom:8px">EPDK ihrakiye teslim tablosunda (Tablo 15) motorin türleri – gemilere verilen motorin (marine gasoil). Ayrı katmandır: motorin akışına ve EPDK motorin dengesine eklenmez; yukarıdaki denizcilik toplamlarında yoktur. Satıcı şirket ve liman filtreleri bu bölüme de uygulanır.</p>
+    <div class="head"><h2 id="h-mgo">Gemiye motorin (MGO) ve diğer ihrakiye</h2><span class="sub" id="s-mgo"></span></div>
+    <p class="lead" style="margin-bottom:8px">EPDK ihrakiye teslim tablosunda (Tablo 15) motorin türleri – gemilere verilen motorin (marine gasoil). Ayrı katmandır: motorin akışına eklenmez (tek kaynak kuralı, çift sayım yok); yukarıdaki denizcilik toplamlarında yoktur. Yurt içi kısım (ÖTV'li / ÖTV'siz) EPDK yurt içi motorin satışındadır: EPDK 27,56 Mt = model akışı 27,17 + yurt içi MGO 0,41 Mt (−0,02 kalan). Kalan transit rejim / ihrakiye-ihracattır. Satıcı şirket ve liman filtreleri bu bölüme de uygulanır.</p>
     <div class="mgo-g"><div class="scroll" style="max-height:none"><table id="t-mgo-l" class="hvt"></table></div><div class="scroll" style="max-height:none"><table id="t-mgo-s" class="hvt"></table></div></div>
+    <div class="head" style="margin-top:16px"><h3>Benzin ve diğer ürün ihrakiyesi</h3><span class="sub" id="s-idg"></span></div>
+    <p class="lead" style="margin-bottom:8px">EPDK Tablo 15: benzin (tekne / yat; ÖTV'li – yurt içi benzin satışında) ve "diğer ürünler" (çoğu Tüpraş; ağır ürün / fuel oil bileşeni, akaryakıt sınıfı dışı – PDM varsayımı). Akaryakıt akışına eklenmez.</p>
+    <div class="scroll" style="max-height:none"><table id="t-idg" class="hvt"></table></div>
   </section>
   <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
     <div class="f"><label for="f-tr-t">Tesis</label><select id="f-tr-t"></select></div>

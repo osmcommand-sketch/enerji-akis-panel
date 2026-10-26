@@ -138,7 +138,7 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgmus"]>:not(header):not(nav):not(.lpgm-only):not(footer){display:none}.wrap:not([data-sayfa="lpgmus"]) .lpgm-only{display:none}
 .wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
 .wrap[data-sayfa="akterm"]>:not(header):not(nav):not(.atr-only):not(footer){display:none}.wrap:not([data-sayfa="akterm"]) .atr-only{display:none}
-.wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}.wrap[data-sayfa="lpgay"]>:not(header):not(nav):not(.lay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgay"]) .lay-only{display:none}.lay-k .kpi{flex:1 1 150px;border-top:3px solid var(--lpg)}.lay-k .kpi em{font-style:normal;font-weight:600}.lay-k .up,.lay td.up{color:#1A7F37}.lay-k .dn,.lay td.dn{color:#B42318}.lay td.up,.lay td.dn{font-weight:600}.lay th.g{text-align:center;border-bottom:1px solid var(--line)}.lay td.b,.lay th.b{border-left:1px solid var(--line)}
+.wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}.wrap[data-sayfa="lpgay"]>:not(header):not(nav):not(.lay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgay"]) .lay-only{display:none}.wrap[data-sayfa="rafurun"]>:not(header):not(nav):not(.rfu-only):not(footer){display:none}.wrap:not([data-sayfa="rafurun"]) .rfu-only{display:none}.rfu-k .kc{grid-column:span 3}@media (max-width:900px){.rfu-k .kc{grid-column:span 6}}@media (max-width:600px){.rfu-k .kc{grid-column:1/-1}}.rfu td.g{color:var(--ink-3)}.rfu tr[data-rfu]{cursor:pointer}.rfu tr[aria-selected="true"] td{background:var(--surface-2)}.rfu tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--ink)}.tag.vs{background:#EEF0F2;color:var(--ink-2)}.lay-k .kpi{flex:1 1 150px;border-top:3px solid var(--lpg)}.lay-k .kpi em{font-style:normal;font-weight:600}.lay-k .up,.lay td.up{color:#1A7F37}.lay-k .dn,.lay td.dn{color:#B42318}.lay td.up,.lay td.dn{font-weight:600}.lay th.g{text-align:center;border-bottom:1px solid var(--line)}.lay td.b,.lay th.b{border-left:1px solid var(--line)}
 .wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
 .wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
 .wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
@@ -423,6 +423,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
   <!-- Akaryakıt başlığı altındaki sayfalar (kullanıcı 16.10.2026 14:34: "akış haritası sonrasındaki tüm sayfaları akaryakıt başlığı altında toplayalım") -->
   <nav class="tabs alt" role="tablist" aria-label="Akaryakıt sayfaları" id="alt-akaryakit" data-grup="akaryakit">
     <button type="button" role="tab" id="tab-rafineri" data-sayfa="rafineri" aria-selected="false"><span class="uz">Rafineriler</span><span class="kz" aria-hidden="true">Rafineriler</span></button>
+    <button type="button" role="tab" id="tab-rafurun" data-sayfa="rafurun" aria-selected="false"><span class="uz">Rafineri ürünleri</span><span class="kz" aria-hidden="true">Rafineri ürünleri</span></button>
     <button type="button" role="tab" id="tab-ithalat" data-sayfa="ithalat" aria-selected="false"><span class="uz">İthalat</span><span class="kz" aria-hidden="true">İthalat</span></button>
     <button type="button" role="tab" id="tab-kaynak" data-sayfa="kaynak" aria-selected="false"><span class="uz">Tedarik tahsisi kaynak bazlı</span><span class="kz" aria-hidden="true">Tahsis · kaynak</span></button>
     <button type="button" role="tab" id="tab-musteri" data-sayfa="musteri" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
@@ -622,6 +623,32 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
   </div>
 
+  <div class="filters rfu-only" role="search" aria-label="Rafineri ürünleri filtreleri">
+    <div class="f"><label for="f-rfu-u">Ürün</label><select id="f-rfu-u"></select></div>
+    <div class="f"><label for="f-rfu-r">Rafineri</label><select id="f-rfu-r"></select></div>
+    <button type="button" class="clear" id="clear-rfu">Filtreleri temizle</button>
+  </div>
+  <section class="rfu-only" aria-labelledby="h-rfu">
+    <div class="head"><h2 id="h-rfu">Rafineri ürünleri · akaryakıt dışı</h2><span class="sub" id="s-rfu"></span></div>
+    <p class="lead">Bitüm, nafta, petrol koku, baz yağ ve diğer rafineri ürünleri: dağıtıcı kanalından değil, rafineriden doğrudan sanayiye, petrokimyaya ve asfalt plentlerine gider. Ayrı katmandır: akaryakıt ülke tüketimine ve diğer sayfalara eklenmez. Rafineri gazı ve ara ürünler rafinerinin kendi tüketimidir.</p>
+    <div class="kg rfu-k" id="k-rfu"></div>
+    <div id="rfu-harita" style="margin-top:12px"></div>
+  </section>
+  <section class="rfu-only" aria-labelledby="h-rfud">
+    <div class="head"><h2 id="h-rfud">Denge · ürün bazında</h2><span class="sub" id="s-rfud"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-rfud" class="rfu"></table></div>
+    <div class="head" style="margin-top:16px"><h3>Rafineri × ürün · üretim</h3><span class="sub">kt · negatif = ara ürün tüketimi</span></div>
+    <div class="scroll" style="max-height:none"><table id="t-rfum" class="rfu"></table></div>
+  </section>
+  <section class="rfu-only" aria-labelledby="h-rfua">
+    <div class="head"><h2 id="h-rfua">Akış · rafineriden alıcıya</h2><span class="sub" id="s-rfua"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-rfua" class="rfu"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB REF_RAFINERI_URUN, REF_RAFINERI_URUN_AKIS, REF_RAFINERI_URUN_ITHALAT (PDM 26.10.2026). Üretim EPDK 2026 tahmini Tablo 1.1 (akaryakıt kapsamı dışı toplam 9,25 Mt); ihracat EPDK rafinerici "Diğer" ihracatı (Tüpraş 1,83, Star 0,71 Mt) – Star IM-EX kargolarıyla, Tüpraş'ta tanker dışı kısım bitüm + petrol koku varsayımıyla bölündü (düşük güven).</li>
+      <li>Akış varsayımları (fabrika listeleri olmadığı için "varsayım" etiketli): bitüm il talebi motorin satış payıyla, rafineri → il en kısa mesafe; nafta ve Star reformatı Petkim Aliağa'ya boru hattıyla; petrol koku rafineri yakınındaki çimento illerine eşit payla; baz yağ Kocaeli / İstanbul / İzmir madeni yağ üreticilerine.</li>
+      <li>İthalat: rafineri iskelesi IM-EX fuel oil (ara ürün beslemesi) ve nafta kargoları, EPDK rafinerici "Diğer" ithalatına ölçekli (Tüpraş 2,41, Star 0,52 Mt). Stok farkı yalnız Tüpraş İzmit nafta ve diğer ürünlerde (IM-EX ihracatı üretimi aşıyor).</li>
+    </ul>
+  </section>
   <section class="lay-only" aria-labelledby="h-lay">
     <div class="head"><h2 id="h-lay">LPG · Ocak–Ağustos 2025 ve 2026</h2><span class="sub" id="s-lay"></span></div>
     <p class="lead">Aynı dönem karşılaştırması, tamamı gerçekleşen: EPDK aylık LPG Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir). Eylül–Aralık tahmini bu sayfada yoktur.</p>
@@ -852,9 +879,12 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     </ul>
   </section>
   <section class="dnz-only" aria-labelledby="h-mgo">
-    <div class="head"><h2 id="h-mgo">Gemiye motorin (MGO)</h2><span class="sub" id="s-mgo"></span></div>
-    <p class="lead" style="margin-bottom:8px">EPDK ihrakiye teslim tablosunda (Tablo 15) motorin türleri – gemilere verilen motorin (marine gasoil). Ayrı katmandır: motorin akışına ve EPDK motorin dengesine eklenmez; yukarıdaki denizcilik toplamlarında yoktur. Satıcı şirket ve liman filtreleri bu bölüme de uygulanır.</p>
+    <div class="head"><h2 id="h-mgo">Gemiye motorin (MGO) ve diğer ihrakiye</h2><span class="sub" id="s-mgo"></span></div>
+    <p class="lead" style="margin-bottom:8px">EPDK ihrakiye teslim tablosunda (Tablo 15) motorin türleri – gemilere verilen motorin (marine gasoil). Ayrı katmandır: motorin akışına eklenmez (tek kaynak kuralı, çift sayım yok); yukarıdaki denizcilik toplamlarında yoktur. Yurt içi kısım (ÖTV'li / ÖTV'siz) EPDK yurt içi motorin satışındadır: EPDK 27,56 Mt = model akışı 27,17 + yurt içi MGO 0,41 Mt (−0,02 kalan). Kalan transit rejim / ihrakiye-ihracattır. Satıcı şirket ve liman filtreleri bu bölüme de uygulanır.</p>
     <div class="mgo-g"><div class="scroll" style="max-height:none"><table id="t-mgo-l" class="hvt"></table></div><div class="scroll" style="max-height:none"><table id="t-mgo-s" class="hvt"></table></div></div>
+    <div class="head" style="margin-top:16px"><h3>Benzin ve diğer ürün ihrakiyesi</h3><span class="sub" id="s-idg"></span></div>
+    <p class="lead" style="margin-bottom:8px">EPDK Tablo 15: benzin (tekne / yat; ÖTV'li – yurt içi benzin satışında) ve "diğer ürünler" (çoğu Tüpraş; ağır ürün / fuel oil bileşeni, akaryakıt sınıfı dışı – PDM varsayımı). Akaryakıt akışına eklenmez.</p>
+    <div class="scroll" style="max-height:none"><table id="t-idg" class="hvt"></table></div>
   </section>
   <div class="filters trn-only" role="search" aria-label="Transit ticaret filtreleri">
     <div class="f"><label for="f-tr-t">Tesis</label><select id="f-tr-t"></select></div>

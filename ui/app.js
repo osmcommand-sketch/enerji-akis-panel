@@ -16,7 +16,7 @@
       document.getElementById('gun-yenile').onclick = () => api && api.yenile(); document.getElementById('gun-kapat').onclick = () => b.remove(); }); } catch {} }
   const AD = { lpgraf: ['LPG', 'Rafineriler'], lpgkay: ['LPG', 'Tedarik tahsisi · kaynak bazlı'], lpgtah: ['LPG', 'Tedarik tahsisi · terminal bazlı'], lpgtas: ['LPG', 'Taşıma'], lpgzin: ['LPG', 'Tedarik zinciri'], akzin: ['Akaryakıt', 'Tedarik zinciri'], lpgbay: ['LPG', 'Bayiler'], akis: ['Genel', 'Akış haritası'], musteri: ['Akaryakıt', 'Dağıtıcılar arası ticaret'], tahsis: ['Akaryakıt', 'Tedarik tahsisi · terminal bazlı'],
     kaynak: ['Akaryakıt', 'Tedarik tahsisi · kaynak bazlı'], ithalat: ['Akaryakıt', 'İthalat'], takas: ['Akaryakıt', 'Takas'], transit: ['Akaryakıt', 'Transit ticaret'], hava: ['Havacılık', 'Havacılık yakıtları'], deniz: ['Denizcilik', 'Denizcilik yakıtları'], bayi: ['Akaryakıt', 'Bayiler'],
-    rafineri: ['Akaryakıt', 'Rafineriler'], tasima: ['Akaryakıt', 'Taşıma'], lpgmus: ['LPG', 'Dağıtıcılar arası ticaret'], lpgith: ['LPG', 'İthalat'], akterm: ['Akaryakıt', 'Terminaller'], lpgtrm: ['LPG', 'Terminaller'], lpgay: ['LPG', '2025–2026 karşılaştırma'] };
+    rafineri: ['Akaryakıt', 'Rafineriler'], rafurun: ['Akaryakıt', 'Rafineri ürünleri'], tasima: ['Akaryakıt', 'Taşıma'], lpgmus: ['LPG', 'Dağıtıcılar arası ticaret'], lpgith: ['LPG', 'İthalat'], akterm: ['Akaryakıt', 'Terminaller'], lpgtrm: ['LPG', 'Terminaller'], lpgay: ['LPG', '2025–2026 karşılaştırma'] };
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const tarih = (ms) => new Date(ms).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 

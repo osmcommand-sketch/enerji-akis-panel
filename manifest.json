@@ -1,15 +1,15 @@
 {
- "surum": "1.0.68",
+ "surum": "1.0.69",
  "kabuk": 1,
- "tarih": "2026-10-26T11:53:37+03:00",
- "notlar": "Paket 27: LPG 2025–2026 karşılaştırma sayfası; Denizcilik aynı dönem veritabanından",
+ "tarih": "2026-10-26T15:08:49+03:00",
+ "notlar": "Paket 28: Rafineri ürünleri sayfası; MGO yurt içi / transit ayrımı; benzin ve diğer ihrakiye",
  "dosyalar": {
-  "ui/index.html": "fc3afa28979303ac2bcf69329de15c78034975402ff02fe4ce1fed20528b58e6",
+  "ui/index.html": "ae46c94ded1f7e1f224e39279d91bb8fe441f0bdd4c6e40b024286d25ee40404",
   "ui/app.css": "ed15bc9fc32831d3568c7e36f8c41a9f660d76d978b79d80d3b3e7982e856844",
-  "ui/app.js": "2a5cefa42197bccab68990916c24209b1cf8bdb1a95507da41698b80ed365dfe",
-  "ui/panel.css": "2e39c6c9aaab26339664ed7bf3d3b3a69ae1307a9ffcab6daef3fe5cb19f05b1",
-  "ui/panel.js": "7abc2f1c589457bc236f1bb1641fadeba4b5552af54fb189bf243eb48bcc7e28",
-  "pipeline.js": "4e44a45f70072c1a193403318c8ad55fe1deac48ac9e0863deaa4bc4bc27f480",
+  "ui/app.js": "5e007d0510ece97a17ba50afeb6e165ecd5e6fcd9ff793744d5f03ccdc61929e",
+  "ui/panel.css": "0312b3604b5806af5d7ed0835eadfac328c5c1bfef9200929e18c4750e6f45ea",
+  "ui/panel.js": "2a001a02b4f3033e48539308e3e92e3b3d01d80e205f1a2b4eee70958cd4078a",
+  "pipeline.js": "ee7cc3172fdf2695d1e1a9e5c0213fbecf420bea7032d7fcac0335f89f0f1989",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
