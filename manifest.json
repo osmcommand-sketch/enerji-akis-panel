@@ -1,15 +1,15 @@
 {
- "surum": "1.0.67",
+ "surum": "1.0.68",
  "kabuk": 1,
- "tarih": "2026-10-25T13:36:05+03:00",
- "notlar": "Paket 26: antrepo ihrakiyesi katmanı (Havacılık, Denizcilik), gemiye motorin (MGO), aylık raporlarla güncel 2026 tahmini",
+ "tarih": "2026-10-26T11:53:37+03:00",
+ "notlar": "Paket 27: LPG 2025–2026 karşılaştırma sayfası; Denizcilik aynı dönem veritabanından",
  "dosyalar": {
-  "ui/index.html": "87d72fed055c4c255511d3ddbec075adfb93cdf51cf8616f66c7ea77be96e549",
+  "ui/index.html": "fc3afa28979303ac2bcf69329de15c78034975402ff02fe4ce1fed20528b58e6",
   "ui/app.css": "ed15bc9fc32831d3568c7e36f8c41a9f660d76d978b79d80d3b3e7982e856844",
-  "ui/app.js": "2709d9c301f334838dbbd9fe8346cdc1432604d8c829068965b03f2384dd416f",
-  "ui/panel.css": "0a45ea6a8daf1dae6210d45c11365816330369e15538ec0085cbd25dd738c7bc",
-  "ui/panel.js": "3d7eb0f91fb3bda9eb6f63679544cf874c7d2fb881969f83429788b445423b28",
-  "pipeline.js": "7d7ef0c96cd08e1b35beaad475c745e5b4fcd14bd807b9eb554ebf783339300e",
+  "ui/app.js": "2a5cefa42197bccab68990916c24209b1cf8bdb1a95507da41698b80ed365dfe",
+  "ui/panel.css": "2e39c6c9aaab26339664ed7bf3d3b3a69ae1307a9ffcab6daef3fe5cb19f05b1",
+  "ui/panel.js": "7abc2f1c589457bc236f1bb1641fadeba4b5552af54fb189bf243eb48bcc7e28",
+  "pipeline.js": "4e44a45f70072c1a193403318c8ad55fe1deac48ac9e0863deaa4bc4bc27f480",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

@@ -44,6 +44,7 @@
           <button type="button" role="tab" id="tab-lpgzin" data-sayfa="lpgzin" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="19" cy="6" r="1.6"/><circle cx="19" cy="18" r="1.6"/><circle cx="5" cy="18" r="1.6"/><path d="M6.8 7.4l3.4 3.2M13.7 10.8l3.8-3.6M13.7 13.2l3.8 3.6M10.2 13.4l-3.6 3.4"/></svg>Tedarik zinciri</button>
           <button type="button" role="tab" id="tab-lpgbay" data-sayfa="lpgbay" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V6a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v14M4 20h11M14 9h2.5a1.5 1.5 0 0 1 1.5 1.5V16a1.5 1.5 0 0 0 3 0V8l-2-2M8 8h3"/></svg>Bayiler</button>
           <button type="button" role="tab" id="tab-lpgtrm" data-sayfa="lpgtrm" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c0-1.7 3.6-3 8-3s8 1.3 8 3v9c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 8c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Terminaller</button>
+          <button type="button" role="tab" id="tab-lpgay" data-sayfa="lpgay" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M9 20V6M14 20v-8M19 20V4"/></svg>2025–2026 karşılaştırma</button>
         </div>
       </div>
       <div class="grp g-hava">
@@ -264,6 +265,22 @@
     <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
   </div>
 
+  <section class="lay-only" aria-labelledby="h-lay">
+    <div class="head"><h2 id="h-lay">LPG · Ocak–Ağustos 2025 ve 2026</h2><span class="sub" id="s-lay"></span></div>
+    <p class="lead">Aynı dönem karşılaştırması, tamamı gerçekleşen: EPDK aylık LPG Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir). Eylül–Aralık tahmini bu sayfada yoktur.</p>
+    <div class="kpis lay-k" id="k-lay"></div>
+    <div class="scroll" style="max-height:none;margin-top:12px"><table id="t-lay" class="lay"></table></div>
+    <div class="head" style="margin-top:16px"><h3>Aylık</h3><div class="seg" role="group" aria-label="Kalem" id="lay-kal"><button type="button" data-lk="3" aria-pressed="true">Satış</button><button type="button" data-lk="1" aria-pressed="false">İthalat</button><button type="button" data-lk="0" aria-pressed="false">Üretim</button><button type="button" data-lk="2" aria-pressed="false">İhracat</button></div></div>
+    <div id="lay-grafik" class="ru-svg"></div>
+  </section>
+  <section class="lay-only" aria-labelledby="h-lays">
+    <div class="head"><h2 id="h-lays">Dağıtıcılar · Ocak–Ağustos satış</h2><span class="sub" id="s-lays"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-lays" class="lay"></table></div>
+    <ul class="notes">
+      <li>Kaynak: EPDK LPG Piyasası Sektör Raporu Ocak–Ağustos 2026 ve ekleri (Enerji Master DB REF_LPG_AYLIK, REF_LPG_AYLIK_SIRKET – ek Tablo 12, lisans sahibi × segment; 2025 sütunu önceki yılın aynı ayı). Aylık raporların toplamı Ağustos kümülatifiyle mutabık; 2026 satışta revizyon farkı −7 kt (%0,3).</li>
+      <li>Dağıtıcı adları LPG veritabanı şirket eşlemesinden; BP 2025'te ayrı lisans sahibidir (2026'da Petrol Ofisi'ne devredildi).</li>
+    </ul>
+  </section>
   <section class="lpgi-only" aria-labelledby="h-lpgi">
     <div class="head"><h2 id="h-lpgi">LPG ithalatı</h2><span class="sub" id="s-lpgi"></span></div>
     <p class="lead" id="l-lpgi"></p>
@@ -416,7 +433,7 @@
   </div>
   <section class="hava-only" aria-labelledby="h-hava">
     <div class="head"><h2 id="h-hava">Havacılık yakıtları</h2><span class="sub" id="s-hava"></span></div>
-    <p class="lead">Jet yakıtının havalimanlarına nereden geldiği: ithalat (TFS antrepo tahliyesi dahil), rafineriler, başka dağıtıcı ya da antrepodaki gümrüksüz transit ürünle ihrakiye (mor); havalimanı deposuna taşıma ve havalimanında ikmali yapan şirketler. Bir havalimanına tıklayınca sayfa o havalimanına daralır.</p>
+    <p class="lead">Jet yakıtının havalimanlarına nereden geldiği: ithalat (TFS antrepo tahliyesi dahil), rafineriler, başka dağıtıcı ya da antrepodaki gümrüksüz transit ürünle ihrakiye (pembe); havalimanı deposuna taşıma ve havalimanında ikmali yapan şirketler. Bir havalimanına tıklayınca sayfa o havalimanına daralır.</p>
     <div class="kpis" id="k-hava"></div>
     <div id="hv-harita"></div>
   </section>
@@ -443,7 +460,7 @@
   </div>
   <section class="dnz-only" aria-labelledby="h-dnz">
     <div class="head"><h2 id="h-dnz">Denizcilik yakıtları</h2><span class="sub" id="s-dnz"></span></div>
-    <p class="lead">Gemi yakıtının (bunker) limanlara nereden geldiği: rafineriler (Tüpraş Aliağa ve İzmit), dağıtıcıların ithalatı ya da antrepodaki gümrüksüz transit ürün (mor); kıyıdaki besleme terminali ya da transit tesisinden bunker teknesiyle gemiye teslim. Bir limana tıklayınca sayfa o limana daralır.</p>
+    <p class="lead">Gemi yakıtının (bunker) limanlara nereden geldiği: rafineriler (Tüpraş Aliağa ve İzmit), dağıtıcıların ithalatı ya da antrepodaki gümrüksüz transit ürün (pembe); kıyıdaki besleme terminali ya da transit tesisinden bunker teknesiyle gemiye teslim. Bir limana tıklayınca sayfa o limana daralır.</p>
     <div class="kpis" id="k-dnz"></div>
     <div id="dz-harita"></div>
   </section>
@@ -451,7 +468,7 @@
     <div class="head"><h2 id="h-dzk">Denizcilik yakıtı · 2025 ve 2026</h2><span class="sub" id="s-dzk"></span></div>
     <div class="seg" role="group" aria-label="Karşılaştırma dönemi" style="margin:2px 0 10px"><button type="button" data-dzk="ay" aria-pressed="true">Aynı dönem · Ocak–Ağustos (gerçekleşen)</button><button type="button" data-dzk="yil" aria-pressed="false">Tam yıl · 2026 tahmin dahil</button></div>
     <div id="dzk-ay">
-      <p class="lead" style="margin-bottom:8px">EPDK aylık Petrol Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir). İhrakiye burada EPDK aylık tanımıdır: yabancıya ihrakiye (ihrakiye-ihracat) + transit rejime tabi teslim + ÖTV'li / ÖTV'siz teslim.</p>
+      <p class="lead" style="margin-bottom:8px">EPDK aylık Petrol Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir; veritabanında REF_EPDK_AYLIK ve REF_EPDK_AYLIK_IHRAKIYE). İhrakiye burada EPDK aylık tanımıdır: yabancıya ihrakiye (ihrakiye-ihracat) + transit rejime tabi teslim + ÖTV'li / ÖTV'siz teslim.</p>
       <div class="scroll" style="max-height:none"><table id="t-dzk3" class="dzk"></table></div>
       <div id="dzk-grafik" class="ru-svg" style="margin-top:14px"></div>
       <div class="head" style="margin-top:14px"><h3>Şirketler · Ocak–Ağustos 2026 teslim</h3><span class="sub" id="s-dzk4"></span></div>
@@ -474,7 +491,7 @@
       <li>Kaynak: Enerji Master DB FACT_AKARYAKIT_AKIS, ürün Denizcilik (<span class="yil">2025</span>); teslim noktası bunker limanı (REF_BUNKER_LIMAN, Teslim_Noktasi_ID). Şirket dengesi REF_DENIZCILIK_DENGE: rafineri alımı = yabancıya ihrakiye + ihracat + yurt içi − ithalat (havacılıkla aynı yöntem). İthalat noktası IM-EX fuel oil ve gasoil kargolarından (PO → PO Derince, Opet → Opet Marmara, Socar → Solventaş Dilovası).</li>
       <li>Liman payları: İstanbul %75 ve İzmir bölgesi %6 sektör kaynağına dayanır; diğer limanların payı PDM varsayımıdır (düşük güven, tabloda etiketli). Yabancıya ihrakiye şirket × liman dağılımıyla, yurt içi satış ildeki bunker limanına atanır.</li>
       <li>Haritada rafineriden besleme terminaline giden çizgi Leg1 taşıma modudur; besleme terminalinden limana kesikli çizgi bunker teknesiyle deniz taşımasıdır (ortalama ≈ 97 km). Daire alanı tonla orantılı; mavi dilim ithal payıdır.</li>
-      <li>Antrepo katmanı (PDM 23.10.2026): toplam ihrakiye EPDK lisans sahiplerine göre ihrakiye teslim tablosundan (Tablo 15 / aylık Tablo 22) – denizcilik 2,13 Mt. EPDK ihracat tablosundaki yabancıya ihrakiye (Tablo 8, 0,66 Mt) serbest dolaşım ürünüdür (rafineri ya da EPDK ithalatı); aşan 1,47 Mt gümrüksüz transit ürünle yapılan ihrakiyedir (mor). Besleme noktası IM-EX transit tesisleri: Opet Marmara, Limaş, Likit, Safi Port, Toros, Altıntel (arz = IM-EX fuel oil + gasoil ithalatı − ihracatı; en kısa deniz mesafesi). Sektör kaynaklarındaki ≈ 2,3–2,8 Mt ile uyumlu; kalan fark gemiye motorindir (MGO, aşağıda).</li>
+      <li>Antrepo katmanı (PDM 23.10.2026): toplam ihrakiye EPDK lisans sahiplerine göre ihrakiye teslim tablosundan (Tablo 15 / aylık Tablo 22) – denizcilik 2,13 Mt. EPDK ihracat tablosundaki yabancıya ihrakiye (Tablo 8, 0,66 Mt) serbest dolaşım ürünüdür (rafineri ya da EPDK ithalatı); aşan 1,47 Mt gümrüksüz transit ürünle yapılan ihrakiyedir (pembe). Besleme noktası IM-EX transit tesisleri: Opet Marmara, Limaş, Likit, Safi Port, Toros, Altıntel (arz = IM-EX fuel oil + gasoil ithalatı − ihracatı; en kısa deniz mesafesi). Sektör kaynaklarındaki ≈ 2,3–2,8 Mt ile uyumlu; kalan fark gemiye motorindir (MGO, aşağıda).</li>
     </ul>
   </section>
   <section class="dnz-only" aria-labelledby="h-mgo">

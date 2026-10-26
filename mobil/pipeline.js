@@ -495,7 +495,22 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   const TRTT = TRT.map(f => ttip.get(f) || 0);
   const RPU = hasTable('REF_EPDK_RAFINERI_URETIM') ? Q(`select Rafineri r,Urun u,sum(Uretim_ton) v from REF_EPDK_RAFINERI_URETIM where Donem='${YIL}' and Rafineri<>'Toplam' group by 1,2 order by 1,2`).map(r => [r.r, r.u, pr(r.v || 0)]) : [];
   const RKAP = Q("select Kaynak_Adi a,Ham_Petrol_Kapasite_ton_yil k from DIM_KAYNAK where Kaynak_Tipi='Rafineri' and Ham_Petrol_Kapasite_ton_yil is not null").map(r => [r.a, pr(r.k)]);
-  const d = { mgo: MGO, bnk: BNK, dzd: DZD, dzs: DZS, rpu: RPU, rkap: RKAP, trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  // EPDK aylık seri (PDM 25.10.2026)
+  const EAU = ['Benzin', 'Motorin', 'Fuel Oil', 'Havacılık', 'Denizcilik', 'Gazyağı', 'Diğer', 'Toplam'], LPK = ['Uretim', 'Ithalat', 'Ihracat', 'Satis'], LPS = ['Toplam', 'Otogaz', 'Tuplu', 'Dokme'], n_ = x => pr(x || 0);
+  const EAY = hasTable('REF_EPDK_AYLIK') ? Q('select * from REF_EPDK_AYLIK where Tahmin=0 order by 1,2').map(r => [r.Donem_Yil, r.Ay, EAU.indexOf(r.Urun), n_(r.Uretim_ton), n_(r.Ithalat_ton), n_(r.Ihracat_ton), n_(r.Yurtici_Satis_ton), n_(r.Toplam_Teslim_ton)]) : [];
+  const EIH = hasTable('REF_EPDK_AYLIK_IHRAKIYE') ? Q('select * from REF_EPDK_AYLIK_IHRAKIYE order by 1,2').map(r => [r.Donem_Yil, r.Ay, EAU.indexOf(r.Urun), n_(r.Toplam_ton)].concat(r.Ihrakiye_Ihracat_ton != null ? ['Ihrakiye_Ihracat_ton', 'OTVli_ton', 'OTVsiz_ton', 'Transit_Rejim_ton', 'Diger_ton'].map(k => n_(r[k])) : [])) : [];
+  const LPM = hasTable('REF_LPG_AYLIK') ? Q('select * from REF_LPG_AYLIK where Tahmin=0 order by 1,2').map(r => [r.Donem_Yil, r.Ay, LPK.indexOf(r.Kalem), LPS.indexOf(r.Segment), n_(r.Miktar_ton)]) : [];
+  let LPMC = [];
+  if (hasTable('REF_LPG_AYLIK_SIRKET')) {
+    const mm = new Map(hasTable('lpg_ref_company_master_map') ? Q('select company_id,master_company_id from lpg_ref_company_master_map where company_id is not null').map(r => [r.company_id, r.master_company_id]) : []);
+    const br = new Map(hasTable('lpg_ref_company') ? Q('select company_id,brand_name from lpg_ref_company').map(r => [r.company_id, r.brand_name]) : []);
+    const ag = new Map();
+    for (const r of Q('select Sirket_ID c,Donem_Yil y,Segment s,sum(Miktar_ton) t,max(Unvan) u from REF_LPG_AYLIK_SIRKET group by 1,2,3')) {
+      const cid = r.c != null ? Math.trunc(r.c) : null, m = mm.get(cid), si = m ? sg(m) : -1, ad = si >= 0 ? '' : (br.get(cid) || r.u || '?');
+      const k = JSON.stringify([si, ad, r.y, LPS.indexOf(r.s) - 1]); ag.set(k, (ag.get(k) || 0) + (r.t || 0)); }
+    LPMC = [...ag].filter(x => x[1] >= 0.5).sort((a, b) => b[1] - a[1]).map(([k, v]) => JSON.parse(k).concat([n_(v)]));
+  }
+  const d = { eay: EAY, eih: EIH, lpm: LPM, lpmc: LPMC, mgo: MGO, bnk: BNK, dzd: DZD, dzs: DZS, rpu: RPU, rkap: RKAP, trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID), tix.has(k.Terminal_ID) ? tix.get(k.Terminal_ID) : -1]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -613,7 +628,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air', 'hvd', 'trs', 'tryt', 'trtt', 'rpu', 'rkap', 'bnk', 'dzd', 'dzs', 'mgo']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air', 'hvd', 'trs', 'tryt', 'trtt', 'rpu', 'rkap', 'bnk', 'dzd', 'dzs', 'mgo', 'eay', 'eih', 'lpm', 'lpmc']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
