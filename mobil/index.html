@@ -138,7 +138,7 @@ tr.kendi td{background:var(--surface-2)}
 .wrap[data-sayfa="lpgmus"]>:not(header):not(nav):not(.lpgm-only):not(footer){display:none}.wrap:not([data-sayfa="lpgmus"]) .lpgm-only{display:none}
 .wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
 .wrap[data-sayfa="akterm"]>:not(header):not(nav):not(.atr-only):not(footer){display:none}.wrap:not([data-sayfa="akterm"]) .atr-only{display:none}
-.wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}.wrap[data-sayfa="lpgay"]>:not(header):not(nav):not(.lay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgay"]) .lay-only{display:none}.wrap[data-sayfa="rafurun"]>:not(header):not(nav):not(.rfu-only):not(footer){display:none}.wrap:not([data-sayfa="rafurun"]) .rfu-only{display:none}.rfu-k .kc{grid-column:span 3}@media (max-width:900px){.rfu-k .kc{grid-column:span 6}}@media (max-width:600px){.rfu-k .kc{grid-column:1/-1}}.rfu td.g{color:var(--ink-3)}.rfu tr[data-rfu]{cursor:pointer}.rfu tr[aria-selected="true"] td{background:var(--surface-2)}.rfu tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--ink)}.tag.vs{background:#EEF0F2;color:var(--ink-2)}.lay-k .kpi{flex:1 1 150px;border-top:3px solid var(--lpg)}.lay-k .kpi em{font-style:normal;font-weight:600}.lay-k .up,.lay td.up{color:#1A7F37}.lay-k .dn,.lay td.dn{color:#B42318}.lay td.up,.lay td.dn{font-weight:600}.lay th.g{text-align:center;border-bottom:1px solid var(--line)}.lay td.b,.lay th.b{border-left:1px solid var(--line)}
+.wrap[data-sayfa="lpgtrm"]>:not(header):not(nav):not(.ltr-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtrm"]) .ltr-only{display:none}.wrap:not([data-sayfa="lpgith"]) .lpgi-only{display:none}.wrap[data-sayfa="lpgay"]>:not(header):not(nav):not(.lay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgay"]) .lay-only{display:none}.wrap[data-sayfa="rafurun"]>:not(header):not(nav):not(.rfu-only):not(footer){display:none}.wrap:not([data-sayfa="rafurun"]) .rfu-only{display:none}.wrap[data-sayfa="stok"]>:not(header):not(nav):not(.stk-only):not(footer){display:none}.wrap:not([data-sayfa="stok"]) .stk-only{display:none}.stk tr[data-stk]{cursor:pointer}.stk tr[aria-selected="true"] td{background:var(--surface-2)}.stk tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--ink)}.stk td.up{color:#1A7F37}.stk td.dn{color:#B42318}.stk .db{display:inline-block;height:8px;border-radius:2px;vertical-align:middle}.stk-g{overflow-x:auto}.stk-g svg{width:100%;min-width:640px;height:auto;display:block}.stk-g text{font:11px var(--f-body);fill:var(--ink-3)}.rfu-k .kc{grid-column:span 3}@media (max-width:900px){.rfu-k .kc{grid-column:span 6}}@media (max-width:600px){.rfu-k .kc{grid-column:1/-1}}.rfu td.g{color:var(--ink-3)}.rfu tr[data-rfu]{cursor:pointer}.rfu tr[aria-selected="true"] td{background:var(--surface-2)}.rfu tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--ink)}.tag.vs{background:#EEF0F2;color:var(--ink-2)}.lay-k .kpi{flex:1 1 150px;border-top:3px solid var(--lpg)}.lay-k .kpi em{font-style:normal;font-weight:600}.lay-k .up,.lay td.up{color:#1A7F37}.lay-k .dn,.lay td.dn{color:#B42318}.lay td.up,.lay td.dn{font-weight:600}.lay th.g{text-align:center;border-bottom:1px solid var(--line)}.lay td.b,.lay th.b{border-left:1px solid var(--line)}
 .wrap[data-sayfa="lpgraf"]>:not(header):not(nav):not(.lraf-only):not(footer){display:none}.wrap:not([data-sayfa="lpgraf"]) .lraf-only{display:none}
 .wrap[data-sayfa="lpgkay"]>:not(header):not(nav):not(.lkay-only):not(footer){display:none}.wrap:not([data-sayfa="lpgkay"]) .lkay-only{display:none}
 .wrap[data-sayfa="lpgtah"]>:not(header):not(nav):not(.ltah-only):not(footer){display:none}.wrap:not([data-sayfa="lpgtah"]) .ltah-only{display:none}
@@ -407,6 +407,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" role="tab" id="tab-grp-lpg" data-grup="lpg" aria-selected="false" aria-controls="alt-lpg">LPG<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button type="button" role="tab" id="tab-hava" data-sayfa="hava" aria-selected="false"><span class="uz">Havacılık</span><span class="kz" aria-hidden="true">Havacılık</span></button>
     <button type="button" role="tab" id="tab-deniz" data-sayfa="deniz" aria-selected="false"><span class="uz">Denizcilik</span><span class="kz" aria-hidden="true">Denizcilik</span></button>
+    <button type="button" role="tab" id="tab-stok" data-sayfa="stok" aria-selected="false"><span class="uz">Zorunlu stok</span><span class="kz" aria-hidden="true">Stok</span></button>
   </nav>
   <!-- LPG başlığı altındaki sayfalar (kullanıcı 16.10.2026 14:42) -->
   <nav class="tabs alt lpg" role="tablist" aria-label="LPG sayfaları" id="alt-lpg" data-grup="lpg" hidden>
@@ -623,6 +624,41 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
   </div>
 
+  <div class="filters stk-only" role="search" aria-label="Zorunlu stok filtreleri">
+    <div class="f"><label for="f-stk-l">Lisans</label><select id="f-stk-l"><option value="">Tümü</option><option value="Dağıtıcı">Dağıtıcı</option><option value="Rafinerici">Rafinerici</option><option value="LPG Dağıtıcı">LPG dağıtıcısı</option></select></div>
+    <div class="f"><label for="f-stk-s">Şirket</label><select id="f-stk-s"></select></div>
+    <div class="f"><label for="f-stk-u">Ürün</label><select id="f-stk-u"></select></div>
+    <button type="button" class="clear" id="clear-stk">Filtreleri temizle</button>
+  </div>
+  <section class="stk-only" aria-labelledby="h-stk">
+    <div class="head"><h2 id="h-stk">Zorunlu petrol stoku ve kupon</h2><span class="sub" id="s-stk"></span></div>
+    <p class="lead">Rafinerici, dağıtıcı ve LPG dağıtıcısı her gün yükümlülüğü kadar stok tutar: kendi tankında, başka lisanslı depoda (depolama hizmeti) ya da kupon sistemiyle başka bir lisans sahibinin tuttuğu stokla. Yükümlülük 1 Nisan'da değişir (Ocak–Mart n−2, Nisan–Aralık n−1 yılının satışı). Modelin kurgusudur: kendi / kiralık tank payı ve kupon sözleşmeleri PDM optimizasyonundan.</p>
+    <div class="kg" id="k-stk"></div>
+    <div class="head" style="margin-top:14px"><h3>Günlük yükümlülük ve sayılan stok</h3><span class="sub" id="s-stkg"></span></div>
+    <div id="stk-grafik" class="stk-g"></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stkk">
+    <div class="head"><h2 id="h-stkk">Kupon sistemi</h2><span class="sub" id="s-stkk"></span></div>
+    <div class="hg"><div id="stk-harita" class="mapbox"></div><aside class="ilpan" id="stk-arz" aria-label="Kupon veren tesisler"></aside></div>
+    <div class="scroll" style="max-height:none;margin-top:12px"><table id="t-stkk" class="stk"></table></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stks">
+    <div class="head"><h2 id="h-stks">Şirketler</h2><span class="sub" id="s-stks"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-stks" class="stk"></table></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stkt">
+    <div class="head"><h2 id="h-stkt">Tesis doluluğu</h2><span class="sub" id="s-stkt"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-stkt" class="stk"></table></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stkb">
+    <div class="head"><h2 id="h-stkb">EPDK günlük stok bildirimi</h2><span class="sub">Stok İzleme Sistemi</span></div>
+    <div class="scroll" style="max-height:none"><table id="t-stkb" class="stk"></table></div>
+    <ul class="notes">
+      <li>Formül (PETDER Mevzuat 2026, 7319 sayılı Kurul Kararı): SM ≥ (A × B / C) × D / 365; A = ikmal edilen ürün (ihracat, transit, askeri ve aynı tür lisans sahipleri arası satış hariç), B = 1,065 (akaryakıt, LPG ve rafinerici ürünleri; 0,96 yalnız ham petrol), C = 0,90 erişilemeyen stok, D = 20 gün → etkin ≈ 23,7 gün. Ocak–Mart n−2 (EPDK 2024 Sektör Raporu), Nisan–Aralık n−1 (2025) yılının satışı.</li>
+      <li>Kupon Kararı (RG 10.10.2017 / 30207): yükümlülüğün tamamı için kupon alınabilir; veren boş kapasitesinden fazlasını kupona koyamaz; ürün iki tarafın lisans alt başlığında olmalı (TFS / POTAS yalnız havacılık); dağıtıcı veren yılda ≥ 60 kt benzin + motorin teslim etmeli; sözleşme ≥ 30 gün; eksikten veren ve alan müştereken sorumlu. LPG dağıtıcısı yükümlülüğünün en çok %50'si için, yalnız benzin türünde kupon alabilir (7494 sayılı Karar).</li>
+      <li>Modelde: kendi / kiralık tank kendi terminali olan dağıtıcıda kapasitenin yarısına kadar (varsayım); zorunlu stok yeri = tank payı × 0,83 t/m³ × 0,90 doluluk − 7 günlük yükleme. Kupon fiyatı = veren maliyeti + %20 marj; alternatif = üçüncü taraf deposu kiralamak (EPDK depolama tarifesi medyanı). Rafineri ek kapasiteleri (Tüpraş İzmit / Aliağa 300, Kırıkkale 150, Star 200 kt) varsayımdır. Dep-1 (tank otomasyonu, 30 dk) tank verisi olmadığından üretilmez.</li>
+    </ul>
+  </section>
   <div class="filters rfu-only" role="search" aria-label="Rafineri ürünleri filtreleri">
     <div class="f"><label for="f-rfu-u">Ürün</label><select id="f-rfu-u"></select></div>
     <div class="f"><label for="f-rfu-r">Rafineri</label><select id="f-rfu-r"></select></div>

@@ -60,6 +60,12 @@
           <button type="button" role="tab" id="tab-deniz" data-sayfa="deniz" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0 3-1.3 4.5 0"/><path d="M5 14 4 10h16l-2 4"/><path d="M8 10V6h6l2 4M11 6V3"/></svg>Denizcilik yakıtları</button>
         </div>
       </div>
+      <div class="grp g-stok">
+        <div class="gh"><i></i>Zorunlu stok</div>
+        <div class="pipe">
+          <button type="button" role="tab" id="tab-stok" data-sayfa="stok" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3v10c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/><path d="M9 9.5h6"/></svg>Stok ve kupon</button>
+        </div>
+      </div>
     </nav>
     <div class="veri" id="veri" hidden>
       <span>Açık veritabanı</span>
@@ -266,6 +272,41 @@
     <button type="button" class="clear" id="clear-li">Filtreleri temizle</button>
   </div>
 
+  <div class="filters stk-only" role="search" aria-label="Zorunlu stok filtreleri">
+    <div class="f"><label for="f-stk-l">Lisans</label><select id="f-stk-l"><option value="">Tümü</option><option value="Dağıtıcı">Dağıtıcı</option><option value="Rafinerici">Rafinerici</option><option value="LPG Dağıtıcı">LPG dağıtıcısı</option></select></div>
+    <div class="f"><label for="f-stk-s">Şirket</label><select id="f-stk-s"></select></div>
+    <div class="f"><label for="f-stk-u">Ürün</label><select id="f-stk-u"></select></div>
+    <button type="button" class="clear" id="clear-stk">Filtreleri temizle</button>
+  </div>
+  <section class="stk-only" aria-labelledby="h-stk">
+    <div class="head"><h2 id="h-stk">Zorunlu petrol stoku ve kupon</h2><span class="sub" id="s-stk"></span></div>
+    <p class="lead">Rafinerici, dağıtıcı ve LPG dağıtıcısı her gün yükümlülüğü kadar stok tutar: kendi tankında, başka lisanslı depoda (depolama hizmeti) ya da kupon sistemiyle başka bir lisans sahibinin tuttuğu stokla. Yükümlülük 1 Nisan'da değişir (Ocak–Mart n−2, Nisan–Aralık n−1 yılının satışı). Modelin kurgusudur: kendi / kiralık tank payı ve kupon sözleşmeleri PDM optimizasyonundan.</p>
+    <div class="kg" id="k-stk"></div>
+    <div class="head" style="margin-top:14px"><h3>Günlük yükümlülük ve sayılan stok</h3><span class="sub" id="s-stkg"></span></div>
+    <div id="stk-grafik" class="stk-g"></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stkk">
+    <div class="head"><h2 id="h-stkk">Kupon sistemi</h2><span class="sub" id="s-stkk"></span></div>
+    <div class="hg"><div id="stk-harita" class="mapbox"></div><aside class="ilpan" id="stk-arz" aria-label="Kupon veren tesisler"></aside></div>
+    <div class="scroll" style="max-height:none;margin-top:12px"><table id="t-stkk" class="stk"></table></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stks">
+    <div class="head"><h2 id="h-stks">Şirketler</h2><span class="sub" id="s-stks"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-stks" class="stk"></table></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stkt">
+    <div class="head"><h2 id="h-stkt">Tesis doluluğu</h2><span class="sub" id="s-stkt"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-stkt" class="stk"></table></div>
+  </section>
+  <section class="stk-only" aria-labelledby="h-stkb">
+    <div class="head"><h2 id="h-stkb">EPDK günlük stok bildirimi</h2><span class="sub">Stok İzleme Sistemi</span></div>
+    <div class="scroll" style="max-height:none"><table id="t-stkb" class="stk"></table></div>
+    <ul class="notes">
+      <li>Formül (PETDER Mevzuat 2026, 7319 sayılı Kurul Kararı): SM ≥ (A × B / C) × D / 365; A = ikmal edilen ürün (ihracat, transit, askeri ve aynı tür lisans sahipleri arası satış hariç), B = 1,065 (akaryakıt, LPG ve rafinerici ürünleri; 0,96 yalnız ham petrol), C = 0,90 erişilemeyen stok, D = 20 gün → etkin ≈ 23,7 gün. Ocak–Mart n−2 (EPDK 2024 Sektör Raporu), Nisan–Aralık n−1 (2025) yılının satışı.</li>
+      <li>Kupon Kararı (RG 10.10.2017 / 30207): yükümlülüğün tamamı için kupon alınabilir; veren boş kapasitesinden fazlasını kupona koyamaz; ürün iki tarafın lisans alt başlığında olmalı (TFS / POTAS yalnız havacılık); dağıtıcı veren yılda ≥ 60 kt benzin + motorin teslim etmeli; sözleşme ≥ 30 gün; eksikten veren ve alan müştereken sorumlu. LPG dağıtıcısı yükümlülüğünün en çok %50'si için, yalnız benzin türünde kupon alabilir (7494 sayılı Karar).</li>
+      <li>Modelde: kendi / kiralık tank kendi terminali olan dağıtıcıda kapasitenin yarısına kadar (varsayım); zorunlu stok yeri = tank payı × 0,83 t/m³ × 0,90 doluluk − 7 günlük yükleme. Kupon fiyatı = veren maliyeti + %20 marj; alternatif = üçüncü taraf deposu kiralamak (EPDK depolama tarifesi medyanı). Rafineri ek kapasiteleri (Tüpraş İzmit / Aliağa 300, Kırıkkale 150, Star 200 kt) varsayımdır. Dep-1 (tank otomasyonu, 30 dk) tank verisi olmadığından üretilmez.</li>
+    </ul>
+  </section>
   <div class="filters rfu-only" role="search" aria-label="Rafineri ürünleri filtreleri">
     <div class="f"><label for="f-rfu-u">Ürün</label><select id="f-rfu-u"></select></div>
     <div class="f"><label for="f-rfu-r">Rafineri</label><select id="f-rfu-r"></select></div>

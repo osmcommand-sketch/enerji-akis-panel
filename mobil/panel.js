@@ -19,7 +19,7 @@ const zinSira=z=>String(z).split(" ← ").map(s=>s.replace(/ tahsisi$/,"").trim(
 const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1,atrU:[],ltrU:[]};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
 const SAYFA_GRUP={lpgay:"lpg",lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg",lpgraf:"lpg",lpgkay:"lpg",lpgtah:"lpg",lpgtas:"lpg",lpgzin:"lpg",lpgbay:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgraf"};
-const grupOf=sy=>(sy==="akis"||sy==="hava"||sy==="deniz")?null:(SAYFA_GRUP[sy]||"akaryakit");
+const grupOf=sy=>(sy==="akis"||sy==="hava"||sy==="deniz"||sy==="stok")?null:(SAYFA_GRUP[sy]||"akaryakit");
 S.lsat=""; S.lmus=-1; S.hepsiL=false; S.lith=-1; S.lgum=-1;
 
 const nf=new Intl.NumberFormat("tr-TR",{maximumFractionDigits:0}), nf1=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:1,maximumFractionDigits:1}), nf2=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -266,7 +266,7 @@ document.getElementById("cards").addEventListener("click",e=>{const c=e.target.c
 /* ---------- Dağıtıcılar arası ticaret (eski adı Dağıtıcı müşterileri; kullanıcı 14.10.2026 14:23 yeniden adlandırma + müşteri filtresi) (kullanıcı 08.10.2026: filtre dağıtıcı + terminal; tablo müşteri, ürün, ana kaynak) ---------- */
 const teslim=m=>{const x=MOD[m]||""; return x.startsWith("Terminal içi devir (takas")?(x.includes("ürün değişimi")?"Takas (ürün değişimi)":"Takas (bayi yönlendirmesi)"):x.startsWith("Rafineri tahsisinden alım")?"Rafineri tahsisinden alım":x.startsWith("Terminal içi devir")?"Terminal içi devir":x.startsWith("Dağıtıcıdan alım (takas")?"Takas (alıcının terminali)":x.startsWith("Grup içi")?"Grup içi alım":"Kendi akışı"};
 // Tedarik yolu: müşteri seçiliyken satıcı × kaynak × yöntem × yükleme terminali (kullanıcı 15.10.2026 14:41)
-function yolParca(m){ m=String(m||"?"); let tk="";
+function yolParca(m){ m=String(m||"?").replace(/ – zincir: .*$/,""); let tk="";
   const t=m.match(/^(.*?takası)\); *(.*)$/); if(t){ tk=t[1]+")"; m=t[2]; }
   let a, y; const r=m.match(/^Rafineri tahsisinden alım \((.*)\)$/);
   if(r){ a="tahsis"; y=r[1]; }
@@ -1034,6 +1034,116 @@ function lpgTicaret(){
   }
 }
 document.getElementById("t-lpgm").addEventListener("click",e=>{ { const r=e.target.closest("tr[data-lac]"); if(r){ const A=S.lpgAc||(S.lpgAc=new Set()), k=r.dataset.lac; A.has(k)?A.delete(k):A.add(k); render(); return; } } const tr=e.target.closest("[data-lmus]"); if(tr){S.lmus=+tr.dataset.lmus; render();} });
+/* ---------- Zorunlu petrol stoku ve kupon (PDM 29.10.2026: REF_STOK_*) ---------- */
+// D.stk: yuk [sid, ad, lisans, ürün, satış, yük 26–27, yük 25–26, kendi/kiralık, kupon, kiralık ek] · kup [alıcı sid, ad, lisans, ürün, satıcı sid, ad, tesis, tesis adı, ton, maliyet, fiyat, alternatif, km]
+// arz [sid, ad, tesis, tesis adı, enlem, boylam, boş, 60 kt şartı, yalnız] · tes [tesis, ad, ay, zorunlu, kupon, işletme ort., tepe, kapasite, doluluk, doluluk tepe, aşım]
+// ak [sid, ad, ürün, tutan (0 kendi, 1 kupon), açılış, kapanış] · gun [gün, lisans, yük, kendi, depolama hizmeti, kupon, işletme, sayılan, eksik] · gs [sid, ad, lisans, yük maks, sayılan min, fazla min, eksik gün]
+if(S.stL===undefined){ S.stL=""; S.stS=""; S.stU=""; }
+const STK_=D.stk||{}, STK_C={k:"#2A5591",d:"#0F6E8C",c:"#B83280",i:"#C9D3DA"};
+const stKey=r=>r[0]>=0?"s"+r[0]:"n"+r[1], stAd=r=>r[0]>=0?SIR[r[0]][1]:String(r[1]||"?");
+const fSL=document.getElementById("f-stk-l"), fSS=document.getElementById("f-stk-s"), fSU=document.getElementById("f-stk-u");
+fSL.addEventListener("change",()=>{S.stL=fSL.value; S.stS=""; render();}); fSS.addEventListener("change",()=>{S.stS=fSS.value; render();}); fSU.addEventListener("change",()=>{S.stU=fSU.value; render();});
+document.getElementById("clear-stk").addEventListener("click",()=>{S.stL=""; S.stS=""; S.stU=""; render();});
+function stokSayfa(){
+  const Y=STK_.yuk||[], K=STK_.kup||[], A=STK_.arz||[], TS=STK_.tes||[], AK=STK_.ak||[], G=STK_.gun||[], GS=STK_.gs||[];
+  if(!Y.length){ document.getElementById("k-stk").innerHTML=`<p class="muted">Bu veri sürümünde zorunlu stok katmanı yok.</p>`; return; }
+  const okL=l=>!S.stL||l===S.stL, okU=u=>!S.stU||u===S.stU;
+  // filtre seçenekleri
+  const sm=new Map(); for(const r of Y) if(okL(r[2])&&okU(r[3])){ const k=stKey(r); const o=sm.get(k)||sm.set(k,{ad:stAd(r),v:0}).get(k); o.v+=r[5]; }
+  if(S.stS&&!sm.has(S.stS)) S.stS="";
+  fSL.value=S.stL; fSS.innerHTML=`<option value="">Tüm şirketler (${sm.size})</option>`+[...sm].sort((a,b)=>b[1].v-a[1].v).map(([k,o])=>`<option value="${esc(k)}">${esc(o.ad)} · ${ton(o.v)}</option>`).join(""); fSS.value=S.stS;
+  const urs=[...new Set(Y.map(r=>r[3]))]; fSU.innerHTML=`<option value="">Tüm ürünler</option>`+urs.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join(""); fSU.value=S.stU;
+  const okS=r=>!S.stS||stKey(r)===S.stS;
+  const YF=Y.filter(r=>okL(r[2])&&okU(r[3])&&okS(r)), sum=(L,i)=>L.reduce((q,r)=>q+r[i],0);
+  const Y27=sum(YF,5), Y26=sum(YF,6), KND=sum(YF,7), KUP=sum(YF,8);
+  const KF=K.filter(r=>okL(r[2])&&okU(r[3])&&(!S.stS||stKey(r)===S.stS||(r[4]>=0?"s"+r[4]:"n"+r[5])===S.stS));
+  const KT=sum(KF,8), KAL=new Set(KF.map(r=>stKey(r))).size, kf=KT?KF.reduce((q,r)=>q+r[8]*r[10],0)/KT:0, ka=KT?KF.reduce((q,r)=>q+r[8]*r[11],0)/KT:0;
+  // günlük (lisans filtresi; şirket / ürün seçiliyse yalnız yıllık tablolar daralır)
+  const GL=G.filter(r=>okL(r[1])), gd=d=>{ const R=GL.filter(r=>Math.round(r[0])===d); return [2,3,4,5,6,7,8].map(i=>R.reduce((q,r)=>q+r[i],0)); };
+  const d0=gd(0), d1=gd(227), EKS=GL.reduce((q,r)=>q+r[8],0);
+  const LS=["Dağıtıcı","Rafinerici","LPG Dağıtıcı"], LC={"Dağıtıcı":"#2A5591","Rafinerici":"#15222C","LPG Dağıtıcı":"#D9711F"};
+  const kb=[];
+  // yükümlülük: filtre yoksa günlük tablodan (LPG dağıtıcısının LPG yükümlülüğü yalnız orada), şirket / ürün seçiliyse yıllık tablodan
+  const gunL=l=>{ const R=G.filter(r=>r[1]===l); const a=R.filter(r=>Math.round(r[0])===0).reduce((q,r)=>q+r[2],0), b=R.filter(r=>Math.round(r[0])===227).reduce((q,r)=>q+r[2],0); return [a,b]; };
+  const yG=!(S.stS||S.stU), yv=l=>yG?gunL(l):[sum(YF.filter(r=>r[2]===l),6),sum(YF.filter(r=>r[2]===l),5)];
+  const YB=LS.filter(okL).reduce((q,l)=>q+yv(l)[1],0), YA=LS.filter(okL).reduce((q,l)=>q+yv(l)[0],0);
+  kb.push(kompKart("Yükümlülük · 2026–27",LS.filter(okL).map(l=>({l:l==="LPG Dağıtıcı"?"LPG dağıtıcısı":l,v:yv(l)[1],c:LC[l],s:l==="LPG Dağıtıcı"?"LPG + benzin kuponu":l==="Rafinerici"?"Tüpraş, Star":"benzin, motorin, diğer"})),{buyuk:ton(YB),alt:`1 Nisan–31 Aralık · Ocak–Mart ${ton(YA)}`,span:3}));
+  kb.push(kompKart("Nasıl karşılanıyor (15 Ağustos)",[{l:"Kendi tesisi",v:d1[1],c:STK_C.k,s:"kendi / kiralık tank"},{l:"Depolama hizmeti",v:d1[2],c:STK_C.d,s:"başka lisanslı depoda (DR bildirimi)"},{l:"Kupon",v:d1[3],c:STK_C.c,s:"başka lisans sahibinin stoğu"},{l:"İşletme stoğu",v:d1[4],c:STK_C.i,s:"yükümlülük üstü"}],{buyuk:ton(d1[5]),alt:`sayılan stok · yükümlülüğün ${pct(d1[0]?d1[5]/d1[0]:0)}`,span:3}));
+  kb.push(kompKart("Kupon",[{l:"Kupon fiyatı",v:KT*kf,c:STK_C.c,s:`${nf1.format(kf)} USD/t/yıl`},{l:"Alıcının tasarrufu",v:KT*(ka-kf),c:"#1A7F37",s:`kiralık depo ${nf1.format(ka)} USD/t/yıl`}],{buyuk:ton(KT),alt:`${KAL} alıcı · ${new Set(KF.map(r=>r[6]+"|"+r[7])).size} tesis`,span:3,fmt:v=>"$"+nf1.format(v/1e6)+" M"}));
+  const nSG=new Set(GS.filter(r=>okL(r[2])).map(r=>stKey(r))).size, enDus=GS.filter(r=>okL(r[2])).reduce((q,r)=>Math.min(q,r[5]),Infinity);
+  kb.push(`<div class="kc" style="--sp:3"><div class="kc-h"><span>Günlük uyum</span><span>${EKS?"⚠":"✓"}</span></div><div class="kc-big"><b style="color:${EKS?"#B42318":"#1A7F37"}">${nf.format(EKS)}</b><span>eksik şirket-gün</span></div><p class="kc-not" style="margin-top:8px">${nSG} yükümlü × 365 gün. Yükümlülük yıllık ortalama değil her gün aranır; kupon veren yılda 10 günden fazla eksik kalırsa iznini kaybeder (Kupon Kararı md.9(1)(c)). En düşük günlük fazla ${isFinite(enDus)?ton(Math.max(0,enDus)):"–"}.</p></div>`);
+  document.getElementById("k-stk").innerHTML=kb.join("");
+  document.getElementById("h-stk").textContent=[S.stS?(sm.get(S.stS)||{}).ad:null,S.stU||null,S.stL||null].filter(Boolean).join(" · ")||"Zorunlu petrol stoku ve kupon";
+  document.getElementById("s-stk").textContent=`${YIL} · ${yG?nSG:sm.size} yükümlü · yükümlülük ${ton(YA)} → ${ton(YB)} (1 Nisan)`;
+  stokGrafik(GL);
+  stokKupon(KF,A);
+  // şirket tablosu
+  const SR=new Map(); for(const r of YF){ const k=stKey(r); const o=SR.get(k)||SR.set(k,{ad:stAd(r),l:r[2],a:0,b:0,s:0,kn:0,ku:0,ac:0,kp:0,f:null,e:0}).get(k); o.a+=r[6]; o.b+=r[5]; o.s+=r[4]; o.kn+=r[7]; o.ku+=r[8]; }
+  for(const r of AK) if(okU(r[2])){ const o=SR.get(stKey(r)); if(o){ o.ac+=r[4]; o.kp+=r[5]; } }
+  if(!S.stU) for(const r of GS){ const o=SR.get(stKey(r)); if(o){ o.f=r[5]; o.e=r[6]; } }
+  const SL=[...SR].sort((a,b)=>b[1].b-a[1].b), mx=Math.max(1,...SL.map(([,o])=>o.b)), LIM=S.stH?SL.length:25;
+  const t=v=>Math.abs(v)<0.5?"–":(v<0?"−":"")+ton(Math.abs(v));
+  document.getElementById("t-stks").innerHTML=`<thead><tr><th class="l">Şirket</th><th class="l">Lisans</th><th>Ocak–Mart</th><th>Nisan–Aralık</th><th>Kendi / kiralık</th><th>Kupon</th><th>Açılış 01.01</th><th>Kapanış 31.12</th><th>Dönem farkı</th><th>Günlük en düşük fazla</th></tr></thead><tbody>`
+    +SL.slice(0,LIM).map(([k,o])=>`<tr data-stk="${esc(k)}" tabindex="0" aria-selected="${S.stS===k}"><td class="l"><b>${esc(o.ad)}</b></td><td class="l muted">${esc(o.l)}</td><td>${t(o.a)}</td><td><span class="db" style="width:${Math.round(34*o.b/mx)}px;background:${LC[o.l]||"#5E7384"};margin-right:6px"></span><b>${t(o.b)}</b></td><td>${t(o.kn)}</td><td>${o.ku>=0.5?`<span style="color:${STK_C.c};font-weight:600">${ton(o.ku)}</span>`:"–"}</td><td>${t(o.ac)}</td><td>${t(o.kp)}</td><td class="${o.kp-o.ac>=0?"up":"dn"}">${Math.abs(o.kp-o.ac)<0.5?"–":(o.kp-o.ac>0?"+":"−")+ton(Math.abs(o.kp-o.ac))}</td><td class="${o.f!=null&&o.f<0?"dn":""}">${o.f==null?"–":Math.abs(o.f)<0.5?'0 <span class="muted">tam</span>':t(o.f)}${o.e?` <span class="tag dg">${o.e} gün eksik</span>`:""}</td></tr>`).join("")
+    +(SL.length>25?`<tr><td colspan="10" class="empty"><button type="button" class="clear" id="stkHep">${S.stH?"İlk 25 şirketi göster":`Tümünü göster (${SL.length})`}</button></td></tr>`:"")
+    +`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td></td><td><b>${t(Y26)}</b></td><td><b>${t(Y27)}</b></td><td><b>${t(KND)}</b></td><td><b>${t(KUP)}</b></td><td><b>${t(SL.reduce((q,[,o])=>q+o.ac,0))}</b></td><td><b>${t(SL.reduce((q,[,o])=>q+o.kp,0))}</b></td><td>${t(SL.reduce((q,[,o])=>q+o.kp-o.ac,0))}</td><td></td></tr></tbody>`;
+  document.getElementById("s-stks").textContent=`${SL.length} şirket · Nisan–Aralık yükümlülüğüne göre · satıra tıklayınca şirket seçilir`;
+  for(const tr of document.querySelectorAll("#t-stks tr[data-stk]")){ const f=()=>{ const k=tr.dataset.stk; S.stS=S.stS===k?"":k; render(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+  const hb=document.getElementById("stkHep"); if(hb) hb.onclick=()=>{ S.stH=!S.stH; render(); };
+  // tesis doluluğu: tepe doluluğa göre
+  const TM=new Map(); for(const r of TS){ const o=TM.get(r[1])||TM.set(r[1],{t:r[0],m:[],z:0,k:0,cap:r[7],pk:0,pa:0}).get(r[1]); o.m[r[2]-1]=r[9]; o.z=Math.max(o.z,r[3]); o.k=Math.max(o.k,r[4]); o.pk=Math.max(o.pk,r[9]); o.pa=Math.max(o.pa,r[10]); }
+  const TL=[...TM].filter(([,o])=>o.z+o.k>0.5).sort((a,b)=>b[1].pk-a[1].pk);
+  const spark=m=>{ const w=96,h=20; return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true"><line x1="0" x2="${w}" y1="${(h-h*0.4/0.55).toFixed(1)}" y2="${(h-h*0.4/0.55).toFixed(1)}" stroke="#B42318" stroke-dasharray="2 2" stroke-width=".8"/><polyline fill="none" stroke="#0F6E8C" stroke-width="1.4" points="${m.map((v,i)=>`${(i*w/11).toFixed(1)},${(h-h*Math.max(0,Math.min(1.15,v||0)-0.6)/0.55).toFixed(1)}`).join(" ")}"/></svg>`; };
+  document.getElementById("t-stkt").innerHTML=`<thead><tr><th class="l">Tesis</th><th>Kullanılabilir kapasite</th><th>Zorunlu stok</th><th>Kupon stoğu</th><th>Tepe doluluk</th><th>Tepe aşımı</th><th class="l">Aylık tepe doluluk (Oca–Ara; %60–115; kesikli = %100)</th></tr></thead><tbody>`
+    +TL.slice(0,20).map(([n,o])=>`<tr><td class="l"><b>${esc(n)}</b></td><td>${t(o.cap)}</td><td>${t(o.z)}</td><td>${o.k>=0.5?ton(o.k):"–"}</td><td class="${o.pk>1?"dn":""}"><b>${pct(o.pk)}</b></td><td class="${o.pa>0.5?"dn":""}">${o.pa>0.5?ton(o.pa):"–"}</td><td class="l">${spark(o.m)}</td></tr>`).join("")+`</tbody>`;
+  const nA=TL.filter(([,o])=>o.pk>1).length;
+  document.getElementById("s-stkt").textContent=`${TL.length} tesiste zorunlu / kupon stoğu · ${nA} tesiste yaz tepesinde kapasite aşımı (ortalama doluluk tüm aylarda %100'ün altında) · ilk 20`;
+  // bildirim türleri
+  const BN=new Map((STK_.bn||[]).map(r=>[r[0],r]));
+  document.getElementById("t-stkb").innerHTML=`<thead><tr><th class="l">Bildirim</th><th class="l">Sıklık</th><th class="l">Kim bildirir</th><th>Modelde kayıt</th><th class="l">Modelde</th></tr></thead><tbody>`
+    +(STK_.bt||[]).map(r=>`<tr><td class="l"><b>${esc(r[0])}</b> ${esc(r[1])}</td><td class="l">${esc(r[2])}</td><td class="l muted">${esc(r[3])}</td><td>${BN.has(r[0])?nf.format(BN.get(r[0])[1])+` <span class="muted">· ${BN.get(r[0])[2]} şirket</span>`:"–"}</td><td class="l muted">${esc(r[4])}</td></tr>`).join("")+`</tbody>`;
+}
+function stokGrafik(GL){
+  const el=document.getElementById("stk-grafik"); if(!GL.length){ el.innerHTML=""; return; }
+  const N=365, D_=new Array(N).fill(0).map(()=>[0,0,0,0,0,0]);
+  for(const r of GL){ const d=Math.round(r[0]); if(d<0||d>=N) continue; const o=D_[d]; o[0]+=r[2]; o[1]+=r[3]; o[2]+=r[4]; o[3]+=r[5]; o[4]+=r[6]; o[5]+=r[7]; }
+  const W=760,H=220,L=50,B=24,T=10, mx=Math.max(1,...D_.map(o=>Math.max(o[0],o[5])))*1.08, x=d=>L+(W-L-8)*d/(N-1), y=v=>T+(H-T-B)*(1-v/mx);
+  const alan=(lo,hi,c,ad)=>{ let p=`M${x(0).toFixed(1)} ${y(hi(D_[0])).toFixed(1)}`; for(let d=1;d<N;d++) p+=`L${x(d).toFixed(1)} ${y(hi(D_[d])).toFixed(1)}`; for(let d=N-1;d>=0;d--) p+=`L${x(d).toFixed(1)} ${y(lo(D_[d])).toFixed(1)}`; return `<path d="${p}Z" fill="${c}" fill-opacity=".85"><title>${ad}</title></path>`; };
+  let g=""; for(let i=0;i<=4;i++){ const v=mx*i/4; g+=`<line x1="${L}" x2="${W-8}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}" stroke="var(--line)"/><text x="${L-6}" y="${(y(v)+4).toFixed(1)}" text-anchor="end">${nf.format(Math.round(v/1000))}</text>`; }
+  g+=alan(o=>0,o=>o[1],STK_C.k,"Kendi tesisi")+alan(o=>o[1],o=>o[1]+o[2],STK_C.d,"Depolama hizmeti")+alan(o=>o[1]+o[2],o=>o[1]+o[2]+o[3],STK_C.c,"Kupon")+alan(o=>o[1]+o[2]+o[3],o=>o[5],STK_C.i,"İşletme stoğu");
+  let ln=`M${x(0)} ${y(D_[0][0]).toFixed(1)}`; for(let d=1;d<N;d++) ln+=`L${x(d).toFixed(1)} ${y(D_[d][0]).toFixed(1)}`;
+  g+=`<path d="${ln}" fill="none" stroke="#B42318" stroke-width="1.8"><title>Yükümlülük</title></path>`;
+  const AY=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"], ilk=[0,31,59,90,120,151,181,212,243,273,304,334];
+  ilk.forEach((d,i)=>{ g+=`<text x="${(x(d)+3).toFixed(1)}" y="${H-6}">${AY[i]}</text>`; });
+  g+=`<line x1="${x(90).toFixed(1)}" x2="${x(90).toFixed(1)}" y1="${T}" y2="${H-B}" stroke="var(--ink-3)" stroke-dasharray="3 3"/><text x="${(x(90)+4).toFixed(1)}" y="${T+10}" style="fill:var(--ink-2)">1 Nisan: yükümlülük ${D_[90][0]>=D_[89][0]?"+":"−"}${ton(Math.abs(D_[90][0]-D_[89][0]))}</text>`;
+  el.innerHTML=`<p class="muted" style="font-size:12px;margin:0 0 4px">bin ton · kırmızı çizgi yükümlülük; alanlar sayılan stok</p><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Günlük zorunlu stok">${g}</svg>
+    <div class="trlg" style="margin-top:4px"><span><i style="background:${STK_C.k}"></i>Kendi tesisi</span><span><i style="background:${STK_C.d}"></i>Depolama hizmeti</span><span><i style="background:${STK_C.c}"></i>Kupon</span><span><i style="background:${STK_C.i}"></i>İşletme stoğu</span><span><i style="background:#B42318;height:3px"></i>Yükümlülük</span></div>`;
+  document.getElementById("s-stkg").textContent=`${S.stL||"tüm lisanslar"} · 1 Ocak ${ton(D_[0][0])} → 15 Ağustos ${ton(D_[226][0])}`;
+}
+function stokKupon(KF,A){
+  // tesisler: kupon verilen ton ve boş kapasite
+  const TV=new Map(); for(const r of KF){ const k=r[7]; const o=TV.get(k)||TV.set(k,{t:r[6],v:0,al:new Map(),sat:r[4]>=0?SIR[r[4]][1]:r[5]}).get(k); o.v+=r[8]; const a=stAd(r); o.al.set(a,(o.al.get(a)||0)+r[8]); }
+  const AR=new Map(A.map(r=>[r[3],r]));
+  const VB=svgM.getAttribute("viewBox"), W=+VB.split(/\s+/)[2], u=W/1000;
+  let m=""; for(const [,d] of Object.entries(GEO.p)) m+=`<path d="${d}" fill="var(--c0)" stroke="var(--surface)" stroke-width="${(0.6*u).toFixed(2)}"/>`;
+  const yer=n=>{ const a=AR.get(n); if(a&&a[4]!=null) return [a[4],a[5]]; const o=TV.get(n); if(o&&o.t>=0){ const h=HUB[TERM[o.t][2]]; if(h&&h.lat!=null) return [h.lat,h.lon]; } return null; };
+  const isim=new Set([...TV.keys(),...A.map(r=>r[3])]), mx=Math.max(1,...[...isim].map(n=>Math.max((TV.get(n)||{v:0}).v,(AR.get(n)||[])[6]||0)));
+  let nd="", lb="";
+  for(const n of [...isim].sort((a,b)=>((AR.get(b)||[])[6]||0)-((AR.get(a)||[])[6]||0))){ const p=yer(n); if(!p) continue; const [px,py]=pj(...p), bos=(AR.get(n)||[])[6]||0, kv=(TV.get(n)||{v:0}).v, rB=Math.max(2*u,18*u*Math.sqrt(Math.max(bos,kv)/mx)), rK=kv>0?Math.max(1.8*u,18*u*Math.sqrt(kv/mx)):0;
+    nd+=`<g><title>${esc(n)} · boş kapasite ${ton(bos)} · kupon ${ton(kv)}${kv?" · "+[...TV.get(n).al].sort((a,b)=>b[1]-a[1]).slice(0,4).map(([a,v])=>a+" "+ton(v)).join(", "):""}</title><circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rB.toFixed(1)}" fill="none" stroke="${STK_C.c}" stroke-width="${(1*u).toFixed(2)}" stroke-dasharray="${(2*u).toFixed(1)} ${(1.5*u).toFixed(1)}"/>${rK?`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${rK.toFixed(1)}" fill="${STK_C.c}" fill-opacity=".75"/>`:""}</g>`;
+    if(kv>=0.02*mx) lb+=`<text x="${(px+rB+3*u).toFixed(1)}" y="${(py+3*u).toFixed(1)}" style="font-size:${(9*u).toFixed(1)}px">${esc(n.replace(/ \(.*\)$/,""))}</text>`; }
+  document.getElementById("stk-harita").innerHTML=`<svg viewBox="${VB}" role="img" aria-label="Kupon veren tesisler">${m}<g>${nd}</g><g class="trlb" style="pointer-events:none">${lb}</g></svg><div class="lz-leg"><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="5" fill="${STK_C.c}" fill-opacity=".75"/></svg>kupon stoğu</span><span><svg viewBox="0 0 18 12"><circle cx="9" cy="6" r="5" fill="none" stroke="${STK_C.c}" stroke-dasharray="2 1.5"/></svg>kupona açık boş kapasite</span></div>`;
+  const TL=[...TV].sort((a,b)=>b[1].v-a[1].v), KT=KF.reduce((q,r)=>q+r[8],0);
+  document.getElementById("stk-arz").innerHTML=`<div class="ilp-h"><b>Kupon veren tesisler</b><span class="muted">${TL.length} tesis · ${ton(KT)}</span></div>`+TL.map(([n,o])=>`<div class="ilp-r" style="padding:6px 0;border-bottom:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(n)}<br><small class="muted">${esc(o.sat)} · ${o.al.size} alıcı · boş ${ton((AR.get(n)||[])[6]||0)}</small></span><b>${ton(o.v)}</b></div></div>`).join("");
+  // sözleşmeler: alıcı × satıcı × ürün
+  const C=new Map(); for(const r of KF){ const k=[stKey(r),r[3],r[4]>=0?r[4]:r[5],r[7]].join("|"); const o=C.get(k)||C.set(k,{al:stAd(r),l:r[2],u:r[3],sa:r[4]>=0?SIR[r[4]][1]:r[5],te:r[7],v:0,f:r[10],a:r[11],km:r[12]}).get(k); o.v+=r[8]; }
+  const CL=[...C.values()].sort((a,b)=>b.v-a.v);
+  document.getElementById("t-stkk").innerHTML=`<thead><tr><th class="l">Alıcı (yükümlü)</th><th class="l">Ürün</th><th class="l">Kupon veren</th><th class="l">Tesis</th><th>Ton</th><th>Kupon fiyatı</th><th>Kiralık depo</th><th>Tasarruf</th><th>Satış bölgesine km</th></tr></thead><tbody>`
+    +CL.slice(0,S.stKH?CL.length:20).map(o=>`<tr><td class="l"><b>${esc(o.al)}</b> <span class="muted">· ${esc(o.l)}</span></td><td class="l">${esc(o.u)}</td><td class="l">${esc(o.sa)}</td><td class="l muted">${esc(o.te)}</td><td><b>${ton(o.v)}</b></td><td>${nf1.format(o.f)} $/t</td><td class="muted">${nf1.format(o.a)} $/t</td><td class="up">$${nf.format(Math.round(o.v*(o.a-o.f)/1000))} bin</td><td>${nf.format(o.km)}</td></tr>`).join("")
+    +(CL.length>20?`<tr><td colspan="9" class="empty"><button type="button" class="clear" id="stkKH">${S.stKH?"İlk 20 sözleşmeyi göster":`Tümünü göster (${CL.length})`}</button></td></tr>`:"")+`</tbody>`;
+  const kh=document.getElementById("stkKH"); if(kh) kh.onclick=()=>{ S.stKH=!S.stKH; render(); };
+  document.getElementById("s-stkk").textContent=`${ton(KT)} · ${new Set(KF.map(r=>stKey(r))).size} alıcı · ${CL.length} sözleşme (alıcı × ürün × tesis) · fiyat = veren maliyeti + %20 marj · sözleşme dönemleri 01.01–31.03 ve 01.04–31.12`;
+}
 /* ---------- Akaryakıt dışı rafineri ürünleri (kullanıcı 26.10.2026 14:34; PDM REF_RAFINERI_URUN*) ---------- */
 // D.rfu: [rafineri, ürün, kalem, ton, güven] · D.rfa: [ürün, rafineri, kaynak terminal, alıcı sektör, alıcı tesis, il, mod, km, ton, varsayım] · D.rfi: [ürün, rafineri, kargo, ton]
 if(S.rfU===undefined){ S.rfU=""; S.rfR=""; }
@@ -2544,6 +2654,7 @@ function render(){
   if(S.sayfa==="transit"){ transitSayfa(); return; }
   if(S.sayfa==="hava"){ havaSayfa(); return; }
   if(S.sayfa==="deniz"){ denizSayfa(); return; }
+  if(S.sayfa==="stok"){ stokSayfa(); return; }
   if(S.sayfa==="lpgbay"){ lpgBayiler(); return; }
   if(S.sayfa==="akterm"){ akTerminaller(); return; }
   if(TAH()){ tahsis(); return; }
@@ -2600,5 +2711,5 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("tr[tabindex]")) e.target.click()});
 if(location.hash==="#tahsis") S.sayfa="kaynak";   // terminal bazlı tahsis sayfaları kaldırıldı (kullanıcı 23.10.2026 20:27)
- else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#deniz") S.sayfa="deniz"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
+ else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#deniz") S.sayfa="deniz"; else if(location.hash==="#stok") S.sayfa="stok"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
 render();
