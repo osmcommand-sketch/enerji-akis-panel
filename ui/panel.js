@@ -1066,7 +1066,7 @@ function stokSayfa(){
   const kb=[];
   // yükümlülük: filtre yoksa günlük tablodan (LPG dağıtıcısının LPG yükümlülüğü yalnız orada), şirket / ürün seçiliyse yıllık tablodan
   const gunL=l=>{ const R=G.filter(r=>r[1]===l); const a=R.filter(r=>Math.round(r[0])===0).reduce((q,r)=>q+r[2],0), b=R.filter(r=>Math.round(r[0])===227).reduce((q,r)=>q+r[2],0); return [a,b]; };
-  const yG=!(S.stS||S.stU), yv=l=>yG?gunL(l):[sum(YF.filter(r=>r[2]===l),6),sum(YF.filter(r=>r[2]===l),5)];
+  const yG=!(S.stS||S.stU)&&!Y.some(r=>r[2]==="LPG Dağıtıcı"&&r[3]==="LPG"), yv=l=>yG?gunL(l):[sum(YF.filter(r=>r[2]===l),6),sum(YF.filter(r=>r[2]===l),5)];
   const YB=LS.filter(okL).reduce((q,l)=>q+yv(l)[1],0), YA=LS.filter(okL).reduce((q,l)=>q+yv(l)[0],0);
   kb.push(kompKart("Yükümlülük · 2026–27",LS.filter(okL).map(l=>({l:l==="LPG Dağıtıcı"?"LPG dağıtıcısı":l,v:yv(l)[1],c:LC[l],s:l==="LPG Dağıtıcı"?"LPG + benzin kuponu":l==="Rafinerici"?"Tüpraş, Star":"benzin, motorin, diğer"})),{buyuk:ton(YB),alt:`1 Nisan–31 Aralık · Ocak–Mart ${ton(YA)}`,span:3}));
   kb.push(kompKart("Nasıl karşılanıyor (15 Ağustos)",[{l:"Kendi tesisi",v:d1[1],c:STK_C.k,s:"kendi / kiralık tank"},{l:"Depolama hizmeti",v:d1[2],c:STK_C.d,s:"başka lisanslı depoda (DR bildirimi)"},{l:"Kupon",v:d1[3],c:STK_C.c,s:"başka lisans sahibinin stoğu"},{l:"İşletme stoğu",v:d1[4],c:STK_C.i,s:"yükümlülük üstü"}],{buyuk:ton(d1[5]),alt:`sayılan stok · yükümlülüğün ${pct(d1[0]?d1[5]/d1[0]:0)}`,span:3}));
@@ -1079,13 +1079,15 @@ function stokSayfa(){
   stokGrafik(GL);
   stokKupon(KF,A);
   // şirket tablosu
-  const SR=new Map(); for(const r of YF){ const k=stKey(r); const o=SR.get(k)||SR.set(k,{ad:stAd(r),l:r[2],a:0,b:0,s:0,kn:0,ku:0,ac:0,kp:0,f:null,e:0}).get(k); o.a+=r[6]; o.b+=r[5]; o.s+=r[4]; o.kn+=r[7]; o.ku+=r[8]; }
-  for(const r of AK) if(okU(r[2])){ const o=SR.get(stKey(r)); if(o){ o.ac+=r[4]; o.kp+=r[5]; } }
-  if(!S.stU) for(const r of GS){ const o=SR.get(stKey(r)); if(o){ o.f=r[5]; o.e=r[6]; } }
+  const SR=new Map(); for(const r of YF){ const k=stKey(r)+"|"+r[2]; const o=SR.get(k)||SR.set(k,{ad:stAd(r),l:r[2],a:0,b:0,s:0,kn:0,ku:0,ac:0,kp:0,f:null,e:0}).get(k); o.a+=r[6]; o.b+=r[5]; o.s+=r[4]; o.kn+=r[7]; o.ku+=r[8]; }
+  const AKD=new Set(Y.filter(r=>r[2]!=="LPG Dağıtıcı").map(r=>stKey(r)));   // akaryakıt lisansı da olan şirket (PO, Shell, Aytemiz …)
+  const akL=(r)=>{ if(r[2]==="LPG") return SR.get(stKey(r)+"|LPG Dağıtıcı")||null; for(const l of ["Dağıtıcı","Rafinerici"]){ const o=SR.get(stKey(r)+"|"+l); if(o) return o; } return AKD.has(stKey(r))?null:(SR.get(stKey(r)+"|LPG Dağıtıcı")||null); };
+  for(const r of AK) if(okU(r[2])){ const o=akL(r); if(o){ o.ac+=r[4]; o.kp+=r[5]; } }
+  if(!S.stU) for(const r of GS){ const o=SR.get(stKey(r)+"|"+r[2]); if(o){ o.f=r[5]; o.e=r[6]; } }
   const SL=[...SR].sort((a,b)=>b[1].b-a[1].b), mx=Math.max(1,...SL.map(([,o])=>o.b)), LIM=S.stH?SL.length:25;
   const t=v=>Math.abs(v)<0.5?"–":(v<0?"−":"")+ton(Math.abs(v));
   document.getElementById("t-stks").innerHTML=`<thead><tr><th class="l">Şirket</th><th class="l">Lisans</th><th>Ocak–Mart</th><th>Nisan–Aralık</th><th>Kendi / kiralık</th><th>Kupon</th><th>Açılış 01.01</th><th>Kapanış 31.12</th><th>Dönem farkı</th><th>Günlük en düşük fazla</th></tr></thead><tbody>`
-    +SL.slice(0,LIM).map(([k,o])=>`<tr data-stk="${esc(k)}" tabindex="0" aria-selected="${S.stS===k}"><td class="l"><b>${esc(o.ad)}</b></td><td class="l muted">${esc(o.l)}</td><td>${t(o.a)}</td><td><span class="db" style="width:${Math.round(34*o.b/mx)}px;background:${LC[o.l]||"#5E7384"};margin-right:6px"></span><b>${t(o.b)}</b></td><td>${t(o.kn)}</td><td>${o.ku>=0.5?`<span style="color:${STK_C.c};font-weight:600">${ton(o.ku)}</span>`:"–"}</td><td>${t(o.ac)}</td><td>${t(o.kp)}</td><td class="${o.kp-o.ac>=0?"up":"dn"}">${Math.abs(o.kp-o.ac)<0.5?"–":(o.kp-o.ac>0?"+":"−")+ton(Math.abs(o.kp-o.ac))}</td><td class="${o.f!=null&&o.f<0?"dn":""}">${o.f==null?"–":Math.abs(o.f)<0.5?'0 <span class="muted">tam</span>':t(o.f)}${o.e?` <span class="tag dg">${o.e} gün eksik</span>`:""}</td></tr>`).join("")
+    +SL.slice(0,LIM).map(([k,o])=>`<tr data-stk="${esc(k.split("|")[0])}" tabindex="0" aria-selected="${S.stS===k.split("|")[0]}"><td class="l"><b>${esc(o.ad)}</b></td><td class="l muted">${esc(o.l)}</td><td>${t(o.a)}</td><td><span class="db" style="width:${Math.round(34*o.b/mx)}px;background:${LC[o.l]||"#5E7384"};margin-right:6px"></span><b>${t(o.b)}</b></td><td>${t(o.kn)}</td><td>${o.ku>=0.5?`<span style="color:${STK_C.c};font-weight:600">${ton(o.ku)}</span>`:"–"}</td><td>${t(o.ac)}</td><td>${t(o.kp)}</td><td class="${o.kp-o.ac>=0?"up":"dn"}">${Math.abs(o.kp-o.ac)<0.5?"–":(o.kp-o.ac>0?"+":"−")+ton(Math.abs(o.kp-o.ac))}</td><td class="${o.f!=null&&o.f<0?"dn":""}">${o.f==null?"–":Math.abs(o.f)<0.5?'0 <span class="muted">tam</span>':t(o.f)}${o.e?` <span class="tag dg">${o.e} gün eksik</span>`:""}</td></tr>`).join("")
     +(SL.length>25?`<tr><td colspan="10" class="empty"><button type="button" class="clear" id="stkHep">${S.stH?"İlk 25 şirketi göster":`Tümünü göster (${SL.length})`}</button></td></tr>`:"")
     +`<tr class="grp tg"><td class="l"><b>Toplam</b></td><td></td><td><b>${t(Y26)}</b></td><td><b>${t(Y27)}</b></td><td><b>${t(KND)}</b></td><td><b>${t(KUP)}</b></td><td><b>${t(SL.reduce((q,[,o])=>q+o.ac,0))}</b></td><td><b>${t(SL.reduce((q,[,o])=>q+o.kp,0))}</b></td><td>${t(SL.reduce((q,[,o])=>q+o.kp-o.ac,0))}</td><td></td></tr></tbody>`;
   document.getElementById("s-stks").textContent=`${SL.length} şirket · Nisan–Aralık yükümlülüğüne göre · satıra tıklayınca şirket seçilir`;

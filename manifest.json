@@ -1,14 +1,14 @@
 {
- "surum": "1.0.73",
+ "surum": "1.0.74",
  "kabuk": 1,
- "tarih": "2026-10-29T17:49:00+03:00",
- "notlar": "Özet kartları alt alta ve yatay (yerden tasarruf)",
+ "tarih": "2026-10-29T19:16:10+03:00",
+ "notlar": "Paket 31: LPG dağıtıcısı yükümlülüğü yıllık tabloda; tedarik kuralları (en yakın kendi terminali, Star sahası)",
  "dosyalar": {
   "ui/index.html": "e322b30f7b3410e978858048d6f32fb77ca9ab92c91df9d99846a28b8ce8dcac",
   "ui/app.css": "35f52ff9b42e4275c3dceec67b9702d80e216e057c83be99e0971fe24f15a942",
   "ui/app.js": "1b91abbf8f9f1af979e67e742feda4cb5d68c09cb89d6707993c2c7f053a258c",
   "ui/panel.css": "d246c797682ac7ab700d690a03f8af27e751d4798e878b4770537b3928c62490",
-  "ui/panel.js": "961181e60304c823dab23e2c94bde507bb1a1de2f74daac0e933c42a2a08505e",
+  "ui/panel.js": "79fbed78872325fac68940df6ed8213401934a9e784d4324880dfbc28a22e9bd",
   "pipeline.js": "e8c398c460d5d742de36831a6c07b399f0a725b84da4365a32093f1dc49a41e2",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
