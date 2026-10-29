@@ -372,6 +372,23 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 .kc-bar{display:block;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden}.kc-bar i{display:block;height:100%;border-radius:4px}
 .rz-chip.nt{color:var(--ink-2);background:var(--surface-2)}
 .kc-not{margin:0;font-size:11.5px;line-height:1.45;color:var(--ink-3)}
+/* Kartlar alt alta, yatay düzen (kullanıcı 29.10.2026 17:43: "altalta yaparak yerden tasarruf"): solda başlık + büyük değer, sağda çubuk + yan yana lejant */
+.kg>.kc{grid-column:1/-1;display:grid;grid-template-columns:minmax(170px,230px) minmax(0,1fr);column-gap:28px;row-gap:6px;align-items:center;padding:10px 16px}
+.kg>.kc>.kc-h{grid-column:1;grid-row:1}
+.kg>.kc>.kc-big{grid-column:1;grid-row:2 / span 2;align-self:start}
+.kg>.kc>.kc-big b{font-size:22px}
+.kg>.kc>.kc-st{grid-column:2;grid-row:1;height:10px}
+.kg>.kc>.kc-lg{grid-column:2;grid-row:2;flex-direction:row;flex-wrap:wrap;gap:2px 24px}
+.kg>.kc>.kc-lg .kc-r{display:flex;align-items:baseline;gap:6px;padding:1px 0;border:0}
+.kg>.kc>.kc-lg .kc-r>i{align-self:center}
+.kg>.kc>.kc-lg .kc-l small{display:none}
+.kg>.kc>.kc-lg .kc-r em{display:inline}
+.kg>.kc>.kc-sl{grid-column:2;grid-row:1 / span 2;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:5px 24px}
+.kg>.kc>.kc-not{grid-column:2;grid-row:3}
+.kg>.kc>.kc-h+.kc-big+.kc-not{grid-row:1 / span 2}
+.kg>.kc>.kc-h+.kc-sl{grid-row:1 / span 2}
+.kg>.kc>:not(.kc-h):not(.kc-big):not(.kc-st):not(.kc-lg):not(.kc-sl):not(.kc-not){grid-column:1/-1}
+@media (max-width:700px){.kg>.kc{grid-template-columns:minmax(0,1fr);row-gap:8px}.kg>.kc>*{grid-column:1!important;grid-row:auto!important}.kg>.kc>.kc-lg{gap:2px 16px}}
 @media (max-width:1100px){.kc{grid-column:span 12}}
 @media (max-width:600px){.kc-big b{font-size:22px}.kc-r{grid-template-columns:10px minmax(0,1fr) auto}.kc-r em{display:none}}
 .zn{display:inline-block;font-size:11.5px;line-height:1.4;color:#7A4E0E}

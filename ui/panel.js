@@ -390,7 +390,7 @@ function kompKart(baslik,parts,o={}){
   return `<div class="kc"${o.span?` style="--sp:${o.span}"`:""}><div class="kc-h"><span>${baslik}</span>${o.sag?`<span>${o.sag}</span>`:""}</div>`
     +(o.buyuk!=null?`<div class="kc-big"><b>${o.buyuk}</b>${o.alt?`<span>${o.alt}</span>`:""}</div>`:"")
     +(P.length?`<div class="kc-st" role="img" aria-label="${esc(baslik)}">${P.map(p=>`<i style="flex:${p.v.toFixed(2)} 1 0;background:${p.c}" title="${esc(p.l)}: ${f(p.v)}"></i>`).join("")}</div>`:"")
-    +`<div class="kc-lg">${P.map(p=>`<div class="kc-r"><i style="background:${p.c}"></i><span class="kc-l">${esc(p.l)}${p.s?`<small>${p.s}</small>`:""}</span><b>${f(p.v)}</b><em>${pct(T?p.v/T:0)}</em></div>`).join("")}</div>`
+    +`<div class="kc-lg">${P.map(p=>`<div class="kc-r"${p.s?` title="${esc(String(p.s).replace(/<[^>]+>/g,""))}"`:""}><i style="background:${p.c}"></i><span class="kc-l">${esc(p.l)}${p.s?`<small>${p.s}</small>`:""}</span><b>${f(p.v)}</b><em>${pct(T?p.v/T:0)}</em></div>`).join("")}</div>`
     +(o.not?`<p class="kc-not">${o.not}</p>`:"")+`</div>`;
 }
 function siraKart(baslik,rows,o={}){ // rows [[ad, değer]] – sıralı çubuk listesi
