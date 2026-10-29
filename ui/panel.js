@@ -18,8 +18,8 @@ const ZIN=[]; MOD.forEach((m,i)=>{ const z=String(m).match(/^(.*) – zincir: (.
 const zinSira=z=>String(z).split(" ← ").map(s=>s.replace(/ tahsisi$/,"").trim()).reverse().join(" → ");
 const S={sayfa:"akis",sid:-1,urun:"tum",il:null,term:null,alc:-1,tmus:-1,mm:-1,tmod:"",tur:[],tasy:"",atrTm:-1,atrSr:-1,ltrTm:-1,ltrSr:-1,atrU:[],ltrU:[]};
 let SON_AK="rafineri";   /* Akaryakıt başlığına tıklanınca son açılan akaryakıt sayfası */
-const SAYFA_GRUP={lpgay:"lpg",lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg",lpgraf:"lpg",lpgkay:"lpg",lpgtah:"lpg",lpgtas:"lpg",lpgzin:"lpg",lpgbay:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgraf"};
-const grupOf=sy=>(sy==="akis"||sy==="hava"||sy==="deniz"||sy==="stok")?null:(SAYFA_GRUP[sy]||"akaryakit");
+const SAYFA_GRUP={lpgmus:"lpg",lpgith:"lpg",lpgtrm:"lpg",lpgraf:"lpg",lpgkay:"lpg",lpgtah:"lpg",lpgtas:"lpg",lpgzin:"lpg",lpgbay:"lpg"}, SON_G={akaryakit:"rafineri",lpg:"lpgraf"};
+const grupOf=sy=>(sy==="akis"||sy==="transit"||sy==="hava"||sy==="deniz"||sy==="stok")?null:(SAYFA_GRUP[sy]||"akaryakit");
 S.lsat=""; S.lmus=-1; S.hepsiL=false; S.lith=-1; S.lgum=-1;
 
 const nf=new Intl.NumberFormat("tr-TR",{maximumFractionDigits:0}), nf1=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:1,maximumFractionDigits:1}), nf2=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -2644,7 +2644,7 @@ function render(){
   if(S.sayfa==="lpgmus"){ lpgTicaret(); return; }
   if(S.sayfa==="lpgith"){ lpgIthalat(); return; }
   if(S.sayfa==="lpgtrm"){ lpgTerminaller(); return; }
-  if(S.sayfa==="lpgay"){ lpgAylik(); return; }
+  if(S.sayfa==="lpgay") S.sayfa="lpgraf";   // 2025–2026 karşılaştırma sayfası kaldırıldı (kullanıcı 29.10.2026 16:32)
   if(S.sayfa==="lpgraf"){ lpgRafineriler(); return; }
   if(S.sayfa==="lpgkay"){ lpgKaynak(); return; }
   if(S.sayfa==="lpgtah"){ lpgTahsis(); return; }

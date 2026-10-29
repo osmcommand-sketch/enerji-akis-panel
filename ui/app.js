@@ -15,8 +15,8 @@
       b.innerHTML = `<span>Yeni sürüm indirildi: <b>${esc(r.surum)}</b>${r.notlar ? ' · ' + esc(r.notlar) : ''}</span><button type="button" id="gun-yenile">Şimdi yenile</button><button type="button" class="ik" id="gun-kapat" aria-label="Kapat">×</button>`;
       document.getElementById('gun-yenile').onclick = () => api && api.yenile(); document.getElementById('gun-kapat').onclick = () => b.remove(); }); } catch {} }
   const AD = { lpgraf: ['LPG', 'Rafineriler'], lpgkay: ['LPG', 'Tedarik tahsisi · kaynak bazlı'], lpgtah: ['LPG', 'Tedarik tahsisi · terminal bazlı'], lpgtas: ['LPG', 'Taşıma'], lpgzin: ['LPG', 'Tedarik zinciri'], akzin: ['Akaryakıt', 'Tedarik zinciri'], lpgbay: ['LPG', 'Bayiler'], akis: ['Genel', 'Akış haritası'], musteri: ['Akaryakıt', 'Dağıtıcılar arası ticaret'], tahsis: ['Akaryakıt', 'Tedarik tahsisi · terminal bazlı'],
-    kaynak: ['Akaryakıt', 'Tedarik tahsisi · kaynak bazlı'], ithalat: ['Akaryakıt', 'İthalat'], takas: ['Akaryakıt', 'Takas'], transit: ['Akaryakıt', 'Transit ticaret'], hava: ['Havacılık', 'Havacılık yakıtları'], deniz: ['Denizcilik', 'Denizcilik yakıtları'], stok: ['Zorunlu stok', 'Stok ve kupon'], bayi: ['Akaryakıt', 'Bayiler'],
-    rafineri: ['Akaryakıt', 'Rafineriler'], rafurun: ['Akaryakıt', 'Rafineri ürünleri'], tasima: ['Akaryakıt', 'Taşıma'], lpgmus: ['LPG', 'Dağıtıcılar arası ticaret'], lpgith: ['LPG', 'İthalat'], akterm: ['Akaryakıt', 'Terminaller'], lpgtrm: ['LPG', 'Terminaller'], lpgay: ['LPG', '2025–2026 karşılaştırma'] };
+    kaynak: ['Akaryakıt', 'Tedarik tahsisi · kaynak bazlı'], ithalat: ['Akaryakıt', 'İthalat'], takas: ['Akaryakıt', 'Takas'], transit: ['Transit ticaret', 'Transit ticaret'], hava: ['Havacılık', 'Havacılık yakıtları'], deniz: ['Denizcilik', 'Denizcilik yakıtları'], stok: ['Zorunlu stok', 'Stok ve kupon'], bayi: ['Akaryakıt', 'Bayiler'],
+    rafineri: ['Akaryakıt', 'Rafineriler'], rafurun: ['Akaryakıt', 'Rafineri ürünleri'], tasima: ['Akaryakıt', 'Taşıma'], lpgmus: ['LPG', 'Dağıtıcılar arası ticaret'], lpgith: ['LPG', 'İthalat'], akterm: ['Akaryakıt', 'Terminaller'], lpgtrm: ['LPG', 'Terminaller'] };
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const tarih = (ms) => new Date(ms).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -46,6 +46,25 @@
     new MutationObserver(yaz).observe(W, { attributes: true, attributeFilter: ['data-sayfa'] }); yaz();
   }
 
+  // Grup başlıkları açılır / kapanır (kullanıcı 29.10.2026 16:32); durum yerelde saklanır, seçili sayfanın grubu kapalıysa açılır
+  function gruplar() {
+    const W = $('wrap'), K = 'enerji.kapaliGruplar';
+    let kap = []; try { kap = JSON.parse(localStorage.getItem(K) || '[]'); } catch {}
+    const ad = (g) => [...g.classList].find((c) => c.startsWith('g-')) || '';
+    const kaydet = () => { try { localStorage.setItem(K, JSON.stringify([...document.querySelectorAll('nav.tabs.side .grp.kapali')].map(ad))); } catch {} };
+    const sec = (g) => { const b = g.querySelector('button[aria-selected="true"]'); g.querySelector('.gh').dataset.sec = b ? b.textContent.trim() : ''; };
+    for (const g of document.querySelectorAll('nav.tabs.side .grp')) {
+      const h = g.querySelector('.gh');
+      const ayarla = (k) => { g.classList.toggle('kapali', k); h.setAttribute('aria-expanded', String(!k)); sec(g); };
+      ayarla(kap.includes(ad(g)) && !g.querySelector('button[aria-selected="true"]'));
+      const cevir = () => { ayarla(!g.classList.contains('kapali')); kaydet(); };
+      h.addEventListener('click', cevir);
+      h.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cevir(); } });
+    }
+    new MutationObserver(() => { for (const g of document.querySelectorAll('nav.tabs.side .grp')) { if (g.classList.contains('kapali') && g.querySelector('button[aria-selected="true"]')) { g.classList.remove('kapali'); g.querySelector('.gh').setAttribute('aria-expanded', 'true'); } sec(g); } })
+      .observe(W, { attributes: true, attributeFilter: ['data-sayfa'] });
+  }
+
   async function yukle(st) {
     $('bos').hidden = true; $('yukle').hidden = false;
     $('y-dosya').textContent = st.son; const ad = $('y-adim'); ad.innerHTML = '';
@@ -59,7 +78,7 @@
     $('veri').hidden = false; $('v-ad').textContent = r.meta.ad; $('v-tarih').textContent = 'Dosya tarihi ' + tarih(r.meta.mtime);
     { const k = (r.data && r.data.lpgk) || {}; const e = $('v-lpg'); e.hidden = false; e.textContent = k.kaynak ? 'LPG: ' + k.ad + (k.tarih ? ' (' + k.tarih + ')' : '') : 'LPG: master veritabanı (aynı klasöre lpg_tr…zip koyun)'; }
     const s = document.createElement('script'); s.src = 'panel.js';
-    s.onload = () => { baslik(); $('yukle').hidden = true; };
+    s.onload = () => { baslik(); gruplar(); $('yukle').hidden = true; };
     s.onerror = () => bos('Panel başlatılamadı.');
     document.body.appendChild(s);
   }
