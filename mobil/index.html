@@ -410,6 +410,26 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 .zin .zu{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink);margin-top:3px}.zin .zu:first-child{margin-top:0}.zin .zu i{width:8px;height:8px;border-radius:2px;flex:none}.zin .zu b{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}.zin .zc.zi{padding-left:14px}
 .ted{min-width:170px}.ted .zc{display:block;font-size:12px;line-height:1.45;color:var(--ink-2);white-space:nowrap}.ted .zc b{font-weight:600;color:var(--ink)}.ted .zc em{font-style:normal;color:var(--ink-3);margin-left:4px}
 .uoz{display:flex;flex-wrap:wrap;gap:2px 14px}.uoz .zu{margin-top:0!important}tr.tsup td{background:color-mix(in srgb,var(--surface-2) 55%,var(--surface))}.sup-e{display:inline-block;font:500 10.5px var(--f-body);letter-spacing:.02em;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:6px;vertical-align:1px}
+
+/* Senaryo · GTS Dörtyol (PDM paket 36, kullanıcı 30.10.2026) */
+.wrap[data-sayfa="gts"]>:not(header):not(nav):not(.gts-only):not(footer){display:none}.wrap:not([data-sayfa="gts"]) .gts-only{display:none}
+.scn-band{display:flex;gap:12px;align-items:flex-start;background:repeating-linear-gradient(135deg,#FFF6E0 0 14px,#FDEFCB 14px 28px);border:1px solid #E9C46A;border-radius:10px;padding:12px 16px;color:#5C3D00}
+.scn-band b.etk{flex:none;font:700 11px var(--f-mono);letter-spacing:.08em;background:#7A4A06;color:#fff;border-radius:4px;padding:3px 7px;margin-top:2px}
+.scn-band p{margin:0;font-size:13px;line-height:1.5}
+.gts-ctl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;width:100%;min-width:0}.gts-only .hg{align-items:start}.filters.gts-only>.gts-ctl{grid-column:1/-1}
+.gts-ctl .seg button{min-width:120px}
+#f-gts-v{width:340px}
+.wf{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) 90px;gap:4px 12px;align-items:center;font-size:13px}
+.wf .wl{color:var(--ink-2)}.wf .wl.t{color:var(--ink);font-weight:600}
+.wf .wb{position:relative;height:16px;background:var(--surface-2);border-radius:3px}
+.wf .wb i{position:absolute;top:2px;bottom:2px;border-radius:2px}
+.wf .wv{text-align:right;font-variant-numeric:tabular-nums}.wf .wv.p{color:#1D7A4A}.wf .wv.n{color:#B3412E}.wf .wv.t{font-weight:700}
+table.gts td,table.gts th{white-space:nowrap}table.gts td.up{color:#1D7A4A}table.gts td.dn{color:#B3412E}
+table.gts tr.sel td{background:#FFF6E0}table.gts tr[data-gv]{cursor:pointer}table.gts tr[data-gs]{cursor:pointer}
+table.gts tr.grp-v td{background:var(--surface-2);font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+table.gts .yy td:nth-child(n+2){min-width:110px}
+.gts-par{columns:2;column-gap:28px;font-size:12.5px;color:var(--ink-2);margin:0;padding-left:18px}.gts-par li{break-inside:avoid;margin-bottom:4px}
+@media (max-width:700px){.gts-ctl .f{width:100%}.gts-ctl .seg{display:flex}.gts-ctl .seg button{min-width:0;flex:1}.gts-par{columns:1}.wf{grid-template-columns:120px minmax(0,1fr) 74px}#f-gts-v{width:100%}}
 </style>
 
 <div class="wrap" id="wrap" data-sayfa="akis">
@@ -426,6 +446,7 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
     <button type="button" role="tab" id="tab-grp-hava" data-grup="hava" aria-selected="false" aria-controls="alt-hava">Havacılık<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button type="button" role="tab" id="tab-grp-deniz" data-grup="deniz" aria-selected="false" aria-controls="alt-deniz">Denizcilik<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     <button type="button" role="tab" id="tab-stok" data-sayfa="stok" aria-selected="false"><span class="uz">Zorunlu stok</span><span class="kz" aria-hidden="true">Stok</span></button>
+    <button type="button" role="tab" id="tab-gts" data-sayfa="gts" aria-selected="false"><span class="uz">Senaryo · GTS Dörtyol</span><span class="kz" aria-hidden="true">GTS</span></button>
   </nav>
   <!-- transit alt sayfaları (kullanıcı 29.10.2026 16:43) -->
   <nav class="tabs alt transit" role="tablist" aria-label="Transit ticaret sayfaları" id="alt-transit" data-grup="transit" hidden>
@@ -696,6 +717,48 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
       <li>Formül (PETDER Mevzuat 2026, 7319 sayılı Kurul Kararı): SM ≥ (A × B / C) × D / 365; A = ikmal edilen ürün (ihracat, transit, askeri ve aynı tür lisans sahipleri arası satış hariç), B = 1,065 (akaryakıt, LPG ve rafinerici ürünleri; 0,96 yalnız ham petrol), C = 0,90 erişilemeyen stok, D = 20 gün → etkin ≈ 23,7 gün. Ocak–Mart n−2 (EPDK 2024 Sektör Raporu), Nisan–Aralık n−1 (2025) yılının satışı.</li>
       <li>Kupon Kararı (RG 10.10.2017 / 30207): yükümlülüğün tamamı için kupon alınabilir; veren boş kapasitesinden fazlasını kupona koyamaz; ürün iki tarafın lisans alt başlığında olmalı (TFS / POTAS yalnız havacılık); dağıtıcı veren yılda ≥ 60 kt benzin + motorin teslim etmeli; sözleşme ≥ 30 gün; eksikten veren ve alan müştereken sorumlu. LPG dağıtıcısı yükümlülüğünün en çok %50'si için, yalnız benzin türünde kupon alabilir (7494 sayılı Karar).</li>
       <li>Modelde: kendi / kiralık tank kendi terminali olan dağıtıcıda kapasitenin yarısına kadar (varsayım); zorunlu stok yeri = tank payı × 0,83 t/m³ × 0,90 doluluk − 7 günlük yükleme. Kupon fiyatı = veren maliyeti + %20 marj; alternatif = üçüncü taraf deposu kiralamak (EPDK depolama tarifesi medyanı). Rafineri ek kapasiteleri (Tüpraş İzmit / Aliağa 300, Kırıkkale 150, Star 200 kt) varsayımdır. Dep-1 (tank otomasyonu, 30 dk) tank verisi olmadığından üretilmez.</li>
+    </ul>
+  </section>
+  <!-- Senaryo · GTS Dörtyol (PDM paket 36: SCN_GTS_*; kullanıcı 30.10.2026) -->
+  <div class="scn-band gts-only" role="note"><b class="etk">SENARYO</b><p><b>Resmî değil.</b> Global Terminal Dörtyol (GTS, bugün yalnız transit) yurt içi motorin ithalat ve Tüpraş benzini kabotaj noktası olsaydı akış ve ekonomi nasıl değişirdi? Rakamlar PDM senaryo dalından gelir (SCN_GTS_* tabloları); panelin diğer sayfalarındaki resmî akışı değiştirmez.</p></div>
+  <div class="filters gts-only" role="search" aria-label="Senaryo seçimi">
+    <div class="gts-ctl">
+      <div class="f"><label>Hacim hedefi</label><div class="seg" role="group" aria-label="Hacim hedefi" id="gts-sen"><button type="button" data-gsen="BAZ_075" aria-pressed="true">Baz · 0,75 Mt</button><button type="button" data-gsen="HEDEF_150" aria-pressed="false">Hedef · 1,5 Mt</button></div></div>
+      <div class="f"><label for="f-gts-v">Vaka</label><select id="f-gts-v"></select></div>
+    </div>
+  </div>
+  <section class="gts-only" aria-labelledby="h-gts">
+    <div class="head"><h2 id="h-gts">Senaryo özeti</h2><span class="sub" id="s-gts"></span></div>
+    <div class="kg" id="k-gts"></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsy">
+    <div class="head"><h2 id="h-gtsy">Mevcut durum ve iki hedef yan yana</h2><span class="sub" id="s-gtsy"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtsy" class="gts yy"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsh">
+    <div class="head"><h2 id="h-gtsh">Kayan hacim haritası</h2><span class="sub" id="s-gtsh"></span></div>
+    <div class="hg"><div id="gts-harita" class="mapbox"></div><aside class="ilpan" id="gts-il" aria-label="İllere göre kayan hacim"></aside></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtst">
+    <div class="head"><h2 id="h-gtst">Terminaller: önce ve sonra</h2><span class="sub" id="s-gtst"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtst" class="gts"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtss">
+    <div class="head"><h2 id="h-gtss">Şirketler ve iller</h2><span class="sub" id="s-gtss"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtss" class="gts"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsv">
+    <div class="head"><h2 id="h-gtsv">Duyarlılık: tüm vakalar</h2><span class="sub" id="s-gtsv"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtsv" class="gts"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsp">
+    <div class="head"><h2 id="h-gtsp">Varsayımlar ve kaynaklar</h2><span class="sub">SCN_GTS_PARAMETRE · README "Senaryo · GTS Dörtyol"</span></div>
+    <ul class="gts-par" id="gts-par"></ul>
+    <ul class="notes">
+      <li>Yöntem (PDM): temel resmî akış (FACT_AKARYAKIT_AKIS, Leg2). Aday: Mersin kümesi motorini, Leg2 tasarrufu ≥ 30 km; PO hariç (PO İskenderun); kendi terminali olan şirket (Shell@Ataş dahil) yalnız tasarruf 100 km'yi aşarsa kayar. Benzin şirket × il düzeyinde motorini takip eder (Tüpraş ürünü, deniz yoluyla kabotaj). Şirketlerin EPDK ithalat toplamı değişmez.</li>
+      <li>Değer kalemleri ton başı ve müşteri açısındandır: Leg2 navlun tasarrufu + kaçınılan Mersin elleçleme tarifesi − kabotaj ek navlunu − ithal kargo ek seyri + büyük gemi avantajı − ek stok finansmanı − GTS tarifesi = müşteri neti. Azami tarife, hedef hacmi hâlâ dolduran en yüksek tek GTS tarifesidir.</li>
+      <li>Kullanıcı kararları (30.10.2026 12:09): TP Dörtyol etkisiz (konkordato, 2026'da ithalat yok); Rus menşeli ürün alınabilir varsayımı (menşe primi 0). GTS'nin EPDK tarifesi okunamadığından tarife 2 / 3,5 / 5 $/t ızgarasıyla verilir.</li>
+      <li>İlçe noktaları yalnız referans vakada vardır (SCN_GTS_ILCE_KM). Batman demiryolu hacmi hiçbir vakada değişmiyor.</li>
     </ul>
   </section>
   <div class="filters rfu-only" role="search" aria-label="Rafineri ürünleri filtreleri">

@@ -81,6 +81,12 @@
           <button type="button" role="tab" id="tab-stok" data-sayfa="stok" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3v10c0 1.7-3.6 3-8 3s-8-1.3-8-3z"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/><path d="M9 9.5h6"/></svg>Stok ve kupon</button>
         </div>
       </div>
+      <div class="grp g-scn">
+        <div class="gh" role="button" tabindex="0" aria-expanded="true"><i></i><span>Senaryolar</span><svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="pipe">
+          <button type="button" role="tab" id="tab-gts" data-sayfa="gts" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16"/><path d="M6 18V9l6-4 6 4v9"/><path d="M10 18v-5h4v5"/><path d="M17 4l3-2"/></svg>GTS Dörtyol</button>
+        </div>
+      </div>
     </nav>
     <div class="veri" id="veri" hidden>
       <span>Açık veritabanı</span>
@@ -320,6 +326,48 @@
       <li>Formül (PETDER Mevzuat 2026, 7319 sayılı Kurul Kararı): SM ≥ (A × B / C) × D / 365; A = ikmal edilen ürün (ihracat, transit, askeri ve aynı tür lisans sahipleri arası satış hariç), B = 1,065 (akaryakıt, LPG ve rafinerici ürünleri; 0,96 yalnız ham petrol), C = 0,90 erişilemeyen stok, D = 20 gün → etkin ≈ 23,7 gün. Ocak–Mart n−2 (EPDK 2024 Sektör Raporu), Nisan–Aralık n−1 (2025) yılının satışı.</li>
       <li>Kupon Kararı (RG 10.10.2017 / 30207): yükümlülüğün tamamı için kupon alınabilir; veren boş kapasitesinden fazlasını kupona koyamaz; ürün iki tarafın lisans alt başlığında olmalı (TFS / POTAS yalnız havacılık); dağıtıcı veren yılda ≥ 60 kt benzin + motorin teslim etmeli; sözleşme ≥ 30 gün; eksikten veren ve alan müştereken sorumlu. LPG dağıtıcısı yükümlülüğünün en çok %50'si için, yalnız benzin türünde kupon alabilir (7494 sayılı Karar).</li>
       <li>Modelde: kendi / kiralık tank kendi terminali olan dağıtıcıda kapasitenin yarısına kadar (varsayım); zorunlu stok yeri = tank payı × 0,83 t/m³ × 0,90 doluluk − 7 günlük yükleme. Kupon fiyatı = veren maliyeti + %20 marj; alternatif = üçüncü taraf deposu kiralamak (EPDK depolama tarifesi medyanı). Rafineri ek kapasiteleri (Tüpraş İzmit / Aliağa 300, Kırıkkale 150, Star 200 kt) varsayımdır. Dep-1 (tank otomasyonu, 30 dk) tank verisi olmadığından üretilmez.</li>
+    </ul>
+  </section>
+  <!-- Senaryo · GTS Dörtyol (PDM paket 36: SCN_GTS_*; kullanıcı 30.10.2026) -->
+  <div class="scn-band gts-only" role="note"><b class="etk">SENARYO</b><p><b>Resmî değil.</b> Global Terminal Dörtyol (GTS, bugün yalnız transit) yurt içi motorin ithalat ve Tüpraş benzini kabotaj noktası olsaydı akış ve ekonomi nasıl değişirdi? Rakamlar PDM senaryo dalından gelir (SCN_GTS_* tabloları); panelin diğer sayfalarındaki resmî akışı değiştirmez.</p></div>
+  <div class="filters gts-only" role="search" aria-label="Senaryo seçimi">
+    <div class="gts-ctl">
+      <div class="f"><label>Hacim hedefi</label><div class="seg" role="group" aria-label="Hacim hedefi" id="gts-sen"><button type="button" data-gsen="BAZ_075" aria-pressed="true">Baz · 0,75 Mt</button><button type="button" data-gsen="HEDEF_150" aria-pressed="false">Hedef · 1,5 Mt</button></div></div>
+      <div class="f"><label for="f-gts-v">Vaka</label><select id="f-gts-v"></select></div>
+    </div>
+  </div>
+  <section class="gts-only" aria-labelledby="h-gts">
+    <div class="head"><h2 id="h-gts">Senaryo özeti</h2><span class="sub" id="s-gts"></span></div>
+    <div class="kg" id="k-gts"></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsy">
+    <div class="head"><h2 id="h-gtsy">Mevcut durum ve iki hedef yan yana</h2><span class="sub" id="s-gtsy"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtsy" class="gts yy"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsh">
+    <div class="head"><h2 id="h-gtsh">Kayan hacim haritası</h2><span class="sub" id="s-gtsh"></span></div>
+    <div class="hg"><div id="gts-harita" class="mapbox"></div><aside class="ilpan" id="gts-il" aria-label="İllere göre kayan hacim"></aside></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtst">
+    <div class="head"><h2 id="h-gtst">Terminaller: önce ve sonra</h2><span class="sub" id="s-gtst"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtst" class="gts"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtss">
+    <div class="head"><h2 id="h-gtss">Şirketler ve iller</h2><span class="sub" id="s-gtss"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtss" class="gts"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsv">
+    <div class="head"><h2 id="h-gtsv">Duyarlılık: tüm vakalar</h2><span class="sub" id="s-gtsv"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-gtsv" class="gts"></table></div>
+  </section>
+  <section class="gts-only" aria-labelledby="h-gtsp">
+    <div class="head"><h2 id="h-gtsp">Varsayımlar ve kaynaklar</h2><span class="sub">SCN_GTS_PARAMETRE · README "Senaryo · GTS Dörtyol"</span></div>
+    <ul class="gts-par" id="gts-par"></ul>
+    <ul class="notes">
+      <li>Yöntem (PDM): temel resmî akış (FACT_AKARYAKIT_AKIS, Leg2). Aday: Mersin kümesi motorini, Leg2 tasarrufu ≥ 30 km; PO hariç (PO İskenderun); kendi terminali olan şirket (Shell@Ataş dahil) yalnız tasarruf 100 km'yi aşarsa kayar. Benzin şirket × il düzeyinde motorini takip eder (Tüpraş ürünü, deniz yoluyla kabotaj). Şirketlerin EPDK ithalat toplamı değişmez.</li>
+      <li>Değer kalemleri ton başı ve müşteri açısındandır: Leg2 navlun tasarrufu + kaçınılan Mersin elleçleme tarifesi − kabotaj ek navlunu − ithal kargo ek seyri + büyük gemi avantajı − ek stok finansmanı − GTS tarifesi = müşteri neti. Azami tarife, hedef hacmi hâlâ dolduran en yüksek tek GTS tarifesidir.</li>
+      <li>Kullanıcı kararları (30.10.2026 12:09): TP Dörtyol etkisiz (konkordato, 2026'da ithalat yok); Rus menşeli ürün alınabilir varsayımı (menşe primi 0). GTS'nin EPDK tarifesi okunamadığından tarife 2 / 3,5 / 5 $/t ızgarasıyla verilir.</li>
+      <li>İlçe noktaları yalnız referans vakada vardır (SCN_GTS_ILCE_KM). Batman demiryolu hacmi hiçbir vakada değişmiyor.</li>
     </ul>
   </section>
   <div class="filters rfu-only" role="search" aria-label="Rafineri ürünleri filtreleri">

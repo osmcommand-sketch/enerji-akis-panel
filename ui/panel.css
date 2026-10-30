@@ -378,3 +378,23 @@ tr.tg td{background:var(--surface-2)}tr.sub td{font-size:13px;padding-top:6px;pa
 .zin .zu{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink);margin-top:3px}.zin .zu:first-child{margin-top:0}.zin .zu i{width:8px;height:8px;border-radius:2px;flex:none}.zin .zu b{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}.zin .zc.zi{padding-left:14px}
 .ted{min-width:170px}.ted .zc{display:block;font-size:12px;line-height:1.45;color:var(--ink-2);white-space:nowrap}.ted .zc b{font-weight:600;color:var(--ink)}.ted .zc em{font-style:normal;color:var(--ink-3);margin-left:4px}
 .uoz{display:flex;flex-wrap:wrap;gap:2px 14px}.uoz .zu{margin-top:0!important}tr.tsup td{background:color-mix(in srgb,var(--surface-2) 55%,var(--surface))}.sup-e{display:inline-block;font:500 10.5px var(--f-body);letter-spacing:.02em;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:6px;vertical-align:1px}
+
+/* Senaryo · GTS Dörtyol (PDM paket 36, kullanıcı 30.10.2026) */
+.wrap[data-sayfa="gts"]>:not(header):not(nav):not(.gts-only):not(footer){display:none}.wrap:not([data-sayfa="gts"]) .gts-only{display:none}
+.scn-band{display:flex;gap:12px;align-items:flex-start;background:repeating-linear-gradient(135deg,#FFF6E0 0 14px,#FDEFCB 14px 28px);border:1px solid #E9C46A;border-radius:10px;padding:12px 16px;color:#5C3D00}
+.scn-band b.etk{flex:none;font:700 11px var(--f-mono);letter-spacing:.08em;background:#7A4A06;color:#fff;border-radius:4px;padding:3px 7px;margin-top:2px}
+.scn-band p{margin:0;font-size:13px;line-height:1.5}
+.gts-ctl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;width:100%;min-width:0}.gts-only .hg{align-items:start}.filters.gts-only>.gts-ctl{grid-column:1/-1}
+.gts-ctl .seg button{min-width:120px}
+#f-gts-v{width:340px}
+.wf{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) 90px;gap:4px 12px;align-items:center;font-size:13px}
+.wf .wl{color:var(--ink-2)}.wf .wl.t{color:var(--ink);font-weight:600}
+.wf .wb{position:relative;height:16px;background:var(--surface-2);border-radius:3px}
+.wf .wb i{position:absolute;top:2px;bottom:2px;border-radius:2px}
+.wf .wv{text-align:right;font-variant-numeric:tabular-nums}.wf .wv.p{color:#1D7A4A}.wf .wv.n{color:#B3412E}.wf .wv.t{font-weight:700}
+table.gts td,table.gts th{white-space:nowrap}table.gts td.up{color:#1D7A4A}table.gts td.dn{color:#B3412E}
+table.gts tr.sel td{background:#FFF6E0}table.gts tr[data-gv]{cursor:pointer}table.gts tr[data-gs]{cursor:pointer}
+table.gts tr.grp-v td{background:var(--surface-2);font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+table.gts .yy td:nth-child(n+2){min-width:110px}
+.gts-par{columns:2;column-gap:28px;font-size:12.5px;color:var(--ink-2);margin:0;padding-left:18px}.gts-par li{break-inside:avoid;margin-bottom:4px}
+@media (max-width:700px){.gts-ctl .f{width:100%}.gts-ctl .seg{display:flex}.gts-ctl .seg button{min-width:0;flex:1}.gts-par{columns:1}.wf{grid-template-columns:120px minmax(0,1fr) 74px}#f-gts-v{width:100%}}
