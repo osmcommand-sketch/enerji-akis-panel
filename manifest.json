@@ -1,10 +1,10 @@
 {
- "surum": "1.0.74",
+ "surum": "1.0.75",
  "kabuk": 1,
- "tarih": "2026-10-29T19:16:10+03:00",
- "notlar": "Paket 31: LPG dağıtıcısı yükümlülüğü yıllık tabloda; tedarik kuralları (en yakın kendi terminali, Star sahası)",
+ "tarih": "2026-10-30T07:22:47+03:00",
+ "notlar": "Denizcilik: harita Bunker limanları sayfasına taşındı",
  "dosyalar": {
-  "ui/index.html": "e322b30f7b3410e978858048d6f32fb77ca9ab92c91df9d99846a28b8ce8dcac",
+  "ui/index.html": "e007cbc6dd1e7ccc62771d1d445aa0329010f9993aa2982fd036992d27800d14",
   "ui/app.css": "35f52ff9b42e4275c3dceec67b9702d80e216e057c83be99e0971fe24f15a942",
   "ui/app.js": "1b91abbf8f9f1af979e67e742feda4cb5d68c09cb89d6707993c2c7f053a258c",
   "ui/panel.css": "d246c797682ac7ab700d690a03f8af27e751d4798e878b4770537b3928c62490",
