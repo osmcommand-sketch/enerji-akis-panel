@@ -544,6 +544,7 @@ table.kar th.bar-h{font-weight:500}
 table.kar tr.k-aclb td{background:var(--surface);font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:#8A4B0B;padding:5px 8px 2px 26px;border-bottom:0}
 table.kar tr.k-acl td{background:#FFFBF0;font-size:12px;color:var(--ink-2)}table.kar tr.k-acl td:first-child{padding-left:38px;border-left:3px solid #E9C46A}
 table.kar tr.k-acl2 td{background:#FFFDF7;font-size:11px;color:var(--ink-3)}table.kar tr.k-acl2 td:first-child{padding-left:56px;border-left:3px solid #F3DFA8}table.kar tr.k-acl2 td.p{color:#1D7A4A}table.kar tr.k-acl2 td.n{color:#B3412E}
+table.izg tr.varsay td{background:#FFF7E0}table.izg td.n,table.mc2 td.n{color:#B3412E}table.izg td.p,table.mc2 td.p{color:#1D7A4A}table.mc2 td,table.izg td{font-variant-numeric:tabular-nums}
 table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}table.kar tr.k-acl .kl{font-style:italic}
 </style>
 
@@ -700,11 +701,19 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
   <!-- RİSK -->
   <div class="v" data-v="risk" hidden>
     <section>
-      <div class="head"><h2>Fiyat ve kur yelpazesi</h2><span class="sub">2027–2028 · kullanıcı fiyat modeli, 2028 PDM uzatması · P10–P90 bandı, P50 ve temsili yol</span></div>
+      <div class="head"><h2>Fiyat ve kur yelpazesi</h2><span class="sub">2027–2028 · kullanıcı fiyat modelleri · P10–P90 bandı, P50 ve temsili yol</span></div>
       <div class="ctl"><div class="seg" role="group" aria-label="Fiyat senaryosu" id="r-sen"><button type="button" data-s="0" aria-pressed="true">Baz</button><button type="button" data-s="1" aria-pressed="false">Ayı</button><button type="button" data-s="2" aria-pressed="false">Boğa</button></div></div>
       <div class="grf" id="r-cif"></div>
       <div class="grf" id="r-kur"></div>
       <p class="not">P10 ve P90 her gün ayrı seçilen yüzdeliklerdir; tutarlı bir fiyat yolu değildir. Marj hesabı tutarlı yollarla yapılır.</p>
+    </section>
+    <section id="r-iki">
+      <div class="head"><h2>İki yıllık sonuçlar · parti, liman, vade ve hedge</h2><span class="sub" id="r-izsub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t kar izg" id="r-izg"></table></div>
+      <p class="not">PDM ızgarası, kullanıcının Makul fiyat modeliyle (ICE LSGO vadeli eğrisi 29.10.2026). Bölgesel navlun avantajı dahil değil. Parti 2027 ve 2028 için aynı.</p>
+      <h3>Monte Carlo · önceki fiyat modeli <span class="chip eski">Baz / Ayı / Boğa yolları · Makul öncesi</span></h3>
+      <div class="scroll" style="max-height:none"><table class="t kar mc2" id="r-mc2"></table></div>
+      <p class="not">Kullanıcı yeni fiyat modelini gönderince durduruldu: varsayılan koşul her senaryoda 100 yol, 25 kt seçenekleri 10–30 yol. Zarar olasılığı = net kârın sıfırın altında kaldığı yolların oranı.</p>
     </section>
     <section>
       <div class="head"><h2>Monte Carlo sonuçları</h2><span class="chip eski">önceki model sürümü · 2027 tek yıl</span></div>

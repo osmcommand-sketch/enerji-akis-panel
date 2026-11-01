@@ -123,7 +123,8 @@ function genel(){
     +kt("Satış",ton(sm[3]+sb[3]),`${BZ?`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}`:"yalnız motorin"}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
     +kt("Gemi varışı",nf.format(gv[3]),`${BZ?`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · `:"motorin kargoları · "}2027 ${gv[1]} · 2028 ${gv[2]}`)
     +kt("Tepe teminat",nf1.format(tem[3]/1e9)+" milyar TL",`ÖTV teminat mektubu limiti · tepe vergi nakit ${nf1.format(oz("Tepe vergi nakit işletme sermayesi (TL)")[3]/1e9)} milyar TL`);
-  if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">Net kâr = net marj (hedge dahil) − vergi ve beyanname maliyeti; bölgesel navlun avantajı bayi tarafındaki değerdir, kâra dahil değildir. Sonuç tek bir temsili fiyat yolundan (Baz, yol 49) gelir. İki yıllık model için Monte Carlo dağılımı henüz yok; Risk sekmesindeki dağılımlar önceki tek yıllık sürümdendir.</p>`);
+  if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">Net kâr = net marj (hedge dahil) − vergi ve beyanname maliyeti; bölgesel navlun avantajı bayi tarafındaki değerdir, kâra dahil değildir. Sonuç tek bir fiyat yolundan gelir: <b id="g-yol"></b>. Parti boyutu, ikinci liman, vade ve hedge karşılaştırması ile iki yıllık Monte Carlo Risk sekmesindedir.</p>`);
+  { const sn=gir("Fiyat senaryosu")||"Baz", yo=gir("Fiyat yolu"); $("g-yol").textContent=sn==="Makul"?"Makul senaryo (kullanıcı fiyat modeli)":`${sn} senaryosu, ${yo==="P50"?"P50 (günlük medyan)":"temsili yol"}`; }
   ticari();
   karlilik();
 }
@@ -396,14 +397,34 @@ function hedge(){
   $("h-ksub").textContent=`${YIL||"2027–2028"} · USD/TRY forward, TL faizi ve USD faizinden (faiz paritesi) + banka marjı`;
 }
 
+/* ---------- RİSK: iki yıllık ızgara ve Monte Carlo ---------- */
+function iki(){
+  const IZ=V.izg||[], M2=V.mc2||[], mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)/1e6), cl=v=>v<0?"n":"p";
+  $("r-iki").hidden=!IZ.length&&!M2.length; if(!IZ.length&&!M2.length) return;
+  const vs=+gir("Satış vadesi (gün)")||17;
+  const R=[...IZ].sort((a,b)=>(a[1]===b[1]?0:a[1]==="Açık"?-1:1)||a[4]-b[4]||a[2]-b[2]||a[3]-b[3]);
+  const mx=Math.max(1,...R.map(r=>Math.abs(r[5]+r[6])));
+  $("r-izg").innerHTML=`<thead><tr><th class="l">Ürün hedge</th><th>Vade</th><th>Parti</th><th>İkinci liman</th><th>Net kâr 2027<br><span>M $</span></th><th>2028</th><th>İki yıl</th><th class="l bar-h">iki yıl</th></tr></thead><tbody>`+R.map(r=>{ const t=r[5]+r[6], v=r[2]===40&&r[3]===60000&&r[4]===17&&r[1]==="Açık";
+    return `<tr class="${v?"varsay":""}"><td class="l">${esc(r[1])}${v?' <span class="chip">varsayılan</span>':""}</td><td>${r[4]?nf.format(r[4])+" gün":"peşin"}</td><td>${nf.format(r[2])} kt</td><td>${r[3]?nf.format(r[3])+" $":"yok"}</td><td class="${cl(r[5])}">${mm(r[5])}</td><td class="${cl(r[6])}">${mm(r[6])}</td><td class="${cl(t)}"><b>${mm(t)}</b></td><td class="l bar"><i class="${t<0?"n":"p"}" style="width:${(Math.abs(t)/mx*100).toFixed(1)}%"></i></td></tr>`; }).join("")+`</tbody>`;
+  const SO={Baz:0,"Ayı":1,"Boğa":2}, M=[...M2].sort((a,b)=>(SO[a[0]]??9)-(SO[b[0]]??9)||b[2]-a[2]);
+  const cfg=c=>{ const m=/^(\d+)kt_L(\d+)k_V(\d+)/.exec(c); return m?`${m[1]} kt · ikinci liman ${+m[2]?m[2]+" bin $":"yok"} · ${+m[3]?"vade "+m[3]+" gün":"peşin"}`:c; };
+  const hc=o=>`<td class="${cl(o[2])}">${mm(o[2])}</td><td class="muted">${mm(o[1])} … ${mm(o[3])}</td><td class="${o[4]>=.5?"n":""}"><b>%${nf.format(o[4]*100)}</b></td>`;
+  $("r-mc2").innerHTML=`<thead><tr><th class="l">Senaryo</th><th class="l">Koşul</th><th>Yol</th><th>2027 medyan<br><span>M $</span></th><th>P10 … P90</th><th>Zarar olas.</th><th>2028 medyan</th><th>P10 … P90</th><th>Zarar olas.</th><th>İki yıl medyan</th><th>P10 … P90</th><th>Zarar olas.</th></tr></thead><tbody>`
+    +M.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(cfg(r[1]))}</td><td>${r[2]}</td>${hc(r[3])}${hc(r[4])}${hc(r[5])}</tr>`).join("")+`</tbody>`;
+  $("r-izsub").textContent=`Makul fiyat yolu · net kâr (hedge dahil, vergi sonrası) · ${IZ.length} çalıştırma`;
+}
+
 /* ---------- RİSK ---------- */
 function risk(){
-  const F=V.fiy, SN=["Baz","Ayı","Boğa"];
-  const fc=()=>{ const s=S.rs, c=7+s*4, k=19+s*4;
+  const F=V.fiy, SN=V.sn||["Baz","Ayı","Boğa"];
+  if(S.rs>=SN.length) S.rs=0;
+  $("r-sen").innerHTML=SN.map((x,i)=>`<button type="button" data-s="${i}" aria-pressed="${i===S.rs}">${esc(x)}</button>`).join("");
+  const fc=()=>{ const s=S.rs, c=7+s*4, k=7+SN.length*4+s*4;
     zaman($("r-cif"),{aria:"CIF motorin yelpazesi",seri:[{ad:SN[s]+" P50",renk:C.mot,v:F.map(r=>r[c+1])},{ad:SN[s]+" temsili yol",renk:C.gts,v:F.map(r=>r[c+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[c]),hi:F.map(r=>r[c+2]),renk:C.mot}],fmt:nf.format,h:195});
     zaman($("r-kur"),{aria:"USD/TRY yelpazesi",seri:[{ad:"USD/TRY P50",renk:C.kur,v:F.map(r=>r[k+1])},{ad:"temsili yol",renk:C.gts,v:F.map(r=>r[k+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[k]),hi:F.map(r=>r[k+2]),renk:C.kur}],fmt:v=>nf1.format(v),h:165}); };
   for(const b of $("r-sen").querySelectorAll("button")) b.onclick=()=>{ S.rs=+b.dataset.s; for(const x of $("r-sen").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); fc(); };
   fc();
+  iki();
   const sec=(L,s)=>L.filter(r=>r[2]===s).map(r=>[r[1],r[4],r[5],r[6],r[7],r[8]]);
   const mc=()=>{ const s=S.ms;
     aralik($("r-hedge"),sec(V.mc_hedge,s).sort((a,b)=>b[1]-a[1]),{aria:"Hedge seçenekleri"});

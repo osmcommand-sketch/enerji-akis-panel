@@ -130,9 +130,10 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   O.gm = gunluk('Motorin_Gunluk'); O.gb = gunluk('Benzin_Gunluk');
   const hdr = satir('Fiyatlar', 4, 4)[0], ix = {}; hdr.forEach((h, i) => { if (h) ix[h] = i; });
   const t2027 = Date.UTC(2027, 0, 1) / 864e5 + 25569;
+  O.sn = ['Baz', 'Ayı', 'Boğa', 'Makul'].filter((x) => ix[`${x} · CIF motorin Yol`] != null);
   O.fiy = satir('Fiyatlar', 5).filter((r) => serial(r[0]) && r[0] >= t2027 - 0.5).map((r) => { const row = [R2(r[1], 1), R2(r[2], 1), R2(r[3], 3), R2(r[6], 1), R2(r[7], 1), R2(r[8]), R2(r[9])];
-    for (const s of ['Baz', 'Ayı', 'Boğa']) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · CIF motorin ${p}`]], 1));
-    for (const s of ['Baz', 'Ayı', 'Boğa']) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · USD/TRY ${p}`]], 3));
+    for (const s of O.sn) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · CIF motorin ${p}`]], 1));
+    for (const s of O.sn) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · USD/TRY ${p}`]], 3));
     return row; });
   const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17]), R2(r[10] || 0), R2(r[25] || 0), R2(r[26] || 0), R2(r[29] || 0), R2(r[30] || 0), R2(r[36] || 0), R2(r[37] || 0), tarih(r[5]), R2(r[27], 1), R2(r[28], 1), R2(r[38], 3), R2(r[22], 3), R2(r[33], 3), R2(r[34], 3), R2(r[35] || 0), R2(r[32], 1)]);
   O.km = kargo('Motorin_Kargolar'); O.kb = kargo('Benzin_Kargolar');
@@ -153,6 +154,12 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     return out; };
   O.mc_hedge = mc('gts_mc_hedge_2027.csv', 'mode'); O.mc_tank = mc('gts_mc_tank_2027.csv', 'cfg');
   O.mc_dav = mc('gts_mc_davranis_2027.csv', 'mode', LAB.mc_dav); O.mc_gemi = mc('gts_mc_sonuc_2027.csv', 'cfg', LAB.mc_gemi);
+  // İki yıllık ızgara ve Monte Carlo (net kâr = net marj − vergi, USD)
+  const csvBul = (f) => { const x = Z.bul(new RegExp('(^|/)' + f.replace(/\./g, '\\.') + '$'))[0]; return x ? csvOku(Z.oku(x).toString('utf8')).filter((r) => !r.err || r.err === '0') : []; };
+  O.izg = csvBul('gts_makul_izgara_2yil.csv').map((r) => [r.sen, r.hedge, Number(r.parti_kt), Number(r.ikinci_liman), Number(r.vade), pr(Number(r.netv_2027)), pr(Number(r.netv_2028)), pr(Number(r.toplam_2y))]);
+  { const gg = new Map(); for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
+    const oz = (v) => { v = [...v].sort((p, q) => p - q); const n = v.length, q = (p) => v[Math.min(n - 1, Math.max(0, pr(p * (n - 1))))]; return [pr(v.reduce((p, c) => p + c, 0) / n), pr(q(0.1)), pr(q(0.5)), pr(q(0.9)), pr(v.filter((z) => z < 0).length / n, 3)]; };
+    O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; }); }
   // Kararlar: README'deki GTS bölüm başlıkları (kullanıcı kararları tarihleriyle)
   O.karar = [];
   const rd = Z.bul(/(^|\/)README[^/]*\.md$/i)[0];
