@@ -124,6 +124,10 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   O.oz_bas = oz.slice(1, 4).map((x) => x[0]);
   O.oz = oz.slice(4).filter((x) => x[0] != null).map((x) => [x[0], R2(x[1], 2), R2(x[2], 2), R2(x[3], 2), x[4]]);
   O.tic = []; { const R = X.sayfa('Ozet'); for (let i = 5; i <= 30; i++) { const x = R[i]; if (!x || x[6] == null) continue; O.tic.push([x[6], R2(x[7], 2), x[8], R2(X.orijinal('Ozet', 'H' + i), 2), 'Ozet!H' + i]); } }
+  { const G = X.sayfa('Girdiler'), bul = (l) => G.findIndex((x) => x && x[0] === l), b38 = bul("Motorin – GTS'de tahliye (t), boş = tam kargo"), b153 = bul('2027 motorin GTS partisi (t), boş = B40');
+    if (b38 > 0 && b153 > 0) { O.tic.push(['Gemi ve parti', null, null]);
+      O.tic.push(['Motorin GTS partisi (t)', R2(girdi['Girdiler!B' + b38] ?? G[b38][1]), 'Her kargoda GTS\'de tahliye edilen motorin; geminin kalanı ikinci limana gider. 2027 partisi boşsa iki yıl için de geçerli. Girdiler B' + b38 + '.', R2(X.orijinal('Girdiler', 'B' + b38)), 'Girdiler!B' + b38]);
+      O.tic.push(['2027 motorin GTS partisi (t)', (() => { const v = girdi['Girdiler!B' + b153] ?? G[b153][1]; return v == null || v === '' ? null : R2(v); })(), 'Yalnız 2027 kargoları için; boş = yukarıdaki parti. Girdiler B' + b153 + '.', null, 'Girdiler!B' + b153, 1]); } }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);

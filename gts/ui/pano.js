@@ -193,26 +193,27 @@ function ticari(){
   const el=$("g-tic"), T=(V.tic||[]).filter(r=>r[1]!=="Değer");
   if(!T.length){ el.innerHTML=`<p class="not">Bu paketteki Excel modelinde ticari koşullar paneli yok (paket 57 ve sonrası).</p>`; return; }
   const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, TK=T.filter(r=>r[4]).map(r=>r[4]), nG=TK.filter(k=>k in G).length;
-  const bir=l=>/USD\/t/.test(l)?"$/t":/TL\/m³/.test(l)?"TL/m³":/gün/i.test(l)?"gün":"";
+  const bir=l=>/USD\/t/.test(l)?"$/t":/TL\/m³/.test(l)?"TL/m³":/gün/i.test(l)?"gün":/\(t\)$/.test(l)?"ton":"";
   const onEk=l=>/COD/.test(l)?"COD ±":/Tüpraş ±/.test(l)?"Tüpraş ±":"";
-  const adT=l=>l.replace(/ \((USD\/t|TL\/m³|gün)\)$/,"").replace(/: COD \+ gün$/,"").replace(/: Tüpraş ±$/,"");
-  const f=v=>typeof v==="number"?String(v).replace(".",","):"";
+  const adT=l=>l.replace(/ \((USD\/t|TL\/m³|gün|t)\)$/,"").replace(/: COD \+ gün$/,"").replace(/: Tüpraş ±$/,"");
+  const f=v=>typeof v==="number"?(Math.abs(v)>=1e4?nf.format(v):String(v).replace(".",",")):"";
   let h="";
-  for(const r of T){ if(r[1]==null){ h+=`<div class="tic-g">${esc(r[0])}</div>`; continue; }
+  for(const r of T){ if(r[1]==null&&r[2]==null){ h+=`<div class="tic-g">${esc(r[0])}</div>`; continue; }
     const id="tg-"+(r[4]||r[0]).replace(/[^\w]/g,""), deg=r[3], deg2=typeof deg==="number"&&deg!==r[1];
     const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*\.?/g,"").trim();
     h+=`<div class="kt tic-k${deg2?" deg":""}" title="${esc(not)}"><label for="${id}">${esc(adT(r[0]))}</label>
-      <div class="tic-i">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}" value="${f(r[1])}" ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n"><em>${bir(r[0])}</em></div>
+      <div class="tic-i">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}" value="${f(r[1])}"${r[5]?` data-bos="1" placeholder="boş = ${esc(f(T.find(x=>/^Motorin GTS partisi/.test(x[0]))?.[1]))}"`:""} ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n"><em>${bir(r[0])}</em></div>
       <small id="${id}-n">${deg2?`<b>model varsayılanı ${f(deg)}</b>`:""}</small></div>`; }
   el.innerHTML=`<div class="tic">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="tic-hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="tic-sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="tic-d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
   if(!yaz) return;
-  const I=[...el.querySelectorAll("input[data-h]")], oku=i=>{ const s=i.value.trim().replace(/\s/g,"").replace("−","-").replace(",","."); return s===""?NaN:Number(s); };
+  const I=[...el.querySelectorAll("input[data-h]")], sayi=t=>{ const s=t.trim().replace(/\s/g,"").replace("−","-").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."); return s===""?null:Number(s); }, oku=i=>{ const v=sayi(i.value); return v===null&&!i.dataset.bos?NaN:v; };
   const btn=$("tic-hesap"), d=$("tic-d");
-  const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i); i.classList.toggle("hata",!isFinite(v)); if(!isFinite(v)) hata=true; else if(Math.abs(v-Number(i.defaultValue.replace(",",".")))>1e-12) deg=true; }
+  const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i), ilk=sayi(i.defaultValue);
+      const ok=v===null||isFinite(v)&&(!i.dataset.bos||v>0); i.classList.toggle("hata",!ok); if(!ok){ hata=true; continue; } if(v===null?ilk!==null:ilk===null||Math.abs(v-ilk)>1e-12) deg=true; }
     btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
   for(const i of I){ i.addEventListener("input",kontrol); i.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!btn.disabled) btn.click(); }); }
   const kaydet=(o)=>girdiYaz(TK,o||{});
-  btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dv=i.dataset.d===""?null:Number(i.dataset.d); if(dv===null||Math.abs(v-dv)>1e-12) o[i.dataset.h]=v; }
+  btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dv=i.dataset.d===""?null:Number(i.dataset.d); if(v===null) continue; if(dv===null||Math.abs(v-dv)>1e-12) o[i.dataset.h]=v; }
     try{ kaydet(o); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
   const sf=$("tic-sifir"); if(sf) sf.onclick=()=>{ try{ kaydet(null); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
