@@ -14,6 +14,10 @@ const T0=new Date(V.g0+"T00:00:00Z"), gun=i=>new Date(T0.getTime()+i*864e5), gun
 const tk=s=>/^\d{4}-/.test(s)?s.slice(8,10)+"."+s.slice(5,7)+"."+s.slice(2,4):s;
 const tarihI=s=>Math.round((new Date(s+"T00:00:00Z")-T0)/864e5);
 const ND=V.gm.length;
+/* yıl filtresi (kullanıcı 01.11.2026): "" = tüm dönem, "2027", "2028" */
+let YIL=""; try{ YIL=localStorage.getItem("gts.yil")||""; }catch{}
+const PEN={i0:0,n:ND}; const penAyarla=()=>{ if(!YIL){ PEN.i0=0; PEN.n=ND; return; } let a=-1,b=-1; for(let i=0;i<ND;i++) if(String(gun(i).getUTCFullYear())===YIL){ if(a<0) a=i; b=i; } if(a<0){ YIL=""; PEN.i0=0; PEN.n=ND; } else { PEN.i0=a; PEN.n=b-a+1; } };
+const yilOk=s=>!YIL||String(s).slice(0,4)===YIL;
 
 /* ---------- Özet sayfası satırları ---------- */
 const OZ=V.oz, yI=OZ.findIndex(r=>r[0]==="Yıllara göre");
@@ -24,15 +28,16 @@ const gir=l=>{ const r=V.gir.find(x=>x[0]===l); return r?r[1]:null; };
 let W=1000; const gw=el=>{ W=Math.round(Math.max(340,Math.min(1000,(el.clientWidth||1000)))); return W; };
 function olcek(a,b,lo,hi){ const k=(hi-lo)/((b-a)||1); return v=>lo+(v-a)*k; }
 function guzel(lo,hi,n=5){ const s=(hi-lo)/n, m=Math.pow(10,Math.floor(Math.log10(s||1))), st=[1,2,2.5,5,10].map(x=>x*m).find(x=>x>=s)||s; const a=Math.floor(lo/st)*st, b=Math.ceil(hi/st)*st; const r=[]; for(let v=a;v<=b+st/2;v+=st) r.push(+v.toFixed(10)); return r; }
-function ayTik(n,pad,xs){ let g=""; for(let i=0;i<n;i++){ const d=gun(i); if(d.getUTCDate()!==1) continue; const x=xs(i), m=d.getUTCMonth(); g+=`<line class="ax" x1="${x}" x2="${x}" y1="${pad.t}" y2="${pad.y0}" stroke-dasharray="${m===0?"":"2 4"}"/>`; if(m%(W<600?6:3)===0) g+=`<text x="${x+3}" y="${pad.y0+14}">${AY[m]}${m===0?" "+String(d.getUTCFullYear()).slice(2):""}</text>`; } return g; }
+function ayTik(n,pad,xs,i0=0){ let g=""; const tek=n<=400; for(let i=0;i<n;i++){ const d=gun(i+i0); if(d.getUTCDate()!==1) continue; const x=xs(i), m=d.getUTCMonth(); g+=`<line class="ax" x1="${x}" x2="${x}" y1="${pad.t}" y2="${pad.y0}" stroke-dasharray="${m===0?"":"2 4"}"/>`; if(m%(tek?(W<600?3:1):(W<600?6:3))===0) g+=`<text x="${x+3}" y="${pad.y0+14}">${AY[m]}${m===0?" "+String(d.getUTCFullYear()).slice(2):""}</text>`; } return g; }
 /* zaman serisi: seri [{ad,renk,v[],kalin,kesik,alan}], bant [{lo[],hi[],renk}], yatay [{v,ad,renk}] */
 function zaman(el,o){
-  gw(el); const H=Math.round((o.h||240)*(W<700?.85:1)), pad={l:56,r:12,t:10,y0:H-24}, n=o.n||ND;
+  const i0=PEN.i0, n=PEN.n, kes=a=>a.slice(i0,i0+n); o={...o,seri:o.seri.map(s=>({...s,v:kes(s.v)})),bant:(o.bant||[]).map(b=>({...b,lo:kes(b.lo),hi:kes(b.hi)}))};
+  gw(el); const H=Math.round((o.h||200)*(W<700?.85:1)), pad={l:52,r:10,t:8,y0:H-22};
   let lo=Infinity, hi=-Infinity; const ek=a=>{ for(const v of a) if(v!=null&&isFinite(v)){ if(v<lo) lo=v; if(v>hi) hi=v; } };
   for(const s of o.seri) ek(s.v); for(const b of o.bant||[]){ ek(b.lo); ek(b.hi); } for(const y of o.yatay||[]) ek([y.v]);
   if(o.sifir){ lo=Math.min(lo,0); hi=Math.max(hi,0); }
   const tk=guzel(lo,hi,o.tik||5), xs=olcek(0,n-1,pad.l,W-pad.r), ys=olcek(tk[0],tk[tk.length-1],pad.y0,pad.t), f=o.fmt||nf.format;
-  let g=tk.map(v=>`<line class="${v===0?"z":"ax"}" x1="${pad.l}" x2="${W-pad.r}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}"/><text x="${pad.l-6}" y="${(ys(v)+4).toFixed(1)}" text-anchor="end">${f(v)}</text>`).join("")+ayTik(n,pad,xs);
+  let g=tk.map(v=>`<line class="${v===0?"z":"ax"}" x1="${pad.l}" x2="${W-pad.r}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}"/><text x="${pad.l-6}" y="${(ys(v)+4).toFixed(1)}" text-anchor="end">${f(v)}</text>`).join("")+ayTik(n,pad,xs,i0);
   for(const b of o.bant||[]){ let p=""; for(let i=0;i<n;i++) p+=(i?"L":"M")+xs(i).toFixed(1)+","+ys(b.hi[i]).toFixed(1); for(let i=n-1;i>=0;i--) p+="L"+xs(i).toFixed(1)+","+ys(b.lo[i]).toFixed(1); g+=`<path d="${p}Z" fill="${b.renk}" fill-opacity=".16" stroke="none"/>`; }
   for(const s of o.seri){ let p="", on=false; for(let i=0;i<n;i++){ const v=s.v[i]; if(v==null){ on=false; continue; } p+=(on?"L":"M")+xs(i).toFixed(1)+","+ys(v).toFixed(1); on=true; }
     if(s.alan) g+=`<path d="${p}L${xs(n-1).toFixed(1)},${ys(Math.max(tk[0],0)).toFixed(1)}L${xs(0).toFixed(1)},${ys(Math.max(tk[0],0)).toFixed(1)}Z" fill="${s.renk}" fill-opacity=".12" stroke="none"/>`;
@@ -41,7 +46,7 @@ function zaman(el,o){
   g+=`<line class="hl" x1="0" x2="0" y1="${pad.t}" y2="${pad.y0}" stroke="var(--ink)" stroke-width="1" visibility="hidden"/>`;
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria||"")}">${g}<rect x="${pad.l}" y="${pad.t}" width="${W-pad.l-pad.r}" height="${pad.y0-pad.t}" fill="transparent" class="hv"/></svg>`
     +`<div class="lg">${o.seri.filter(s=>s.ad).map(s=>`<span><i style="background:${s.renk}"></i>${esc(s.ad)}</span>`).join("")}${(o.bant||[]).filter(b=>b.ad).map(b=>`<span><i class="b k" style="background:${b.renk}"></i>${esc(b.ad)}</span>`).join("")}</div>`;
-  ipucu(el,pad,n,xs,i=>`<b>${gunS(i)}</b>`+o.seri.filter(s=>s.ad&&s.v[i]!=null).map(s=>`<br><i style="background:${s.renk}"></i>${esc(s.ad)}: <b>${f(s.v[i])}</b>`).join("")+(o.bant||[]).filter(b=>b.ad).map(b=>`<br><i style="background:${b.renk};opacity:.4"></i>${esc(b.ad)}: <b>${f(b.lo[i])} – ${f(b.hi[i])}</b>`).join(""));
+  ipucu(el,pad,n,xs,i=>`<b>${gunS(i+i0)}</b>`+o.seri.filter(s=>s.ad&&s.v[i]!=null).map(s=>`<br><i style="background:${s.renk}"></i>${esc(s.ad)}: <b>${f(s.v[i])}</b>`).join("")+(o.bant||[]).filter(b=>b.ad).map(b=>`<br><i style="background:${b.renk};opacity:.4"></i>${esc(b.ad)}: <b>${f(b.lo[i])} – ${f(b.hi[i])}</b>`).join(""));
 }
 function ipucu(el,pad,n,xs,html){
   const Wc=W, sv=el.querySelector("svg"), hv=sv.querySelector(".hv"), hl=sv.querySelector(".hl"); let tp=el.querySelector(".tip"); if(!tp){ tp=document.createElement("div"); tp.className="tip"; tp.hidden=true; el.appendChild(tp); }
@@ -52,7 +57,7 @@ function ipucu(el,pad,n,xs,html){
 }
 /* kategori çubukları (yığın, eksi destekli): kat [], seri [{ad,renk,v[]}] */
 function cubuk(el,o){
-  gw(el); const H=Math.round((o.h||240)*(W<700?.85:1)), pad={l:56,r:12,t:10,y0:H-24}, n=o.kat.length;
+  gw(el); const H=Math.round((o.h||195)*(W<700?.85:1)), pad={l:56,r:12,t:10,y0:H-24}, n=o.kat.length;
   let lo=0, hi=0; for(let i=0;i<n;i++){ let p=0, m=0; for(const s of o.seri){ const v=s.v[i]||0; if(v>=0) p+=v; else m+=v; } if(o.cizgi){ for(const c of o.cizgi){ const v=c.v[i]; if(v!=null){ hi=Math.max(hi,v); lo=Math.min(lo,v); } } } hi=Math.max(hi,p); lo=Math.min(lo,m); }
   const tk=guzel(lo,hi,5), ys=olcek(tk[0],tk[tk.length-1],pad.y0,pad.t), bw=(W-pad.l-pad.r)/n, f=o.fmt||nf.format, xs=i=>pad.l+bw*(i+.5);
   let g=tk.map(v=>`<line class="${v===0?"z":"ax"}" x1="${pad.l}" x2="${W-pad.r}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}"/><text x="${pad.l-6}" y="${(ys(v)+4).toFixed(1)}" text-anchor="end">${f(v)}</text>`).join("");
@@ -84,7 +89,11 @@ const SEK=["genel","akis","operasyon","ekonomi","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
+  { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
   if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,ekonomi,risk,varsayim})[v](); } }
+{ const ys=$("yilsec"); if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
+  for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
+  penAyarla(); yz(); } }
 for(const b of document.querySelectorAll(".tabs [data-v]")) b.addEventListener("click",()=>{ if(location.hash!=="#"+b.dataset.v) location.hash=b.dataset.v; else goster(b.dataset.v); });
 addEventListener("hashchange",()=>goster(location.hash.slice(1)));
 
@@ -100,14 +109,19 @@ function genel(){
   { const y0=V.g0.slice(0,4), y1=String(new Date(Date.parse(V.g0+"T00:00:00Z")+(V.gm.length-1)*864e5).getUTCFullYear()); $("g-h").textContent=(y0===y1?y0:y0+"–"+y1)+" senaryo modeli"; }
   const Y=k=>oz(k,1), top=Y("Toplam (USD)"), sm=Y("Motorin satışı (t)"), sb=Y("Benzin satışı (t)"), ora=Y("Satış / hedef tonaj"), tem=Y("Tepe teminat bakiyesi (TL)"), gv=Y("Gemi varışı (adet, varış tarihine göre)");
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
-  $("g-kpi").innerHTML=kt("İki yıl toplam",usd(top[3]),`2027 ${usd(top[1])} · 2028 ${usd(top[2])}`,top[3]<0?"neg":"pos")
+  if(YIL){ const j=YIL==="2027"?1:2;
+    $("g-kpi").innerHTML=kt(YIL+" toplam",usd(top[j]),`iki yıl ${usd(top[3])} · ton başına ${nf1.format(Y("Toplam (USD/t)")[j])} $`,top[j]<0?"neg":"pos")
+      +kt("Satış",ton(sm[j]+sb[j]),`motorin ${ton(sm[j])} · benzin ${ton(sb[j])}<br>hedefin ${pct(ora[j])}`)
+      +kt("Gemi varışı",nf.format(gv[j]),`${YIL} varış tarihine göre`)
+      +kt("Tepe teminat",nf1.format(tem[j]/1e9)+" milyar TL",`${YIL} ÖTV teminat mektubu tepe bakiyesi`); }
+  else $("g-kpi").innerHTML=kt("İki yıl toplam",usd(top[3]),`2027 ${usd(top[1])} · 2028 ${usd(top[2])}`,top[3]<0?"neg":"pos")
     +kt("Satış",ton(sm[3]+sb[3]),`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
     +kt("Gemi varışı",nf.format(gv[3]),`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · 2027 ${gv[1]} · 2028 ${gv[2]}`)
     +kt("Tepe teminat",nf1.format(tem[3]/1e9)+" milyar TL",`ÖTV teminat mektubu limiti · tepe vergi nakit ${nf1.format(oz("Tepe vergi nakit işletme sermayesi (TL)")[3]/1e9)} milyar TL`);
-  $("g-kpi").insertAdjacentHTML("afterend",`<p class="not">Sonuç tek bir temsili fiyat yolundan (Baz, yol 49) gelir. İki yıllık model için Monte Carlo dağılımı henüz yok; Risk sekmesindeki dağılımlar önceki tek yıllık sürümdendir.</p>`);
-  let h=""; for(const [j,yl] of [[1,"2027"],[2,"2028"]]){ const v=k=>Y(k)[j];
+  if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">Sonuç tek bir temsili fiyat yolundan (Baz, yol 49) gelir. İki yıllık model için Monte Carlo dağılımı henüz yok; Risk sekmesindeki dağılımlar önceki tek yıllık sürümdendir.</p>`);
+  let h=""; for(const [j,yl] of [[1,"2027"],[2,"2028"]].filter(x=>!YIL||x[1]===YIL)){ const v=k=>Y(k)[j];
     h+=wfKart(yl+" köprüsü",[["Brüt marj",v("Brüt marj (USD)")],["Finansman",-v("Finansman (USD)")],["Ürün hedge (net)",v("Ürün hedge net (USD)")],["Vergi ve beyanname",-v("Vergi + beyanname maliyeti (USD)")],["Bölgesel navlun avantajı",v("Bölgesel navlun avantajı (USD)")]],v("Toplam (USD)"),`satış ${ton(sm[j]+sb[j])} · ton başına ${nf1.format(Y("Toplam (USD/t)")[j])} $`); }
-  $("g-wf").innerHTML=h;
+  $("g-wf").innerHTML=h; $("g-wf").classList.toggle("tek",!!YIL);
   const kc=(b,ic)=>`<div class="kc"><div class="kc-h"><span>${b}</span></div><div class="ilp">${ic.map(([a,c])=>`<div class="r"><span>${esc(a)}</span><b>${c}</b></div>`).join("")}</div></div>`;
   $("g-kurgu").innerHTML=kc("Hacim",[["Hedef motorin",ton(+gir("Seçili motorin (t/yıl)"))+" / yıl"],["Hedef benzin",ton(+gir("Seçili benzin (t/yıl)"))+" / yıl"],["Rampa","Oca 2027 %"+nf.format(gir("Ocak 2027 satış oranı (hedefin %)")*100)+" → Oca 2028 %100"],["Bölgesel navlun avantajı",nf2.format(gir("Seçili bölgesel navlun avantajı (USD/t)"))+" $/t"]])
     +kc("Gemi ve tank",[["Motorin",`${esc(gir("Motorin gemi sınıfı"))} kısmi · ${ton(+gir("Motorin GTS partisi (t)"))}`],["Benzin",`${esc(gir("Benzin gemi sınıfı"))} · ${ton(+gir("Benzin partisi (t)"))}`],["Antrepo",nf.format(gir("Antrepo (m³) – Tank_Plani toplamı"))+" m³"],["Milli tank",nf.format(gir("Milli tank (m³) – Tank_Plani toplamı"))+" m³"]])
@@ -130,9 +144,9 @@ function ticari(){
   for(const r of T){ if(r[1]==null){ h+=`<div class="tic-g">${esc(r[0])}</div>`; continue; }
     const id="tg-"+(r[4]||r[0]).replace(/[^\w]/g,""), deg=r[3], deg2=typeof deg==="number"&&deg!==r[1];
     const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*\.?/g,"").trim();
-    h+=`<div class="kt tic-k${deg2?" deg":""}"><label for="${id}">${esc(adT(r[0]))}</label>
+    h+=`<div class="kt tic-k${deg2?" deg":""}" title="${esc(not)}"><label for="${id}">${esc(adT(r[0]))}</label>
       <div class="tic-i">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}" value="${f(r[1])}" ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n"><em>${bir(r[0])}</em></div>
-      <small id="${id}-n">${deg2?`<b>model varsayılanı ${f(deg)}</b> · `:""}${esc(not)}</small></div>`; }
+      <small id="${id}-n">${deg2?`<b>model varsayılanı ${f(deg)}</b>`:""}</small></div>`; }
   el.innerHTML=`<div class="tic">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="tic-hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="tic-sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="tic-d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
   if(!yaz) return;
   const I=[...el.querySelectorAll("input[data-h]")], oku=i=>{ const s=i.value.trim().replace(/\s/g,"").replace("−","-").replace(",","."); return s===""?NaN:Number(s); };
@@ -208,25 +222,25 @@ function operasyon(){
     return `<div class="sr"><span>${u} · ${r.toLowerCase()}</span><div class="bx" style="width:${(s/tmax*100).toFixed(1)}%">${L.map(t=>`<i style="flex:${t[1]} 1 0;background:${c}" title="Tank ${t[0]} · ${nf.format(t[1])} m³">${t[1]>=4000?t[0]:""}</i>`).join("")}</div><b>${nf.format(s)} m³</b></div>`; }).join("");
   $("o-tsub").textContent=`${TP.length} tank · toplam ${nf.format(TP.reduce((a,t)=>a+t[1],0))} m³ · kullanılabilir antrepo ${nf.format(V.tkap[0])} + ${nf.format(V.tkap[1])} m³, milli ${nf.format(V.tkap[2])} + ${nf.format(V.tkap[3])} m³`;
   const TK=V.tank;
-  zaman($("o-antrepo"),{aria:"Antrepo doluluğu",seri:[{ad:"Motorin antrepo",renk:C.mot,v:TK.map(r=>r[0]),alan:1},{ad:"Benzin antrepo",renk:C.ben,v:TK.map(r=>r[1]),alan:1}],yatay:[{v:V.tkap[0],ad:"motorin kullanılabilir "+nf.format(V.tkap[0])+" m³",renk:C.mot},{v:V.tkap[1],ad:"benzin kullanılabilir "+nf.format(V.tkap[1])+" m³",renk:C.ben}],fmt:v=>nf.format(v/1000)+"k",sifir:1,h:260});
-  zaman($("o-milli"),{aria:"Milli tank",seri:[{ad:"Motorin milli",renk:C.mot,v:TK.map(r=>r[2])},{ad:"Benzin milli",renk:C.ben,v:TK.map(r=>r[3])}],yatay:[{v:V.tkap[2],ad:"motorin kullanılabilir",renk:C.mot},{v:V.tkap[3],ad:"benzin kullanılabilir",renk:C.ben}],fmt:v=>nf.format(v/1000)+"k",sifir:1,h:200});
+  zaman($("o-antrepo"),{aria:"Antrepo doluluğu",seri:[{ad:"Motorin antrepo",renk:C.mot,v:TK.map(r=>r[0]),alan:1},{ad:"Benzin antrepo",renk:C.ben,v:TK.map(r=>r[1]),alan:1}],yatay:[{v:V.tkap[0],ad:"motorin kullanılabilir "+nf.format(V.tkap[0])+" m³",renk:C.mot},{v:V.tkap[1],ad:"benzin kullanılabilir "+nf.format(V.tkap[1])+" m³",renk:C.ben}],fmt:v=>nf.format(v/1000)+"k",sifir:1,h:215});
+  zaman($("o-milli"),{aria:"Milli tank",seri:[{ad:"Motorin milli",renk:C.mot,v:TK.map(r=>r[2])},{ad:"Benzin milli",renk:C.ben,v:TK.map(r=>r[3])}],yatay:[{v:V.tkap[2],ad:"motorin kullanılabilir",renk:C.mot},{v:V.tkap[3],ad:"benzin kullanılabilir",renk:C.ben}],fmt:v=>nf.format(v/1000)+"k",sifir:1,h:165});
   // rampa: aylık satış ve tüketim
-  const ay=new Map(); for(let i=0;i<ND;i++){ const d=gun(i), k=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(k)||ay.set(k,{m:0,b:0,tm:0,tb:0,ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2)}).get(k); o.m+=V.gm[i][0]; o.b+=V.gb[i][0]; o.tm+=V.gm[i][5]; o.tb+=V.gb[i][5]; }
-  const AL=[...ay.values()], hm=+gir("Seçili motorin (t/yıl)"), hb=+gir("Seçili benzin (t/yıl)");
-  cubuk($("o-rampa"),{aria:"Aylık satış",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin satışı",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin satışı",renk:C.ben,v:AL.map(a=>a.b)}],cizgi:[{ad:"Tüketim (mevsim × rampa)",renk:C.gts,v:AL.map(a=>a.tm+a.tb)},{ad:"Hedef hız (ay ortalaması)",renk:C.ink3,kesik:"5 4",v:AL.map(()=>(hm+hb)/12)}],fmt:v=>nf.format(v/1000)+"k",etk:i=>i%(W<600?6:3)===0?AL[i].ad:"",ek:i=>`<br>rampa ${pct((V.mev[i]||[0,0,0])[2])}`});
+  const ay=new Map(); for(let i=0;i<ND;i++){ const d=gun(i), k=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(k)||ay.set(k,{m:0,b:0,tm:0,tb:0,ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),k:d.toISOString().slice(0,7)}).get(k); o.m+=V.gm[i][0]; o.b+=V.gb[i][0]; o.tm+=V.gm[i][5]; o.tb+=V.gb[i][5]; }
+  const AL=[...ay.entries()].filter(([k])=>!YIL||String(Math.floor(k/100))===YIL).map(x=>x[1]), hm=+gir("Seçili motorin (t/yıl)"), hb=+gir("Seçili benzin (t/yıl)");
+  cubuk($("o-rampa"),{aria:"Aylık satış",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin satışı",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin satışı",renk:C.ben,v:AL.map(a=>a.b)}],cizgi:[{ad:"Tüketim (mevsim × rampa)",renk:C.gts,v:AL.map(a=>a.tm+a.tb)},{ad:"Hedef hız (ay ortalaması)",renk:C.ink3,kesik:"5 4",v:AL.map(()=>(hm+hb)/12)}],fmt:v=>nf.format(v/1000)+"k",etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",ek:i=>{ const q=(V.mev||[]).find(x=>x[1].slice(0,7)===(AL[i].k||"")); return q?`<br>rampa ${pct(q[2])}`:""; }});
   $("o-rsub").textContent=`ton / ay · Ocak 2027 hedefin %${nf.format(gir("Ocak 2027 satış oranı (hedefin %)")*100)}'si, Ocak 2028 %100 · satış, bayi davranışı ve haftalık takvim nedeniyle tüketimden sapar`;
   // kargo takvimi (gantt)
-  const gantt=()=>{ gw($("o-gantt")); const H=150, pad={l:W<600?58:70,r:12,t:8}, xs=olcek(0,ND-1,pad.l,W-pad.r), y0=H-22; let g=ayTik(ND,{t:pad.t,y0},xs);
+  const gantt=()=>{ gw($("o-gantt")); const i0=PEN.i0, nn=PEN.n, H=140, pad={l:W<600?58:70,r:12,t:8}, xs=olcek(0,nn-1,pad.l,W-pad.r), y0=H-22; let g=ayTik(nn,{t:pad.t,y0},xs,i0);
     const ser=[["Motorin",V.km,C.mot,pad.t+6],["Benzin",V.kb,C.ben,pad.t+62]];
     for(const [ad,L,c,yb] of ser){ g+=`<text x="${pad.l-8}" y="${yb+24}" text-anchor="end" style="fill:var(--ink);font:12px var(--f-body)">${ad}</text>`;
-      L.forEach((k,j)=>{ const a=Math.max(0,tarihI(k[4])), b=/^\d{4}-/.test(k[6])?Math.min(ND-1,tarihI(k[6])):ND-1; if(b<0||a>ND-1) return; const ln=j%3, y=yb+ln*16;
+      L.forEach((k,j)=>{ const a=Math.max(0,tarihI(k[4])-i0), b=/^\d{4}-/.test(k[6])?Math.min(nn-1,tarihI(k[6])-i0):nn-1; if(b<0||a>nn-1) return; const ln=j%3, y=yb+ln*16;
         g+=`<rect x="${xs(a).toFixed(1)}" y="${y}" width="${Math.max(1.5,xs(b)-xs(a)).toFixed(1)}" height="12" rx="2" fill="${k[13]>=0?c:C.neg}" fill-opacity="${k[13]>=0?.75:.6}"><title>${ad} kargo ${k[0]} · ${esc(k[1])} ${ton(k[2])} · satışa hazır ${k[4]} → tükenme ${k[6]} (${k[7]} gün) · net marj ${usd(k[13])}</title></rect>`; }); }
     $("o-gantt").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Kargo takvimi">${g}</svg><div class="lg"><span><i class="k" style="background:${C.mot}"></i>motorin kargosu (satışa hazır → tükenme)</span><span><i class="k" style="background:${C.ben}"></i>benzin kargosu</span><span><i class="k" style="background:${C.neg}"></i>net marjı eksi</span></div>`; };
   gantt();
-  const kt=()=>{ const L=S.ku==="m"?V.km:V.kb;
+  const kt=()=>{ const L=(S.ku==="m"?V.km:V.kb).filter(k=>yilOk(k[4]));
     $("o-kargo").innerHTML=`<thead><tr><th>No</th><th class="l">Gemi</th><th>Ton</th><th class="l">Satışa hazır</th><th class="l">Tükenme</th><th>Gün</th><th>CIF $/t</th><th>Alış $/t</th><th>Tüpraş ort. $/t</th><th>Brüt marj</th><th>Hedge net</th><th>Net marj</th></tr></thead><tbody>`
       +L.map(k=>`<tr><td>${k[0]}</td><td class="l">${esc(k[1])}</td><td>${ton(k[2])}</td><td class="l">${tk(k[4])}</td><td class="l" style="white-space:nowrap">${tk(k[6])}</td><td>${k[7]}</td><td>${nf1.format(k[9])}</td><td>${nf1.format(k[10])}</td><td>${nf1.format(k[11])}</td><td class="${k[12]>=0?"p":"n"}">${usd(k[12])}</td><td class="${k[14]>=0?"p":"n"}">${usd(k[14])}</td><td class="${k[13]>=0?"p":"n"}"><b>${usd(k[13])}</b></td></tr>`).join("")+`</tbody>`;
-    const n=L.length, ort=L.reduce((a,k)=>a+k[7],0)/n; $("o-ksub").textContent=`motorin ${V.km.length}, benzin ${V.kb.length} kargo (açılış stoğu dahil) · ${S.ku==="m"?"motorin":"benzin"} ortalama yaşam ${nf1.format(ort)} gün · kargo 0 = 1.1.2027 açılış stoğu`; };
+    const n=L.length||1, ort=L.reduce((a,k)=>a+k[7],0)/n; $("o-ksub").textContent=`${YIL?YIL+" · satışa hazır olduğu yıl · ":""}motorin ${V.km.filter(k=>yilOk(k[4])).length}, benzin ${V.kb.filter(k=>yilOk(k[4])).length} kargo${YIL?"":" (açılış stoğu dahil)"} · ${S.ku==="m"?"motorin":"benzin"} ortalama yaşam ${nf1.format(ort)} gün · kargo 0 = 1.1.2027 açılış stoğu`; };
   for(const b of $("o-kur").querySelectorAll("button")) b.onclick=()=>{ S.ku=b.dataset.u; for(const x of $("o-kur").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); kt(); };
   kt();
   $("o-lot").innerHTML=`<thead><tr><th class="l">Senaryo</th><th>Lot</th><th>Kaç günlük tüketim</th><th>Yıllık varış</th><th>Ort. stok</th><th>Tepe stok</th><th>Finansman / yıl</th><th>$/t</th><th>%5 şokta tepe etkisi</th></tr></thead><tbody>`
@@ -236,27 +250,28 @@ function operasyon(){
 /* ---------- EKONOMİ ---------- */
 function ekonomi(){
   const sat=[["Motorin satışı (t)",ton],["Benzin satışı (t)",ton],["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],["Bölgesel navlun avantajı (USD)",musd,1],["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
+  $("e-yil").classList.toggle("y27",YIL==="2027"); $("e-yil").classList.toggle("y28",YIL==="2028");
   $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const r=oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi"); const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc(l.replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","Vergi ve beyanname (−)"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
   // aylık net marj
   const ay=new Map(); const ek=(L,u)=>{ for(const k of L){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,n:0}).get(key); o[u]+=k[13]; o.n++; } };
-  ek(V.km,"m"); ek(V.kb,"b"); const AL=[...ay].sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
-  cubuk($("e-ay"),{aria:"Aylık net marj",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin",renk:C.ben,v:AL.map(a=>a.b)}],fmt:v=>nf1.format(v/1e6),etk:i=>i%(W<600?6:3)===0?AL[i].ad:"",ek:i=>`<br>${AL[i].n} kargo · toplam <b>${usd(AL[i].m+AL[i].b)}</b>`});
+  ek(V.km,"m"); ek(V.kb,"b"); const AL=[...ay].filter(([k])=>!YIL||String(Math.floor(k/100))===YIL).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+  cubuk($("e-ay"),{aria:"Aylık net marj",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin",renk:C.ben,v:AL.map(a=>a.b)}],fmt:v=>nf1.format(v/1e6),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",ek:i=>`<br>${AL[i].n} kargo · toplam <b>${usd(AL[i].m+AL[i].b)}</b>`});
   // fiyat
   const F=V.fiy, fc=()=>{ const m=S.fu==="m";
-    zaman($("e-fiyat"),{aria:"Alış ve satış fiyatı",seri:[{ad:"CIF Med (alış bazı)",renk:C.ink3,v:F.map(r=>m?r[0]:r[1])},{ad:"Tüpraş vergisiz (satış)",renk:m?C.mot:C.ben,v:F.map(r=>m?r[3]:r[4]),kalin:2}],fmt:nf.format,h:240});
-    zaman($("e-prim"),{aria:"Tüpraş primi",seri:[{ad:"Tüpraş − CIF Med ($/t)",renk:C.gts,v:F.map(r=>m?r[3]-r[0]:r[4]-r[1]),alan:1}],fmt:nf.format,sifir:1,h:170}); };
+    zaman($("e-fiyat"),{aria:"Alış ve satış fiyatı",seri:[{ad:"CIF Med (alış bazı)",renk:C.ink3,v:F.map(r=>m?r[0]:r[1])},{ad:"Tüpraş vergisiz (satış)",renk:m?C.mot:C.ben,v:F.map(r=>m?r[3]:r[4]),kalin:2}],fmt:nf.format,h:195});
+    zaman($("e-prim"),{aria:"Tüpraş primi",seri:[{ad:"Tüpraş − CIF Med ($/t)",renk:C.gts,v:F.map(r=>m?r[3]-r[0]:r[4]-r[1]),alan:1}],fmt:nf.format,sifir:1,h:135}); };
   for(const b of $("e-fu").querySelectorAll("button")) b.onclick=()=>{ S.fu=b.dataset.u; for(const x of $("e-fu").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); fc(); };
   fc();
-  zaman($("e-tem"),{aria:"Teminat bakiyesi",seri:[{ad:"ÖTV teminat bakiyesi",renk:C.kur,v:V.vn.map(r=>r[0]),alan:1},{ad:"Vergi nakit işletme sermayesi",renk:C.gts,v:V.vn.map(r=>r[1])}],fmt:v=>nf.format(v),sifir:1,h:220});
-  $("e-oz").innerHTML=`<thead><tr><th class="l">Gösterge</th><th>Motorin</th><th>Benzin</th><th>Toplam</th><th class="l">Not</th></tr></thead><tbody>`+OZ.filter(r=>r[1]!=="Motorin").map(r=>{ const b=r[1]==null&&r[2]==null&&r[3]==null; if(b) return `<tr class="ara"><td colspan="5">${esc(r[0])}</td></tr>`; const f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000||Number.isInteger(v)?nf.format(v):nf2.format(v)):esc(v); return `<tr><td class="l">${esc(r[0])}</td><td>${f(r[1])}</td><td>${f(r[2])}</td><td><b>${f(r[3])}</b></td><td class="l muted" style="white-space:normal;min-width:220px">${esc(r[4]||"")}</td></tr>`; }).join("")+`</tbody>`;
+  zaman($("e-tem"),{aria:"Teminat bakiyesi",seri:[{ad:"ÖTV teminat bakiyesi",renk:C.kur,v:V.vn.map(r=>r[0]),alan:1},{ad:"Vergi nakit işletme sermayesi",renk:C.gts,v:V.vn.map(r=>r[1])}],fmt:v=>nf.format(v),sifir:1,h:180});
+  $("e-oz").innerHTML=`<thead><tr><th class="l">Gösterge</th><th>Motorin</th><th>Benzin</th><th>Toplam</th><th class="l">Not</th></tr></thead><tbody>`+OZ.filter(r=>r[1]!=="Motorin").map(r=>{ const b=r[1]==null&&r[2]==null&&r[3]==null; if(b) return `<tr class="ara"><td colspan="5">${esc(r[0])}</td></tr>`; const f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000||Number.isInteger(v)?nf.format(v):nf2.format(v)):esc(v); return `<tr><td class="l">${esc(r[0])}</td><td>${f(r[1])}</td><td>${f(r[2])}</td><td><b>${f(r[3])}</b></td><td class="l muted" style="white-space:normal;min-width:180px">${esc(r[4]||"")}</td></tr>`; }).join("")+`</tbody>`;
 }
 
 /* ---------- RİSK ---------- */
 function risk(){
   const F=V.fiy, SN=["Baz","Ayı","Boğa"];
   const fc=()=>{ const s=S.rs, c=7+s*4, k=19+s*4;
-    zaman($("r-cif"),{aria:"CIF motorin yelpazesi",seri:[{ad:SN[s]+" P50",renk:C.mot,v:F.map(r=>r[c+1])},{ad:SN[s]+" temsili yol",renk:C.gts,v:F.map(r=>r[c+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[c]),hi:F.map(r=>r[c+2]),renk:C.mot}],fmt:nf.format,h:240});
-    zaman($("r-kur"),{aria:"USD/TRY yelpazesi",seri:[{ad:"USD/TRY P50",renk:C.kur,v:F.map(r=>r[k+1])},{ad:"temsili yol",renk:C.gts,v:F.map(r=>r[k+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[k]),hi:F.map(r=>r[k+2]),renk:C.kur}],fmt:v=>nf1.format(v),h:200}); };
+    zaman($("r-cif"),{aria:"CIF motorin yelpazesi",seri:[{ad:SN[s]+" P50",renk:C.mot,v:F.map(r=>r[c+1])},{ad:SN[s]+" temsili yol",renk:C.gts,v:F.map(r=>r[c+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[c]),hi:F.map(r=>r[c+2]),renk:C.mot}],fmt:nf.format,h:195});
+    zaman($("r-kur"),{aria:"USD/TRY yelpazesi",seri:[{ad:"USD/TRY P50",renk:C.kur,v:F.map(r=>r[k+1])},{ad:"temsili yol",renk:C.gts,v:F.map(r=>r[k+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[k]),hi:F.map(r=>r[k+2]),renk:C.kur}],fmt:v=>nf1.format(v),h:165}); };
   for(const b of $("r-sen").querySelectorAll("button")) b.onclick=()=>{ S.rs=+b.dataset.s; for(const x of $("r-sen").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); fc(); };
   fc();
   const sec=(L,s)=>L.filter(r=>r[2]===s).map(r=>[r[1],r[4],r[5],r[6],r[7],r[8]]);

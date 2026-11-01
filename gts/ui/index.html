@@ -490,6 +490,28 @@ table.t tr.sel td{background:#FFF6E0}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:900px){.kpi4{grid-template-columns:repeat(2,minmax(0,1fr))}.yil2,.hg2{grid-template-columns:1fr}}
 @media (max-width:600px){.kt b{font-size:21px}.wf{grid-template-columns:110px minmax(0,1fr) 74px}.tnk .sr{grid-template-columns:96px minmax(0,1fr) 70px}.krr{grid-template-columns:1fr;gap:2px 0}.krr .z{padding-top:8px}.ctl select{width:100%}}
+
+/* yoğun yerleşim (kullanıcı 01.11.2026 18:14) */
+.wrap{gap:12px;font-size:13px}
+.wrap section{padding:12px 14px;gap:9px}
+.wrap h1{font-size:20px}.wrap h2{font-size:15px}.wrap h3{font-size:13.5px;margin:4px 0 0}
+.wrap .lead{font-size:13px}.wrap .sub{font-size:11.5px}.not{font-size:11.5px}
+.wrap .tabs button{font-size:13px;padding:7px 12px}
+.kt{padding:9px 12px;gap:2px;border-radius:8px}.kt span,.tic-k label{font-size:10px}.kt b{font-size:20px}.kt small{font-size:11.5px;line-height:1.4}
+.kpi4{gap:8px}
+.wrap td{padding:5px 8px;font-size:12.5px}.wrap th{padding:6px 8px;font-size:10px}
+.wf{font-size:12px;gap:3px 10px}.wf .wb{height:13px}
+.grf text{font-size:10.5px}.lg{font-size:11.5px;gap:4px 14px}
+.tic{grid-template-columns:repeat(auto-fit,minmax(min(165px,100%),1fr));gap:8px}.tic-g{margin-top:0;font-size:10px}
+.tic-k{padding:8px 10px}.tic-i input{font-size:15px;max-width:92px;padding:3px 6px}.tic-i em{font-size:12px}.tic-k small:empty{display:none}.tic-k small b{font-size:11px}
+.tic-a{margin-top:8px;gap:8px}.tic-a .ana{font-size:13px;padding:7px 13px}
+.kur4{gap:8px}.ilp{font-size:12.5px}.ilp .r{padding:4px 0}
+.krr{font-size:12.5px;gap:4px 12px}
+.yilsec{margin-left:auto;align-self:center}.yilsec button{font-size:12.5px;padding:5px 11px}
+header{align-items:center}
+table.t.y27 td:nth-child(2),table.t.y27 th:nth-child(2),table.t.y28 td:nth-child(3),table.t.y28 th:nth-child(3){background:#FFF6E0}
+.yil2.tek{grid-template-columns:1fr}
+.tnk{gap:6px}.tnk .bx{height:24px}.tnk .sr{font-size:12.5px}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -506,7 +528,8 @@ table.t tr.sel td{background:#FFF6E0}
   <header>
     <div class="ttl"><span class="ust">Enerji Akış Haritası · proje panosu</span><h1>GTS Dörtyol İthalat Projesi</h1></div>
     <span class="meta" id="meta"></span>
-    <div class="scn">SENARYO · resmî değil</div> <button type="button" class="degis" id="degistir">Başka paket aç</button>
+    <div class="scn">SENARYO · resmî değil</div>
+    <div class="seg yilsec" id="yilsec" role="group" aria-label="Dönem"><button type="button" data-y="" aria-pressed="true">2027–2028</button><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button></div> <button type="button" class="degis" id="degistir">Başka paket aç</button>
   </header>
   <nav class="tabs" role="tablist" aria-label="Bölümler">
     <button type="button" role="tab" data-v="genel" aria-selected="true">Genel bakış</button>

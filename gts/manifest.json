@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.3",
+ "surum": "1.0.4",
  "kabuk": 1,
- "tarih": "2026-11-01T17:58:27+03:00",
- "notlar": "Ticari koşulları siz girersiniz: Genel bakıştaki panelde değeri değiştirip 'Modeli bu koşullarla hesapla' deyin; Excel modeli uygulama içinde yeniden hesaplanır.",
+ "tarih": "2026-11-01T18:17:17+03:00",
+ "notlar": "Daha sık yerleşim (küçük punto, kompakt kartlar ve grafikler); 2027 / 2028 dönem filtresi (sağ üstte).",
  "dosyalar": {
-  "ui/index.html": "08a69fd3d9af88dc2662d04b376de349edf293017e6d14bf4ef67f017eb0a704",
+  "ui/index.html": "513efd5d42a0d637fc7f53e8bc0f8578d261649aaab40558d46cc7fd9688c5a8",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "55e376d855cfdadcea55b79826fa1778308cf3524b8f3c52b4d13b941814a25e",
+  "ui/pano.js": "9e1ad1aa4fe397b83d13fed694cad3e7873289e8b9e9d9e2610d294637c9229d",
   "gts_pipeline.js": "0adabb140ec0d6c499ffbb4f549549aa7d02853f238ef35e56e20b4a1bdf0145",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "f107f27dd26a9a08057ab091af6e202146eebe71e93ada90c286f54eb8a18d62",
