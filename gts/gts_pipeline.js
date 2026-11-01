@@ -134,7 +134,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     for (const s of ['Baz', 'Ayı', 'Boğa']) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · CIF motorin ${p}`]], 1));
     for (const s of ['Baz', 'Ayı', 'Boğa']) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · USD/TRY ${p}`]], 3));
     return row; });
-  const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17])]);
+  const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17]), R2(r[10] || 0), R2(r[25] || 0), R2(r[26] || 0), R2(r[29] || 0), R2(r[30] || 0), R2(r[36] || 0), R2(r[37] || 0)]);
   O.km = kargo('Motorin_Kargolar'); O.kb = kargo('Benzin_Kargolar');
   O.vn = satir('Vergi_Nakit', 4).filter((r) => serial(r[0])).map((r) => [R2((r[13] || 0) / 1e6), R2((r[24] || 0) / 1e6)]);
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);

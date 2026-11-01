@@ -109,26 +109,57 @@ function genel(){
   { const y0=V.g0.slice(0,4), y1=String(new Date(Date.parse(V.g0+"T00:00:00Z")+(V.gm.length-1)*864e5).getUTCFullYear()); $("g-h").textContent=(y0===y1?y0:y0+"–"+y1)+" senaryo modeli"; }
   const Y=k=>oz(k,1), top=Y("Toplam (USD)"), sm=Y("Motorin satışı (t)"), sb=Y("Benzin satışı (t)"), ora=Y("Satış / hedef tonaj"), tem=Y("Tepe teminat bakiyesi (TL)"), gv=Y("Gemi varışı (adet, varış tarihine göre)");
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  const nk=j=>(Y("Net marj (USD)")[j]||0)-(Y("Vergi + beyanname maliyeti (USD)")[j]||0);
   if(YIL){ const j=YIL==="2027"?1:2;
-    $("g-kpi").innerHTML=kt(YIL+" toplam",usd(top[j]),`iki yıl ${usd(top[3])} · ton başına ${nf1.format(Y("Toplam (USD/t)")[j])} $`,top[j]<0?"neg":"pos")
+    $("g-kpi").innerHTML=kt(YIL+" net kâr",usd(nk(j)),`hedge dahil, vergi sonrası · model toplamı ${usd(top[j])} (bölgesel avantaj dahil)`,nk(j)<0?"neg":"pos")
       +kt("Satış",ton(sm[j]+sb[j]),`motorin ${ton(sm[j])} · benzin ${ton(sb[j])}<br>hedefin ${pct(ora[j])}`)
       +kt("Gemi varışı",nf.format(gv[j]),`${YIL} varış tarihine göre`)
       +kt("Tepe teminat",nf1.format(tem[j]/1e9)+" milyar TL",`${YIL} ÖTV teminat mektubu tepe bakiyesi`); }
-  else $("g-kpi").innerHTML=kt("İki yıl toplam",usd(top[3]),`2027 ${usd(top[1])} · 2028 ${usd(top[2])}`,top[3]<0?"neg":"pos")
+  else $("g-kpi").innerHTML=kt("İki yıl net kâr",usd(nk(3)),`2027 ${usd(nk(1))} · 2028 ${usd(nk(2))} · hedge dahil, vergi sonrası<br>model toplamı ${usd(top[3])} (bölgesel avantaj dahil)`,nk(3)<0?"neg":"pos")
     +kt("Satış",ton(sm[3]+sb[3]),`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
     +kt("Gemi varışı",nf.format(gv[3]),`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · 2027 ${gv[1]} · 2028 ${gv[2]}`)
     +kt("Tepe teminat",nf1.format(tem[3]/1e9)+" milyar TL",`ÖTV teminat mektubu limiti · tepe vergi nakit ${nf1.format(oz("Tepe vergi nakit işletme sermayesi (TL)")[3]/1e9)} milyar TL`);
-  if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">Sonuç tek bir temsili fiyat yolundan (Baz, yol 49) gelir. İki yıllık model için Monte Carlo dağılımı henüz yok; Risk sekmesindeki dağılımlar önceki tek yıllık sürümdendir.</p>`);
-  let h=""; for(const [j,yl] of [[1,"2027"],[2,"2028"]].filter(x=>!YIL||x[1]===YIL)){ const v=k=>Y(k)[j];
-    h+=wfKart(yl+" köprüsü",[["Brüt marj",v("Brüt marj (USD)")],["Finansman",-v("Finansman (USD)")],["Ürün hedge (net)",v("Ürün hedge net (USD)")],["Vergi ve beyanname",-v("Vergi + beyanname maliyeti (USD)")],["Bölgesel navlun avantajı",v("Bölgesel navlun avantajı (USD)")]],v("Toplam (USD)"),`satış ${ton(sm[j]+sb[j])} · ton başına ${nf1.format(Y("Toplam (USD/t)")[j])} $`); }
-  $("g-wf").innerHTML=h; $("g-wf").classList.toggle("tek",!!YIL);
-  const kc=(b,ic)=>`<div class="kc"><div class="kc-h"><span>${b}</span></div><div class="ilp">${ic.map(([a,c])=>`<div class="r"><span>${esc(a)}</span><b>${c}</b></div>`).join("")}</div></div>`;
-  $("g-kurgu").innerHTML=kc("Hacim",[["Hedef motorin",ton(+gir("Seçili motorin (t/yıl)"))+" / yıl"],["Hedef benzin",ton(+gir("Seçili benzin (t/yıl)"))+" / yıl"],["Rampa","Oca 2027 %"+nf.format(gir("Ocak 2027 satış oranı (hedefin %)")*100)+" → Oca 2028 %100"],["Bölgesel navlun avantajı",nf2.format(gir("Seçili bölgesel navlun avantajı (USD/t)"))+" $/t"]])
-    +kc("Gemi ve tank",[["Motorin",`${esc(gir("Motorin gemi sınıfı"))} kısmi · ${ton(+gir("Motorin GTS partisi (t)"))}`],["Benzin",`${esc(gir("Benzin gemi sınıfı"))} · ${ton(+gir("Benzin partisi (t)"))}`],["Antrepo",nf.format(gir("Antrepo (m³) – Tank_Plani toplamı"))+" m³"],["Milli tank",nf.format(gir("Milli tank (m³) – Tank_Plani toplamı"))+" m³"]])
-    +kc("Fiyat, vergi, risk",[["Fiyat",`${esc(gir("Fiyat senaryosu"))} · temsili yol`],["ÖTV",esc(gir("ÖTV rejimi"))+" (banka mektubu)"],...((V.tic||[]).length?[]:[["Müşteri vadesi",gir("Müşteri vadesi (gün)")+" gün"]]),["Hedge",`ürün ${esc(gir("Ürün hedge"))} · kur ${esc(gir("Kur hedge"))}`]]);
-  const K=V.karar||[];
+  if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">Net kâr = net marj (hedge dahil) − vergi ve beyanname maliyeti; bölgesel navlun avantajı bayi tarafındaki değerdir, kâra dahil değildir. Sonuç tek bir temsili fiyat yolundan (Baz, yol 49) gelir. İki yıllık model için Monte Carlo dağılımı henüz yok; Risk sekmesindeki dağılımlar önceki tek yıllık sürümdendir.</p>`);
   ticari();
-  $("g-karar").innerHTML=K.length?K.map(([t,x])=>`<li><span class="z">${esc(t)}</span><span>${esc(x)}</span></li>`).join(""):`<li><span class="z"></span><span class="muted">README'de GTS bölümü yok.</span></li>`;
+  karlilik();
+}
+
+/* ---------- Kârlılık: kalemler halinde, hedge dahil net kâra kadar (kullanıcı 01.11.2026 18:23) ----------
+   Kargo bazında (kargonun satışa hazır olduğu yıl); vergi ve bölgesel avantaj Özet "Yıllara göre" bloğundan. */
+function karlilik(){
+  const Y=k=>oz(k,1), yillar=[["2027",1],["2028",2]], kol=YIL?yillar.filter(x=>x[0]===YIL):yillar.concat([["Toplam",3]]);
+  const top=(y)=>{ const o={t:0,sat:0,al:0,nav:0,ik:0,br:0,fin:0,hb:0,hi:0,ht:0,net:0,kur:0,n:0};
+    for(const L of [V.km,V.kb]) for(const k of L){ if(y!=="Toplam"&&k[4].slice(0,4)!==y) continue; if(k.length<23) continue;
+      o.t+=k[2]; o.al+=k[16]; o.nav+=k[17]; o.ik+=k[18]; o.br+=k[12]; o.fin+=k[15]; o.hb+=k[19]; o.hi+=k[20]; o.ht+=k[21]; o.net+=k[13]; o.kur+=k[22]; o.n++; }
+    o.sat=o.al+o.br; return o; };
+  const T=kol.map(([y,j])=>{ const o=top(y); o.ver=Y("Vergi + beyanname maliyeti (USD)")[j]||0; o.bol=Y("Bölgesel navlun avantajı (USD)")[j]||0; o.nk=o.net-o.ver; o.mt=o.nk+o.bol; o.ad=y; return o; });
+  if(!T[0].n){ $("g-kar").innerHTML=`<tbody><tr><td class="l">Bu paketteki model kalem ayrıntısı vermiyor.</td></tr></tbody>`; return; }
+  const R=[ // [etiket, değer işlevi, tür] tür: g=girdi satırı, a=ara toplam, s=sonuç, b=bilgi
+    ["Satış hacmi (kargo bazında)",o=>o.t,"t"],
+    ["Satış geliri",o=>o.sat,"g","Tüpraş vergisiz fiyatı ± satış farkı"],
+    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"g","CIF Med ± alım primi, tahliye farkı dahil"],
+    ["Gemi navlun farkı",o=>-o.nav,"g","büyük gemi kazancı (+) ya da küçük gemi farkı (−)"],
+    ["İkinci liman (kısmi tahliye)",o=>-o.ik,"g"],
+    ["Brüt marj",o=>o.br,"a"],
+    ["Finansman (stok + müşteri vadesi)",o=>-o.fin,"g"],
+    ["Hedge öncesi marj",o=>o.br-o.fin,"a"],
+    ["Ürün hedge sonucu",o=>o.hb,"g","ICE Gasoil; kilit − satış dönemi CIF"],
+    ["Hedge işlem maliyeti",o=>-o.hi,"g"],
+    ["Hedge teminat finansmanı",o=>-o.ht,"g"],
+    ["Net marj (hedge dahil)",o=>o.net,"a"],
+    ["Vergi ve beyanname maliyeti",o=>-o.ver,"g","ÖTV ve KDV finansmanı, teminat komisyonu, beyanname"],
+    ["Net kâr",o=>o.nk,"s"],
+    ["Bölgesel navlun avantajı",o=>o.bol,"b","bayiye kısalan karayolu; müşteri tarafındaki değer"],
+    ["Model toplamı (net kâr + bölgesel avantaj)",o=>o.mt,"b"],
+    ["Bilgi: tahsilat süresinde kur farkı",o=>o.kur,"b","net marjın içinde"]];
+  const hc=(v,t,l)=>t==="t"?ton(v):(v<0?"−":v>0&&t!=="a"&&t!=="s"&&l!=="Satış geliri"?"+":"")+nf1.format(Math.abs(v)/1e6);
+  let h=`<thead><tr><th class="l">Kalem</th>${T.map(o=>`<th>${o.ad}<br><span style="font-weight:400">M $</span></th><th>$/t</th><th>%</th>`).join("")}</tr></thead><tbody>`;
+  for(const [l,f,t,not] of R){ const cls=t==="a"?"ara2":t==="s"?"son":t==="b"?"bilgi":"";
+    h+=`<tr class="${cls}"><td class="l">${esc(l)}${not?`<span class="kn">${esc(not)}</span>`:""}</td>${T.map(o=>{ const v=f(o); if(t==="t") return `<td>${ton(v)}</td><td></td><td></td>`;
+      const pt=o.t?v/o.t:0, ps=o.sat?v/o.sat:0, c=l==="Satış geliri"?"":t==="g"||t==="b"?(v<0?"n":v>0?"p":""):(v<0?"n":"p");
+      return `<td class="${c}">${t==="s"||t==="a"?"<b>":""}${hc(v,t,l)}${t==="s"||t==="a"?"</b>":""}</td><td class="muted">${(pt<0?"−":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${l==="Satış geliri"?"":(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; }).join("")}</tr>`; }
+  $("g-kar").innerHTML=h+`</tbody>`;
+  $("g-ksub").textContent=`kargo bazında, kargonun satışa hazır olduğu yıla · $/t kargo tonu başına · % satış gelirine oran${Object.keys(V.girdi||{}).length?" · sizin ticari koşullarınızla":""}`;
 }
 
 /* ---------- Ticari koşullar: kullanıcı girdisi (Excel Özet G5:I14); masaüstünde model bu değerlerle yeniden hesaplanır ---------- */

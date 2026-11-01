@@ -512,6 +512,12 @@ header{align-items:center}
 table.t.y27 td:nth-child(2),table.t.y27 th:nth-child(2),table.t.y28 td:nth-child(3),table.t.y28 th:nth-child(3){background:#FFF6E0}
 .yil2.tek{grid-template-columns:1fr}
 .tnk{gap:6px}.tnk .bx{height:24px}.tnk .sr{font-size:12.5px}
+
+table.kar td .kn{display:block;font-size:10.5px;color:var(--ink-3);white-space:normal}
+table.kar tr.ara2 td{background:var(--surface);border-top:1px solid var(--line)}
+table.kar tr.son td{background:#FFF6E0;font-size:13.5px;border-top:2px solid var(--ink-3)}
+table.kar tr.bilgi td{color:var(--ink-3);font-size:12px}table.kar tr.bilgi td.p,table.kar tr.bilgi td.n{color:var(--ink-2)}
+table.kar th:not(:first-child),table.kar td:not(:first-child){min-width:62px}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -547,14 +553,9 @@ table.t.y27 td:nth-child(2),table.t.y27 th:nth-child(2),table.t.y28 td:nth-child
       <div id="g-tic"></div>
       <div class="kpi4" id="g-kpi"></div>
     </section>
-    <div class="yil2" id="g-wf"></div>
     <section>
-      <div class="head"><h2>Proje kurgusu</h2><span class="sub">Girdiler sayfasındaki seçili değerler</span></div>
-      <div class="kur4" id="g-kurgu"></div>
-    </section>
-    <section>
-      <div class="head"><h2>Kararlar</h2><span class="sub">PDM README kaydındaki GTS bölümleri, tarihleriyle</span></div>
-      <ul class="krr" id="g-karar"></ul>
+      <div class="head"><h2>Kârlılık</h2><span class="sub" id="g-ksub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t kar" id="g-kar"></table></div>
     </section>
   </div>
 
