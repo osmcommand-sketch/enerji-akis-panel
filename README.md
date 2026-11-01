@@ -7,3 +7,7 @@ Enerji Akış masaüstü uygulaması (Windows) her açılışta bu repodan aray�
 - Repoda veri yoktur; veritabanı kullanıcının bilgisayarında kalır ve uygulama tarafından yerel olarak okunur.
 
 Hazırlayan: Software Development Team (SDT).
+
+## GTS Dörtyol proje panosu (`gts/`)
+
+GTS Dörtyol masaüstü uygulaması aynı yöntemle `gts/` klasöründen güncellenir: `gts/manifest.json` (Ed25519 imzalı `gts/manifest.sig`), `gts/ui/`, `gts/gts_pipeline.js`, `gts/pipeline.js`, `gts/res/`. Repoda veri yoktur; uygulama PDM teslimat paketini kullanıcının bilgisayarında okur.

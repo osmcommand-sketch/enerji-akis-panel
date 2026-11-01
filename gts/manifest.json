@@ -1,0 +1,17 @@
+{
+ "uygulama": "gts",
+ "surum": "1.0.0",
+ "kabuk": 1,
+ "tarih": "2026-11-01T17:02:46+03:00",
+ "notlar": "İlk sürüm: GTS Dörtyol proje panosu (genel bakış, pazar ve akış, operasyon, ekonomi, risk, varsayımlar).",
+ "dosyalar": {
+  "ui/index.html": "2a18edfef0dc4b54fece8fdbb5ea3b6c2ff7ab24f8eab39107794823ad8c20f5",
+  "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
+  "ui/pano.js": "bc94cfa7c35a6853c6674b64908d9c2c6daec5363581dfb6802b4654d3783993",
+  "gts_pipeline.js": "8168551518d71795ab083008de8f89578486ff30587bbc93f0cab11d458d0ae9",
+  "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
+  "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
+  "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
+  "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
+ }
+}

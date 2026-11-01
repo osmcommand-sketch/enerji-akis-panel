@@ -1,0 +1,323 @@
+﻿Tesis_Turu,Tesis_ID,Tesis_Adi,Sektor,Il_Adi,Ilce,Ilce_ID,Enlem,Boylam,Dogruluk,Bagli_Terminal,Kapasite_m3
+Terminal,T01,Akpet İzmir,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T02,Alpet Aliağa,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T03,Güzel Enerji Aliağa,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T04,Milangaz Aliağa,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T05,Petkim,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T06,Star Rafineri,Akaryakıt+LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T07,Tüpraş Aliağa,Akaryakıt+LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,
+Terminal,T08,Aygaz Ambarlı,LPG,İstanbul,BEYLİKDÜZÜ,C0445,41.0010788,28.642054,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T09,Akdeniz Akaryakıt Depolama,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T10,Aytemiz Alanya,Akaryakıt+LPG,Antalya,ALANYA,C0087,36.5436,31.9997,İlçe merkezi,,
+Terminal,T11,PO Antalya,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T12,Shell Antalya,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T13,Tüpraş Batman,Akaryakıt,Batman,MERKEZ,C0950,37.89072255,41.1374205607433,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T14,Opet Giresun,Akaryakıt,Giresun,ESPİYE,C0369,40.947,38.703,İlçe merkezi,,
+Terminal,T15,Petgaz Giresun,LPG,Giresun,TİREBOLU,C0376,41.0069,38.8139,İlçe merkezi,,
+Terminal,T16,Akpet Kırıkkale,Akaryakıt,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T17,Alpet Kırıkkale,Akaryakıt,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T18,Aytemiz Kırıkkale,Akaryakıt,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T19,PO Kırıkkale,Akaryakıt,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T20,TP Kırıkkale,Akaryakıt,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T21,Tüpraş Kırıkkale,Akaryakıt+LPG,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T22,Marmara Depoculuk (MDH),Akaryakıt,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T23,Opet Marmara,Akaryakıt,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T24,İpragaz Marmara,LPG,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T25,Akpet Mersin,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T26,Alpet Mersin,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T27,Ataş Mersin,Akaryakıt,Mersin,MERKEZ,C0427,36.8,34.6167,İl merkezi (merkez ilçe),,
+Terminal,T28,Aves Güney (Mersin-1),Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T29,Enerji Mersin,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T30,Kadoil Mersin,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T31,Opet Mersin,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T32,Akpet Samsun,Akaryakıt+LPG,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T33,Alpet Samsun,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T34,Aygaz Samsun,LPG,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T35,Kaleli Best Oil,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T36,Milangaz Samsun,LPG,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T37,PO Samsun,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T38,Samsun Akaryakıt Depolama,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,,
+Terminal,T39,Aytemiz Trabzon,Akaryakıt+LPG,Trabzon,ARSİN,C0839,40.9527,39.9267,İlçe merkezi,,
+Terminal,T40,PO Trabzon,Akaryakıt,Trabzon,ORTAHİSAR,C0848,41.0013246,39.706678,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T41,Aygaz Dörtyol,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,
+Terminal,T42,Byport,LPG,Hatay,ERZİN,C0398,36.9539,36.2022,İlçe merkezi,,
+Terminal,T43,İpragaz Dörtyol,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,
+Terminal,T44,Milangaz Dörtyol,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,
+Terminal,T45,Petgaz Dörtyol,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,
+Terminal,T46,PO İskenderun,Akaryakıt,Hatay,İSKENDERUN,C0407,36.5804,36.17,İlçe merkezi,,
+Terminal,T47,TP Dörtyol,Akaryakıt,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,
+Terminal,T48,Akpet Kocaeli,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T49,Alpet Kocaeli,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T50,Aytemiz Kocaeli,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T51,Güzel Enerji Gebze,Akaryakıt,Kocaeli,DİLOVASI,C0569,40.8345539,29.586275788318,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T52,Milangaz Yarımca,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T53,Opet Kocaeli,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T54,PO Derince,Akaryakıt,Kocaeli,DERİNCE,C0568,40.7569,29.8147,İlçe merkezi,,
+Terminal,T55,Shell Kocaeli,Akaryakıt,Kocaeli,DERİNCE,C0568,40.7569,29.8147,İlçe merkezi,,
+Terminal,T56,TP Kocaeli,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T57,Tüpraş İzmit,Akaryakıt+LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T58,Aves İç ve Dış Ticaret,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T59,Lokal Kırıkkale,Akaryakıt,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T60,Modüler Mersin-2,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T61,Doğu Karasal Diyarbakır,Akaryakıt,Diyarbakır,YENİŞEHİR,C0286,37.9415,40.138,İlçe merkezi,,
+Terminal,T62,Körfez Marmara (KMD),Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,
+Terminal,T63,Anadolu Karasal (Ankara),LPG,Ankara,KAHRAMANKAZAN,C0070,40.1863626,32.6627332521215,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T64,Adana Merkez havacılık deposu,Akaryakıt,Adana,MERKEZ,C0007,37.0,35.325,İl merkezi (merkez ilçe),,
+Terminal,T65,Ankara Çubuk havacılık deposu,Akaryakıt,Ankara,ÇUBUK,C0083,40.2386,33.0322,İlçe merkezi,,
+Terminal,T66,Antalya Alanya havacılık deposu,Akaryakıt,Antalya,ALANYA,C0087,36.5436,31.9997,İlçe merkezi,,
+Terminal,T67,Antalya Muratpaşa havacılık deposu,Akaryakıt,Antalya,MURATPAŞA,C0102,36.88743095,30.7455866722664,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T68,Gaziantep Oğuzeli havacılık deposu,Akaryakıt,Gaziantep,OĞUZELİ,C0360,36.9657,37.5134,İlçe merkezi,,
+Terminal,T69,Isparta Merkez havacılık deposu,Akaryakıt,Isparta,MERKEZ,C0414,37.77035,30.5556933,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T70,İstanbul Arnavutköy havacılık deposu,Akaryakıt,İstanbul,ARNAVUTKÖY,C0436,41.2482594,28.6814495117807,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T71,İstanbul Pendik havacılık deposu,Akaryakıt,İstanbul,PENDİK,C0461,40.8775,29.2725,İlçe merkezi,,
+Terminal,T72,İzmir Gaziemir havacılık deposu,Akaryakıt,İzmir,GAZİEMİR,C0485,38.3239,27.1292,İlçe merkezi,,
+Terminal,T73,Kayseri Merkez havacılık deposu,Akaryakıt,Kayseri,MERKEZ,C0541,38.7333,35.4833,İl merkezi (merkez ilçe),,
+Terminal,T74,Muğla Dalaman havacılık deposu,Akaryakıt,Muğla,DALAMAN,C0680,36.7659,28.8028,İlçe merkezi,,
+Terminal,T75,Muğla Milas havacılık deposu,Akaryakıt,Muğla,MİLAS,C0688,37.3164,27.7839,İlçe merkezi,,
+Terminal,T76,Nevşehir Merkez havacılık deposu,Akaryakıt,Nevşehir,MERKEZ,C0705,38.620532,34.705443,İlçe merkezi (düşük doğruluk listesinde),,
+Terminal,T77,Samsun Merkez havacılık deposu,Akaryakıt,Samsun,MERKEZ,C0771,41.2867,36.33,İl merkezi (merkez ilçe),,
+Terminal,T78,Tekirdağ Merkez havacılık deposu,Akaryakıt,Tekirdağ,MERKEZ,C0818,40.9833,27.5167,İl merkezi (merkez ilçe),,
+Havalimanı,T79,İstanbul Airport (IST),Akaryakıt,İstanbul,ARNAVUTKÖY,C0436,41.274874,28.732136,Havalimanı konumu (OurAirports),,
+Havalimanı,T80,Antalya International Airport (AYT),Akaryakıt,Antalya,MURATPAŞA,C0102,36.898701,30.800501,Havalimanı konumu (OurAirports),,
+Havalimanı,T81,Istanbul Sabiha Gökçen International Airport (SAW),Akaryakıt,İstanbul,PENDİK,C0461,40.898602,29.3092,Havalimanı konumu (OurAirports),,
+Havalimanı,T82,Adnan Menderes International Airport (ADB),Akaryakıt,İzmir,GAZİEMİR,C0485,38.2924,27.157,Havalimanı konumu (OurAirports),,
+Havalimanı,T83,Esenboğa International Airport (ESB),Akaryakıt,Ankara,ÇUBUK,C0083,40.128101,32.995098,Havalimanı konumu (OurAirports),,
+Havalimanı,T84,Dalaman International Airport (DLM),Akaryakıt,Muğla,DALAMAN,C0680,36.7131,28.7925,Havalimanı konumu (OurAirports),,
+Havalimanı,T85,Milas Bodrum International Airport (BJV),Akaryakıt,Muğla,MİLAS,C0688,37.249314,27.66401,Havalimanı konumu (OurAirports),,
+Havalimanı,T86,Trabzon International Airport (TZX),Akaryakıt,Trabzon,MERKEZ,C0846,40.995098,39.7897,Havalimanı konumu (OurAirports),,
+Havalimanı,T87,Çukurova International Airport (COV),Akaryakıt,Mersin,TARSUS,C0431,36.891478,35.071235,Havalimanı konumu (OurAirports),,
+Havalimanı,T88,Gaziantep Oğuzeli International Airport (GZT),Akaryakıt,Gaziantep,OĞUZELİ,C0360,36.947201,37.478699,Havalimanı konumu (OurAirports),,
+Havalimanı,T89,İstanbul Atatürk Airport (ISL),Akaryakıt,İstanbul,BAKIRKÖY,C0440,40.971913,28.823714,Havalimanı konumu (OurAirports),,
+Havalimanı,T90,Kayseri Erkilet International Airport (ASR),Akaryakıt,Kayseri,MERKEZ,C0541,38.770401,35.495399,Havalimanı konumu (OurAirports),,
+Havalimanı,T91,Diyarbakır Airport (DIY),Akaryakıt,Diyarbakır,BAĞLAR,C0272,37.893902,40.201,Havalimanı konumu (OurAirports),,
+Havalimanı,T92,Samsun-Çarşamba Airport (SZF),Akaryakıt,Samsun,ÇARŞAMBA,C0778,41.253988,36.567546,Havalimanı konumu (OurAirports),,
+Havalimanı,T93,Gazipaşa-Alanya Airport (GZP),Akaryakıt,Antalya,GAZİPAŞA,C0092,36.298832,32.297017,Havalimanı konumu (OurAirports),,
+Havalimanı,T94,Erzurum International Airport (ERZ),Akaryakıt,Erzurum,MERKEZ,C0326,39.956501,41.1702,Havalimanı konumu (OurAirports),,
+Havalimanı,T95,Van Ferit Melen Airport (VAN),Akaryakıt,Van,İPEKYOLU,C0897,38.46820068359375,43.332298278808594,Havalimanı konumu (OurAirports),,
+Havalimanı,T96,Rize–Artvin Airport (RZV),Akaryakıt,Rize,PAZAR,C0740,41.179766,40.848802,Havalimanı konumu (OurAirports),,
+Havalimanı,T97,Elazığ Airport (EZS),Akaryakıt,Elazığ,MERKEZ,C0307,38.597974,39.28348,Havalimanı konumu (OurAirports),,
+Havalimanı,T98,Konya Airport (KYA),Akaryakıt,Konya,KARATAY,C0598,37.979,32.561901,Havalimanı konumu (OurAirports),,
+Havalimanı,T99,Ordu–Giresun Airport (OGU),Akaryakıt,Ordu,GÜLYALI,C0718,40.966872,38.085995,Havalimanı konumu (OurAirports),,
+Havalimanı,T100,Şanlıurfa GAP Airport (GNY),Akaryakıt,Şanlıurfa,HİLVAN,C0872,37.445663,38.895592,Havalimanı konumu (OurAirports),,
+Havalimanı,T101,Mardin Airport (MQM),Akaryakıt,Mardin,KIZILTEPE,C0671,37.2233009338,40.6316986084,Havalimanı konumu (OurAirports),,
+Havalimanı,T102,Batman Airport (BAL),Akaryakıt,Batman,MERKEZ,C0950,37.929001,41.1166,Havalimanı konumu (OurAirports),,
+Havalimanı,T103,Kars Airport (KSY),Akaryakıt,Kars,MERKEZ,C0510,40.562198638916016,43.1150016784668,Havalimanı konumu (OurAirports),,
+Havalimanı,T104,Malatya Erhaç Airport (MLX),Akaryakıt,Malatya,AKÇADAĞ,C0624,38.4352989197,38.0909996033,Havalimanı konumu (OurAirports),,
+Havalimanı,T105,Muş Airport (MSR),Akaryakıt,Muş,HASKÖY,C0694,38.74779891967773,41.66120147705078,Havalimanı konumu (OurAirports),,
+Havalimanı,T106,Nevşehir Kapadokya Airport (NAV),Akaryakıt,Nevşehir,GÜLŞEHİR,C0702,38.7719,34.5345,Havalimanı konumu (OurAirports),,
+Havalimanı,T107,Şırnak Şerafettin Elçi Airport (NKT),Akaryakıt,Şırnak,CİZRE,C0953,37.3647,42.0582,Havalimanı konumu (OurAirports),,
+Havalimanı,T108,Iğdır Airport (IGD),Akaryakıt,Iğdır,MERKEZ,C0971,39.976627,43.876648,Havalimanı konumu (OurAirports),,
+Havalimanı,T109,Erzincan Airport (ERC),Akaryakıt,Erzincan,MERKEZ,C0312,39.7102012634,39.5270004272,Havalimanı konumu (OurAirports),,
+Havalimanı,T110,Zonguldak Çaycuma Airport (ONQ),Akaryakıt,Zonguldak,ÇAYCUMA,C0919,41.506401,32.0886,Havalimanı konumu (OurAirports),,
+Havalimanı,T111,Hatay Airport (HTY),Akaryakıt,Hatay,KUMLU,C0401,36.36079,36.285589,Havalimanı konumu (OurAirports),,
+Havalimanı,T112,Ağrı Airport (AJI),Akaryakıt,Ağrı,HAMUR,C0047,39.655642,43.025742,Havalimanı konumu (OurAirports),,
+Havalimanı,T113,Adıyaman Airport (ADF),Akaryakıt,Adıyaman,SAMSAT,C0022,37.7314,38.468899,Havalimanı konumu (OurAirports),,
+Havalimanı,T114,Hasan Polatkan Airport (AOE),Akaryakıt,Eskişehir,MERKEZ,C0345,39.811644,30.519268,Havalimanı konumu (OurAirports),,
+Havalimanı,T115,Kahramanmaraş Airport (KCM),Akaryakıt,Kahramanmaraş,MERKEZ,C0662,37.5388259888,36.9535217285,Havalimanı konumu (OurAirports),,
+Havalimanı,T116,Bursa Yenişehir Airport (YEI),Akaryakıt,Bursa,YENİŞEHİR,C0210,40.255199,29.562599,Havalimanı konumu (OurAirports),,
+Havalimanı,T117,Sivas Nuri Demirağ Airport (VAS),Akaryakıt,Sivas,MERKEZ,C0806,39.813801,36.9035,Havalimanı konumu (OurAirports),,
+Havalimanı,T118,Çardak Airport (DNZ),Akaryakıt,Denizli,ÇARDAK,C0270,37.7855987549,29.7012996674,Havalimanı konumu (OurAirports),,
+Havalimanı,T119,Tekirdağ Çorlu Airport (TEQ),Akaryakıt,Tekirdağ,ÇORLU,C0823,41.138199,27.9191,Havalimanı konumu (OurAirports),,
+Havalimanı,T120,Balıkesir Koca Seyit Airport (EDO),Akaryakıt,Balıkesir,EDREMİT,C0139,39.552533,27.010192,Havalimanı konumu (OurAirports),,
+Havalimanı,T121,Bingöl Airport (BGG),Akaryakıt,Bingöl,MERKEZ,C0165,38.860131,40.594489,Havalimanı konumu (OurAirports),,
+Havalimanı,T122,Hakkari Yüksekova Airport (YKO),Akaryakıt,Hakkari,YÜKSEKOVA,C0389,37.5497,44.2381,Havalimanı konumu (OurAirports),,
+Havalimanı,T123,Çanakkale Airport (CKZ),Akaryakıt,Çanakkale,MERKEZ,C0223,40.1376991272,26.4267997742,Havalimanı konumu (OurAirports),,
+Havalimanı,T124,Tokat Airport (TJK),Akaryakıt,Tokat,PAZAR,C0831,40.32472,36.39056,Havalimanı konumu (OurAirports),,
+Havalimanı,T125,Amasya Merzifon Airport (MZH),Akaryakıt,Amasya,MERZİFON,C0056,40.829399,35.521999,Havalimanı konumu (OurAirports),,
+Havalimanı,T126,Zafer Airport (KZR),Akaryakıt,Kütahya,ALTINTAŞ,C0611,39.111107,30.130405,Havalimanı konumu (OurAirports),,
+Havalimanı,T127,Süleyman Demirel International Airport (ISE),Akaryakıt,Isparta,KEÇİBORLU,C0413,37.8554,30.368401,Havalimanı konumu (OurAirports),,
+Havalimanı,T128,Adana Şakirpaşa Airport (ADA),Akaryakıt,Adana,SEYHAN,C0011,36.982201,35.280399,Havalimanı konumu (OurAirports),,
+Havalimanı,T129,Sinop Airport (NOP),Akaryakıt,Sinop,MERKEZ,C0793,42.018313,35.071774,Havalimanı konumu (OurAirports),,
+Havalimanı,T130,Siirt Airport (SXZ),Akaryakıt,Siirt,MERKEZ,C0783,37.97890090942383,41.84040069580078,Havalimanı konumu (OurAirports),,
+Havalimanı,T131,Kastamonu Airport (KFS),Akaryakıt,Kastamonu,MERKEZ,C0525,41.314201,33.795799,Havalimanı konumu (OurAirports),,
+Havalimanı,T132,Aydın Çıldır Airport (CII),Akaryakıt,Aydın,EFELER,C0117,37.815389,27.887566,Havalimanı konumu (OurAirports),,
+Havalimanı,T133,Uşak Airport (USQ),Akaryakıt,Uşak,MERKEZ,C0881,38.681499,29.471701,Havalimanı konumu (OurAirports),,
+Havalimanı,T134,Cengiz Topel Airport (KCO),Akaryakıt,Kocaeli,KARTEPE,C0574,40.735001,30.0833,Havalimanı konumu (OurAirports),,
+Depolama lisansı,P001,Pet Gaz – LPG-DPO/4461-2/13995,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,T45,64150.0
+Depolama lisansı,P002,Aygaz – LPG-DPO/644-264/00092,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,T41,63430.0
+Depolama lisansı,P003,Aygaz – LPG-DPO/644-266/00094,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,47060.0
+Depolama lisansı,P004,Socar Turkey – LPG-DPO/7192-5/18259,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,T05,45019.98
+Depolama lisansı,P005,Byport Petrol – LPG-DPO/10566/23008,LPG,Hatay,ERZİN,C0398,36.9539,36.2022,İlçe merkezi,T42,37500.0
+Depolama lisansı,P006,Petrol Ofisi – LPG-DPO/4434/13968,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,35004.722
+Depolama lisansı,P007,Aytemiz – LPG-DPO/6427-1/17288,LPG,Antalya,ALANYA,C0087,36.5436,31.9997,İlçe merkezi,T10,34968.0
+Depolama lisansı,P008,Güzel Enerji – LPG-DPO/14696-2/25864,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,31100.0
+Depolama lisansı,P009,Likitgaz – LPG-DPO/10130-1/22364,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,30000.0
+Depolama lisansı,P010,Aygaz – LPG-DPO/644-262/00090,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,29090.0
+Depolama lisansı,P011,Butangaz – LPG-DPO/644-267/00095,LPG,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),T24,25820.0
+Depolama lisansı,P012,İpragaz – LPG-DPO/644-276/00104,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,T43,23100.0
+Depolama lisansı,P013,Aytemiz – LPG-DPO/3916/12953,LPG,Trabzon,ARSİN,C0839,40.9527,39.9267,İlçe merkezi,T39,19976.0
+Depolama lisansı,P014,Likitgaz – LPG-DPO/9464-14/21581,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,T04,19500.0
+Depolama lisansı,P015,İpragaz – LPG-DPO/644-268/00096,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,17460.0
+Depolama lisansı,P016,Aygaz – LPG-DPO/644-265/00093,LPG,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T34,15730.0
+Depolama lisansı,P017,İpragaz – LPG-DPO/644-282/00110,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,15230.0
+Depolama lisansı,P018,İpragaz – LPG-DPO/644-283/00111,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,15000.0
+Depolama lisansı,P019,Aygaz – LPG-DPO/644-263/00091,LPG,İstanbul,BEYLİKDÜZÜ,C0445,41.0010788,28.642054,İlçe merkezi (düşük doğruluk listesinde),T08,14100.0
+Depolama lisansı,P020,Argaz Lpg – LPG-DPO/4650-1/14371,LPG,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),,13639.0
+Depolama lisansı,P021,Likitgaz – LPG-DPO/9464-1/21568,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,T44,13000.0
+Depolama lisansı,P022,Habaş Petrol – LPG-DPO/761-2/03265,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,12115.0
+Depolama lisansı,P023,Güzel Enerji – LPG-DPO/14675-2/25848,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,10163.626
+Depolama lisansı,P024,Karadeniz Lpg – LPG-DPO/820-1/05285,LPG,Giresun,TİREBOLU,C0376,41.0069,38.8139,İlçe merkezi,T15,9139.0
+Depolama lisansı,P025,Anadolu Karasal – LPG-DPO/5572/15996,LPG,Ankara,KAHRAMANKAZAN,C0070,40.1863626,32.6627332521215,İlçe merkezi (düşük doğruluk listesinde),,7813.0
+Depolama lisansı,P026,Likitgaz – LPG-DPO/11951-2/24139,LPG,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),,7795.0
+Depolama lisansı,P027,Güzel Enerji – LPG-DPO/14674-2/25847,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,6701.34
+Depolama lisansı,P028,Habaş Petrol – LPG-DPO/2455-1/10103,LPG,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),,6420.0
+Depolama lisansı,P029,Likitgaz – LPG-DPO/10025-1/22207,LPG,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T36,5971.0
+Depolama lisansı,P030,Akpet – LPG-DPO/5009-3/15058,LPG,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T32,5850.0
+Depolama lisansı,P031,Güzel Enerji – LPG-DPO/715-2/01631,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,5720.0
+Depolama lisansı,P032,Efor Akaryakıt – LPG-DPO/10429/22859,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,4500.0
+Depolama lisansı,P033,ERGAZ SAN. VE TİC. A.Ş. – LPG-DPO/2127/09185,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,4100.0
+Depolama lisansı,P034,Likitgaz – LPG-DPO/9464-3/21570,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T52,3675.0
+Depolama lisansı,P035,ERGAZ SAN. VE TİC. A.Ş. – LPG-DPO/3097/11330,LPG,Erzurum,MERKEZ,C0326,39.9097,41.2756,İl merkezi (merkez ilçe),,3460.0
+Depolama lisansı,P036,Aygaz – LPG-DPO/783-9/04009,LPG,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),,3264.0
+Depolama lisansı,P037,Pegagaz – LPG-DPO/785-5/04443,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,2415.0
+Depolama lisansı,P038,Likitgaz – LPG-DPO/11136-2/23580,LPG,Ankara,KAHRAMANKAZAN,C0070,40.1863626,32.6627332521215,İlçe merkezi (düşük doğruluk listesinde),,2375.0
+Depolama lisansı,P039,Akım-tek Enerji – LPG-DPO/5790/3/16359,LPG,Ankara,ETİMESGUT,C0065,39.9533,32.6328,İlçe merkezi,,1992.0
+Depolama lisansı,P040,Argaz Lpg – LPG-DPO/3824/12726,LPG,Osmaniye,TOPRAKKALE,C0995,37.0639,36.1469,İlçe merkezi,,1814.0
+Depolama lisansı,P041,Kongaz Petrol – LPG-DPO/13689/25382,LPG,Konya,MERAM,C0600,37.8299,32.4678,İlçe merkezi,,1800.0
+Depolama lisansı,P042,Aygaz – LPG-DPO/700-5/01203,LPG,Isparta,GÖNEN,C0412,37.9564,30.5114,İlçe merkezi,,1755.0
+Depolama lisansı,P043,Oralgaz – LPG-DPO/6338-2/17157,LPG,Malatya,YEŞİLYURT,C0637,38.296,38.2453,İlçe merkezi,,1640.0
+Depolama lisansı,P044,İpragaz – LPG-DPO/644-269/00097,LPG,Ankara,KAHRAMANKAZAN,C0070,40.1863626,32.6627332521215,İlçe merkezi (düşük doğruluk listesinde),,1625.0
+Depolama lisansı,P045,Aygaz – LPG-DPO/869-1/05503,LPG,Diyarbakır,MERKEZ,C0283,37.9108,40.2367,İl merkezi (merkez ilçe),,1475.0
+Depolama lisansı,P046,Nargaz Lpg – LPG-DPO/6297/17092,LPG,Mardin,MERKEZ,C0673,37.3167,40.7378,İl merkezi (merkez ilçe),,1295.0
+Depolama lisansı,P047,Efor Akaryakıt – LPG-DPO/11594-2/23860,LPG,İzmir,MENEMEN,C0495,38.6,27.0667,İlçe merkezi,,1206.0
+Depolama lisansı,P048,Gesan Yatırım – LPG-DPO/4892-2/14780,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,1195.0
+Depolama lisansı,P049,Akçagaz Petrol – LPG-DPO/941-54/05874,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,1179.0
+Depolama lisansı,P050,Aygaz – LPG-DPO/723-2/01820,LPG,Ankara,MAMAK,C0074,39.9404,32.9101,İlçe merkezi,,1165.0
+Depolama lisansı,P051,Efor Akaryakıt – LPG-DPO/11594-3/23859,LPG,Konya,EREĞLİ,C0590,37.5058,34.0517,İlçe merkezi,,1103.0
+Depolama lisansı,P052,Aygaz – LPG-DPO/900-1/05578,LPG,İzmir,BORNOVA,C0481,38.4792,27.2399,İlçe merkezi,,1069.0
+Depolama lisansı,P053,İstanbul Likit – LPG-DPO/13873/25493,LPG,Kırıkkale,BALIŞEYH,C0938,39.9141,33.7233,İlçe merkezi,,835.0
+Depolama lisansı,P054,İpragaz – LPG-DPO/644-280/00108,LPG,İzmir,BORNOVA,C0481,38.4792,27.2399,İlçe merkezi,,820.0
+Depolama lisansı,P055,KALELİ BEST GAZ İNŞAAT NAKLİYE SAN. VE TİC. LTD. ŞTİ. – LPG-DPO/6228-2/16982,LPG,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),,805.0
+Depolama lisansı,P056,Habaş Petrol – LPG-DPO/769-150/03514,LPG,Ankara,KAHRAMANKAZAN,C0070,40.1863626,32.6627332521215,İlçe merkezi (düşük doğruluk listesinde),,805.0
+Depolama lisansı,P057,Gesan Yatırım – LPG-DPO/4892-3/14779,LPG,Samsun,İLKADIM,C0779,41.23097825,36.1881100512523,İlçe merkezi (düşük doğruluk listesinde),,800.0
+Depolama lisansı,P058,İpragaz – LPG-DPO/10014-1/22191,LPG,Burdur,BUCAK,C0187,37.4592,30.595,İlçe merkezi,,740.0
+Depolama lisansı,P059,Dolugaz Depolama – LPG-DPO/10987/23381,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,720.0
+Depolama lisansı,P060,Dolugaz Depolama – LPG-DPO/10656-1/23090,LPG,Konya,MERAM,C0600,37.8299,32.4678,İlçe merkezi,,720.0
+Depolama lisansı,P061,Minacılar Lpg – LPG-DPO/9767-1/22031,LPG,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),,720.0
+Depolama lisansı,P062,İpragaz – LPG-DPO/4743/1/14488,LPG,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,720.0
+Depolama lisansı,P063,ERGAZ SAN. VE TİC. A.Ş. – LPG-DPO/4843-3/14652,LPG,Osmaniye,TOPRAKKALE,C0995,37.0639,36.1469,İlçe merkezi,,690.0
+Depolama lisansı,P064,Yıldırım Petrol – LPG-DPO/3468-1/12208,LPG,Diyarbakır,YENİŞEHİR,C0286,37.9415,40.138,İlçe merkezi,,690.0
+Depolama lisansı,P065,Likitgaz – LPG-DPO/9464-10/21577,LPG,Antalya,DÖŞEMEALTI,C0089,37.0233,30.6025,İlçe merkezi,,646.0
+Depolama lisansı,P066,Akpet Gaz – LPG-DPO/5046-1/15113,LPG,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),,590.0
+Depolama lisansı,P067,Aytemiz – LPG-DPO/4983-2/14991,LPG,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),,585.0
+Depolama lisansı,P068,Hürgaz – LPG-DPO/5680-1/16203,LPG,Tokat,TURHAL,C0834,40.3875,36.0811,İlçe merkezi,,575.0
+Depolama lisansı,P069,ERGAZ SAN. VE TİC. A.Ş. – LPG-DPO/4843-1/14663,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,575.0
+Depolama lisansı,P070,İpragaz – LPG-DPO/644-286/00114,LPG,Van,MERKEZ,C0890,38.5019,43.4167,İl merkezi (merkez ilçe),,575.0
+Depolama lisansı,P071,İpragaz – LPG-DPO/644-277/00105,LPG,Erzurum,AZİZİYE,C0319,40.07724105,40.984545744953,İlçe merkezi (düşük doğruluk listesinde),,575.0
+Depolama lisansı,P072,ERGAZ SAN. VE TİC. A.Ş. – LPG-DPO/4843/4/14656,LPG,İzmir,KEMALPAŞA,C0490,38.4261,27.4172,İlçe merkezi,,572.0
+Depolama lisansı,P073,Aytemiz – LPG-DPO/4983-3/14992,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,522.0
+Depolama lisansı,P074,Atlantıc Akaryakıt – LPG-DPO/9567/21805,LPG,Çorum,OSMANCIK,C0247,40.9782,34.8047,İlçe merkezi,,470.0
+Depolama lisansı,P075,İpragaz – LPG-DPO/644-271/00099,LPG,Aydın,EFELER,C0117,37.8523511,27.8777022092698,İlçe merkezi (düşük doğruluk listesinde),,470.0
+Depolama lisansı,P076,Likitgaz – LPG-DPO/10060-1/22258,LPG,Kayseri,KOCASİNAN,C0539,38.7715,35.5725,İlçe merkezi,,468.0
+Depolama lisansı,P077,Antgaz Likit – LPG-DPO/13052/24986,LPG,Antalya,DÖŞEMEALTI,C0089,37.0233,30.6025,İlçe merkezi,,460.0
+Depolama lisansı,P078,İpragaz – LPG-DPO/644-285/00113,LPG,Trabzon,ORTAHİSAR,C0848,41.0013246,39.706678,İlçe merkezi (düşük doğruluk listesinde),,460.0
+Depolama lisansı,P079,İstanbul Likit – LPG-DPO/7812-1/19072,LPG,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,451.0
+Depolama lisansı,P080,Likitgaz – LPG-DPO/9464-12/21579,LPG,Diyarbakır,YENİŞEHİR,C0286,37.9415,40.138,İlçe merkezi,,430.0
+Depolama lisansı,P081,Park Denizcilik – LPG-DPO/6400-1/17233,LPG,Artvin,HOPA,C0108,41.396,41.422,İlçe merkezi,,420.0
+Depolama lisansı,P082,Likitgaz – LPG-DPO/9464-9/21576,LPG,Aydın,EFELER,C0117,37.8523511,27.8777022092698,İlçe merkezi (düşük doğruluk listesinde),,410.0
+Depolama lisansı,P083,Likitgaz – LPG-DPO/9464-2/21569,LPG,Trabzon,VAKFIKEBİR,C0851,41.0458,39.2764,İlçe merkezi,,385.0
+Depolama lisansı,P084,Likitgaz – LPG-DPO/9464-6/21573,LPG,Konya,SELÇUKLU,C0603,37.8842,32.4922,İlçe merkezi,,363.0
+Depolama lisansı,P085,Likitgaz – LPG-DPO/9464-8/21575,LPG,İzmir,BORNOVA,C0481,38.4792,27.2399,İlçe merkezi,,361.0
+Depolama lisansı,P086,Likitgaz – LPG-DPO/9464-5/21572,LPG,Eskişehir,TEPEBAŞI,C0352,39.8343146,30.5653649543023,İlçe merkezi (düşük doğruluk listesinde),,361.0
+Depolama lisansı,P087,TP – LPG-DPO/8496-1/20082,LPG,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,360.0
+Depolama lisansı,P088,Yalın Petrol – LPG-DPO/790-5/05068,LPG,Antalya,MERKEZ,C0101,36.9081,30.6956,İl merkezi (merkez ilçe),,360.0
+Depolama lisansı,P089,Gesan Yatırım – LPG-DPO/4892-1/14781,LPG,Ordu,MERKEZ,C0724,40.9833,37.8833,İl merkezi (merkez ilçe),,345.0
+Depolama lisansı,P090,Asgaz Anadolu – LPG-DPO/691-6/01016,LPG,Bursa,MERKEZ,C0203,40.1833,29.0667,İl merkezi (merkez ilçe),,265.0
+Depolama lisansı,P091,Likitgaz – LPG-DPO/9464-4/21571,LPG,Adana,YÜREĞİR,C0014,36.9744,35.3592,İlçe merkezi,,246.0
+Depolama lisansı,P092,Unipet Enerji – LPG-DPO/10967/23354,LPG,Kırıkkale,BALIŞEYH,C0938,39.9141,33.7233,İlçe merkezi,,230.0
+Depolama lisansı,P093,Likitgaz – LPG-DPO/1110-2/06277,LPG,Kahramanmaraş,MERKEZ,C0662,37.5875,36.9453,İl merkezi (merkez ilçe),,215.0
+Depolama lisansı,P094,Universal Gaz – LPG-DPO/6627-2/17608,LPG,Niğde,BOR,C0708,37.8833,34.5667,İlçe merkezi,,165.0
+Depolama lisansı,P095,Kadooğlu – LPG-DPO/8086-1/19508,LPG,Gaziantep,OĞUZELİ,C0360,36.9657,37.5134,İlçe merkezi,,115.0
+Depolama lisansı,P096,Petrol Ofisi – DEP/14316-2/49055,Akaryakıt,Gaziantep,OĞUZELİ,C0360,36.9657,37.5134,İlçe merkezi,T68,900.0
+Depolama lisansı,P097,Ponak Akaryakıt – DEP/14186-2/48973,Akaryakıt,İstanbul,PENDİK,C0461,40.8775,29.2725,İlçe merkezi,T71,19803.0
+Depolama lisansı,P098,Socar – DEP/13552-2/48447,Akaryakıt,Muğla,MİLAS,C0688,37.3164,27.7839,İlçe merkezi,T75,1544.15
+Depolama lisansı,P099,Socar – DEP/13552-1/48443,Akaryakıt,İzmir,GAZİEMİR,C0485,38.3239,27.1292,İlçe merkezi,T72,1463.16
+Depolama lisansı,P100,Potas Akdeniz – DEP/13388/48286,Akaryakıt,Antalya,MURATPAŞA,C0102,36.88743095,30.7455866722664,İlçe merkezi (düşük doğruluk listesinde),T67,83562.0
+Depolama lisansı,P101,İstanbul Jet – DEP/12936-1/47856,Akaryakıt,Muğla,DALAMAN,C0680,36.7659,28.8028,İlçe merkezi,T74,2115.0
+Depolama lisansı,P102,Haramidere Depoculuk – DEP/12751-1/47654,Akaryakıt,İstanbul,AVCILAR,C0438,40.9801353,28.7175465,İlçe merkezi (düşük doğruluk listesinde),,93505.0
+Depolama lisansı,P103,Arden Depoculuk – DEP/12692-1/47595,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,42250.8
+Depolama lisansı,P104,Thy Opet – DEP/12618-2/47503,Akaryakıt,Ankara,ÇUBUK,C0083,40.2386,33.0322,İlçe merkezi,T65,1217.0
+Depolama lisansı,P105,Turkis Enerji – DEP/10856-11/45656,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),,232288.13
+Depolama lisansı,P106,Byport Petrol – DEP/10672-4/45480,Akaryakıt,Hatay,ERZİN,C0398,36.9539,36.2022,İlçe merkezi,T42,12571.0
+Depolama lisansı,P107,Güney Wimba – DEP/10593-1/45383,Akaryakıt,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,14619.0
+Depolama lisansı,P108,İstanbul Jet – DEP/10491-1/45213,Akaryakıt,Antalya,ALANYA,C0087,36.5436,31.9997,İlçe merkezi,T66,1504.0
+Depolama lisansı,P109,Güzel Enerji – DEP/10337-4/44925,Akaryakıt,Kocaeli,DİLOVASI,C0569,40.8345539,29.586275788318,İlçe merkezi (düşük doğruluk listesinde),T51,104813.0
+Depolama lisansı,P110,Tfs Akaryakıt – DEP/9944-2/43996,Akaryakıt,İstanbul,ARNAVUTKÖY,C0436,41.2482594,28.6814495117807,İlçe merkezi (düşük doğruluk listesinde),T70,159728.0
+Depolama lisansı,P111,Ergaz – DEP/9684-1/43809,Akaryakıt,Erzurum,AZİZİYE,C0319,40.07724105,40.984545744953,İlçe merkezi (düşük doğruluk listesinde),,4153.0
+Depolama lisansı,P112,Park Denizcilik – DEP/9367-2/43128,Akaryakıt,Artvin,HOPA,C0108,41.396,41.422,İlçe merkezi,,32000.0
+Depolama lisansı,P113,Vtm – DEP/9367-3/43127,Akaryakıt,Malatya,YEŞİLYURT,C0637,38.296,38.2453,İlçe merkezi,,4980.0
+Depolama lisansı,P114,Modüler Petrol – DEP/9359-2/43112,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),T60,66000.0
+Depolama lisansı,P115,Alpet – DEP/9318/43037,Akaryakıt,Mersin,,,36.8,34.6167,İl merkezi (ilçe eşleşmedi),T26,95596.05
+Depolama lisansı,P116,TP – DEP/8840-5/42121,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T56,9300.71
+Depolama lisansı,P117,TP – DEP/8791-3/41980,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),,17900.0
+Depolama lisansı,P118,Aves İç – DEP/7646-4/39546,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),T58,100348.51
+Depolama lisansı,P119,Aves Güney – DEP/7646-3/39543,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),T28,99600.0
+Depolama lisansı,P120,Çanakkale Liman – DEP/7479-1/39356,Akaryakıt,Çanakkale,MERKEZ,C0223,40.1534952,26.4140933,İlçe merkezi (düşük doğruluk listesinde),,13621.27
+Depolama lisansı,P121,Lokal Enerji – DEP/7220-4/38844,Akaryakıt,Kırıkkale,,,39.8417,33.5139,İl merkezi (ilçe eşleşmedi),T59,21644.0
+Depolama lisansı,P122,Socar Turkey – DEP/7191-7/38782,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,205064.0
+Depolama lisansı,P123,Milli Savunma – DEP/6912-1/37996,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),,30000.0
+Depolama lisansı,P124,Limaş Liman – DEP/6537/37466,Akaryakıt,Kocaeli,BAŞİSKELE,C0566,40.64592185,29.9517413594324,İlçe merkezi (düşük doğruluk listesinde),,46255.11
+Depolama lisansı,P125,Aytemiz – DEP/6435-7/37291,Akaryakıt,Antalya,ALANYA,C0087,36.5436,31.9997,İlçe merkezi,T10,66676.0
+Depolama lisansı,P126,Global Terminal – DEP/6197-2/36775,Akaryakıt,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,,37822.0
+Depolama lisansı,P127,TP – DEP/6098-2/36554,Akaryakıt,İstanbul,BEYLİKDÜZÜ,C0445,41.0010788,28.642054,İlçe merkezi (düşük doğruluk listesinde),,66000.0
+Depolama lisansı,P128,Opet – DEP/5824-1/36095,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T53,8285.0
+Depolama lisansı,P129,Doğu Karasal – DEP/5410-1/35088,Akaryakıt,Diyarbakır,YENİŞEHİR,C0286,37.9415,40.138,İlçe merkezi,T61,9256.0
+Depolama lisansı,P130,Thy Opet – DEP/5189-3.2/34599,Akaryakıt,İstanbul,PENDİK,C0461,40.8775,29.2725,İlçe merkezi,T71,22075.0
+Depolama lisansı,P131,Petrol Ofisi – DEP/4547-3/33088,Akaryakıt,Muğla,,,37.2167,28.3667,İl merkezi (ilçe eşleşmedi),T74,6917.0
+Depolama lisansı,P132,Teco – DEP/4492-2/32934,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,32633.0
+Depolama lisansı,P133,Petrol Ofisi – DEP/4067-3/31635,Akaryakıt,İzmir,,,38.4127,27.1384,İl merkezi (ilçe eşleşmedi),T72,6684.0
+Depolama lisansı,P134,Feza Gayrımenkul – DEP/4057-5/31605,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,,7800.0
+Depolama lisansı,P135,Aytemiz – DEP/3834-2/31033,Akaryakıt,Trabzon,ARSİN,C0839,40.9527,39.9267,İlçe merkezi,T39,64921.0
+Depolama lisansı,P136,Kaleli Best – DEP/3752-3/30831,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T35,13000.0
+Depolama lisansı,P137,Aytemiz – DEP/3467-1/30828,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T50,17381.0
+Depolama lisansı,P138,Akım-tek Enerji – DEP/2901-9/28666,Akaryakıt,Ankara,ETİMESGUT,C0065,39.9533,32.6328,İlçe merkezi,,35652.0
+Depolama lisansı,P139,Aytemiz – DEP/2758-2/28241,Akaryakıt,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),T18,27430.0
+Depolama lisansı,P140,Petrol Ofisi – DEP/2671-28/28082,Akaryakıt,Samsun,,,41.2867,36.33,İl merkezi (ilçe eşleşmedi),T77,1091.0
+Depolama lisansı,P141,Petrol Ofisi – DEP/2671-27/28081,Akaryakıt,Kayseri,,,38.7333,35.4833,İl merkezi (ilçe eşleşmedi),T73,789.0
+Depolama lisansı,P142,Petrol Ofisi – DEP/2671-26/28080,Akaryakıt,Tekirdağ,,,40.9833,27.5167,İl merkezi (ilçe eşleşmedi),T78,1167.0
+Depolama lisansı,P143,Petrol Ofisi – DEP/2671-25/28079,Akaryakıt,Adana,,,37.0,35.325,İl merkezi (ilçe eşleşmedi),T64,949.0
+Depolama lisansı,P144,Petrol Ofisi – DEP/2671-23/28077,Akaryakıt,Isparta,,,37.7667,30.55,İl merkezi (ilçe eşleşmedi),T69,430.0
+Depolama lisansı,P145,Petrol Ofisi – DEP/2671-21/28075,Akaryakıt,Nevşehir,,,38.625,34.7122,İl merkezi (ilçe eşleşmedi),T76,1091.0
+Depolama lisansı,P146,Petrol Ofisi – DEP/2671-19/28073,Akaryakıt,Muğla,,,37.2167,28.3667,İl merkezi (ilçe eşleşmedi),T74,11105.0
+Depolama lisansı,P147,Petrol Ofisi – DEP/2671-12/28066,Akaryakıt,Ankara,,,39.93,32.85,İl merkezi (ilçe eşleşmedi),T65,6940.0
+Depolama lisansı,P148,Marmara Depoculuk – DEP/2626-5/27943,Akaryakıt,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),T22,254807.0
+Depolama lisansı,P149,Akdeniz Akaryakıt – DEP/2574-2/27768,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),T09,58325.0
+Depolama lisansı,P150,Samsun Akaryakıt – DEP/2110-2/26086,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T38,41463.0
+Depolama lisansı,P151,Akpet – DEP/2066-2/25886,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T32,41435.0
+Depolama lisansı,P152,Shell&Turcas – DEP/2066-1/25885,Akaryakıt,Antalya,,,36.9081,30.6956,İl merkezi (ilçe eşleşmedi),T12,30700.0
+Depolama lisansı,P153,Alpet – DEP/2023-4/25774,Akaryakıt,Kocaeli,DERİNCE,C0568,40.7569,29.8147,İlçe merkezi,T49,15861.0
+Depolama lisansı,P154,Kadooğlu – DEP/1886-2/25334,Akaryakıt,Mersin,AKDENİZ,C0421,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde),T30,149405.01
+Depolama lisansı,P155,TP – DEP/1830-2/25208,Akaryakıt,Hatay,DÖRTYOL,C0397,36.8392,36.2303,İlçe merkezi,T47,102100.0
+Depolama lisansı,P156,Shell&Turcas – DEP/1718-6/24922,Akaryakıt,Kocaeli,DERİNCE,C0568,40.7569,29.8147,İlçe merkezi,T55,42120.0
+Depolama lisansı,P157,Nergis Petrol – DEP/1624-5/24494,Akaryakıt,Mersin,,,36.8,34.6167,İl merkezi (ilçe eşleşmedi),,154650.0
+Depolama lisansı,P158,TP – DEP/1503-2/23872,Akaryakıt,Kırıkkale,BAHŞİLİ,C0937,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde),T20,20050.0
+Depolama lisansı,P159,Ataş Anadolu – DEP/1328-5/23031,Akaryakıt,Mersin,MERKEZ,C0427,36.8,34.6167,İl merkezi (merkez ilçe),T27,19586.0
+Depolama lisansı,P160,Opet – DEP/1272-6/22699,Akaryakıt,Giresun,ESPİYE,C0369,40.947,38.703,İlçe merkezi,T14,43130.0
+Depolama lisansı,P161,Alpet – DEP/1144-5/21771,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,T02,51339.0
+Depolama lisansı,P162,Shell&Turcas – DEP/807-19/17615,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T55,28459.0
+Depolama lisansı,P163,Opet – DEP/767-17/17138,Akaryakıt,Tekirdağ,MARMARAEREĞLİSİ,C0817,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde),T23,724073.0
+Depolama lisansı,P164,Alpet – DEP/767-16/17137,Akaryakıt,Samsun,TEKKEKÖY,C0774,41.2117,36.46,İlçe merkezi,T33,44771.0
+Depolama lisansı,P165,Alpet – DEP/654-6/15759,Akaryakıt,Kırıkkale,MERKEZ,C0942,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde),T17,12000.0
+Depolama lisansı,P166,Enerji – DEP/594-32/15475,Akaryakıt,Kırıkkale,,,39.8417,33.5139,İl merkezi (ilçe eşleşmedi),,2740.0
+Depolama lisansı,P167,İzgin Depolama – DEP/482-5/11099,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,226.0
+Depolama lisansı,P168,Altıntel Liman – DEP/480-126/11093,Akaryakıt,Kocaeli,DİLOVASI,C0569,40.8345539,29.586275788318,İlçe merkezi (düşük doğruluk listesinde),,27655.76
+Depolama lisansı,P169,Enerji – DEP/480-124/11091,Akaryakıt,Mersin,,,36.8,34.6167,İl merkezi (ilçe eşleşmedi),T29,40600.0
+Depolama lisansı,P170,Akpet – DEP/480-117/11084,Akaryakıt,İzmir,ALİAĞA,C0475,38.7998,26.972,İlçe merkezi,T01,31631.0
+Depolama lisansı,P171,Akpet – DEP/480-116/11083,Akaryakıt,Mersin,,,36.8,34.6167,İl merkezi (ilçe eşleşmedi),T25,27084.4
+Depolama lisansı,P172,Akpet – DEP/480-115/11082,Akaryakıt,Kırıkkale,,,39.8417,33.5139,İl merkezi (ilçe eşleşmedi),T16,28560.5
+Depolama lisansı,P173,Akpet – DEP/480-114/11081,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T48,24309.32
+Depolama lisansı,P174,Güzel Enerji – DEP/476-163/10883,Akaryakıt,İzmir,,,38.4127,27.1384,İl merkezi (ilçe eşleşmedi),T03,125859.0
+Depolama lisansı,P175,Opet – DEP/476-161/10881,Akaryakıt,Mersin,,,36.8,34.6167,İl merkezi (ilçe eşleşmedi),T31,247343.0
+Depolama lisansı,P176,Opet – DEP/476-159/10879,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,T53,37165.0
+Depolama lisansı,P177,Çekisan Depolama – DEP/476-157/10877,Akaryakıt,Antalya,,,36.9081,30.6956,İl merkezi (ilçe eşleşmedi),,40586.4
+Depolama lisansı,P178,Pet-line Petrol – DEP/475-15/10692,Akaryakıt,Kırıkkale,,,39.8417,33.5139,İl merkezi (ilçe eşleşmedi),,5841.18
+Depolama lisansı,P179,Pet-line Petrol – DEP/475-14/10691,Akaryakıt,Kocaeli,KÖRFEZ,C0575,40.7706,29.7661,İlçe merkezi,,20823.81
+Depolama lisansı,P180,Petrol Ofisi – DEP/474-13/10371,Akaryakıt,Samsun,,,41.2867,36.33,İl merkezi (ilçe eşleşmedi),T37,54129.33
+Depolama lisansı,P181,Petrol Ofisi – DEP/474-12/10370,Akaryakıt,Hatay,İSKENDERUN,C0407,36.5804,36.17,İlçe merkezi,T46,98291.0
+Depolama lisansı,P182,Petrol Ofisi – DEP/474-11/10369,Akaryakıt,Kırıkkale,,,39.8417,33.5139,İl merkezi (ilçe eşleşmedi),T19,19930.0
+Depolama lisansı,P183,Petrol Ofisi – DEP/474-8/10366,Akaryakıt,Kocaeli,DERİNCE,C0568,40.7569,29.8147,İlçe merkezi,T54,277221.0
+Depolama lisansı,P184,Petrol Ofisi – DEP/474-4/10362,Akaryakıt,Trabzon,ORTAHİSAR,C0848,41.0013246,39.706678,İlçe merkezi (düşük doğruluk listesinde),T40,78341.49
+Depolama lisansı,P185,Petrol Ofisi – DEP/474-3/10361,Akaryakıt,Antalya,KONYAALTI,C0097,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde),T11,109075.0
+Depolama lisansı,P186,Ataş Anadolu – DEP/473-14/10348,Akaryakıt,Mersin,,,36.8,34.6167,İl merkezi (ilçe eşleşmedi),T27,555181.0
+Depolama lisansı,P187,Poliport Kimya – DEP/444-2/01592,Akaryakıt,Kocaeli,GEBZE,C0570,40.8028,29.4307,İlçe merkezi,,51450.0
+Depolama lisansı,P188,Solventaş Teknik – DEP/436-21/01560,Akaryakıt,Kocaeli,GEBZE,C0570,40.8028,29.4307,İlçe merkezi,,107467.14

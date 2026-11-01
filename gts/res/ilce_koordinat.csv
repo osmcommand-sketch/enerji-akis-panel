@@ -1,0 +1,1004 @@
+﻿Ilce_ID,Il_ID,Il_Adi,Ilce,Enlem,Boylam,Dogruluk
+C0001,1,Adana,ALADAĞ,37.5485,35.396,İlçe merkezi
+C0002,1,Adana,CEYHAN,37.0247,35.8175,İlçe merkezi
+C0003,1,Adana,FEKE,37.8145,35.9123,İlçe merkezi
+C0004,1,Adana,KARATAŞ,36.5624,35.3811,İlçe merkezi
+C0005,1,Adana,KARAİSALI,37.2567,35.0589,İlçe merkezi
+C0006,1,Adana,KOZAN,37.4507,35.8123,İlçe merkezi
+C0007,1,Adana,MERKEZ,37.0,35.325,İl merkezi (merkez ilçe)
+C0008,1,Adana,POZANTI,37.4278,34.8717,İlçe merkezi
+C0009,1,Adana,SARIÇAM,37.1517,35.5077,İlçe merkezi
+C0010,1,Adana,SAİMBEYLİ,37.9863,36.0906,İlçe merkezi
+C0011,1,Adana,SEYHAN,36.9875,35.3059,İlçe merkezi
+C0012,1,Adana,TUFANBEYLİ,38.2633,36.2206,İlçe merkezi
+C0013,1,Adana,YUMURTALIK,36.7667,35.7833,İlçe merkezi
+C0014,1,Adana,YÜREĞİR,36.9744,35.3592,İlçe merkezi
+C0015,1,Adana,ÇUKUROVA,37.1006603,35.153311675887,İlçe merkezi (düşük doğruluk listesinde)
+C0016,1,Adana,İMAMOĞLU,37.2651,35.6572,İlçe merkezi
+C0017,2,Adıyaman,BESNİ,37.6928,37.8611,İlçe merkezi
+C0018,2,Adıyaman,GERGER,38.0281,39.0342,İlçe merkezi
+C0019,2,Adıyaman,GÖLBAŞI,37.7836,37.6367,İlçe merkezi
+C0020,2,Adıyaman,KAHTA,37.80003365,38.7057911640988,İlçe merkezi (düşük doğruluk listesinde)
+C0021,2,Adıyaman,MERKEZ,37.7640008,38.2764355,İlçe merkezi (düşük doğruluk listesinde)
+C0022,2,Adıyaman,SAMSAT,37.5795,38.4813,İlçe merkezi
+C0023,2,Adıyaman,SİNCİK,38.0365,38.6126,İlçe merkezi
+C0024,2,Adıyaman,TUT,37.7953,37.9161,İlçe merkezi
+C0025,2,Adıyaman,ÇELİKHAN,38.0256,38.2367,İlçe merkezi
+C0026,3,Afyonkarahisar,BAYAT,38.9831,30.9247,İlçe merkezi
+C0027,3,Afyonkarahisar,BAŞMAKÇI,37.8972,30.0117,İlçe merkezi
+C0028,3,Afyonkarahisar,BOLVADİN,38.7111,31.0486,İlçe merkezi
+C0029,3,Afyonkarahisar,DAZKIRI,37.9186,29.8606,İlçe merkezi
+C0030,3,Afyonkarahisar,DİNAR,38.0717,30.1656,İlçe merkezi
+C0031,3,Afyonkarahisar,EMİRDAĞ,39.0197,31.15,İlçe merkezi
+C0032,3,Afyonkarahisar,EVCİLER,38.0414,29.8867,İlçe merkezi
+C0033,3,Afyonkarahisar,HOCALAR,38.5782,29.9677,İlçe merkezi
+C0034,3,Afyonkarahisar,KIZILÖREN,38.2581,30.1517,İlçe merkezi
+C0035,3,Afyonkarahisar,MERKEZ,38.7568509,30.5386944,İlçe merkezi (düşük doğruluk listesinde)
+C0036,3,Afyonkarahisar,SANDIKLI,38.4647,30.2695,İlçe merkezi
+C0037,3,Afyonkarahisar,SULTANDAĞI,38.5333,31.2333,İlçe merkezi
+C0038,3,Afyonkarahisar,SİNANPAŞA,38.7444,30.2428,İlçe merkezi
+C0039,3,Afyonkarahisar,ÇAY,38.5917,31.0286,İlçe merkezi
+C0040,3,Afyonkarahisar,ÇOBANLAR,38.7014,30.7828,İlçe merkezi
+C0041,3,Afyonkarahisar,İHSANİYE,39.0292,30.4164,İlçe merkezi
+C0042,3,Afyonkarahisar,İSCEHİSAR,38.8619,30.7503,İlçe merkezi
+C0043,3,Afyonkarahisar,ŞUHUT,38.5311,30.5458,İlçe merkezi
+C0044,4,Ağrı,DOĞUBAYAZIT,39.55,44.0833,İlçe merkezi
+C0045,4,Ağrı,DİYADİN,39.5406,43.6713,İlçe merkezi
+C0046,4,Ağrı,ELEŞKİRT,39.798,42.6757,İlçe merkezi
+C0047,4,Ağrı,HAMUR,39.6056,42.985,İlçe merkezi
+C0048,4,Ağrı,MERKEZ,39.7201318,43.0500388,İlçe merkezi (düşük doğruluk listesinde)
+C0049,4,Ağrı,PATNOS,39.2358,42.8686,İlçe merkezi
+C0050,4,Ağrı,TAŞLIÇAY,39.6297,43.3688,İlçe merkezi
+C0051,4,Ağrı,TUTAK,39.5385,42.7659,İlçe merkezi
+C0052,5,Amasya,GÖYNÜCEK,40.3992,35.525,İlçe merkezi
+C0053,5,Amasya,GÜMÜŞHACIKÖY,40.9253,35.2347,İlçe merkezi
+C0054,5,Amasya,HAMAMÖZÜ,40.7848,35.0258,İlçe merkezi
+C0055,5,Amasya,MERKEZ,40.6503248,35.8329148,İlçe merkezi (düşük doğruluk listesinde)
+C0056,5,Amasya,MERZİFON,40.8733,35.4631,İlçe merkezi
+C0057,5,Amasya,SULUOVA,40.8313,35.6479,İlçe merkezi
+C0058,5,Amasya,TAŞOVA,40.7597,36.3225,İlçe merkezi
+C0059,6,Ankara,AKYURT,40.1313,33.0907,İlçe merkezi
+C0060,6,Ankara,ALTINDAĞ,39.9477,32.8639,İlçe merkezi
+C0061,6,Ankara,AYAŞ,40.0154,32.3325,İlçe merkezi
+C0062,6,Ankara,BALA,39.5542,33.1234,İlçe merkezi
+C0063,6,Ankara,BEYPAZARI,40.1703,31.9211,İlçe merkezi
+C0064,6,Ankara,ELMADAĞ,39.9208,33.2308,İlçe merkezi
+C0065,6,Ankara,ETİMESGUT,39.9533,32.6328,İlçe merkezi
+C0066,6,Ankara,EVREN,39.024,33.8063,İlçe merkezi
+C0067,6,Ankara,GÖLBAŞI,39.7904,32.809,İlçe merkezi
+C0068,6,Ankara,GÜDÜL,40.21,32.2432,İlçe merkezi
+C0069,6,Ankara,HAYMANA,39.4311,32.4956,İlçe merkezi
+C0070,6,Ankara,KAHRAMANKAZAN,40.1863626,32.6627332521215,İlçe merkezi (düşük doğruluk listesinde)
+C0071,6,Ankara,KALECİK,40.0972,33.4083,İlçe merkezi
+C0072,6,Ankara,KEÇİÖREN,40.0067,32.8562,İlçe merkezi
+C0073,6,Ankara,KIZILCAHAMAM,40.4697,32.6506,İlçe merkezi
+C0074,6,Ankara,MAMAK,39.9404,32.9101,İlçe merkezi
+C0075,6,Ankara,MERKEZ,39.93,32.85,İl merkezi (merkez ilçe)
+C0076,6,Ankara,NALLIHAN,40.1859,31.3508,İlçe merkezi
+C0077,6,Ankara,POLATLI,39.5842,32.1472,İlçe merkezi
+C0078,6,Ankara,PURSAKLAR,40.032,32.8953,İlçe merkezi
+C0079,6,Ankara,SİNCAN,39.9723,32.5841,İlçe merkezi
+C0080,6,Ankara,YENİMAHALLE,39.9583,32.7552,İlçe merkezi
+C0081,6,Ankara,ÇAMLIDERE,40.4896,32.475,İlçe merkezi
+C0082,6,Ankara,ÇANKAYA,39.8875,32.8567,İlçe merkezi
+C0083,6,Ankara,ÇUBUK,40.2386,33.0322,İlçe merkezi
+C0084,6,Ankara,ŞEREFLİKOÇHİSAR,38.9451,33.543,İlçe merkezi
+C0085,7,Antalya,AKSEKİ,37.0486,31.79,İlçe merkezi
+C0086,7,Antalya,AKSU,36.9539,30.8478,İlçe merkezi
+C0087,7,Antalya,ALANYA,36.5436,31.9997,İlçe merkezi
+C0088,7,Antalya,DEMRE,36.2444,29.985,İlçe merkezi
+C0089,7,Antalya,DÖŞEMEALTI,37.0233,30.6025,İlçe merkezi
+C0090,7,Antalya,ELMALI,36.7358,29.9178,İlçe merkezi
+C0091,7,Antalya,FİNİKE,36.3,30.15,İlçe merkezi
+C0092,7,Antalya,GAZİPAŞA,36.2694,32.3179,İlçe merkezi
+C0093,7,Antalya,GÜNDOĞMUŞ,36.8134,31.9997,İlçe merkezi
+C0094,7,Antalya,KAŞ,36.2018,29.6377,İlçe merkezi
+C0095,7,Antalya,KEMER,36.6,30.55,İlçe merkezi
+C0096,7,Antalya,KEPEZ,37.02472655,30.7133392156824,İlçe merkezi (düşük doğruluk listesinde)
+C0097,7,Antalya,KONYAALTI,36.81368565,30.4645535825381,İlçe merkezi (düşük doğruluk listesinde)
+C0098,7,Antalya,KORKUTELİ,37.065,30.1956,İlçe merkezi
+C0099,7,Antalya,KUMLUCA,36.3703,30.2869,İlçe merkezi
+C0100,7,Antalya,MANAVGAT,36.7867,31.4431,İlçe merkezi
+C0101,7,Antalya,MERKEZ,36.9081,30.6956,İl merkezi (merkez ilçe)
+C0102,7,Antalya,MURATPAŞA,36.88743095,30.7455866722664,İlçe merkezi (düşük doğruluk listesinde)
+C0103,7,Antalya,SERİK,36.9169,31.0989,İlçe merkezi
+C0104,7,Antalya,İBRADI,37.0969,31.5992,İlçe merkezi
+C0105,8,Artvin,ARDANUÇ,41.1233,42.0647,İlçe merkezi
+C0106,8,Artvin,ARHAVİ,41.3531,41.31,İlçe merkezi
+C0107,8,Artvin,BORÇKA,41.3579,41.6658,İlçe merkezi
+C0108,8,Artvin,HOPA,41.396,41.422,İlçe merkezi
+C0109,8,Artvin,KEMALPAŞA,41.4784,41.515,İlçe merkezi
+C0110,8,Artvin,MERKEZ,41.1830811,41.8287448,İlçe merkezi (düşük doğruluk listesinde)
+C0111,8,Artvin,MURGUL,41.2794,41.5551,İlçe merkezi
+C0112,8,Artvin,YUSUFELİ,40.8204,41.5374,İlçe merkezi
+C0113,8,Artvin,ŞAVŞAT,41.2534,42.3553,İlçe merkezi
+C0114,9,Aydın,BOZDOĞAN,37.6713,28.314,İlçe merkezi
+C0115,9,Aydın,BUHARKENT,37.964,28.7427,İlçe merkezi
+C0116,9,Aydın,DİDİM,37.3756,27.2678,İlçe merkezi
+C0117,9,Aydın,EFELER,37.8523511,27.8777022092698,İlçe merkezi (düşük doğruluk listesinde)
+C0118,9,Aydın,GERMENCİK,37.8706,27.6028,İlçe merkezi
+C0119,9,Aydın,KARACASU,37.7282,28.6057,İlçe merkezi
+C0120,9,Aydın,KARPUZLU,37.5586,27.8353,İlçe merkezi
+C0121,9,Aydın,KOÇARLI,37.7611,27.7058,İlçe merkezi
+C0122,9,Aydın,KUYUCAK,37.9133,28.4592,İlçe merkezi
+C0123,9,Aydın,KUŞADASI,37.78086685,27.3128662688803,İlçe merkezi (düşük doğruluk listesinde)
+C0124,9,Aydın,KÖŞK,37.8533,28.0517,İlçe merkezi
+C0125,9,Aydın,MERKEZ,37.8481,27.8453,İl merkezi (merkez ilçe)
+C0126,9,Aydın,NAZİLLİ,37.9125,28.3206,İlçe merkezi
+C0127,9,Aydın,SULTANHİSAR,37.8897,28.1575,İlçe merkezi
+C0128,9,Aydın,SÖKE,37.7512,27.4103,İlçe merkezi
+C0129,9,Aydın,YENİPAZAR,37.8242,28.1972,İlçe merkezi
+C0130,9,Aydın,ÇİNE,37.6117,28.0614,İlçe merkezi
+C0131,9,Aydın,İNCİRLİOVA,37.8522,27.7236,İlçe merkezi
+C0132,10,Balıkesir,ALTIEYLÜL,39.5601111,27.8307478679131,İlçe merkezi (düşük doğruluk listesinde)
+C0133,10,Balıkesir,AYVALIK,39.319,26.6954,İlçe merkezi
+C0134,10,Balıkesir,BALYA,39.7486,27.5789,İlçe merkezi
+C0135,10,Balıkesir,BANDIRMA,40.3542,27.9725,İlçe merkezi
+C0136,10,Balıkesir,BURHANİYE,39.5004,26.9727,İlçe merkezi
+C0137,10,Balıkesir,BİGADİÇ,39.3925,28.1311,İlçe merkezi
+C0138,10,Balıkesir,DURSUNBEY,39.586,28.6257,İlçe merkezi
+C0139,10,Balıkesir,EDREMİT,39.5961,27.0244,İlçe merkezi
+C0140,10,Balıkesir,ERDEK,40.3996,27.7935,İlçe merkezi
+C0141,10,Balıkesir,GÖMEÇ,39.3902,26.8413,İlçe merkezi
+C0142,10,Balıkesir,GÖNEN,40.1049,27.654,İlçe merkezi
+C0143,10,Balıkesir,HAVRAN,39.5583,27.0983,İlçe merkezi
+C0144,10,Balıkesir,KARESİ,39.79403785,27.8900425569249,İlçe merkezi (düşük doğruluk listesinde)
+C0145,10,Balıkesir,KEPSUT,39.6889,28.1522,İlçe merkezi
+C0146,10,Balıkesir,MANYAS,40.0464,27.97,İlçe merkezi
+C0147,10,Balıkesir,MARMARA,40.5863,27.5554,İlçe merkezi
+C0148,10,Balıkesir,MERKEZ,39.6511,27.8842,İl merkezi (merkez ilçe)
+C0149,10,Balıkesir,SAVAŞTEPE,39.3832,27.6561,İlçe merkezi
+C0150,10,Balıkesir,SINDIRGI,39.2413,28.1784,İlçe merkezi
+C0151,10,Balıkesir,SUSURLUK,39.9136,28.1578,İlçe merkezi
+C0152,10,Balıkesir,İVRİNDİ,39.5839,27.4864,İlçe merkezi
+C0153,11,Bilecik,BOZÜYÜK,39.9078,30.0367,İlçe merkezi
+C0154,11,Bilecik,GÖLPAZARI,40.2847,30.3172,İlçe merkezi
+C0155,11,Bilecik,MERKEZ,40.1435101,29.9752911,İlçe merkezi (düşük doğruluk listesinde)
+C0156,11,Bilecik,OSMANELİ,40.3572,30.0142,İlçe merkezi
+C0157,11,Bilecik,PAZARYERİ,39.9939,29.9042,İlçe merkezi
+C0158,11,Bilecik,SÖĞÜT,40.0143,30.1849,İlçe merkezi
+C0159,11,Bilecik,YENİPAZAR,40.1783,30.52,İlçe merkezi
+C0160,11,Bilecik,İNHİSAR,40.0493,30.3852,İlçe merkezi
+C0161,12,Bingöl,ADAKLI,39.2262,40.4828,İlçe merkezi
+C0162,12,Bingöl,GENÇ,38.7477,40.5534,İlçe merkezi
+C0163,12,Bingöl,KARLIOVA,39.2904,41.0059,İlçe merkezi
+C0164,12,Bingöl,KİĞI,39.3136,40.3503,İlçe merkezi
+C0165,12,Bingöl,MERKEZ,38.8851831,40.4965998,İlçe merkezi (düşük doğruluk listesinde)
+C0166,12,Bingöl,SOLHAN,38.9652,41.0544,İlçe merkezi
+C0167,12,Bingöl,YAYLADERE,39.20430745,40.1008347071287,İlçe merkezi (düşük doğruluk listesinde)
+C0168,12,Bingöl,YEDİSU,39.4328,40.5337,İlçe merkezi
+C0169,13,Bitlis,ADİLCEVAZ,38.7991,42.7316,İlçe merkezi
+C0170,13,Bitlis,AHLAT,38.7489,42.4801,İlçe merkezi
+C0171,13,Bitlis,GÜROYMAK,38.5758,42.0156,İlçe merkezi
+C0172,13,Bitlis,HİZAN,38.225,42.4183,İlçe merkezi
+C0173,13,Bitlis,MERKEZ,38.4002185,42.1081317,İlçe merkezi (düşük doğruluk listesinde)
+C0174,13,Bitlis,MUTKİ,38.4062,41.9202,İlçe merkezi
+C0175,13,Bitlis,TATVAN,38.5066,42.2816,İlçe merkezi
+C0176,14,Bolu,DÖRTDİVAN,40.7205,32.0631,İlçe merkezi
+C0177,14,Bolu,GEREDE,40.8008,32.1969,İlçe merkezi
+C0178,14,Bolu,GÖYNÜK,40.4003,30.7883,İlçe merkezi
+C0179,14,Bolu,KIBRISCIK,40.4078,31.8519,İlçe merkezi
+C0180,14,Bolu,MENGEN,40.9388,32.0764,İlçe merkezi
+C0181,14,Bolu,MERKEZ,40.7345276,31.6156658,İlçe merkezi (düşük doğruluk listesinde)
+C0182,14,Bolu,MUDURNU,40.473,31.2076,İlçe merkezi
+C0183,14,Bolu,SEBEN,40.4113,31.5736,İlçe merkezi
+C0184,14,Bolu,YENİÇAĞA,40.7711,32.0337,İlçe merkezi
+C0185,15,Burdur,ALTINYAYLA,36.9972,29.5458,İlçe merkezi
+C0186,15,Burdur,AĞLASUN,37.6494,30.5342,İlçe merkezi
+C0187,15,Burdur,BUCAK,37.4592,30.595,İlçe merkezi
+C0188,15,Burdur,GÖLHİSAR,37.1459,29.5088,İlçe merkezi
+C0189,15,Burdur,KARAMANLI,37.373,29.8231,İlçe merkezi
+C0190,15,Burdur,KEMER,37.3522,30.0631,İlçe merkezi
+C0191,15,Burdur,MERKEZ,37.7248394,30.2887286,İlçe merkezi (düşük doğruluk listesinde)
+C0192,15,Burdur,TEFENNİ,37.3097,29.7754,İlçe merkezi
+C0193,15,Burdur,YEŞİLOVA,37.5081,29.7547,İlçe merkezi
+C0194,15,Burdur,ÇAVDIR,37.155,29.6939,İlçe merkezi
+C0195,15,Burdur,ÇELTİKÇİ,37.5295,30.4803,İlçe merkezi
+C0196,16,Bursa,BÜYÜKORHAN,39.771,28.8861,İlçe merkezi
+C0197,16,Bursa,GEMLİK,40.4309,29.1597,İlçe merkezi
+C0198,16,Bursa,GÜRSU,40.2188,29.1949,İlçe merkezi
+C0199,16,Bursa,HARMANCIK,39.6761,29.1553,İlçe merkezi
+C0200,16,Bursa,KARACABEY,40.2132,28.3612,İlçe merkezi
+C0201,16,Bursa,KELES,39.9136,29.2294,İlçe merkezi
+C0202,16,Bursa,KESTEL,40.1983,29.2124,İlçe merkezi
+C0203,16,Bursa,MERKEZ,40.1833,29.0667,İl merkezi (merkez ilçe)
+C0204,16,Bursa,MUDANYA,40.3753,28.8822,İlçe merkezi
+C0205,16,Bursa,MUSTAFAKEMALPAŞA,40.0382,28.4087,İlçe merkezi
+C0206,16,Bursa,NİLÜFER,40.2843,28.9504,İlçe merkezi
+C0207,16,Bursa,ORHANELİ,39.9033,28.9906,İlçe merkezi
+C0208,16,Bursa,ORHANGAZİ,40.4892,29.3089,İlçe merkezi
+C0209,16,Bursa,OSMANGAZİ,40.2259,29.0439,İlçe merkezi
+C0210,16,Bursa,YENİŞEHİR,40.2644,29.6531,İlçe merkezi
+C0211,16,Bursa,YILDIRIM,40.2112,29.1391,İlçe merkezi
+C0212,16,Bursa,İNEGÖL,40.0806,29.5097,İlçe merkezi
+C0213,16,Bursa,İZNİK,40.4286,29.7211,İlçe merkezi
+C0214,17,Çanakkale,AYVACIK,39.6011,26.4047,İlçe merkezi
+C0215,17,Çanakkale,BAYRAMİÇ,39.8086,26.6098,İlçe merkezi
+C0216,17,Çanakkale,BOZCAADA,39.835,26.0697,İlçe merkezi
+C0217,17,Çanakkale,BİGA,40.2281,27.2422,İlçe merkezi
+C0218,17,Çanakkale,ECEABAT,40.1842,26.3575,İlçe merkezi
+C0219,17,Çanakkale,EZİNE,39.7856,26.3408,İlçe merkezi
+C0220,17,Çanakkale,GELİBOLU,40.5177489,26.7887445898693,İlçe merkezi (düşük doğruluk listesinde)
+C0221,17,Çanakkale,GÖKÇEADA,40.2011,25.909,İlçe merkezi
+C0222,17,Çanakkale,LAPSEKİ,40.3442,26.6856,İlçe merkezi
+C0223,17,Çanakkale,MERKEZ,40.1534952,26.4140933,İlçe merkezi (düşük doğruluk listesinde)
+C0224,17,Çanakkale,YENİCE,39.9308,27.2581,İlçe merkezi
+C0225,17,Çanakkale,ÇAN,40.0333,27.05,İlçe merkezi
+C0226,18,Çankırı,ATKARACALAR,40.8159,33.0756,İlçe merkezi
+C0227,18,Çankırı,BAYRAMÖREN,40.9433,33.203,İlçe merkezi
+C0228,18,Çankırı,ELDİVAN,40.5297,33.499,İlçe merkezi
+C0229,18,Çankırı,ILGAZ,40.9251,33.6259,İlçe merkezi
+C0230,18,Çankırı,KIZILIRMAK,40.3456,33.9864,İlçe merkezi
+C0231,18,Çankırı,KORGUN,40.7348,33.5184,İlçe merkezi
+C0232,18,Çankırı,KURŞUNLU,40.841,33.2603,İlçe merkezi
+C0233,18,Çankırı,MERKEZ,40.5959686,33.6148429,İlçe merkezi (düşük doğruluk listesinde)
+C0234,18,Çankırı,ORTA,40.6242,33.1093,İlçe merkezi
+C0235,18,Çankırı,YAPRAKLI,40.7579,33.7782,İlçe merkezi
+C0236,18,Çankırı,ÇERKEŞ,40.8116,32.8936,İlçe merkezi
+C0237,18,Çankırı,ŞABANÖZÜ,40.4825,33.2835,İlçe merkezi
+C0238,19,Çorum,ALACA,40.1683,34.8425,İlçe merkezi
+C0239,19,Çorum,BAYAT,40.646,34.261,İlçe merkezi
+C0240,19,Çorum,BOĞAZKALE,40.0219,34.6095,İlçe merkezi
+C0241,19,Çorum,DODURGA,40.8549,34.807,İlçe merkezi
+C0242,19,Çorum,KARGI,41.1337,34.4874,İlçe merkezi
+C0243,19,Çorum,LAÇİN,40.7749,34.8807,İlçe merkezi
+C0244,19,Çorum,MECİTÖZÜ,40.52,35.2953,İlçe merkezi
+C0245,19,Çorum,MERKEZ,40.5491496,34.9602453,İlçe merkezi (düşük doğruluk listesinde)
+C0246,19,Çorum,ORTAKÖY,40.2735,35.2517,İlçe merkezi
+C0247,19,Çorum,OSMANCIK,40.9782,34.8047,İlçe merkezi
+C0248,19,Çorum,OĞUZLAR,40.7535,34.7027,İlçe merkezi
+C0249,19,Çorum,SUNGURLU,40.1675,34.3739,İlçe merkezi
+C0250,19,Çorum,UĞURLUDAĞ,40.4463,34.4526,İlçe merkezi
+C0251,19,Çorum,İSKİLİP,40.7353,34.4739,İlçe merkezi
+C0252,20,Denizli,ACIPAYAM,37.4239,29.3494,İlçe merkezi
+C0253,20,Denizli,BABADAĞ,37.8076,28.8567,İlçe merkezi
+C0254,20,Denizli,BAKLAN,37.9769,29.6086,İlçe merkezi
+C0255,20,Denizli,BEKİLLİ,38.2311,29.4197,İlçe merkezi
+C0256,20,Denizli,BEYAĞAÇ,37.2353,28.8961,İlçe merkezi
+C0257,20,Denizli,BOZKURT,37.8242,29.6097,İlçe merkezi
+C0258,20,Denizli,BULDAN,38.045,28.8306,İlçe merkezi
+C0259,20,Denizli,GÜNEY,38.1544,29.0678,İlçe merkezi
+C0260,20,Denizli,HONAZ,37.7573,29.27,İlçe merkezi
+C0261,20,Denizli,KALE,37.4392,28.8453,İlçe merkezi
+C0262,20,Denizli,MERKEZ,37.7731,29.0878,İl merkezi (merkez ilçe)
+C0263,20,Denizli,MERKEZEFENDİ,37.7918205,29.0666541,İlçe merkezi (düşük doğruluk listesinde)
+C0264,20,Denizli,PAMUKKALE,37.9164906,29.1193081,İlçe merkezi (düşük doğruluk listesinde)
+C0265,20,Denizli,SARAYKÖY,37.9245,28.9252,İlçe merkezi
+C0266,20,Denizli,SERİNHİSAR,37.581,29.2664,İlçe merkezi
+C0267,20,Denizli,TAVAS,37.5735,29.0706,İlçe merkezi
+C0268,20,Denizli,ÇAL,38.0836,29.3989,İlçe merkezi
+C0269,20,Denizli,ÇAMELİ,37.0761,29.3447,İlçe merkezi
+C0270,20,Denizli,ÇARDAK,37.8269,29.6683,İlçe merkezi
+C0271,20,Denizli,ÇİVRİL,38.3014,29.7386,İlçe merkezi
+C0272,21,Diyarbakır,BAĞLAR,37.9137,40.2058,İlçe merkezi
+C0273,21,Diyarbakır,BİSMİL,37.8451,40.6593,İlçe merkezi
+C0274,21,Diyarbakır,DİCLE,38.3657,40.0645,İlçe merkezi
+C0275,21,Diyarbakır,ERGANİ,38.269,39.7545,İlçe merkezi
+C0276,21,Diyarbakır,EĞİL,38.2575,40.0744,İlçe merkezi
+C0277,21,Diyarbakır,HANİ,38.4074,40.3858,İlçe merkezi
+C0278,21,Diyarbakır,HAZRO,38.249,40.7713,İlçe merkezi
+C0279,21,Diyarbakır,KAYAPINAR,37.9373,40.1776,İlçe merkezi
+C0280,21,Diyarbakır,KOCAKÖY,38.2889,40.4979,İlçe merkezi
+C0281,21,Diyarbakır,KULP,38.4975,41.0067,İlçe merkezi
+C0282,21,Diyarbakır,LİCE,38.4549,40.6519,İlçe merkezi
+C0283,21,Diyarbakır,MERKEZ,37.9108,40.2367,İl merkezi (merkez ilçe)
+C0284,21,Diyarbakır,SUR,37.9135,40.2286,İlçe merkezi
+C0285,21,Diyarbakır,SİLVAN,38.1371,41.0082,İlçe merkezi
+C0286,21,Diyarbakır,YENİŞEHİR,37.9415,40.138,İlçe merkezi
+C0287,21,Diyarbakır,ÇERMİK,38.1354,39.445,İlçe merkezi
+C0288,21,Diyarbakır,ÇINAR,37.7256,40.4147,İlçe merkezi
+C0289,21,Diyarbakır,ÇÜNGÜŞ,38.2122,39.2884,İlçe merkezi
+C0290,22,Edirne,ENEZ,40.7247,26.0825,İlçe merkezi
+C0291,22,Edirne,HAVSA,41.549,26.8221,İlçe merkezi
+C0292,22,Edirne,KEŞAN,40.8558,26.6303,İlçe merkezi
+C0293,22,Edirne,LALAPAŞA,41.87973635,26.7690452506796,İlçe merkezi (düşük doğruluk listesinde)
+C0294,22,Edirne,MERKEZ,41.6759327,26.5587225,İlçe merkezi (düşük doğruluk listesinde)
+C0295,22,Edirne,MERİÇ,41.1918,26.421,İlçe merkezi
+C0296,22,Edirne,SÜLOĞLU,41.769,26.91,İlçe merkezi
+C0297,22,Edirne,UZUNKÖPRÜ,41.2669,26.6875,İlçe merkezi
+C0298,22,Edirne,İPSALA,40.9181,26.3831,İlçe merkezi
+C0299,23,Elazığ,ALACAKAYA,38.47460365,39.8343083897187,İlçe merkezi (düşük doğruluk listesinde)
+C0300,23,Elazığ,ARICAK,38.5634,40.1248,İlçe merkezi
+C0301,23,Elazığ,AĞIN,38.9379,38.7116,İlçe merkezi
+C0302,23,Elazığ,BASKİL,38.5687,38.8163,İlçe merkezi
+C0303,23,Elazığ,KARAKOÇAN,38.95,40.0333,İlçe merkezi
+C0304,23,Elazığ,KEBAN,38.7938,38.7352,İlçe merkezi
+C0305,23,Elazığ,KOVANCILAR,38.7188,39.8627,İlçe merkezi
+C0306,23,Elazığ,MADEN,38.3867,39.6641,İlçe merkezi
+C0307,23,Elazığ,MERKEZ,38.676303,39.221849,İlçe merkezi (düşük doğruluk listesinde)
+C0308,23,Elazığ,PALU,38.6914,39.9198,İlçe merkezi
+C0309,23,Elazığ,SİVRİCE,38.4422,39.3094,İlçe merkezi
+C0310,24,Erzincan,KEMAH,39.5961,39.0233,İlçe merkezi
+C0311,24,Erzincan,KEMALİYE,39.2629,38.4967,İlçe merkezi
+C0312,24,Erzincan,MERKEZ,39.7496052,39.4941023,İlçe merkezi (düşük doğruluk listesinde)
+C0313,24,Erzincan,OTLUKBELİ,39.97,40.0187,İlçe merkezi
+C0314,24,Erzincan,REFAHİYE,39.8932,38.7661,İlçe merkezi
+C0315,24,Erzincan,TERCAN,39.7771,40.3778,İlçe merkezi
+C0316,24,Erzincan,ÇAYIRLI,39.8077,40.028,İlçe merkezi
+C0317,24,Erzincan,ÜZÜMLÜ,39.7095,39.7002,İlçe merkezi
+C0318,24,Erzincan,İLİÇ,39.4511,38.5584,İlçe merkezi
+C0319,25,Erzurum,AZİZİYE,40.07724105,40.984545744953,İlçe merkezi (düşük doğruluk listesinde)
+C0320,25,Erzurum,AŞKALE,39.9172,40.6848,İlçe merkezi
+C0321,25,Erzurum,HINIS,39.3577,41.6925,İlçe merkezi
+C0322,25,Erzurum,HORASAN,40.0388,42.1637,İlçe merkezi
+C0323,25,Erzurum,KARAYAZI,39.696,42.1428,İlçe merkezi
+C0324,25,Erzurum,KARAÇOBAN,39.3436,42.0992,İlçe merkezi
+C0325,25,Erzurum,KÖPRÜKÖY,39.966,41.8684,İlçe merkezi
+C0326,25,Erzurum,MERKEZ,39.9097,41.2756,İl merkezi (merkez ilçe)
+C0327,25,Erzurum,NARMAN,40.3445,41.8609,İlçe merkezi
+C0328,25,Erzurum,OLTU,40.5394,41.9872,İlçe merkezi
+C0329,25,Erzurum,OLUR,40.8216,42.1306,İlçe merkezi
+C0330,25,Erzurum,PALANDÖKEN,39.889,41.2805,İlçe merkezi
+C0331,25,Erzurum,PASİNLER,39.9797,41.67,İlçe merkezi
+C0332,25,Erzurum,PAZARYOLU,40.4114,40.7678,İlçe merkezi
+C0333,25,Erzurum,TEKMAN,39.6411,41.5054,İlçe merkezi
+C0334,25,Erzurum,TORTUM,40.2889,41.541,İlçe merkezi
+C0335,25,Erzurum,UZUNDERE,40.5322,41.5383,İlçe merkezi
+C0336,25,Erzurum,YAKUTİYE,39.8982,41.2692,İlçe merkezi
+C0337,25,Erzurum,ÇAT,39.6064,40.9684,İlçe merkezi
+C0338,25,Erzurum,İSPİR,40.4798,40.9937,İlçe merkezi
+C0339,25,Erzurum,ŞENKAYA,40.5565,42.3427,İlçe merkezi
+C0340,26,Eskişehir,ALPU,39.769,30.9606,İlçe merkezi
+C0341,26,Eskişehir,BEYLİKOVA,39.6869,31.2056,İlçe merkezi
+C0342,26,Eskişehir,GÜNYÜZÜ,39.3834,31.8099,İlçe merkezi
+C0343,26,Eskişehir,HAN,39.1592,30.8614,İlçe merkezi
+C0344,26,Eskişehir,MAHMUDİYE,39.4978,30.9872,İlçe merkezi
+C0345,26,Eskişehir,MERKEZ,39.7767,30.5206,İl merkezi (merkez ilçe)
+C0346,26,Eskişehir,MİHALGAZİ,40.0262,30.5771,İlçe merkezi
+C0347,26,Eskişehir,MİHALIÇÇIK,39.8458973,31.5813919691274,İlçe merkezi (düşük doğruluk listesinde)
+C0348,26,Eskişehir,ODUNPAZARI,39.63286515,30.5474008598018,İlçe merkezi (düşük doğruluk listesinde)
+C0349,26,Eskişehir,SARICAKAYA,40.0369,30.6267,İlçe merkezi
+C0350,26,Eskişehir,SEYİTGAZİ,39.4447,30.6947,İlçe merkezi
+C0351,26,Eskişehir,SİVRİHİSAR,39.4504,31.5341,İlçe merkezi
+C0352,26,Eskişehir,TEPEBAŞI,39.8343146,30.5653649543023,İlçe merkezi (düşük doğruluk listesinde)
+C0353,26,Eskişehir,ÇİFTELER,39.3831,31.0392,İlçe merkezi
+C0354,26,Eskişehir,İNÖNÜ,39.8153,30.1455,İlçe merkezi
+C0355,27,Gaziantep,ARABAN,37.4267,37.689,İlçe merkezi
+C0356,27,Gaziantep,KARKAMIŞ,36.8345,37.9983,İlçe merkezi
+C0357,27,Gaziantep,MERKEZ,37.0667,37.3833,İl merkezi (merkez ilçe)
+C0358,27,Gaziantep,NURDAĞI,37.1682,36.7362,İlçe merkezi
+C0359,27,Gaziantep,NİZİP,37.0104,37.7985,İlçe merkezi
+C0360,27,Gaziantep,OĞUZELİ,36.9657,37.5134,İlçe merkezi
+C0361,27,Gaziantep,YAVUZELİ,37.3177,37.5682,İlçe merkezi
+C0362,27,Gaziantep,İSLAHİYE,37.0264,36.6322,İlçe merkezi
+C0363,27,Gaziantep,ŞAHİNBEY,37.0484,37.3437,İlçe merkezi
+C0364,27,Gaziantep,ŞEHİTKAMİL,37.0796,37.38,İlçe merkezi
+C0365,28,Giresun,ALUCRA,40.3166,38.7528,İlçe merkezi
+C0366,28,Giresun,BULANCAK,40.938,38.2315,İlçe merkezi
+C0367,28,Giresun,DERELİ,40.7389,38.4434,İlçe merkezi
+C0368,28,Giresun,DOĞANKENT,40.8075,38.9172,İlçe merkezi
+C0369,28,Giresun,ESPİYE,40.947,38.703,İlçe merkezi
+C0370,28,Giresun,EYNESİL,41.05,39.1333,İlçe merkezi
+C0371,28,Giresun,GÖRELE,41.0308,39.0031,İlçe merkezi
+C0372,28,Giresun,GÜCE,40.8932,38.7982,İlçe merkezi
+C0373,28,Giresun,KEŞAP,40.9103,38.5013,İlçe merkezi
+C0374,28,Giresun,MERKEZ,40.9148702,38.3879289,İlçe merkezi (düşük doğruluk listesinde)
+C0375,28,Giresun,PİRAZİZ,40.8723371,38.081499089228,İlçe merkezi (düşük doğruluk listesinde)
+C0376,28,Giresun,TİREBOLU,41.0069,38.8139,İlçe merkezi
+C0377,28,Giresun,YAĞLIDERE,40.8567,38.6203,İlçe merkezi
+C0378,28,Giresun,ÇAMOLUK,40.1273,38.7301,İlçe merkezi
+C0379,28,Giresun,ÇANAKÇI,40.9114,38.9881,İlçe merkezi
+C0380,28,Giresun,ŞEBİNKARAHİSAR,40.31093015,38.4108834610838,İlçe merkezi (düşük doğruluk listesinde)
+C0381,29,Gümüşhane,KELKİT,40.1268,39.4342,İlçe merkezi
+C0382,29,Gümüşhane,KÖSE,40.2069,39.6463,İlçe merkezi
+C0383,29,Gümüşhane,KÜRTÜN,40.6952,39.0947,İlçe merkezi
+C0384,29,Gümüşhane,MERKEZ,40.4617844,39.4757339,İlçe merkezi (düşük doğruluk listesinde)
+C0385,29,Gümüşhane,TORUL,40.5507,39.2834,İlçe merkezi
+C0386,29,Gümüşhane,ŞİRAN,40.1906,39.1175,İlçe merkezi
+C0387,30,Hakkari,DERECİK,37.5744,43.7408,İl merkezi (ilçe eşleşmedi)
+C0388,30,Hakkari,MERKEZ,37.574898,43.73766,İlçe merkezi (düşük doğruluk listesinde)
+C0389,30,Hakkari,YÜKSEKOVA,37.5149205,44.2912137311366,İlçe merkezi (düşük doğruluk listesinde)
+C0390,30,Hakkari,ÇUKURCA,37.35185055,43.7204329270408,İlçe merkezi (düşük doğruluk listesinde)
+C0391,30,Hakkari,ŞEMDİNLİ,37.2164353,44.5149319790323,İlçe merkezi (düşük doğruluk listesinde)
+C0392,31,Hatay,ALTINÖZÜ,36.1155,36.2483,İlçe merkezi
+C0393,31,Hatay,ANTAKYA,36.2176872,36.1653617,İlçe merkezi (düşük doğruluk listesinde)
+C0394,31,Hatay,ARSUZ,36.4131,35.8903,İlçe merkezi
+C0395,31,Hatay,BELEN,36.4917,36.1917,İlçe merkezi
+C0396,31,Hatay,DEFNE,36.1488751,36.1236345192122,İlçe merkezi (düşük doğruluk listesinde)
+C0397,31,Hatay,DÖRTYOL,36.8392,36.2303,İlçe merkezi
+C0398,31,Hatay,ERZİN,36.9539,36.2022,İlçe merkezi
+C0399,31,Hatay,HASSA,36.8,36.53,İlçe merkezi
+C0400,31,Hatay,KIRIKHAN,36.4994,36.3576,İlçe merkezi
+C0401,31,Hatay,KUMLU,36.3635,36.455,İlçe merkezi
+C0402,31,Hatay,MERKEZ,36.2,36.15,İl merkezi (merkez ilçe)
+C0403,31,Hatay,PAYAS,36.7222199,36.2975178455956,İlçe merkezi (düşük doğruluk listesinde)
+C0404,31,Hatay,REYHANLI,36.2692,36.5672,İlçe merkezi
+C0405,31,Hatay,SAMANDAĞ,36.085,35.9806,İlçe merkezi
+C0406,31,Hatay,YAYLADAĞI,35.9025,36.0603,İlçe merkezi
+C0407,31,Hatay,İSKENDERUN,36.5804,36.17,İlçe merkezi
+C0408,32,Isparta,AKSU,37.7989,31.0711,İlçe merkezi
+C0409,32,Isparta,ATABEY,37.9508,30.6386,İlçe merkezi
+C0410,32,Isparta,EĞİRDİR,37.8743,30.8327,İlçe merkezi
+C0411,32,Isparta,GELENDOST,38.1208,31.0153,İlçe merkezi
+C0412,32,Isparta,GÖNEN,37.9564,30.5114,İlçe merkezi
+C0413,32,Isparta,KEÇİBORLU,37.9425,30.3022,İlçe merkezi
+C0414,32,Isparta,MERKEZ,37.77035,30.5556933,İlçe merkezi (düşük doğruluk listesinde)
+C0415,32,Isparta,SENİRKENT,38.1044,30.5486,İlçe merkezi
+C0416,32,Isparta,SÜTÇÜLER,37.4974,30.9773,İlçe merkezi
+C0417,32,Isparta,ULUBORLU,38.0783,30.4502,İlçe merkezi
+C0418,32,Isparta,YALVAÇ,38.2956,31.1778,İlçe merkezi
+C0419,32,Isparta,YENİŞARBADEMLİ,37.7078,31.3864,İlçe merkezi
+C0420,32,Isparta,ŞARKİKARAAĞAÇ,37.92314525,31.310794157793,İlçe merkezi (düşük doğruluk listesinde)
+C0421,33,Mersin,AKDENİZ,36.8328277,33.9685895,İlçe merkezi (düşük doğruluk listesinde)
+C0422,33,Mersin,ANAMUR,36.0751,32.8369,İlçe merkezi
+C0423,33,Mersin,AYDINCIK,36.1667,33.35,İlçe merkezi
+C0424,33,Mersin,BOZYAZI,36.1049,32.9723,İlçe merkezi
+C0425,33,Mersin,ERDEMLİ,36.605,34.3084,İlçe merkezi
+C0426,33,Mersin,GÜLNAR,36.3415,33.3992,İlçe merkezi
+C0427,33,Mersin,MERKEZ,36.8,34.6167,İl merkezi (merkez ilçe)
+C0428,33,Mersin,MEZİTLİ,36.7454,34.5226,İlçe merkezi
+C0429,33,Mersin,MUT,36.6458,33.4375,İlçe merkezi
+C0430,33,Mersin,SİLİFKE,36.3778,33.9344,İlçe merkezi
+C0431,33,Mersin,TARSUS,36.9167,34.9,İlçe merkezi
+C0432,33,Mersin,TOROSLAR,36.8393264,34.6136324,İlçe merkezi (düşük doğruluk listesinde)
+C0433,33,Mersin,YENİŞEHİR,36.7897817,34.5634301,İlçe merkezi (düşük doğruluk listesinde)
+C0434,33,Mersin,ÇAMLIYAYLA,37.1665,34.593,İlçe merkezi
+C0435,34,İstanbul,ADALAR,40.8678,29.1331,İlçe merkezi
+C0436,34,İstanbul,ARNAVUTKÖY,41.2482594,28.6814495117807,İlçe merkezi (düşük doğruluk listesinde)
+C0437,34,İstanbul,ATAŞEHİR,40.9847487,29.1067199,İlçe merkezi (düşük doğruluk listesinde)
+C0438,34,İstanbul,AVCILAR,40.9801353,28.7175465,İlçe merkezi (düşük doğruluk listesinde)
+C0439,34,İstanbul,BAHÇELİEVLER,41.0002895,28.8637451,İlçe merkezi (düşük doğruluk listesinde)
+C0440,34,İstanbul,BAKIRKÖY,40.9806359,28.8628745,İlçe merkezi (düşük doğruluk listesinde)
+C0441,34,İstanbul,BAYRAMPAŞA,41.0512479,28.8984693647258,İlçe merkezi (düşük doğruluk listesinde)
+C0442,34,İstanbul,BAĞCILAR,41.0447291,28.8337135105443,İlçe merkezi (düşük doğruluk listesinde)
+C0443,34,İstanbul,BAŞAKŞEHİR,41.1027276,28.7724595536567,İlçe merkezi (düşük doğruluk listesinde)
+C0444,34,İstanbul,BEYKOZ,41.1439,29.0906,İlçe merkezi
+C0445,34,İstanbul,BEYLİKDÜZÜ,41.0010788,28.642054,İlçe merkezi (düşük doğruluk listesinde)
+C0446,34,İstanbul,BEYOĞLU,41.0434614,28.9624575679829,İlçe merkezi (düşük doğruluk listesinde)
+C0447,34,İstanbul,BEŞİKTAŞ,41.0716178,29.0305381519225,İlçe merkezi (düşük doğruluk listesinde)
+C0448,34,İstanbul,BÜYÜKÇEKMECE,41.0128,28.5382,İlçe merkezi
+C0449,34,İstanbul,ESENLER,41.0620017,28.8695377605765,İlçe merkezi (düşük doğruluk listesinde)
+C0450,34,İstanbul,ESENYURT,41.04892005,28.6581173127615,İlçe merkezi (düşük doğruluk listesinde)
+C0451,34,İstanbul,EYÜP,41.0460444,28.9253241,İlçe merkezi (düşük doğruluk listesinde)
+C0452,34,İstanbul,FATİH,41.014462,28.9545506959692,İlçe merkezi (düşük doğruluk listesinde)
+C0453,34,İstanbul,GAZİOSMANPAŞA,41.0734206,28.9015561330191,İlçe merkezi (düşük doğruluk listesinde)
+C0454,34,İstanbul,GÜNGÖREN,41.0198102,28.8748379095875,İlçe merkezi (düşük doğruluk listesinde)
+C0455,34,İstanbul,KADIKÖY,40.98113355,29.0650755879103,İlçe merkezi (düşük doğruluk listesinde)
+C0456,34,İstanbul,KARTAL,40.9019,29.1737,İlçe merkezi
+C0457,34,İstanbul,KAĞITHANE,41.08303245,28.9838506957925,İlçe merkezi (düşük doğruluk listesinde)
+C0458,34,İstanbul,KÜÇÜKÇEKMECE,40.996,28.7748,İlçe merkezi
+C0459,34,İstanbul,MALTEPE,40.943396,29.159671719134,İlçe merkezi (düşük doğruluk listesinde)
+C0460,34,İstanbul,MERKEZ,41.01,28.9603,İl merkezi (merkez ilçe)
+C0461,34,İstanbul,PENDİK,40.8775,29.2725,İlçe merkezi
+C0462,34,İstanbul,SANCAKTEPE,40.99943825,29.2252495030497,İlçe merkezi (düşük doğruluk listesinde)
+C0463,34,İstanbul,SARIYER,41.1667,29.05,İlçe merkezi
+C0464,34,İstanbul,SULTANBEYLİ,40.9658834,29.2723659,İlçe merkezi (düşük doğruluk listesinde)
+C0465,34,İstanbul,SULTANGAZİ,41.1081703,28.8613138,İlçe merkezi (düşük doğruluk listesinde)
+C0466,34,İstanbul,SİLİVRİ,41.0739,28.2464,İlçe merkezi
+C0467,34,İstanbul,TUZLA,40.89265165,29.3721729469573,İlçe merkezi (düşük doğruluk listesinde)
+C0468,34,İstanbul,ZEYTİNBURNU,41.0056152,28.9081983220057,İlçe merkezi (düşük doğruluk listesinde)
+C0469,34,İstanbul,ÇATALCA,41.142,28.4638,İlçe merkezi
+C0470,34,İstanbul,ÇEKMEKÖY,41.0543213,29.2445387,İlçe merkezi (düşük doğruluk listesinde)
+C0471,34,İstanbul,ÜMRANİYE,41.02721865,29.1274593422018,İlçe merkezi (düşük doğruluk listesinde)
+C0472,34,İstanbul,ÜSKÜDAR,41.0352214,29.0573344413904,İlçe merkezi (düşük doğruluk listesinde)
+C0473,34,İstanbul,ŞİLE,41.1754,29.6133,İlçe merkezi
+C0474,34,İstanbul,ŞİŞLİ,41.061672,28.9842605962855,İlçe merkezi (düşük doğruluk listesinde)
+C0475,35,İzmir,ALİAĞA,38.7998,26.972,İlçe merkezi
+C0476,35,İzmir,BALÇOVA,38.38054695,27.0647593408312,İlçe merkezi (düşük doğruluk listesinde)
+C0477,35,İzmir,BAYINDIR,38.2192,27.6481,İlçe merkezi
+C0478,35,İzmir,BAYRAKLI,38.47769635,27.1523678586817,İlçe merkezi (düşük doğruluk listesinde)
+C0479,35,İzmir,BERGAMA,39.1228,27.1783,İlçe merkezi
+C0480,35,İzmir,BEYDAĞ,38.0870393,28.227138549983,İlçe merkezi (düşük doğruluk listesinde)
+C0481,35,İzmir,BORNOVA,38.4792,27.2399,İlçe merkezi
+C0482,35,İzmir,BUCA,38.3983,27.1666,İlçe merkezi
+C0483,35,İzmir,DİKİLİ,39.071,26.8902,İlçe merkezi
+C0484,35,İzmir,FOÇA,38.6675,26.7581,İlçe merkezi
+C0485,35,İzmir,GAZİEMİR,38.3239,27.1292,İlçe merkezi
+C0486,35,İzmir,GÜZELBAHÇE,38.33993215,26.8892938006706,İlçe merkezi (düşük doğruluk listesinde)
+C0487,35,İzmir,KARABAĞLAR,38.34618285,27.0386311159295,İlçe merkezi (düşük doğruluk listesinde)
+C0488,35,İzmir,KARABURUN,38.6364,26.5109,İlçe merkezi
+C0489,35,İzmir,KARŞIYAKA,38.4573,27.1106,İlçe merkezi
+C0490,35,İzmir,KEMALPAŞA,38.4261,27.4172,İlçe merkezi
+C0491,35,İzmir,KINIK,39.0872,27.3833,İlçe merkezi
+C0492,35,İzmir,KONAK,38.4173,27.1302,İlçe merkezi
+C0493,35,İzmir,KİRAZ,38.2306,28.2044,İlçe merkezi
+C0494,35,İzmir,MENDERES,38.254,27.134,İlçe merkezi
+C0495,35,İzmir,MENEMEN,38.6,27.0667,İlçe merkezi
+C0496,35,İzmir,MERKEZ,38.4127,27.1384,İl merkezi (merkez ilçe)
+C0497,35,İzmir,NARLIDERE,38.373789,26.9822518227409,İlçe merkezi (düşük doğruluk listesinde)
+C0498,35,İzmir,SEFERİHİSAR,38.16895815,26.8944538865725,İlçe merkezi (düşük doğruluk listesinde)
+C0499,35,İzmir,SELÇUK,37.95,27.3667,İlçe merkezi
+C0500,35,İzmir,TORBALI,38.1619,27.3583,İlçe merkezi
+C0501,35,İzmir,TİRE,38.0833,27.7333,İlçe merkezi
+C0502,35,İzmir,URLA,38.3222,26.7647,İlçe merkezi
+C0503,35,İzmir,ÇEŞME,38.32,26.3053,İlçe merkezi
+C0504,35,İzmir,ÇİĞLİ,38.48552305,26.9961892398355,İlçe merkezi (düşük doğruluk listesinde)
+C0505,35,İzmir,ÖDEMİŞ,38.2311,27.9719,İlçe merkezi
+C0506,36,Kars,AKYAKA,40.7397,43.6253,İlçe merkezi
+C0507,36,Kars,ARPAÇAY,40.8452,43.3275,İlçe merkezi
+C0508,36,Kars,DİGOR,40.369,43.41,İlçe merkezi
+C0509,36,Kars,KAĞIZMAN,40.1567,43.1342,İlçe merkezi
+C0510,36,Kars,MERKEZ,40.605158,43.0961734,İlçe merkezi (düşük doğruluk listesinde)
+C0511,36,Kars,SARIKAMIŞ,40.3277,42.587,İlçe merkezi
+C0512,36,Kars,SELİM,40.4577,42.7829,İlçe merkezi
+C0513,36,Kars,SUSUZ,40.7791,43.1277,İlçe merkezi
+C0514,37,Kastamonu,ABANA,41.9786,34.011,İlçe merkezi
+C0515,37,Kastamonu,ARAÇ,41.2422,33.3277,İlçe merkezi
+C0516,37,Kastamonu,AZDAVAY,41.6427,33.3,İlçe merkezi
+C0517,37,Kastamonu,AĞLI,41.686,33.5538,İlçe merkezi
+C0518,37,Kastamonu,BOZKURT,41.9577,34.0109,İlçe merkezi
+C0519,37,Kastamonu,CİDE,41.8921,33.0044,İlçe merkezi
+C0520,37,Kastamonu,DADAY,41.4787,33.4667,İlçe merkezi
+C0521,37,Kastamonu,DEVREKANİ,41.603,33.8392,İlçe merkezi
+C0522,37,Kastamonu,DOĞANYURT,42.0046,33.4603,İlçe merkezi
+C0523,37,Kastamonu,HANÖNÜ,41.6271,34.4667,İlçe merkezi
+C0524,37,Kastamonu,KÜRE,41.8058,33.7116,İlçe merkezi
+C0525,37,Kastamonu,MERKEZ,41.3765359,33.7770087,İlçe merkezi (düşük doğruluk listesinde)
+C0526,37,Kastamonu,PINARBAŞI,41.6039,33.111,İlçe merkezi
+C0527,37,Kastamonu,SEYDİLER,41.6201,33.7182,İlçe merkezi
+C0528,37,Kastamonu,TAŞKÖPRÜ,41.5098,34.2141,İlçe merkezi
+C0529,37,Kastamonu,TOSYA,41.0154,34.0401,İlçe merkezi
+C0530,37,Kastamonu,ÇATALZEYTİN,41.9531,34.2163,İlçe merkezi
+C0531,37,Kastamonu,İHSANGAZİ,41.2043,33.5545,İlçe merkezi
+C0532,37,Kastamonu,İNEBOLU,41.9747,33.7608,İlçe merkezi
+C0533,37,Kastamonu,ŞENPAZAR,41.8089,33.2314,İlçe merkezi
+C0534,38,Kayseri,AKKIŞLA,39.0022,36.1738,İlçe merkezi
+C0535,38,Kayseri,BÜNYAN,38.8463,35.8603,İlçe merkezi
+C0536,38,Kayseri,DEVELİ,38.3906,35.4922,İlçe merkezi
+C0537,38,Kayseri,FELAHİYE,39.0906,35.5672,İlçe merkezi
+C0538,38,Kayseri,HACILAR,38.6463,35.4494,İlçe merkezi
+C0539,38,Kayseri,KOCASİNAN,38.7715,35.5725,İlçe merkezi
+C0540,38,Kayseri,MELİKGAZİ,38.75,35.45,İlçe merkezi
+C0541,38,Kayseri,MERKEZ,38.7333,35.4833,İl merkezi (merkez ilçe)
+C0542,38,Kayseri,PINARBAŞI,38.722,36.391,İlçe merkezi
+C0543,38,Kayseri,SARIOĞLAN,39.0769,35.9667,İlçe merkezi
+C0544,38,Kayseri,SARIZ,38.4792,36.499,İlçe merkezi
+C0545,38,Kayseri,TALAS,38.6833,35.5667,İlçe merkezi
+C0546,38,Kayseri,TOMARZA,38.4472,35.7992,İlçe merkezi
+C0547,38,Kayseri,YAHYALI,38.1023,35.357,İlçe merkezi
+C0548,38,Kayseri,YEŞİLHİSAR,38.3497,35.0867,İlçe merkezi
+C0549,38,Kayseri,ÖZVATAN,39.1069,35.6999,İlçe merkezi
+C0550,38,Kayseri,İNCESU,38.6224,35.1826,İlçe merkezi
+C0551,39,Kırklareli,BABAESKİ,41.4325,27.0931,İlçe merkezi
+C0552,39,Kırklareli,DEMİRKÖY,41.8251,27.7597,İlçe merkezi
+C0553,39,Kırklareli,KOFÇAZ,41.9448,27.1583,İlçe merkezi
+C0554,39,Kırklareli,LÜLEBURGAZ,41.4056,27.3569,İlçe merkezi
+C0555,39,Kırklareli,MERKEZ,41.7370223,27.2235523,İlçe merkezi (düşük doğruluk listesinde)
+C0556,39,Kırklareli,PEHLİVANKÖY,41.3481,26.9252,İlçe merkezi
+C0557,39,Kırklareli,PINARHİSAR,41.6242,27.52,İlçe merkezi
+C0558,39,Kırklareli,VİZE,41.5725,27.7658,İlçe merkezi
+C0559,40,Kırşehir,AKPINAR,39.45,33.9648,İlçe merkezi
+C0560,40,Kırşehir,AKÇAKENT,39.6228,34.0958,İlçe merkezi
+C0561,40,Kırşehir,BOZTEPE,39.2697,34.2611,İlçe merkezi
+C0562,40,Kırşehir,KAMAN,39.3575,33.7239,İlçe merkezi
+C0563,40,Kırşehir,MERKEZ,39.1461142,34.1605587,İlçe merkezi (düşük doğruluk listesinde)
+C0564,40,Kırşehir,MUCUR,39.0615,34.3829,İlçe merkezi
+C0565,40,Kırşehir,ÇİÇEKDAĞI,39.6036,34.4158,İlçe merkezi
+C0566,41,Kocaeli,BAŞİSKELE,40.64592185,29.9517413594324,İlçe merkezi (düşük doğruluk listesinde)
+C0567,41,Kocaeli,DARICA,40.7797,29.3945,İlçe merkezi
+C0568,41,Kocaeli,DERİNCE,40.7569,29.8147,İlçe merkezi
+C0569,41,Kocaeli,DİLOVASI,40.8345539,29.586275788318,İlçe merkezi (düşük doğruluk listesinde)
+C0570,41,Kocaeli,GEBZE,40.8028,29.4307,İlçe merkezi
+C0571,41,Kocaeli,GÖLCÜK,40.6667,29.8333,İlçe merkezi
+C0572,41,Kocaeli,KANDIRA,41.07,30.1526,İlçe merkezi
+C0573,41,Kocaeli,KARAMÜRSEL,40.6914,29.6157,İlçe merkezi
+C0574,41,Kocaeli,KARTEPE,40.6882056,30.0845373274258,İlçe merkezi (düşük doğruluk listesinde)
+C0575,41,Kocaeli,KÖRFEZ,40.7706,29.7661,İlçe merkezi
+C0576,41,Kocaeli,MERKEZ,40.7656,29.9406,İl merkezi (merkez ilçe)
+C0577,41,Kocaeli,ÇAYIROVA,40.8265,29.3745,İlçe merkezi
+C0578,41,Kocaeli,İZMİT,40.7643476,29.9279311,İlçe merkezi (düşük doğruluk listesinde)
+C0579,42,Konya,AHIRLI,37.2387,32.1188,İlçe merkezi
+C0580,42,Konya,AKÖREN,37.4535,32.3707,İlçe merkezi
+C0581,42,Konya,AKŞEHİR,38.3575,31.4164,İlçe merkezi
+C0582,42,Konya,ALTINEKİN,38.2408,32.8153,İlçe merkezi
+C0583,42,Konya,BEYŞEHİR,37.6773,31.7246,İlçe merkezi
+C0584,42,Konya,BOZKIR,37.1896,32.2474,İlçe merkezi
+C0585,42,Konya,CİHANBEYLİ,38.6607,32.9244,İlçe merkezi
+C0586,42,Konya,DERBENT,38.0142,32.0164,İlçe merkezi
+C0587,42,Konya,DEREBUCAK,37.3918,31.5092,İlçe merkezi
+C0588,42,Konya,DOĞANHİSAR,38.1463,31.6765,İlçe merkezi
+C0589,42,Konya,EMİRGAZİ,37.9022,33.8372,İlçe merkezi
+C0590,42,Konya,EREĞLİ,37.5058,34.0517,İlçe merkezi
+C0591,42,Konya,GÜNEYSINIR,37.2694,32.729,İlçe merkezi
+C0592,42,Konya,HADİM,36.9878,32.4567,İlçe merkezi
+C0593,42,Konya,HALKAPINAR,37.4339,34.1874,İlçe merkezi
+C0594,42,Konya,HÜYÜK,37.9539,31.5964,İlçe merkezi
+C0595,42,Konya,ILGIN,38.2792,31.9139,İlçe merkezi
+C0596,42,Konya,KADINHANI,38.2397,32.2114,İlçe merkezi
+C0597,42,Konya,KARAPINAR,37.716,33.5506,İlçe merkezi
+C0598,42,Konya,KARATAY,37.8873647,32.5334488,İlçe merkezi (düşük doğruluk listesinde)
+C0599,42,Konya,KULU,39.0901,33.0807,İlçe merkezi
+C0600,42,Konya,MERAM,37.8299,32.4678,İlçe merkezi
+C0601,42,Konya,MERKEZ,37.8714,32.4847,İl merkezi (merkez ilçe)
+C0602,42,Konya,SARAYÖNÜ,38.262,32.4046,İlçe merkezi
+C0603,42,Konya,SELÇUKLU,37.8842,32.4922,İlçe merkezi
+C0604,42,Konya,SEYDİŞEHİR,37.4193,31.8453,İlçe merkezi
+C0605,42,Konya,TAŞKENT,36.9243,32.4913,İlçe merkezi
+C0606,42,Konya,TUZLUKÇU,38.4778,31.6264,İlçe merkezi
+C0607,42,Konya,YALIHÜYÜK,37.3008,32.0855,İlçe merkezi
+C0608,42,Konya,YUNAK,38.8142,31.7322,İlçe merkezi
+C0609,42,Konya,ÇELTİK,39.0244,31.7906,İlçe merkezi
+C0610,42,Konya,ÇUMRA,37.5732,32.7745,İlçe merkezi
+C0611,43,Kütahya,ALTINTAŞ,39.0597,30.1092,İlçe merkezi
+C0612,43,Kütahya,ASLANAPA,39.2158,29.8699,İlçe merkezi
+C0613,43,Kütahya,DOMANİÇ,39.8019,29.6092,İlçe merkezi
+C0614,43,Kütahya,DUMLUPINAR,38.8541,29.9772,İlçe merkezi
+C0615,43,Kütahya,EMET,39.343,29.2585,İlçe merkezi
+C0616,43,Kütahya,GEDİZ,38.9939,29.3913,İlçe merkezi
+C0617,43,Kütahya,HİSARCIK,39.2506,29.2312,İlçe merkezi
+C0618,43,Kütahya,MERKEZ,39.4191505,29.9872928,İlçe merkezi (düşük doğruluk listesinde)
+C0619,43,Kütahya,PAZARLAR,38.995,29.1258,İlçe merkezi
+C0620,43,Kütahya,SİMAV,39.0882,28.9777,İlçe merkezi
+C0621,43,Kütahya,TAVŞANLI,39.5424,29.4987,İlçe merkezi
+C0622,43,Kütahya,ÇAVDARHİSAR,39.1934,29.6191,İlçe merkezi
+C0623,43,Kütahya,ŞAPHANE,39.0273,29.2222,İlçe merkezi
+C0624,44,Malatya,AKÇADAĞ,38.339,37.9702,İlçe merkezi
+C0625,44,Malatya,ARAPGİR,39.0412,38.4952,İlçe merkezi
+C0626,44,Malatya,ARGUVAN,38.7738,38.2633,İlçe merkezi
+C0627,44,Malatya,BATTALGAZİ,38.4229,38.3585,İlçe merkezi
+C0628,44,Malatya,DARENDE,38.5458,37.5058,İlçe merkezi
+C0629,44,Malatya,DOĞANYOL,38.3075,39.0343,İlçe merkezi
+C0630,44,Malatya,DOĞANŞEHİR,38.0857,37.8712,İlçe merkezi
+C0631,44,Malatya,HEKİMHAN,38.8162,37.9288,İlçe merkezi
+C0632,44,Malatya,KALE,38.4154,38.7709,İlçe merkezi
+C0633,44,Malatya,KULUNCAK,38.8766,37.6628,İlçe merkezi
+C0634,44,Malatya,MERKEZ,38.3554,38.3337,İl merkezi (merkez ilçe)
+C0635,44,Malatya,PÜTÜRGE,38.1992,38.863,İlçe merkezi
+C0636,44,Malatya,YAZIHAN,38.5929,38.1733,İlçe merkezi
+C0637,44,Malatya,YEŞİLYURT,38.296,38.2453,İlçe merkezi
+C0638,45,Manisa,AHMETLİ,38.5196,27.9387,İlçe merkezi
+C0639,45,Manisa,AKHİSAR,38.9185,27.8401,İlçe merkezi
+C0640,45,Manisa,ALAŞEHİR,38.3508,28.5172,İlçe merkezi
+C0641,45,Manisa,DEMİRCİ,39.0461,28.6589,İlçe merkezi
+C0642,45,Manisa,GÖLMARMARA,38.7139,27.9142,İlçe merkezi
+C0643,45,Manisa,GÖRDES,38.9328,28.2894,İlçe merkezi
+C0644,45,Manisa,KIRKAĞAÇ,39.1064,27.6693,İlçe merkezi
+C0645,45,Manisa,KULA,38.5473,28.6498,İlçe merkezi
+C0646,45,Manisa,KÖPRÜBAŞI,38.7497,28.4047,İlçe merkezi
+C0647,45,Manisa,MERKEZ,38.6131,27.4258,İl merkezi (merkez ilçe)
+C0648,45,Manisa,SALİHLİ,38.4811,28.1392,İlçe merkezi
+C0649,45,Manisa,SARIGÖL,38.2395,28.6966,İlçe merkezi
+C0650,45,Manisa,SARUHANLI,38.7345,27.5681,İlçe merkezi
+C0651,45,Manisa,SELENDİ,38.7444,28.8678,İlçe merkezi
+C0652,45,Manisa,SOMA,39.1833,27.6056,İlçe merkezi
+C0653,45,Manisa,TURGUTLU,38.5,27.7,İlçe merkezi
+C0654,45,Manisa,YUNUSEMRE,38.74488615,27.2688329892961,İlçe merkezi (düşük doğruluk listesinde)
+C0655,45,Manisa,ŞEHZADELER,38.6458586,27.502838,İlçe merkezi (düşük doğruluk listesinde)
+C0656,46,Kahramanmaraş,AFŞİN,38.2477,36.914,İlçe merkezi
+C0657,46,Kahramanmaraş,ANDIRIN,37.5776,36.3549,İlçe merkezi
+C0658,46,Kahramanmaraş,DULKADİROĞLU,37.6955743,37.0716473338248,İlçe merkezi (düşük doğruluk listesinde)
+C0659,46,Kahramanmaraş,EKİNÖZÜ,38.0597,37.1879,İlçe merkezi
+C0660,46,Kahramanmaraş,ELBİSTAN,38.2059,37.1983,İlçe merkezi
+C0661,46,Kahramanmaraş,GÖKSUN,38.021,36.4973,İlçe merkezi
+C0662,46,Kahramanmaraş,MERKEZ,37.5875,36.9453,İl merkezi (merkez ilçe)
+C0663,46,Kahramanmaraş,NURHAK,37.9637,37.4405,İlçe merkezi
+C0664,46,Kahramanmaraş,ONİKİŞUBAT,37.6698979,36.7280156362988,İlçe merkezi (düşük doğruluk listesinde)
+C0665,46,Kahramanmaraş,PAZARCIK,37.484,37.2922,İlçe merkezi
+C0666,46,Kahramanmaraş,TÜRKOĞLU,37.3865,36.8426,İlçe merkezi
+C0667,46,Kahramanmaraş,ÇAĞLAYANCERİT,37.7452,37.2862,İlçe merkezi
+C0668,47,Mardin,ARTUKLU,37.3197697,40.7320476285013,İlçe merkezi (düşük doğruluk listesinde)
+C0669,47,Mardin,DARGEÇİT,37.5462,41.7165,İlçe merkezi
+C0670,47,Mardin,DERİK,37.3644,40.2689,İlçe merkezi
+C0671,47,Mardin,KIZILTEPE,37.1939,40.5861,İlçe merkezi
+C0672,47,Mardin,MAZIDAĞI,37.478,40.4815,İlçe merkezi
+C0673,47,Mardin,MERKEZ,37.3167,40.7378,İl merkezi (merkez ilçe)
+C0674,47,Mardin,MİDYAT,37.4191,41.3391,İlçe merkezi
+C0675,47,Mardin,NUSAYBİN,37.0833,41.2167,İlçe merkezi
+C0676,47,Mardin,SAVUR,37.5354,40.8788,İlçe merkezi
+C0677,47,Mardin,YEŞİLLİ,37.3381,40.8174,İlçe merkezi
+C0678,47,Mardin,ÖMERLİ,37.399,40.9544,İlçe merkezi
+C0679,48,Muğla,BODRUM,37.0383,27.4292,İlçe merkezi
+C0680,48,Muğla,DALAMAN,36.7659,28.8028,İlçe merkezi
+C0681,48,Muğla,DATÇA,36.7274,27.6848,İlçe merkezi
+C0682,48,Muğla,FETHİYE,36.6206,29.1142,İlçe merkezi
+C0683,48,Muğla,KAVAKLIDERE,37.4446,28.3628,İlçe merkezi
+C0684,48,Muğla,KÖYCEĞİZ,36.9625,28.6909,İlçe merkezi
+C0685,48,Muğla,MARMARİS,36.8564,28.2711,İlçe merkezi
+C0686,48,Muğla,MENTEŞE,37.1167,28.2667,İlçe merkezi
+C0687,48,Muğla,MERKEZ,37.2167,28.3667,İl merkezi (merkez ilçe)
+C0688,48,Muğla,MİLAS,37.3164,27.7839,İlçe merkezi
+C0689,48,Muğla,ORTACA,36.8391,28.7646,İlçe merkezi
+C0690,48,Muğla,SEYDİKEMER,36.6359484,29.4890488598855,İlçe merkezi (düşük doğruluk listesinde)
+C0691,48,Muğla,ULA,37.1049,28.4167,İlçe merkezi
+C0692,48,Muğla,YATAĞAN,37.3425,28.1393,İlçe merkezi
+C0693,49,Muş,BULANIK,39.0866,42.2716,İlçe merkezi
+C0694,49,Muş,HASKÖY,38.6864,41.6936,İlçe merkezi
+C0695,49,Muş,KORKUT,38.7339,41.784,İlçe merkezi
+C0696,49,Muş,MALAZGİRT,39.1465,42.5354,İlçe merkezi
+C0697,49,Muş,MERKEZ,38.7403703,41.4967451,İlçe merkezi (düşük doğruluk listesinde)
+C0698,49,Muş,VARTO,39.1737,41.454,İlçe merkezi
+C0699,50,Nevşehir,ACIGÖL,38.5503,34.5092,İlçe merkezi
+C0700,50,Nevşehir,AVANOS,38.715,34.8467,İlçe merkezi
+C0701,50,Nevşehir,DERİNKUYU,38.3751,34.7342,İlçe merkezi
+C0702,50,Nevşehir,GÜLŞEHİR,38.7459,34.6252,İlçe merkezi
+C0703,50,Nevşehir,HACIBEKTAŞ,38.9408,34.5577,İlçe merkezi
+C0704,50,Nevşehir,KOZAKLI,39.2214,34.8506,İlçe merkezi
+C0705,50,Nevşehir,MERKEZ,38.620532,34.705443,İlçe merkezi (düşük doğruluk listesinde)
+C0706,50,Nevşehir,ÜRGÜP,38.6296,34.912,İlçe merkezi
+C0707,51,Niğde,ALTUNHİSAR,37.9916,34.3733,İlçe merkezi
+C0708,51,Niğde,BOR,37.8833,34.5667,İlçe merkezi
+C0709,51,Niğde,MERKEZ,37.97454245,34.6782342855857,İlçe merkezi (düşük doğruluk listesinde)
+C0710,51,Niğde,ULUKIŞLA,37.5478,34.4853,İlçe merkezi
+C0711,51,Niğde,ÇAMARDI,37.8322,34.9814,İlçe merkezi
+C0712,51,Niğde,ÇİFTLİK,38.1758,34.4854,İlçe merkezi
+C0713,52,Ordu,AKKUŞ,40.7931,37.0164,İlçe merkezi
+C0714,52,Ordu,ALTINORDU,40.9202853,37.8870213,İlçe merkezi (düşük doğruluk listesinde)
+C0715,52,Ordu,AYBASTI,40.6867,37.3992,İlçe merkezi
+C0716,52,Ordu,FATSA,41.0278,37.5014,İlçe merkezi
+C0717,52,Ordu,GÖLKÖY,40.6869,37.6154,İlçe merkezi
+C0718,52,Ordu,GÜLYALI,40.9615,38.0494,İlçe merkezi
+C0719,52,Ordu,GÜRGENTEPE,40.7857,37.5897,İlçe merkezi
+C0720,52,Ordu,KABADÜZ,40.861,37.8847,İlçe merkezi
+C0721,52,Ordu,KABATAŞ,40.75,37.45,İlçe merkezi
+C0722,52,Ordu,KORGAN,40.8247,37.3467,İlçe merkezi
+C0723,52,Ordu,KUMRU,40.8744,37.2639,İlçe merkezi
+C0724,52,Ordu,MERKEZ,40.9833,37.8833,İl merkezi (merkez ilçe)
+C0725,52,Ordu,MESUDİYE,40.4545,37.7735,İlçe merkezi
+C0726,52,Ordu,PERŞEMBE,41.0656,37.7714,İlçe merkezi
+C0727,52,Ordu,ULUBEY,40.8686,37.7541,İlçe merkezi
+C0728,52,Ordu,ÇAMAŞ,40.902,37.5279,İlçe merkezi
+C0729,52,Ordu,ÇATALPINAR,40.879,37.4535,İlçe merkezi
+C0730,52,Ordu,ÇAYBAŞI,41.0171,37.098,İlçe merkezi
+C0731,52,Ordu,ÜNYE,41.1271,37.2882,İlçe merkezi
+C0732,52,Ordu,İKİZCE,41.0583,37.0803,İlçe merkezi
+C0733,53,Rize,ARDEŞEN,41.1911,40.9875,İlçe merkezi
+C0734,53,Rize,DEREPAZARI,41.024,40.4233,İlçe merkezi
+C0735,53,Rize,FINDIKLI,41.1333,41.0167,İlçe merkezi
+C0736,53,Rize,GÜNEYSU,40.9813,40.6046,İlçe merkezi
+C0737,53,Rize,HEMŞİN,41.0478,40.8984,İlçe merkezi
+C0738,53,Rize,KALKANDERE,40.9205,40.4369,İlçe merkezi
+C0739,53,Rize,MERKEZ,41.031636,40.555453,İlçe merkezi (düşük doğruluk listesinde)
+C0740,53,Rize,PAZAR,41.1792,40.8842,İlçe merkezi
+C0741,53,Rize,ÇAMLIHEMŞİN,41.0477,41.0,İlçe merkezi
+C0742,53,Rize,ÇAYELİ,41.0861,40.7221,İlçe merkezi
+C0743,53,Rize,İKİZDERE,40.7748,40.5523,İlçe merkezi
+C0744,53,Rize,İYİDERE,41.0119,40.3618,İlçe merkezi
+C0745,54,Sakarya,ADAPAZARI,40.84805315,30.3491425150644,İlçe merkezi (düşük doğruluk listesinde)
+C0746,54,Sakarya,AKYAZI,40.685,30.6222,İlçe merkezi
+C0747,54,Sakarya,ARİFİYE,40.7004,30.3508,İlçe merkezi
+C0748,54,Sakarya,ERENLER,40.755,30.3934,İlçe merkezi
+C0749,54,Sakarya,FERİZLİ,40.9408,30.4858,İlçe merkezi
+C0750,54,Sakarya,GEYVE,40.5075,30.2925,İlçe merkezi
+C0751,54,Sakarya,HENDEK,40.7994,30.7481,İlçe merkezi
+C0752,54,Sakarya,KARAPÜRÇEK,40.6419,30.5394,İlçe merkezi
+C0753,54,Sakarya,KARASU,41.1044,30.6966,İlçe merkezi
+C0754,54,Sakarya,KAYNARCA,41.0308,30.3075,İlçe merkezi
+C0755,54,Sakarya,KOCAALİ,41.0534,30.8528,İlçe merkezi
+C0756,54,Sakarya,MERKEZ,40.7778,30.4028,İl merkezi (merkez ilçe)
+C0757,54,Sakarya,PAMUKOVA,40.5081,30.1673,İlçe merkezi
+C0758,54,Sakarya,SAPANCA,40.6914,30.2674,İlçe merkezi
+C0759,54,Sakarya,SERDİVAN,40.7738,30.3801,İlçe merkezi
+C0760,54,Sakarya,SÖĞÜTLÜ,40.9059,30.4745,İlçe merkezi
+C0761,54,Sakarya,TARAKLI,40.3969,30.4928,İlçe merkezi
+C0762,55,Samsun,ALAÇAM,41.61,35.595,İlçe merkezi
+C0763,55,Samsun,ASARCIK,41.0356,36.2356,İlçe merkezi
+C0764,55,Samsun,ATAKUM,41.33545685,36.1310539325912,İlçe merkezi (düşük doğruluk listesinde)
+C0765,55,Samsun,AYVACIK,40.9911,36.6314,İlçe merkezi
+C0766,55,Samsun,BAFRA,41.5682,35.9069,İlçe merkezi
+C0767,55,Samsun,CANİK,41.17417155,36.2858091723425,İlçe merkezi (düşük doğruluk listesinde)
+C0768,55,Samsun,HAVZA,40.9706,35.6622,İlçe merkezi
+C0769,55,Samsun,KAVAK,41.0783,36.0425,İlçe merkezi
+C0770,55,Samsun,LADİK,40.9106,35.8919,İlçe merkezi
+C0771,55,Samsun,MERKEZ,41.2867,36.33,İl merkezi (merkez ilçe)
+C0772,55,Samsun,ONDOKUZMAYIS,41.4936379,36.0778884,İlçe merkezi (düşük doğruluk listesinde)
+C0773,55,Samsun,SALIPAZARI,41.084,36.8304,İlçe merkezi
+C0774,55,Samsun,TEKKEKÖY,41.2117,36.46,İlçe merkezi
+C0775,55,Samsun,TERME,41.2092,36.9739,İlçe merkezi
+C0776,55,Samsun,VEZİRKÖPRÜ,41.1436,35.4547,İlçe merkezi
+C0777,55,Samsun,YAKAKENT,41.6325,35.5289,İlçe merkezi
+C0778,55,Samsun,ÇARŞAMBA,41.1989,36.7219,İlçe merkezi
+C0779,55,Samsun,İLKADIM,41.23097825,36.1881100512523,İlçe merkezi (düşük doğruluk listesinde)
+C0780,56,Siirt,BAYKAN,38.1575,41.7733,İlçe merkezi
+C0781,56,Siirt,ERUH,37.7418,42.1742,İlçe merkezi
+C0782,56,Siirt,KURTALAN,37.9253,41.6849,İlçe merkezi
+C0783,56,Siirt,MERKEZ,37.931282,41.93984,İlçe merkezi (düşük doğruluk listesinde)
+C0784,56,Siirt,PERVARİ,37.9357,42.5493,İlçe merkezi
+C0785,56,Siirt,TİLLO,37.9449,42.0072,İlçe merkezi
+C0786,56,Siirt,ŞİRVAN,38.0625,42.0252,İlçe merkezi
+C0787,57,Sinop,AYANCIK,41.95,34.5833,İlçe merkezi
+C0788,57,Sinop,BOYABAT,41.4689,34.7667,İlçe merkezi
+C0789,57,Sinop,DURAĞAN,41.4158,35.0544,İlçe merkezi
+C0790,57,Sinop,DİKMEN,41.65,35.2667,İlçe merkezi
+C0791,57,Sinop,ERFELEK,41.8793,34.9184,İlçe merkezi
+C0792,57,Sinop,GERZE,41.8036,35.2011,İlçe merkezi
+C0793,57,Sinop,MERKEZ,42.01090445,35.1032185943488,İlçe merkezi (düşük doğruluk listesinde)
+C0794,57,Sinop,SARAYDÜZÜ,41.3287,34.8469,İlçe merkezi
+C0795,57,Sinop,TÜRKELİ,41.9476,34.3386,İlçe merkezi
+C0796,58,Sivas,AKINCILAR,40.0717,38.3433,İlçe merkezi
+C0797,58,Sivas,ALTINYAYLA,39.2725,36.751,İlçe merkezi
+C0798,58,Sivas,DOĞANŞAR,40.2084,37.5312,İlçe merkezi
+C0799,58,Sivas,DİVRİĞİ,39.3667,38.1167,İlçe merkezi
+C0800,58,Sivas,GEMEREK,39.1834,36.0719,İlçe merkezi
+C0801,58,Sivas,GÖLOVA,40.0619,38.6067,İlçe merkezi
+C0802,58,Sivas,GÜRÜN,38.7223,37.271,İlçe merkezi
+C0803,58,Sivas,HAFİK,39.8564,37.3864,İlçe merkezi
+C0804,58,Sivas,KANGAL,39.2335,37.3911,İlçe merkezi
+C0805,58,Sivas,KOYULHİSAR,40.3018,37.8234,İlçe merkezi
+C0806,58,Sivas,MERKEZ,39.7503572,37.0145185,İlçe merkezi (düşük doğruluk listesinde)
+C0807,58,Sivas,SUŞEHRİ,40.1601,38.0841,İlçe merkezi
+C0808,58,Sivas,ULAŞ,39.4449,37.039,İlçe merkezi
+C0809,58,Sivas,YILDIZELİ,39.8664,36.5989,İlçe merkezi
+C0810,58,Sivas,ZARA,39.8978,37.7583,İlçe merkezi
+C0811,58,Sivas,İMRANLI,39.8754,38.1136,İlçe merkezi
+C0812,58,Sivas,ŞARKIŞLA,39.3519,36.4098,İlçe merkezi
+C0813,59,Tekirdağ,ERGENE,41.29555715,27.6496137074219,İlçe merkezi (düşük doğruluk listesinde)
+C0814,59,Tekirdağ,HAYRABOLU,41.2131,27.1069,İlçe merkezi
+C0815,59,Tekirdağ,KAPAKLI,41.3333,27.9667,İlçe merkezi
+C0816,59,Tekirdağ,MALKARA,40.89,26.9011,İlçe merkezi
+C0817,59,Tekirdağ,MARMARAEREĞLİSİ,41.0399505,27.8123512363861,İlçe merkezi (düşük doğruluk listesinde)
+C0818,59,Tekirdağ,MERKEZ,40.9833,27.5167,İl merkezi (merkez ilçe)
+C0819,59,Tekirdağ,MURATLI,41.1722,27.4992,İlçe merkezi
+C0820,59,Tekirdağ,SARAY,41.4443,27.9219,İlçe merkezi
+C0821,59,Tekirdağ,SÜLEYMANPAŞA,40.9756624,27.5028483,İlçe merkezi (düşük doğruluk listesinde)
+C0822,59,Tekirdağ,ÇERKEZKÖY,41.285,28.0003,İlçe merkezi
+C0823,59,Tekirdağ,ÇORLU,41.1597,27.8028,İlçe merkezi
+C0824,59,Tekirdağ,ŞARKÖY,40.614,27.1156,İlçe merkezi
+C0825,60,Tokat,ALMUS,40.3758,36.9044,İlçe merkezi
+C0826,60,Tokat,ARTOVA,40.1158,36.3001,İlçe merkezi
+C0827,60,Tokat,BAŞÇİFTLİK,40.5469,37.1692,İlçe merkezi
+C0828,60,Tokat,ERBAA,40.6689,36.5675,İlçe merkezi
+C0829,60,Tokat,MERKEZ,40.32648,36.55403,İlçe merkezi (düşük doğruluk listesinde)
+C0830,60,Tokat,NİKSAR,40.5917,36.9517,İlçe merkezi
+C0831,60,Tokat,PAZAR,40.2759,36.2832,İlçe merkezi
+C0832,60,Tokat,REŞADİYE,40.3919,37.3375,İlçe merkezi
+C0833,60,Tokat,SULUSARAY,39.9939,36.084,İlçe merkezi
+C0834,60,Tokat,TURHAL,40.3875,36.0811,İlçe merkezi
+C0835,60,Tokat,YEŞİLYURT,40.0064,36.2207,İlçe merkezi
+C0836,60,Tokat,ZİLE,40.3031,35.8864,İlçe merkezi
+C0837,61,Trabzon,AKÇAABAT,41.0212,39.5715,İlçe merkezi
+C0838,61,Trabzon,ARAKLI,40.9385,40.0584,İlçe merkezi
+C0839,61,Trabzon,ARSİN,40.9527,39.9267,İlçe merkezi
+C0840,61,Trabzon,BEŞİKDÜZÜ,41.052,39.2329,İlçe merkezi
+C0841,61,Trabzon,DERNEKPAZARI,40.7966,40.2446,İlçe merkezi
+C0842,61,Trabzon,DÜZKÖY,40.8746,39.4154,İlçe merkezi
+C0843,61,Trabzon,HAYRAT,40.8853,40.365,İlçe merkezi
+C0844,61,Trabzon,KÖPRÜBAŞI,40.8069,40.1144,İlçe merkezi
+C0845,61,Trabzon,MAÇKA,40.8186,39.6136,İlçe merkezi
+C0846,61,Trabzon,MERKEZ,41.005,39.7225,İl merkezi (merkez ilçe)
+C0847,61,Trabzon,OF,40.945,40.2644,İlçe merkezi
+C0848,61,Trabzon,ORTAHİSAR,41.0013246,39.706678,İlçe merkezi (düşük doğruluk listesinde)
+C0849,61,Trabzon,SÜRMENE,40.9059,40.1279,İlçe merkezi
+C0850,61,Trabzon,TONYA,40.884,39.2849,İlçe merkezi
+C0851,61,Trabzon,VAKFIKEBİR,41.0458,39.2764,İlçe merkezi
+C0852,61,Trabzon,YOMRA,40.9533,39.8555,İlçe merkezi
+C0853,61,Trabzon,ÇARŞIBAŞI,41.0828,39.3828,İlçe merkezi
+C0854,61,Trabzon,ÇAYKARA,40.7427,40.2318,İlçe merkezi
+C0855,61,Trabzon,ŞALPAZARI,40.9383,39.1901,İlçe merkezi
+C0856,62,Tunceli,HOZAT,39.1003,39.2082,İlçe merkezi
+C0857,62,Tunceli,MAZGİRT,39.0178,39.6006,İlçe merkezi
+C0858,62,Tunceli,MERKEZ,39.1080631,39.548197,İlçe merkezi (düşük doğruluk listesinde)
+C0859,62,Tunceli,NAZIMİYE,39.19641225,39.8465608360628,İlçe merkezi (düşük doğruluk listesinde)
+C0860,62,Tunceli,OVACIK,39.3586,39.2164,İlçe merkezi
+C0861,62,Tunceli,PERTEK,38.8657,39.3227,İlçe merkezi
+C0862,62,Tunceli,PÜLÜMÜR,39.4845,39.8953,İlçe merkezi
+C0863,62,Tunceli,ÇEMİŞGEZEK,39.0554,38.9075,İlçe merkezi
+C0864,63,Şanlıurfa,AKÇAKALE,36.7108,38.9478,İlçe merkezi
+C0865,63,Şanlıurfa,BOZOVA,37.3625,38.5267,İlçe merkezi
+C0866,63,Şanlıurfa,BİRECİK,37.0258,37.9784,İlçe merkezi
+C0867,63,Şanlıurfa,CEYLANPINAR,36.9194,39.905,İlçe merkezi
+C0868,63,Şanlıurfa,EYYÜBİYE,37.00804755,39.0159687308456,İlçe merkezi (düşük doğruluk listesinde)
+C0869,63,Şanlıurfa,HALFETİ,37.2453,37.8687,İlçe merkezi
+C0870,63,Şanlıurfa,HALİLİYE,37.21994105,39.1405054350843,İlçe merkezi (düşük doğruluk listesinde)
+C0871,63,Şanlıurfa,HARRAN,36.86,39.0314,İlçe merkezi
+C0872,63,Şanlıurfa,HİLVAN,37.5869,38.955,İlçe merkezi
+C0873,63,Şanlıurfa,KARAKÖPRÜ,37.2036,38.7994,İlçe merkezi
+C0874,63,Şanlıurfa,MERKEZ,37.1583,38.7917,İl merkezi (merkez ilçe)
+C0875,63,Şanlıurfa,SURUÇ,36.9761,38.4253,İlçe merkezi
+C0876,63,Şanlıurfa,SİVEREK,37.755,39.3167,İlçe merkezi
+C0877,63,Şanlıurfa,VİRANŞEHİR,37.2306,39.7653,İlçe merkezi
+C0878,64,Uşak,BANAZ,38.7644,29.7525,İlçe merkezi
+C0879,64,Uşak,EŞME,38.3998,28.969,İlçe merkezi
+C0880,64,Uşak,KARAHALLI,38.3208,29.5303,İlçe merkezi
+C0881,64,Uşak,MERKEZ,38.6708697,29.4073587,İlçe merkezi (düşük doğruluk listesinde)
+C0882,64,Uşak,SİVASLI,38.4994,29.6836,İlçe merkezi
+C0883,64,Uşak,ULUBEY,38.4216,29.2895,İlçe merkezi
+C0884,65,Van,BAHÇESARAY,38.1246,42.7983,İlçe merkezi
+C0885,65,Van,BAŞKALE,38.0453,44.0172,İlçe merkezi
+C0886,65,Van,EDREMİT,38.4207,43.2589,İlçe merkezi
+C0887,65,Van,ERCİŞ,39.0259,43.3596,İlçe merkezi
+C0888,65,Van,GEVAŞ,38.2921,43.1019,İlçe merkezi
+C0889,65,Van,GÜRPINAR,38.3269,43.4133,İlçe merkezi
+C0890,65,Van,MERKEZ,38.5019,43.4167,İl merkezi (merkez ilçe)
+C0891,65,Van,MURADİYE,38.9857,43.7531,İlçe merkezi
+C0892,65,Van,SARAY,38.6469,44.1612,İlçe merkezi
+C0893,65,Van,TUŞBA,38.5220002,43.3622212,İlçe merkezi (düşük doğruluk listesinde)
+C0894,65,Van,ÇALDIRAN,39.1419,43.9139,İlçe merkezi
+C0895,65,Van,ÇATAK,38.0029,43.0524,İlçe merkezi
+C0896,65,Van,ÖZALP,38.6546,43.9887,İlçe merkezi
+C0897,65,Van,İPEKYOLU,38.4927246,43.3707405,İlçe merkezi (düşük doğruluk listesinde)
+C0898,66,Yozgat,AKDAĞMADENİ,39.6603,35.8836,İlçe merkezi
+C0899,66,Yozgat,AYDINCIK,40.1273,35.2877,İlçe merkezi
+C0900,66,Yozgat,BOĞAZLIYAN,39.1888,35.2454,İlçe merkezi
+C0901,66,Yozgat,KADIŞEHRİ,39.9957,35.7919,İlçe merkezi
+C0902,66,Yozgat,MERKEZ,39.8205571,34.8094917,İlçe merkezi (düşük doğruluk listesinde)
+C0903,66,Yozgat,SARAYKENT,39.6936,35.5111,İlçe merkezi
+C0904,66,Yozgat,SARIKAYA,39.4936,35.3769,İlçe merkezi
+C0905,66,Yozgat,SORGUN,39.8101,35.186,İlçe merkezi
+C0906,66,Yozgat,YENİFAKILI,39.2114,35.0004,İlçe merkezi
+C0907,66,Yozgat,YERKÖY,39.6381,34.4672,İlçe merkezi
+C0908,66,Yozgat,ÇANDIR,39.2445,35.514,İlçe merkezi
+C0909,66,Yozgat,ÇAYIRALAN,39.3028,35.6439,İlçe merkezi
+C0910,66,Yozgat,ÇEKEREK,40.0731,35.4947,İlçe merkezi
+C0911,66,Yozgat,ŞEFAATLİ,39.4892668,34.7908305195351,İlçe merkezi (düşük doğruluk listesinde)
+C0912,67,Zonguldak,ALAPLI,41.1814,31.3851,İlçe merkezi
+C0913,67,Zonguldak,DEVREK,41.2192,31.9558,İlçe merkezi
+C0914,67,Zonguldak,EREĞLİ,41.2583,31.425,İlçe merkezi
+C0915,67,Zonguldak,GÖKÇEBEY,41.3133,32.1497,İlçe merkezi
+C0916,67,Zonguldak,KOZLU,41.4333,31.75,İlçe merkezi
+C0917,67,Zonguldak,KİLİMLİ,41.4833,31.8333,İlçe merkezi
+C0918,67,Zonguldak,MERKEZ,41.4524668,31.7884596,İlçe merkezi (düşük doğruluk listesinde)
+C0919,67,Zonguldak,ÇAYCUMA,41.4264,32.0756,İlçe merkezi
+C0920,68,Aksaray,AĞAÇÖREN,38.8748,33.9167,İlçe merkezi
+C0921,68,Aksaray,ESKİL,38.4017,33.4131,İlçe merkezi
+C0922,68,Aksaray,GÜLAĞAÇ,38.3958,34.3458,İlçe merkezi
+C0923,68,Aksaray,GÜZELYURT,38.2772,34.3719,İlçe merkezi
+C0924,68,Aksaray,MERKEZ,38.3705416,34.026907,İlçe merkezi (düşük doğruluk listesinde)
+C0925,68,Aksaray,ORTAKÖY,38.7373,34.0387,İlçe merkezi
+C0926,68,Aksaray,SARIYAHŞİ,38.9835,33.8414,İlçe merkezi
+C0927,68,Aksaray,SULTANHANI,38.2481,33.5465,İlçe merkezi
+C0928,69,Bayburt,AYDINTEPE,40.3833,40.1427,İlçe merkezi
+C0929,69,Bayburt,DEMİRÖZÜ,40.1602,39.8924,İlçe merkezi
+C0930,69,Bayburt,MERKEZ,40.25569,40.224099,İlçe merkezi (düşük doğruluk listesinde)
+C0931,70,Karaman,AYRANCI,37.3613,33.6883,İlçe merkezi
+C0932,70,Karaman,BAŞYAYLA,36.7534,32.6802,İlçe merkezi
+C0933,70,Karaman,ERMENEK,36.6404,32.8918,İlçe merkezi
+C0934,70,Karaman,KAZIMKARABEKİR,37.2303,32.9589,İlçe merkezi
+C0935,70,Karaman,MERKEZ,37.1792447,33.2224781,İlçe merkezi (düşük doğruluk listesinde)
+C0936,70,Karaman,SARIVELİLER,36.6971,32.612,İlçe merkezi
+C0937,71,Kırıkkale,BAHŞİLİ,39.7226426,33.3307353160552,İlçe merkezi (düşük doğruluk listesinde)
+C0938,71,Kırıkkale,BALIŞEYH,39.9141,33.7233,İlçe merkezi
+C0939,71,Kırıkkale,DELİCE,39.9537,34.0259,İlçe merkezi
+C0940,71,Kırıkkale,KARAKEÇİLİ,39.5942,33.3778,İlçe merkezi
+C0941,71,Kırıkkale,KESKİN,39.6731,33.6136,İlçe merkezi
+C0942,71,Kırıkkale,MERKEZ,39.8485708,33.5276222,İlçe merkezi (düşük doğruluk listesinde)
+C0943,71,Kırıkkale,SULAKYURT,40.1573,33.716,İlçe merkezi
+C0944,71,Kırıkkale,YAHŞİHAN,39.8503,33.4529,İlçe merkezi
+C0945,71,Kırıkkale,ÇELEBİ,39.4642,33.5241,İlçe merkezi
+C0946,72,Batman,BEŞİRİ,37.9157,41.2865,İlçe merkezi
+C0947,72,Batman,GERCÜŞ,37.5625,41.3775,İlçe merkezi
+C0948,72,Batman,HASANKEYF,37.7061,41.4048,İlçe merkezi
+C0949,72,Batman,KOZLUK,38.1912,41.4778,İlçe merkezi
+C0950,72,Batman,MERKEZ,37.89072255,41.1374205607433,İlçe merkezi (düşük doğruluk listesinde)
+C0951,72,Batman,SASON,38.3277,41.4138,İlçe merkezi
+C0952,73,Şırnak,BEYTÜŞŞEBAP,37.5632,43.1658,İlçe merkezi
+C0953,73,Şırnak,CİZRE,37.325,42.1958,İlçe merkezi
+C0954,73,Şırnak,GÜÇLÜKONAK,37.4696,41.9059,İlçe merkezi
+C0955,73,Şırnak,MERKEZ,37.519248,42.4605665,İlçe merkezi (düşük doğruluk listesinde)
+C0956,73,Şırnak,SİLOPİ,37.2438,42.4634,İlçe merkezi
+C0957,73,Şırnak,ULUDERE,37.4407,42.8524,İlçe merkezi
+C0958,73,Şırnak,İDİL,37.3348,41.8894,İlçe merkezi
+C0959,74,Bartın,AMASRA,41.7463,32.3863,İlçe merkezi
+C0960,74,Bartın,KURUCAŞİLE,41.8378,32.7162,İlçe merkezi
+C0961,74,Bartın,MERKEZ,41.6338394,32.3384354,İlçe merkezi (düşük doğruluk listesinde)
+C0962,74,Bartın,ULUS,41.5842,32.6414,İlçe merkezi
+C0963,75,Ardahan,DAMAL,41.3414,42.8368,İlçe merkezi
+C0964,75,Ardahan,GÖLE,40.7875,42.606,İlçe merkezi
+C0965,75,Ardahan,HANAK,41.2334,42.8404,İlçe merkezi
+C0966,75,Ardahan,MERKEZ,41.1102966,42.7035585,İlçe merkezi (düşük doğruluk listesinde)
+C0967,75,Ardahan,POSOF,41.5106,42.7292,İlçe merkezi
+C0968,75,Ardahan,ÇILDIR,41.1214,43.1299,İlçe merkezi
+C0969,76,Iğdır,ARALIK,39.8166888,44.4612001068976,İlçe merkezi (düşük doğruluk listesinde)
+C0970,76,Iğdır,KARAKOYUNLU,39.8703,43.63,İlçe merkezi
+C0971,76,Iğdır,MERKEZ,39.9215668,44.0467724,İlçe merkezi (düşük doğruluk listesinde)
+C0972,76,Iğdır,TUZLUCA,40.0387,43.6521,İlçe merkezi
+C0973,77,Yalova,ALTINOVA,40.6949,29.5099,İlçe merkezi
+C0974,77,Yalova,ARMUTLU,40.5194,28.8281,İlçe merkezi
+C0975,77,Yalova,MERKEZ,40.6556669,29.2729091,İlçe merkezi (düşük doğruluk listesinde)
+C0976,77,Yalova,TERMAL,40.6078,29.1736,İlçe merkezi
+C0977,77,Yalova,ÇINARCIK,40.6454,29.1245,İlçe merkezi
+C0978,77,Yalova,ÇİFTLİKKÖY,40.6603,29.3236,İlçe merkezi
+C0979,78,Karabük,EFLANİ,41.4229,32.9576,İlçe merkezi
+C0980,78,Karabük,ESKİPAZAR,40.943,32.5309,İlçe merkezi
+C0981,78,Karabük,MERKEZ,41.1955402,32.6231154,İlçe merkezi (düşük doğruluk listesinde)
+C0982,78,Karabük,OVACIK,41.0766,32.9199,İlçe merkezi
+C0983,78,Karabük,SAFRANBOLU,41.2508,32.6942,İlçe merkezi
+C0984,78,Karabük,YENİCE,41.2,32.3333,İlçe merkezi
+C0985,79,Kilis,ELBEYLİ,36.6742,37.4667,İlçe merkezi
+C0986,79,Kilis,MERKEZ,36.718045,37.11688,İlçe merkezi (düşük doğruluk listesinde)
+C0987,79,Kilis,MUSABEYLİ,36.8864,36.9186,İlçe merkezi
+C0988,79,Kilis,POLATELİ,36.8414,37.1441,İlçe merkezi
+C0989,80,Osmaniye,BAHÇE,37.2011,36.5775,İlçe merkezi
+C0990,80,Osmaniye,DÜZİÇİ,37.2422,36.4548,İlçe merkezi
+C0991,80,Osmaniye,HASANBEYLİ,37.1284,36.5461,İlçe merkezi
+C0992,80,Osmaniye,KADİRLİ,37.3739,36.0961,İlçe merkezi
+C0993,80,Osmaniye,MERKEZ,37.073671,36.255941,İlçe merkezi (düşük doğruluk listesinde)
+C0994,80,Osmaniye,SUMBAS,37.4513,36.0235,İlçe merkezi
+C0995,80,Osmaniye,TOPRAKKALE,37.0639,36.1469,İlçe merkezi
+C0996,81,Düzce,AKÇAKOCA,41.0866,31.1162,İlçe merkezi
+C0997,81,Düzce,CUMAYERİ,40.8739,30.9509,İlçe merkezi
+C0998,81,Düzce,GÖLYAKA,40.7769,30.9959,İlçe merkezi
+C0999,81,Düzce,GÜMÜŞOVA,40.8469,30.9411,İlçe merkezi
+C1000,81,Düzce,KAYNAŞLI,40.7692,31.3221,İlçe merkezi
+C1001,81,Düzce,MERKEZ,40.8458611,31.164851,İlçe merkezi (düşük doğruluk listesinde)
+C1002,81,Düzce,YIĞILCA,40.9598,31.4436,İlçe merkezi
+C1003,81,Düzce,ÇİLİMLİ,40.8936,31.0492,İlçe merkezi
