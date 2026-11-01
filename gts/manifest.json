@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.6",
+ "surum": "1.0.7",
  "kabuk": 1,
- "tarih": "2026-11-01T18:42:14+03:00",
- "notlar": "Yeni Hedge sayfası: emtia (ICE Gasoil) ve kur (TL forward) ayrı ayrı, kargo bazında; hedge ayarları değiştirilebilir. Kârlılık tablosu yeniden düzenlendi, ana kalemler kalın.",
+ "tarih": "2026-11-01T21:44:59+03:00",
+ "notlar": "Benzin projede yokken (Benzin ithalatı Kapalı) benzin seçicileri, grafik serileri, lejantlar, tablo sütunları ve benzin lot bölümü gösterilmiyor; benzin tankları 'projede kullanılmıyor' olarak işaretli.",
  "dosyalar": {
-  "ui/index.html": "2a40d2ed41b6bc192d62f0a128e149f81641b0b27f3045ae2df3f7aba489679d",
+  "ui/index.html": "173e03341c2bf5841b42feed74f9ae14538dd08d1c227dd2512cca7b815b9497",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "459dbe9529142a3ea9ac3795363d5b4ca94e1f9286da87709d637e76466a2f89",
+  "ui/pano.js": "63403fd82311bc062161c8983d8f2237090b1891f6668b4a1530c648a6930f9f",
   "gts_pipeline.js": "a09ea82db56a66b66fc0b7956548d9a5039eb7e004c8ace852b16e34f2b02390",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "f107f27dd26a9a08057ab091af6e202146eebe71e93ada90c286f54eb8a18d62",

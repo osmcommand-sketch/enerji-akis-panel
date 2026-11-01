@@ -14,6 +14,9 @@ const T0=new Date(V.g0+"T00:00:00Z"), gun=i=>new Date(T0.getTime()+i*864e5), gun
 const tk=s=>/^\d{4}-/.test(s)?s.slice(8,10)+"."+s.slice(5,7)+"."+s.slice(2,4):s;
 const tarihI=s=>Math.round((new Date(s+"T00:00:00Z")-T0)/864e5);
 const ND=V.gm.length;
+/* benzin projede yoksa (paket 58: Girdiler "Benzin ithalatı" Kapalı) benzin öğeleri gösterilmez */
+const BZ=V.gb.reduce((a,r)=>a+r[0],0)>0.5;
+const bzs=a=>BZ?a:a.filter(x=>!/benzin/i.test(x.ad||""));
 /* yıl filtresi (kullanıcı 01.11.2026): "" = tüm dönem, "2027", "2028" */
 let YIL=""; try{ YIL=localStorage.getItem("gts.yil")||""; }catch{}
 const PEN={i0:0,n:ND}; const penAyarla=()=>{ if(!YIL){ PEN.i0=0; PEN.n=ND; return; } let a=-1,b=-1; for(let i=0;i<ND;i++) if(String(gun(i).getUTCFullYear())===YIL){ if(a<0) a=i; b=i; } if(a<0){ YIL=""; PEN.i0=0; PEN.n=ND; } else { PEN.i0=a; PEN.n=b-a+1; } };
@@ -89,6 +92,7 @@ const SEK=["genel","akis","operasyon","ekonomi","hedge","risk","varsayim"], CIZ=
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
+  if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
   if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
@@ -112,12 +116,12 @@ function genel(){
   const nk=j=>(Y("Net marj (USD)")[j]||0)-(Y("Vergi + beyanname maliyeti (USD)")[j]||0);
   if(YIL){ const j=YIL==="2027"?1:2;
     $("g-kpi").innerHTML=kt(YIL+" net kâr",usd(nk(j)),`hedge dahil, vergi sonrası · model toplamı ${usd(top[j])} (bölgesel avantaj dahil)`,nk(j)<0?"neg":"pos")
-      +kt("Satış",ton(sm[j]+sb[j]),`motorin ${ton(sm[j])} · benzin ${ton(sb[j])}<br>hedefin ${pct(ora[j])}`)
+      +kt("Satış",ton(sm[j]+sb[j]),`${BZ?`motorin ${ton(sm[j])} · benzin ${ton(sb[j])}`:"yalnız motorin"}<br>hedefin ${pct(ora[j])}`)
       +kt("Gemi varışı",nf.format(gv[j]),`${YIL} varış tarihine göre`)
       +kt("Tepe teminat",nf1.format(tem[j]/1e9)+" milyar TL",`${YIL} ÖTV teminat mektubu tepe bakiyesi`); }
   else $("g-kpi").innerHTML=kt("İki yıl net kâr",usd(nk(3)),`2027 ${usd(nk(1))} · 2028 ${usd(nk(2))} · hedge dahil, vergi sonrası<br>model toplamı ${usd(top[3])} (bölgesel avantaj dahil)`,nk(3)<0?"neg":"pos")
-    +kt("Satış",ton(sm[3]+sb[3]),`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
-    +kt("Gemi varışı",nf.format(gv[3]),`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · 2027 ${gv[1]} · 2028 ${gv[2]}`)
+    +kt("Satış",ton(sm[3]+sb[3]),`${BZ?`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}`:"yalnız motorin"}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
+    +kt("Gemi varışı",nf.format(gv[3]),`${BZ?`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · `:"motorin kargoları · "}2027 ${gv[1]} · 2028 ${gv[2]}`)
     +kt("Tepe teminat",nf1.format(tem[3]/1e9)+" milyar TL",`ÖTV teminat mektubu limiti · tepe vergi nakit ${nf1.format(oz("Tepe vergi nakit işletme sermayesi (TL)")[3]/1e9)} milyar TL`);
   if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">Net kâr = net marj (hedge dahil) − vergi ve beyanname maliyeti; bölgesel navlun avantajı bayi tarafındaki değerdir, kâra dahil değildir. Sonuç tek bir temsili fiyat yolundan (Baz, yol 49) gelir. İki yıllık model için Monte Carlo dağılımı henüz yok; Risk sekmesindeki dağılımlar önceki tek yıllık sürümdendir.</p>`);
   ticari();
@@ -258,45 +262,45 @@ function harita(KY,IK,TM){
 /* ---------- OPERASYON ---------- */
 function operasyon(){
   // tank planı
-  const TP=V.tplan, grp=[["Motorin","Antrepo",C.mot],["Benzin","Antrepo",C.ben],["Motorin","Milli","#7C9CCB"],["Benzin","Milli","#7FB68F"]], tmax=Math.max(...grp.map(([u,r])=>TP.filter(t=>t[2]===u&&t[3]===r).reduce((a,t)=>a+t[1],0)));
+  const TP=V.tplan, grp=[["Motorin","Antrepo",C.mot],["Benzin","Antrepo",BZ?C.ben:"#C9D2D7"],["Motorin","Milli","#7C9CCB"],["Benzin","Milli",BZ?"#7FB68F":"#C9D2D7"]], tmax=Math.max(...grp.map(([u,r])=>TP.filter(t=>t[2]===u&&t[3]===r).reduce((a,t)=>a+t[1],0)));
   $("o-tank").innerHTML=grp.map(([u,r,c])=>{ const L=TP.filter(t=>t[2]===u&&t[3]===r), s=L.reduce((a,t)=>a+t[1],0);
-    return `<div class="sr"><span>${u} · ${r.toLowerCase()}</span><div class="bx" style="width:${(s/tmax*100).toFixed(1)}%">${L.map(t=>`<i style="flex:${t[1]} 1 0;background:${c}" title="Tank ${t[0]} · ${nf.format(t[1])} m³">${t[1]>=4000?t[0]:""}</i>`).join("")}</div><b>${nf.format(s)} m³</b></div>`; }).join("");
+    return `<div class="sr"><span>${u} · ${r.toLowerCase()}${!BZ&&u==="Benzin"?'<br><small class="muted">projede kullanılmıyor</small>':""}</span><div class="bx" style="width:${(s/tmax*100).toFixed(1)}%">${L.map(t=>`<i style="flex:${t[1]} 1 0;background:${c}" title="Tank ${t[0]} · ${nf.format(t[1])} m³">${t[1]>=4000?t[0]:""}</i>`).join("")}</div><b>${nf.format(s)} m³</b></div>`; }).join("");
   $("o-tsub").textContent=`${TP.length} tank · toplam ${nf.format(TP.reduce((a,t)=>a+t[1],0))} m³ · kullanılabilir antrepo ${nf.format(V.tkap[0])} + ${nf.format(V.tkap[1])} m³, milli ${nf.format(V.tkap[2])} + ${nf.format(V.tkap[3])} m³`;
   const TK=V.tank;
-  zaman($("o-antrepo"),{aria:"Antrepo doluluğu",seri:[{ad:"Motorin antrepo",renk:C.mot,v:TK.map(r=>r[0]),alan:1},{ad:"Benzin antrepo",renk:C.ben,v:TK.map(r=>r[1]),alan:1}],yatay:[{v:V.tkap[0],ad:"motorin kullanılabilir "+nf.format(V.tkap[0])+" m³",renk:C.mot},{v:V.tkap[1],ad:"benzin kullanılabilir "+nf.format(V.tkap[1])+" m³",renk:C.ben}],fmt:v=>nf.format(v/1000)+"k",sifir:1,h:215});
-  zaman($("o-milli"),{aria:"Milli tank",seri:[{ad:"Motorin milli",renk:C.mot,v:TK.map(r=>r[2])},{ad:"Benzin milli",renk:C.ben,v:TK.map(r=>r[3])}],yatay:[{v:V.tkap[2],ad:"motorin kullanılabilir",renk:C.mot},{v:V.tkap[3],ad:"benzin kullanılabilir",renk:C.ben}],fmt:v=>nf.format(v/1000)+"k",sifir:1,h:165});
+  zaman($("o-antrepo"),{aria:"Antrepo doluluğu",seri:bzs([{ad:"Motorin antrepo",renk:C.mot,v:TK.map(r=>r[0]),alan:1},{ad:"Benzin antrepo",renk:C.ben,v:TK.map(r=>r[1]),alan:1}]),yatay:bzs([{v:V.tkap[0],ad:"motorin kullanılabilir "+nf.format(V.tkap[0])+" m³",renk:C.mot},{v:V.tkap[1],ad:"benzin kullanılabilir "+nf.format(V.tkap[1])+" m³",renk:C.ben}]),fmt:v=>nf.format(v/1000)+"k",sifir:1,h:215});
+  zaman($("o-milli"),{aria:"Milli tank",seri:bzs([{ad:"Motorin milli",renk:C.mot,v:TK.map(r=>r[2])},{ad:"Benzin milli",renk:C.ben,v:TK.map(r=>r[3])}]),yatay:bzs([{v:V.tkap[2],ad:"motorin kullanılabilir",renk:C.mot},{v:V.tkap[3],ad:"benzin kullanılabilir",renk:C.ben}]),fmt:v=>nf.format(v/1000)+"k",sifir:1,h:165});
   // rampa: aylık satış ve tüketim
   const ay=new Map(); for(let i=0;i<ND;i++){ const d=gun(i), k=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(k)||ay.set(k,{m:0,b:0,tm:0,tb:0,ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),k:d.toISOString().slice(0,7)}).get(k); o.m+=V.gm[i][0]; o.b+=V.gb[i][0]; o.tm+=V.gm[i][5]; o.tb+=V.gb[i][5]; }
   const AL=[...ay.entries()].filter(([k])=>!YIL||String(Math.floor(k/100))===YIL).map(x=>x[1]), hm=+gir("Seçili motorin (t/yıl)"), hb=+gir("Seçili benzin (t/yıl)");
-  cubuk($("o-rampa"),{aria:"Aylık satış",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin satışı",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin satışı",renk:C.ben,v:AL.map(a=>a.b)}],cizgi:[{ad:"Tüketim (mevsim × rampa)",renk:C.gts,v:AL.map(a=>a.tm+a.tb)},{ad:"Hedef hız (ay ortalaması)",renk:C.ink3,kesik:"5 4",v:AL.map(()=>(hm+hb)/12)}],fmt:v=>nf.format(v/1000)+"k",etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",ek:i=>{ const q=(V.mev||[]).find(x=>x[1].slice(0,7)===(AL[i].k||"")); return q?`<br>rampa ${pct(q[2])}`:""; }});
+  cubuk($("o-rampa"),{aria:"Aylık satış",kat:AL.map(a=>a.ad),seri:bzs([{ad:"Motorin satışı",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin satışı",renk:C.ben,v:AL.map(a=>a.b)}]),cizgi:[{ad:"Tüketim (mevsim × rampa)",renk:C.gts,v:AL.map(a=>a.tm+a.tb)},{ad:"Hedef hız (ay ortalaması)",renk:C.ink3,kesik:"5 4",v:AL.map(()=>(hm+hb)/12)}],fmt:v=>nf.format(v/1000)+"k",etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",ek:i=>{ const q=(V.mev||[]).find(x=>x[1].slice(0,7)===(AL[i].k||"")); return q?`<br>rampa ${pct(q[2])}`:""; }});
   $("o-rsub").textContent=`ton / ay · Ocak 2027 hedefin %${nf.format(gir("Ocak 2027 satış oranı (hedefin %)")*100)}'si, Ocak 2028 %100 · satış, bayi davranışı ve haftalık takvim nedeniyle tüketimden sapar`;
   // kargo takvimi (gantt)
-  const gantt=()=>{ gw($("o-gantt")); const i0=PEN.i0, nn=PEN.n, H=140, pad={l:W<600?58:70,r:12,t:8}, xs=olcek(0,nn-1,pad.l,W-pad.r), y0=H-22; let g=ayTik(nn,{t:pad.t,y0},xs,i0);
-    const ser=[["Motorin",V.km,C.mot,pad.t+6],["Benzin",V.kb,C.ben,pad.t+62]];
+  const gantt=()=>{ gw($("o-gantt")); const i0=PEN.i0, nn=PEN.n, H=BZ?140:84, pad={l:W<600?58:70,r:12,t:8}, xs=olcek(0,nn-1,pad.l,W-pad.r), y0=H-22; let g=ayTik(nn,{t:pad.t,y0},xs,i0);
+    const ser=[["Motorin",V.km,C.mot,pad.t+6],["Benzin",V.kb,C.ben,pad.t+62]].filter(x=>BZ||x[0]==="Motorin");
     for(const [ad,L,c,yb] of ser){ g+=`<text x="${pad.l-8}" y="${yb+24}" text-anchor="end" style="fill:var(--ink);font:12px var(--f-body)">${ad}</text>`;
       L.forEach((k,j)=>{ const a=Math.max(0,tarihI(k[4])-i0), b=/^\d{4}-/.test(k[6])?Math.min(nn-1,tarihI(k[6])-i0):nn-1; if(b<0||a>nn-1) return; const ln=j%3, y=yb+ln*16;
         g+=`<rect x="${xs(a).toFixed(1)}" y="${y}" width="${Math.max(1.5,xs(b)-xs(a)).toFixed(1)}" height="12" rx="2" fill="${k[13]>=0?c:C.neg}" fill-opacity="${k[13]>=0?.75:.6}"><title>${ad} kargo ${k[0]} · ${esc(k[1])} ${ton(k[2])} · satışa hazır ${k[4]} → tükenme ${k[6]} (${k[7]} gün) · net marj ${usd(k[13])}</title></rect>`; }); }
-    $("o-gantt").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Kargo takvimi">${g}</svg><div class="lg"><span><i class="k" style="background:${C.mot}"></i>motorin kargosu (satışa hazır → tükenme)</span><span><i class="k" style="background:${C.ben}"></i>benzin kargosu</span><span><i class="k" style="background:${C.neg}"></i>net marjı eksi</span></div>`; };
+    $("o-gantt").innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Kargo takvimi">${g}</svg><div class="lg"><span><i class="k" style="background:${C.mot}"></i>motorin kargosu (satışa hazır → tükenme)</span>${BZ?`<span><i class="k" style="background:${C.ben}"></i>benzin kargosu</span>`:""}<span><i class="k" style="background:${C.neg}"></i>net marjı eksi</span></div>`; };
   gantt();
   const kt=()=>{ const L=(S.ku==="m"?V.km:V.kb).filter(k=>yilOk(k[4]));
     $("o-kargo").innerHTML=`<thead><tr><th>No</th><th class="l">Gemi</th><th>Ton</th><th class="l">Satışa hazır</th><th class="l">Tükenme</th><th>Gün</th><th>CIF $/t</th><th>Alış $/t</th><th>Tüpraş ort. $/t</th><th>Brüt marj</th><th>Hedge net</th><th>Net marj</th></tr></thead><tbody>`
       +L.map(k=>`<tr><td>${k[0]}</td><td class="l">${esc(k[1])}</td><td>${ton(k[2])}</td><td class="l">${tk(k[4])}</td><td class="l" style="white-space:nowrap">${tk(k[6])}</td><td>${k[7]}</td><td>${nf1.format(k[9])}</td><td>${nf1.format(k[10])}</td><td>${nf1.format(k[11])}</td><td class="${k[12]>=0?"p":"n"}">${usd(k[12])}</td><td class="${k[14]>=0?"p":"n"}">${usd(k[14])}</td><td class="${k[13]>=0?"p":"n"}"><b>${usd(k[13])}</b></td></tr>`).join("")+`</tbody>`;
-    const n=L.length||1, ort=L.reduce((a,k)=>a+k[7],0)/n; $("o-ksub").textContent=`${YIL?YIL+" · satışa hazır olduğu yıl · ":""}motorin ${V.km.filter(k=>yilOk(k[4])).length}, benzin ${V.kb.filter(k=>yilOk(k[4])).length} kargo${YIL?"":" (açılış stoğu dahil)"} · ${S.ku==="m"?"motorin":"benzin"} ortalama yaşam ${nf1.format(ort)} gün · kargo 0 = 1.1.2027 açılış stoğu`; };
+    const n=L.length||1, ort=L.reduce((a,k)=>a+k[7],0)/n; $("o-ksub").textContent=`${YIL?YIL+" · satışa hazır olduğu yıl · ":""}motorin ${V.km.filter(k=>yilOk(k[4])).length}${BZ?`, benzin ${V.kb.filter(k=>yilOk(k[4])).length}`:""} kargo${YIL?"":" (açılış stoğu dahil)"} · ${S.ku==="m"?"motorin":"benzin"} ortalama yaşam ${nf1.format(ort)} gün · kargo 0 = 1.1.2027 açılış stoğu`; };
   for(const b of $("o-kur").querySelectorAll("button")) b.onclick=()=>{ S.ku=b.dataset.u; for(const x of $("o-kur").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); kt(); };
   kt();
-  $("o-lot").innerHTML=`<thead><tr><th class="l">Senaryo</th><th>Lot</th><th>Kaç günlük tüketim</th><th>Yıllık varış</th><th>Ort. stok</th><th>Tepe stok</th><th>Finansman / yıl</th><th>$/t</th><th>%5 şokta tepe etkisi</th></tr></thead><tbody>`
+  $("o-lot").closest("section").hidden=!BZ; $("o-lot").innerHTML=`<thead><tr><th class="l">Senaryo</th><th>Lot</th><th>Kaç günlük tüketim</th><th>Yıllık varış</th><th>Ort. stok</th><th>Tepe stok</th><th>Finansman / yıl</th><th>$/t</th><th>%5 şokta tepe etkisi</th></tr></thead><tbody>`
     +V.blot.map(r=>`<tr><td class="l">${r[0]==="BAZ_075"?"Baz · 0,75 Mt":"Hedef · 1,5 Mt"}</td><td><b>${ton(r[1])}</b></td><td>${nf1.format(r[2])}</td><td>${r[3]}</td><td>${ton(r[4])}</td><td>${ton(r[5])}</td><td>${usd(r[6])}</td><td>${nf2.format(r[7])}</td><td>${usd(r[8])}</td></tr>`).join("")+`</tbody>`;
 }
 
 /* ---------- EKONOMİ ---------- */
 function ekonomi(){
-  const sat=[["Motorin satışı (t)",ton],["Benzin satışı (t)",ton],["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],["Bölgesel navlun avantajı (USD)",musd,1],["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
+  const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],["Bölgesel navlun avantajı (USD)",musd,1],["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
   $("e-yil").classList.toggle("y27",YIL==="2027"); $("e-yil").classList.toggle("y28",YIL==="2028");
   $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const r=oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi"); const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc(l.replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","Vergi ve beyanname (−)"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
   // aylık net marj
   const ay=new Map(); const ek=(L,u)=>{ for(const k of L){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,n:0}).get(key); o[u]+=k[13]; o.n++; } };
   ek(V.km,"m"); ek(V.kb,"b"); const AL=[...ay].filter(([k])=>!YIL||String(Math.floor(k/100))===YIL).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
-  cubuk($("e-ay"),{aria:"Aylık net marj",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin",renk:C.ben,v:AL.map(a=>a.b)}],fmt:v=>nf1.format(v/1e6),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",ek:i=>`<br>${AL[i].n} kargo · toplam <b>${usd(AL[i].m+AL[i].b)}</b>`});
+  cubuk($("e-ay"),{aria:"Aylık net marj",kat:AL.map(a=>a.ad),seri:bzs([{ad:"Motorin",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin",renk:C.ben,v:AL.map(a=>a.b)}]),fmt:v=>nf1.format(v/1e6),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",ek:i=>`<br>${AL[i].n} kargo · toplam <b>${usd(AL[i].m+AL[i].b)}</b>`});
   // fiyat
   const F=V.fiy, fc=()=>{ const m=S.fu==="m";
     zaman($("e-fiyat"),{aria:"Alış ve satış fiyatı",seri:[{ad:"CIF Med (alış bazı)",renk:C.ink3,v:F.map(r=>m?r[0]:r[1])},{ad:"Tüpraş vergisiz (satış)",renk:m?C.mot:C.ben,v:F.map(r=>m?r[3]:r[4]),kalin:2}],fmt:nf.format,h:195});
@@ -304,7 +308,7 @@ function ekonomi(){
   for(const b of $("e-fu").querySelectorAll("button")) b.onclick=()=>{ S.fu=b.dataset.u; for(const x of $("e-fu").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); fc(); };
   fc();
   zaman($("e-tem"),{aria:"Teminat bakiyesi",seri:[{ad:"ÖTV teminat bakiyesi",renk:C.kur,v:V.vn.map(r=>r[0]),alan:1},{ad:"Vergi nakit işletme sermayesi",renk:C.gts,v:V.vn.map(r=>r[1])}],fmt:v=>nf.format(v),sifir:1,h:180});
-  $("e-oz").innerHTML=`<thead><tr><th class="l">Gösterge</th><th>Motorin</th><th>Benzin</th><th>Toplam</th><th class="l">Not</th></tr></thead><tbody>`+OZ.filter(r=>r[1]!=="Motorin").map(r=>{ const b=r[1]==null&&r[2]==null&&r[3]==null; if(b) return `<tr class="ara"><td colspan="5">${esc(r[0])}</td></tr>`; const f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000||Number.isInteger(v)?nf.format(v):nf2.format(v)):esc(v); return `<tr><td class="l">${esc(r[0])}</td><td>${f(r[1])}</td><td>${f(r[2])}</td><td><b>${f(r[3])}</b></td><td class="l muted" style="white-space:normal;min-width:180px">${esc(r[4]||"")}</td></tr>`; }).join("")+`</tbody>`;
+  $("e-oz").innerHTML=`<thead><tr><th class="l">Gösterge</th><th>Motorin</th>${BZ?"<th>Benzin</th>":""}<th>Toplam</th><th class="l">Not</th></tr></thead><tbody>`+OZ.filter(r=>r[1]!=="Motorin"&&(BZ||!/^Benzin/.test(r[0]))).map(r=>{ const b=r[1]==null&&r[2]==null&&r[3]==null; if(b) return `<tr class="ara"><td colspan="${BZ?5:4}">${esc(r[0])}</td></tr>`; const f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000||Number.isInteger(v)?nf.format(v):nf2.format(v)):esc(v); return `<tr><td class="l">${esc(r[0])}</td><td>${f(r[1])}</td>${BZ?`<td>${f(r[2])}</td>`:""}<td><b>${f(r[3])}</b></td><td class="l muted" style="white-space:normal;min-width:180px">${esc(r[4]||"")}</td></tr>`; }).join("")+`</tbody>`;
 }
 
 /* ---------- HEDGE: emtia (ICE Gasoil) ve kur (TL forward) ayrıntısı (kullanıcı 01.11.2026 18:37) ---------- */
@@ -315,7 +319,7 @@ function hedgeAyar(){
   const el=$("h-ayar"), H=V.hgir||[]; if(!H.length){ el.innerHTML=`<p class="not">Bu modelde hedge ayarları bulunamadı.</p>`; return; }
   const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, KS=H.map(r=>r[1]), nG=KS.filter(k=>k in G).length;
   const yuz=l=>/oranı|marjı/.test(l), ad=l=>l.replace(/ \(USD\/t;.*\)$/," (USD/t)").replace(" (ICE Gasoil ile çapraz)"," (ICE Gasoil ile çapraz)");
-  const grp=[["Emtia (ürün) hedge",["Ürün hedge","Motorin ürün hedge oranı","Benzin ürün hedge oranı (ICE Gasoil ile çapraz)","ICE Gasoil işlem maliyeti (USD/t; borsa + takas + komisyon + kayma, gidiş-dönüş)","Teminat (initial margin) oranı"]],["Kur hedge (TL forward)",["Kur hedge","Kur hedge oranı","Forward banka marjı"]]];
+  const grp=[["Emtia (ürün) hedge",["Ürün hedge","Motorin ürün hedge oranı",...(BZ?["Benzin ürün hedge oranı (ICE Gasoil ile çapraz)"]:[]),"ICE Gasoil işlem maliyeti (USD/t; borsa + takas + komisyon + kayma, gidiş-dönüş)","Teminat (initial margin) oranı"]],["Kur hedge (TL forward)",["Kur hedge","Kur hedge oranı","Forward banka marjı"]]];
   let h="";
   for(const [g,L] of grp){ h+=`<div class="tic-g">${g}</div>`;
     for(const l of L){ const r=H.find(x=>x[0]===l); if(!r) continue; const id="hg-"+r[1].replace(/\W/g,""), deg=r[3]!=null&&r[3]!==r[2];
@@ -349,7 +353,7 @@ function hedge(){
   // aylık hedge sonucu
   const ay=new Map(); for(const [u,k] of A){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,c:0}).get(key); if(u==="Motorin") o.m+=k[19]; else o.b+=k[19]; o.c-=k[20]+k[21]; }
   const AL=[...ay].sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
-  cubuk($("h-eay"),{aria:"Aylık hedge sonucu",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin hedge (brüt)",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin çapraz hedge (brüt)",renk:C.ben,v:AL.map(a=>a.b)},{ad:"İşlem + teminat maliyeti",renk:C.ink3,v:AL.map(a=>a.c)}],fmt:v=>nf1.format(v/1e6),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",h:165});
+  cubuk($("h-eay"),{aria:"Aylık hedge sonucu",kat:AL.map(a=>a.ad),seri:bzs([{ad:"Motorin hedge (brüt)",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin çapraz hedge (brüt)",renk:C.ben,v:AL.map(a=>a.b)},{ad:"İşlem + teminat maliyeti",renk:C.ink3,v:AL.map(a=>a.c)}]),fmt:v=>nf1.format(v/1e6),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",h:165});
   // vadeli eğri ile temsili yol
   const vm=new Map((V.vad||[]).map(r=>[r[0].slice(0,7),r])), gk=i=>gun(i).toISOString().slice(0,7);
   zaman($("h-egri"),{aria:"Vadeli eğri ve temsili yol",seri:[{ad:"CIF Med motorin – temsili fiyat yolu",renk:C.ink3,v:V.fiy.map(r=>r[0])},{ad:"Motorin vadeli eğrisi (ICE LSGO + fark, aylık)",renk:C.gts,v:V.gm.map((_,i)=>{ const r=vm.get(gk(i)); return r?r[2]:null; }),kalin:2.2}],fmt:nf.format,h:180});
@@ -377,7 +381,7 @@ function hedge(){
     const b=$("h-khep"); if(b) b.onclick=()=>{ S.hkhep=!S.hkhep; ktb(); }; };
   for(const b of $("h-ku").querySelectorAll("button")) b.onclick=()=>{ S.hku=b.dataset.u; for(const x of $("h-ku").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); ktb(); };
   ktb();
-  $("h-esub").textContent=`${YIL||"2027–2028"} · kargonun satışa hazır olduğu yıl · ICE Gasoil futures (benzin için çapraz hedge)`;
+  $("h-esub").textContent=`${YIL||"2027–2028"} · kargonun satışa hazır olduğu yıl · ICE Gasoil futures${BZ?" (benzin için çapraz hedge)":""}`;
   $("h-ksub").textContent=`${YIL||"2027–2028"} · USD/TRY forward, TL faizi ve USD faizinden (faiz paritesi) + banka marjı`;
 }
 
