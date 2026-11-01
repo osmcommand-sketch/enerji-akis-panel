@@ -1,14 +1,14 @@
 {
- "surum": "1.0.76",
+ "surum": "1.0.77",
  "kabuk": 1,
- "tarih": "2026-10-30T12:45:48+03:00",
- "notlar": "Yeni sayfa: Senaryo · GTS Dörtyol (SCN_GTS_* tabloları; resmî değil). Baz/Hedef, vaka seçici, değer şelalesi, mevcut-baz-hedef karşılaştırması, harita, terminal ve şirket tabloları.",
+ "tarih": "2026-11-01T16:47:50+03:00",
+ "notlar": "GTS senaryo sayfasında ürün renkleri panelle aynı (motorin mavi, benzin yeşil).",
  "dosyalar": {
   "ui/index.html": "62cacd69617e8e8f59ff32f2efb50f590e3130694ac23fee5faedf727f33b3b3",
   "ui/app.css": "e98fc0b4ab415ed65a27ddc7b14e2125053c2f40630becdbf9b094d0f2e61653",
   "ui/app.js": "6be64abf58d134d87816a6bbdaf1756074fe57a135e416ba8477efb34f49fbf5",
   "ui/panel.css": "3c534d97ece01d0cbc1760de5c6b0e4c6aa9a472fcb594925c27bd4fbc3d2048",
-  "ui/panel.js": "58e318f8bbefa544c29d68a588ab4e93edff6d2604e4282ddef746c1ccc83926",
+  "ui/panel.js": "8a85f58d6ecc258f35c36f3b4c2a32df4a785d702ba54a321c6e770de96f9889",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",

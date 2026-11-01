@@ -1159,7 +1159,7 @@ const gTA=t=>TERM[t]?(TERM[t][0]==="T227"?"GTS Dörtyol":TERM[t][1]):"?";
 const usd=x=>{ const a=Math.abs(x); return (x<0?"−":"")+(a>=1e6?nf2.format(a/1e6)+" M $":nf.format(a/1e3)+" bin $"); };
 const tl=x=>nf.format(x/1e6)+" M TL", km=x=>nf.format(x)+" km";
 const gIdx=(s,v)=>GOZ.findIndex(r=>r[0]===s&&r[1]===v);
-const G_C={gts:"#B8860B",kay:"#B3412E",ben:"#2F6DB5",mot:"#0F6E8C"};
+const G_C={gts:"#B8860B",kay:"#B3412E",ben:"#2F855A",mot:"#2A5591"};
 const fGV=document.getElementById("f-gts-v");
 if(fGV){ fGV.addEventListener("change",()=>{ S.gVaka=fGV.value; render(); });
   for(const b of document.querySelectorAll("#gts-sen [data-gsen]")) b.addEventListener("click",()=>{ S.gSen=b.dataset.gsen; render(); }); }
