@@ -132,9 +132,10 @@ function genel(){
    Kargo bazında (kargonun satışa hazır olduğu yıl); vergi ve bölgesel avantaj Özet "Yıllara göre" bloğundan. */
 function karlilik(){
   const Y=k=>oz(k,1), yillar=[["2027",1],["2028",2]], kol=YIL?yillar.filter(x=>x[0]===YIL):yillar.concat([["Toplam",3]]);
-  const top=(y)=>{ const o={t:0,sat:0,al:0,nav:0,ik:0,br:0,fin:0,hb:0,hi:0,ht:0,net:0,kur:0,n:0,fd:0,ap:0};
-    for(const L of [V.km,V.kb]) for(const k of L){ if(y!=="Toplam"&&k[4].slice(0,4)!==y) continue; if(k.length<23) continue;
-      o.t+=k[2]; o.al+=k[16]; o.nav+=k[17]; o.ik+=k[18]; o.br+=k[12]; o.fin+=k[15]; o.hb+=k[19]; o.hi+=k[20]; o.ht+=k[21]; o.net+=k[13]; o.kur+=k[22]; o.n++; if(k.length>=26){ o.fd+=(k[25]-k[9])*k[2]; o.ap+=k[9]*k[2]-(k[16]-k[17]-k[18]); } }
+  const gn=l=>{ const v=+gir(l); return isFinite(v)?v:0; }, EL=gn("GTS elleçleme tarifesi (USD/t)"), SY=gn("İthal kargo ek seyir (USD/t)"), PR=[gn("Alım primi / iskontosu – motorin (USD/t, CIF Med ±)"),gn("Alım primi / iskontosu – benzin (USD/t, CIF Med ±)")];
+  const top=(y)=>{ const o={t:0,sat:0,al:0,nav:0,ik:0,br:0,fin:0,hb:0,hi:0,ht:0,net:0,kur:0,n:0,fd:0,ap:0,pr:0,el:0,sy:0};
+    for(const [li,L] of [V.km,V.kb].entries()) for(const k of L){ if(y!=="Toplam"&&k[4].slice(0,4)!==y) continue; if(k.length<23) continue;
+      o.t+=k[2]; o.al+=k[16]; o.nav+=k[17]; o.ik+=k[18]; o.br+=k[12]; o.fin+=k[15]; o.hb+=k[19]; o.hi+=k[20]; o.ht+=k[21]; o.net+=k[13]; o.kur+=k[22]; o.n++; if(k.length>=26){ o.fd+=(k[25]-k[9])*k[2]; o.ap+=k[9]*k[2]-(k[16]-k[17]-k[18]); o.pr+=PR[li]*k[2]; o.el+=EL*k[2]; o.sy+=SY*k[2]; } }
     o.sat=o.al+o.br; return o; };
   const T=kol.map(([y,j])=>{ const o=top(y); o.ver=Y("Vergi + beyanname maliyeti (USD)")[j]||0; o.bol=Y("Bölgesel navlun avantajı (USD)")[j]||0; o.nk=o.net-o.ver; o.mt=o.nk+o.bol; o.ad=y; return o; });
   if(!T[0].n){ $("g-kar").innerHTML=`<tbody><tr><td class="l">Bu paketteki model kalem ayrıntısı vermiyor.</td></tr></tbody>`; return; }
@@ -142,14 +143,18 @@ function karlilik(){
   const R=[
     ["Satış hacmi",o=>o.t,"h","kargo tonu"],
     ["Satış geliri",o=>o.sat,"ana","Tüpraş vergisiz fiyatı ± satış farkı"],
-    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"alt","CIF Med ± alım primi, tahliye farkı dahil"],
+    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"alt","CIF Med ± alım primi, elleçleme, ek seyir ve tahliye farkı dahil"],
     ["Gemi navlun farkı",o=>-o.nav,"alt","büyük gemi kazancı (+), küçük gemi farkı (−)"],
     ["İkinci liman (kısmi tahliye)",o=>-o.ik,"alt"],
     ["Brüt marj",o=>o.br,"ara"],
     ["Tüpraş primi",o=>o.br-o.fd-o.ap+o.nav+o.ik,"acl","satış fiyatı − satış dönemindeki CIF Med"],
     ["Stokta fiyat değişimi",o=>o.fd,"acl","satış dönemi CIF − fiyatlama günü CIF; düşen piyasada zarar"],
-    ["Alım primi ve tahliye farkı",o=>o.ap,"acl","CIF Med ile ürün alışı arasındaki fark"],
-    ["Navlun farkı ve ikinci liman",o=>-o.nav-o.ik,"acl","yukarıdaki iki satırın toplamı"],
+    ["Alım primi, elleçleme ve tahliye farkı",o=>o.ap,"acl","CIF Med ile ürün alışı arasındaki fark (navlun hariç)"],
+    ["Alım primi / iskontosu",o=>-o.pr,"acl2","Ticari koşullar: CIF Med ± USD/t; prim (+) zarar, iskonto (−) kazanç"],
+    ["GTS elleçleme tarifesi",o=>-o.el,"acl2",`${nf1.format(EL)} USD/t · Girdiler B48`],
+    ["İthal kargo ek seyir",o=>-o.sy,"acl2",`${nf1.format(SY)} USD/t · Girdiler B49`],
+    ["Tahliye farkı",o=>o.ap+o.pr+o.el+o.sy,"acl2","konşimento ile tahliye edilen ton farkı (%"+nf1.format(gn("Tahliye farkı (gemi B/L − tahliye, %)")*100)+"); tüm alış bedeline uygulanır"],
+    ["Navlun farkı ve ikinci liman",o=>-o.nav-o.ik,"acl","Gemi navlun farkı + İkinci liman satırları"],
     ["Finansman",o=>-o.fin,"alt","stokta kalma ve müşteri vadesi"],
     ["Hedge öncesi marj",o=>o.br-o.fin,"ara"],
     ["Ürün hedge sonucu",o=>o.hb,"alt","ICE Gasoil; kilit fiyatı − satış dönemi CIF"],
@@ -169,8 +174,8 @@ function karlilik(){
     h+=`<tr class="k-${t}"><td class="l"><span class="kl">${esc(l)}</span>${not?`<span class="kn">${esc(not)}</span>`:""}</td>`;
     for(const o of T){ const v=f(o);
       if(t==="h"){ h+=`<td class="yb">${ton(v)}</td><td></td><td></td>`; continue; }
-      const pt=o.t?v/o.t:0, ps=o.sat?v/o.sat:0, c=t==="ana"||t==="b"?"":(v<0?"n":"p");
-      if(t==="acl"){ h+=`<td class="yb ${c}">${v>0?"+":""}${m(v)}</td><td class="${c}">${(pt<0?"−":pt>0?"+":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; continue; }
+      const pt=o.t?v/o.t:0, ps=o.sat?v/o.sat:0, c=t==="ana"||t==="b"||Math.abs(v)<5e4?"":(v<0?"n":"p");
+      if(t==="acl"||t==="acl2"){ h+=`<td class="yb ${c}">${v>0?"+":""}${m(v)}</td><td class="${c}">${(pt<0?"−":pt>0?"+":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; continue; }
       h+=`<td class="yb ${c}">${sg(v,t)}${m(v)}</td><td class="muted">${(pt<0?"−":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${t==="ana"?"100":(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; }
     const v=f(son), w=t==="h"||l==="Satış geliri"||l==="Ürün alışı"?0:Math.min(100,Math.abs(v)/mx*100);
     h+=`<td class="l bar">${w?`<i class="${v<0?"n":"p"}${t==="ara"||t==="son"?" kal":""}" style="width:${w.toFixed(1)}%"></i>`:""}</td></tr>`; }
