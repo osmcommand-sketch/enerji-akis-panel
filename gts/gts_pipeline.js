@@ -73,6 +73,12 @@ function pr(x, n = 0) { if (typeof x !== 'number' || !isFinite(x)) return x; con
 /* ---------- csv ---------- */
 function csvOku(t) { const L = t.replace(/^﻿/, '').split(/\r?\n/).filter((x) => x.length); const h = L[0].split(','); return L.slice(1).map((l) => { const a = l.split(','); const o = {}; h.forEach((k, i) => (o[k] = a[i])); return o; }); }
 
+function girdiYolu(kok) {
+  if (/[\\/]guncel[\\/][^\\/]+[\\/]?$/.test(kok)) return path.join(kok, '..', '..', 'girdiler.json');
+  if (process.env.GTS_GIRDI_DIR) return path.join(process.env.GTS_GIRDI_DIR, 'girdiler.json');
+  const os = require('os'); const b = process.env.APPDATA || (process.platform === 'darwin' ? path.join(os.homedir(), 'Library', 'Application Support') : path.join(os.homedir(), '.config'));
+  return path.join(b, 'GTS Dörtyol', 'girdiler.json');
+}
 function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const fs = require('fs');
   const Z = zipAc(zipBuf);
@@ -104,13 +110,20 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   // Excel modeli
   log('Excel modeli okunuyor: ' + path.basename(xl.ad));
   O.model = path.basename(xl.ad);
-  const X = xlsxAc(Z.oku(xl));
+  // kullanıcı girdileri (Ticari koşullar paneli) – userData/girdiler.json; model bunlarla yeniden hesaplanır
+  const gy = girdiYolu(opt.kok || __dirname); let girdi = {};
+  try { if (fs.existsSync(gy)) girdi = JSON.parse(fs.readFileSync(gy, 'utf8')) || {}; } catch { girdi = {}; }
+  const HS = require(path.join(resDir, 'hesap.js'));
+  const xb = Z.oku(xl);
+  log(Object.keys(girdi).length ? 'Model sizin girdilerinizle yeniden hesaplanıyor' : 'Model hesaplanıyor');
+  const X = HS.hesapla(xb, girdi);
+  O.girdi = girdi; O.girdiYolu = gy; O.hesap = X.formul;
   const satir = (ad, a, b, mc) => { const R = X.sayfa(ad), out = []; const son = b || R.length - 1; for (let i = a; i <= son; i++) { const r = R[i] || []; const q = []; const n = mc || r.length; for (let j = 0; j < n; j++) q[j] = r[j] === undefined ? null : r[j]; out.push(q); } return out; };
   const R2 = (x, n = 0) => pr(x, n);
   const oz = satir('Ozet', 1, 83, 5);
   O.oz_bas = oz.slice(1, 4).map((x) => x[0]);
   O.oz = oz.slice(4).filter((x) => x[0] != null).map((x) => [x[0], R2(x[1], 2), R2(x[2], 2), R2(x[3], 2), x[4]]);
-  O.tic = satir('Ozet', 5, 30, 9).filter((x) => x[6] != null).map((x) => [x[6], R2(x[7], 2), x[8]]);
+  O.tic = []; { const R = X.sayfa('Ozet'); for (let i = 5; i <= 30; i++) { const x = R[i]; if (!x || x[6] == null) continue; O.tic.push([x[6], R2(x[7], 2), x[8], R2(X.orijinal('Ozet', 'H' + i), 2), 'Ozet!H' + i]); } }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);
@@ -147,4 +160,4 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   log('Hazır');
   return O;
 }
-if (typeof module !== 'undefined' && module.exports) module.exports = { run, zipAc, xlsxAc };
+if (typeof module !== 'undefined' && module.exports) module.exports = { run, zipAc, xlsxAc, girdiYolu };

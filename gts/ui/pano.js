@@ -97,10 +97,7 @@ function wfKart(baslik,K,toplam,alt){
   return `<section><div class="head"><h2>${esc(baslik)}</h2><span class="sub">${alt}</span></div><div class="wf" role="img" aria-label="${esc(baslik)} köprüsü">${h}</div></section>`;
 }
 function genel(){
-  $("g-bas").textContent=V.oz_bas.join(" · ").replace(/\s+•\s+/g," · ");
   { const y0=V.g0.slice(0,4), y1=String(new Date(Date.parse(V.g0+"T00:00:00Z")+(V.gm.length-1)*864e5).getUTCFullYear()); $("g-h").textContent=(y0===y1?y0:y0+"–"+y1)+" senaryo modeli"; }
-  { const r0=V.mev&&V.mev[0]?V.mev[0][2]:null, hi=(V.mev||[]).findIndex(x=>x[2]>=0.999), yil=V.fiy&&V.fiy.length?Math.round(V.gm.length/365):2;
-    $("g-lead").textContent=`Global Terminal Dörtyol (GTS) bugün yalnız transit çalışıyor. Proje, terminali yurt içine motorin ve benzin ithal edilen bir satış noktasına dönüştürüyor. Rakamlar PDM'nin Excel modelinden (${V.model||"GTS senaryo modeli"}), temsili fiyat yolu ile gelir.`+(r0!=null&&hi>=0?` Satış ${AY[new Date(V.mev[0][1]+"T00:00:00Z").getUTCMonth()]} ${V.mev[0][1].slice(0,4)}'de hedefin %${nf.format(r0*100)}'siyle başlıyor ve ${AY[new Date(V.mev[hi][1]+"T00:00:00Z").getUTCMonth()]} ${V.mev[hi][1].slice(0,4)}'de hedefe ulaşıyor.`:""); }
   const Y=k=>oz(k,1), top=Y("Toplam (USD)"), sm=Y("Motorin satışı (t)"), sb=Y("Benzin satışı (t)"), ora=Y("Satış / hedef tonaj"), tem=Y("Tepe teminat bakiyesi (TL)"), gv=Y("Gemi varışı (adet, varış tarihine göre)");
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
   $("g-kpi").innerHTML=kt("İki yıl toplam",usd(top[3]),`2027 ${usd(top[1])} · 2028 ${usd(top[2])}`,top[3]<0?"neg":"pos")
@@ -116,17 +113,37 @@ function genel(){
     +kc("Gemi ve tank",[["Motorin",`${esc(gir("Motorin gemi sınıfı"))} kısmi · ${ton(+gir("Motorin GTS partisi (t)"))}`],["Benzin",`${esc(gir("Benzin gemi sınıfı"))} · ${ton(+gir("Benzin partisi (t)"))}`],["Antrepo",nf.format(gir("Antrepo (m³) – Tank_Plani toplamı"))+" m³"],["Milli tank",nf.format(gir("Milli tank (m³) – Tank_Plani toplamı"))+" m³"]])
     +kc("Fiyat, vergi, risk",[["Fiyat",`${esc(gir("Fiyat senaryosu"))} · temsili yol`],["ÖTV",esc(gir("ÖTV rejimi"))+" (banka mektubu)"],...((V.tic||[]).length?[]:[["Müşteri vadesi",gir("Müşteri vadesi (gün)")+" gün"]]),["Hedge",`ürün ${esc(gir("Ürün hedge"))} · kur ${esc(gir("Kur hedge"))}`]]);
   const K=V.karar||[];
-  // ticari koşullar (Excel Özet girdi paneli, paket 57+)
-  { const T=(V.tic||[]).filter(r=>r[1]!=="Değer"); let h="", grp="";
-    const bir=l=>/USD\/t/.test(l)?"$/t":/TL\/m³/.test(l)?"TL/m³":/gün/i.test(l)?"gün":"";
-    for(const r of T){ if(r[1]==null){ grp=r[0]; h+=`<div class="tic-g">${esc(grp)}</div>`; continue; }
-      const v=r[1], isr=/USD\/t|TL\/m³/.test(r[0]), vv=typeof v==="number"?((isr&&v>0?"+":"")+nf.format(v)):esc(v), cod=/COD/.test(r[0]);
-      const ad=r[0].replace(/ \((USD\/t|TL\/m³|gün)\)$/,"").replace(/: COD \+ gün$/,"").replace(/: Tüpraş ±$/,"");
-      const deger=cod?`COD ${typeof v==="number"&&v<0?"−":"+"} ${nf.format(Math.abs(v))} gün`:/Tüpraş ±/.test(r[0])?`Tüpraş ${typeof v==="number"&&v<0?"−":"+"} ${nf.format(Math.abs(v))} TL/m³`:`${vv} ${bir(r[0])}`;
-      const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*\.?/g,"").trim();
-      h+=`<div class="kt tic-k"><span>${esc(ad)}</span><b>${esc(deger)}</b>${not?`<small>${esc(not)}</small>`:""}</div>`; }
-    const s=$("g-tic-s"); if(T.length){ $("g-tic").innerHTML=h; s.hidden=false; } else s.hidden=true; }
+  ticari();
   $("g-karar").innerHTML=K.length?K.map(([t,x])=>`<li><span class="z">${esc(t)}</span><span>${esc(x)}</span></li>`).join(""):`<li><span class="z"></span><span class="muted">README'de GTS bölümü yok.</span></li>`;
+}
+
+/* ---------- Ticari koşullar: kullanıcı girdisi (Excel Özet G5:I14); masaüstünde model bu değerlerle yeniden hesaplanır ---------- */
+function ticari(){
+  const el=$("g-tic"), T=(V.tic||[]).filter(r=>r[1]!=="Değer");
+  if(!T.length){ el.innerHTML=`<p class="not">Bu paketteki Excel modelinde ticari koşullar paneli yok (paket 57 ve sonrası).</p>`; return; }
+  const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, nG=Object.keys(G).length;
+  const bir=l=>/USD\/t/.test(l)?"$/t":/TL\/m³/.test(l)?"TL/m³":/gün/i.test(l)?"gün":"";
+  const onEk=l=>/COD/.test(l)?"COD ±":/Tüpraş ±/.test(l)?"Tüpraş ±":"";
+  const adT=l=>l.replace(/ \((USD\/t|TL\/m³|gün)\)$/,"").replace(/: COD \+ gün$/,"").replace(/: Tüpraş ±$/,"");
+  const f=v=>typeof v==="number"?String(v).replace(".",","):"";
+  let h="";
+  for(const r of T){ if(r[1]==null){ h+=`<div class="tic-g">${esc(r[0])}</div>`; continue; }
+    const id="tg-"+(r[4]||r[0]).replace(/[^\w]/g,""), deg=r[3], deg2=typeof deg==="number"&&deg!==r[1];
+    const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*\.?/g,"").trim();
+    h+=`<div class="kt tic-k${deg2?" deg":""}"><label for="${id}">${esc(adT(r[0]))}</label>
+      <div class="tic-i">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}" value="${f(r[1])}" ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n"><em>${bir(r[0])}</em></div>
+      <small id="${id}-n">${deg2?`<b>model varsayılanı ${f(deg)}</b> · `:""}${esc(not)}</small></div>`; }
+  el.innerHTML=`<div class="tic">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="tic-hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="tic-sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="tic-d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
+  if(!yaz) return;
+  const I=[...el.querySelectorAll("input[data-h]")], oku=i=>{ const s=i.value.trim().replace(/\s/g,"").replace("−","-").replace(",","."); return s===""?NaN:Number(s); };
+  const btn=$("tic-hesap"), d=$("tic-d");
+  const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i); i.classList.toggle("hata",!isFinite(v)); if(!isFinite(v)) hata=true; else if(Math.abs(v-Number(i.defaultValue.replace(",",".")))>1e-12) deg=true; }
+    btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
+  for(const i of I){ i.addEventListener("input",kontrol); i.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!btn.disabled) btn.click(); }); }
+  const kaydet=(o)=>{ const fs=require("fs"), path=require("path"); fs.mkdirSync(path.dirname(V.girdiYolu),{recursive:true}); if(o) fs.writeFileSync(V.girdiYolu,JSON.stringify(o,null,1)); else if(fs.existsSync(V.girdiYolu)) fs.unlinkSync(V.girdiYolu); };
+  btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dv=i.dataset.d===""?null:Number(i.dataset.d); if(dv===null||Math.abs(v-dv)>1e-12) o[i.dataset.h]=v; }
+    try{ kaydet(Object.keys(o).length?o:null); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
+  const sf=$("tic-sifir"); if(sf) sf.onclick=()=>{ try{ kaydet(null); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
 
 /* ---------- PAZAR VE AKIŞ ---------- */

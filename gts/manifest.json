@@ -1,15 +1,16 @@
 {
  "uygulama": "gts",
- "surum": "1.0.2",
+ "surum": "1.0.3",
  "kabuk": 1,
- "tarih": "2026-11-01T17:43:38+03:00",
- "notlar": "Ticari koşullar Genel bakışta ayrı bölüm: alım primi, ödeme vadesi, fiyatlama, satış fiyatı farkı, satış vadesi.",
+ "tarih": "2026-11-01T17:58:27+03:00",
+ "notlar": "Ticari koşulları siz girersiniz: Genel bakıştaki panelde değeri değiştirip 'Modeli bu koşullarla hesapla' deyin; Excel modeli uygulama içinde yeniden hesaplanır.",
  "dosyalar": {
-  "ui/index.html": "d80759910593c0529287c95c06a2bb0f903250870f88ff31fd393520836718ee",
+  "ui/index.html": "08a69fd3d9af88dc2662d04b376de349edf293017e6d14bf4ef67f017eb0a704",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "800bc63bec8ac5b08ece2118ad097a235587d6145d490fe277280dcb61eb7661",
-  "gts_pipeline.js": "b894c7b54da970f1423610b6b412264f86646edbbe46ca7645f6c05d66f97d4c",
+  "ui/pano.js": "55e376d855cfdadcea55b79826fa1778308cf3524b8f3c52b4d13b941814a25e",
+  "gts_pipeline.js": "0adabb140ec0d6c499ffbb4f549549aa7d02853f238ef35e56e20b4a1bdf0145",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
+  "res/hesap.js": "f107f27dd26a9a08057ab091af6e202146eebe71e93ada90c286f54eb8a18d62",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
