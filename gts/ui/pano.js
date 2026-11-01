@@ -114,9 +114,18 @@ function genel(){
   const kc=(b,ic)=>`<div class="kc"><div class="kc-h"><span>${b}</span></div><div class="ilp">${ic.map(([a,c])=>`<div class="r"><span>${esc(a)}</span><b>${c}</b></div>`).join("")}</div></div>`;
   $("g-kurgu").innerHTML=kc("Hacim",[["Hedef motorin",ton(+gir("Seçili motorin (t/yıl)"))+" / yıl"],["Hedef benzin",ton(+gir("Seçili benzin (t/yıl)"))+" / yıl"],["Rampa","Oca 2027 %"+nf.format(gir("Ocak 2027 satış oranı (hedefin %)")*100)+" → Oca 2028 %100"],["Bölgesel navlun avantajı",nf2.format(gir("Seçili bölgesel navlun avantajı (USD/t)"))+" $/t"]])
     +kc("Gemi ve tank",[["Motorin",`${esc(gir("Motorin gemi sınıfı"))} kısmi · ${ton(+gir("Motorin GTS partisi (t)"))}`],["Benzin",`${esc(gir("Benzin gemi sınıfı"))} · ${ton(+gir("Benzin partisi (t)"))}`],["Antrepo",nf.format(gir("Antrepo (m³) – Tank_Plani toplamı"))+" m³"],["Milli tank",nf.format(gir("Milli tank (m³) – Tank_Plani toplamı"))+" m³"]])
-    +kc("Fiyat, vergi, risk",[["Fiyat",`${esc(gir("Fiyat senaryosu"))} · temsili yol`],["ÖTV",esc(gir("ÖTV rejimi"))+" (banka mektubu)"],...((V.tic||[]).length?[]:[["Müşteri vadesi",gir("Müşteri vadesi (gün)")+" gün"]]),["Hedge",`ürün ${esc(gir("Ürün hedge"))} · kur ${esc(gir("Kur hedge"))}`]])
-    +((V.tic||[]).length?kc("Ticari koşullar",V.tic.filter(r=>r[1]!=null&&r[1]!=="Değer").map(r=>[r[0].replace(/ \((USD\/t|TL\/m³|gün)\)$/,""),`${typeof r[1]==="number"?(r[1]>0&&/USD\/t|TL\/m³/.test(r[0])?"+":"")+nf.format(r[1]):esc(r[1])} ${/USD\/t/.test(r[0])?"$/t":/TL\/m³/.test(r[0])?"TL/m³":/gün/i.test(r[0])?"gün":""}`])):"");
+    +kc("Fiyat, vergi, risk",[["Fiyat",`${esc(gir("Fiyat senaryosu"))} · temsili yol`],["ÖTV",esc(gir("ÖTV rejimi"))+" (banka mektubu)"],...((V.tic||[]).length?[]:[["Müşteri vadesi",gir("Müşteri vadesi (gün)")+" gün"]]),["Hedge",`ürün ${esc(gir("Ürün hedge"))} · kur ${esc(gir("Kur hedge"))}`]]);
   const K=V.karar||[];
+  // ticari koşullar (Excel Özet girdi paneli, paket 57+)
+  { const T=(V.tic||[]).filter(r=>r[1]!=="Değer"); let h="", grp="";
+    const bir=l=>/USD\/t/.test(l)?"$/t":/TL\/m³/.test(l)?"TL/m³":/gün/i.test(l)?"gün":"";
+    for(const r of T){ if(r[1]==null){ grp=r[0]; h+=`<div class="tic-g">${esc(grp)}</div>`; continue; }
+      const v=r[1], isr=/USD\/t|TL\/m³/.test(r[0]), vv=typeof v==="number"?((isr&&v>0?"+":"")+nf.format(v)):esc(v), cod=/COD/.test(r[0]);
+      const ad=r[0].replace(/ \((USD\/t|TL\/m³|gün)\)$/,"").replace(/: COD \+ gün$/,"").replace(/: Tüpraş ±$/,"");
+      const deger=cod?`COD ${typeof v==="number"&&v<0?"−":"+"} ${nf.format(Math.abs(v))} gün`:/Tüpraş ±/.test(r[0])?`Tüpraş ${typeof v==="number"&&v<0?"−":"+"} ${nf.format(Math.abs(v))} TL/m³`:`${vv} ${bir(r[0])}`;
+      const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*\.?/g,"").trim();
+      h+=`<div class="kt tic-k"><span>${esc(ad)}</span><b>${esc(deger)}</b>${not?`<small>${esc(not)}</small>`:""}</div>`; }
+    const s=$("g-tic-s"); if(T.length){ $("g-tic").innerHTML=h; s.hidden=false; } else s.hidden=true; }
   $("g-karar").innerHTML=K.length?K.map(([t,x])=>`<li><span class="z">${esc(t)}</span><span>${esc(x)}</span></li>`).join(""):`<li><span class="z"></span><span class="muted">README'de GTS bölümü yok.</span></li>`;
 }
 
