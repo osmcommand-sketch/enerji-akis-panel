@@ -85,12 +85,12 @@ function aralik(el,R,o={}){
 }
 
 /* ---------- sekmeler (hash) ---------- */
-const SEK=["genel","akis","operasyon","ekonomi","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,ekonomi,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
@@ -134,39 +134,49 @@ function karlilik(){
     o.sat=o.al+o.br; return o; };
   const T=kol.map(([y,j])=>{ const o=top(y); o.ver=Y("Vergi + beyanname maliyeti (USD)")[j]||0; o.bol=Y("Bölgesel navlun avantajı (USD)")[j]||0; o.nk=o.net-o.ver; o.mt=o.nk+o.bol; o.ad=y; return o; });
   if(!T[0].n){ $("g-kar").innerHTML=`<tbody><tr><td class="l">Bu paketteki model kalem ayrıntısı vermiyor.</td></tr></tbody>`; return; }
-  const R=[ // [etiket, değer işlevi, tür] tür: g=girdi satırı, a=ara toplam, s=sonuç, b=bilgi
-    ["Satış hacmi (kargo bazında)",o=>o.t,"t"],
-    ["Satış geliri",o=>o.sat,"g","Tüpraş vergisiz fiyatı ± satış farkı"],
-    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"g","CIF Med ± alım primi, tahliye farkı dahil"],
-    ["Gemi navlun farkı",o=>-o.nav,"g","büyük gemi kazancı (+) ya da küçük gemi farkı (−)"],
-    ["İkinci liman (kısmi tahliye)",o=>-o.ik,"g"],
-    ["Brüt marj",o=>o.br,"a"],
-    ["Finansman (stok + müşteri vadesi)",o=>-o.fin,"g"],
-    ["Hedge öncesi marj",o=>o.br-o.fin,"a"],
-    ["Ürün hedge sonucu",o=>o.hb,"g","ICE Gasoil; kilit − satış dönemi CIF"],
-    ["Hedge işlem maliyeti",o=>-o.hi,"g"],
-    ["Hedge teminat finansmanı",o=>-o.ht,"g"],
-    ["Net marj (hedge dahil)",o=>o.net,"a"],
-    ["Vergi ve beyanname maliyeti",o=>-o.ver,"g","ÖTV ve KDV finansmanı, teminat komisyonu, beyanname"],
-    ["Net kâr",o=>o.nk,"s"],
-    ["Bölgesel navlun avantajı",o=>o.bol,"b","bayiye kısalan karayolu; müşteri tarafındaki değer"],
-    ["Model toplamı (net kâr + bölgesel avantaj)",o=>o.mt,"b"],
-    ["Bilgi: tahsilat süresinde kur farkı",o=>o.kur,"b","net marjın içinde"]];
-  const hc=(v,t,l)=>t==="t"?ton(v):(v<0?"−":v>0&&t!=="a"&&t!=="s"&&l!=="Satış geliri"?"+":"")+nf1.format(Math.abs(v)/1e6);
-  let h=`<thead><tr><th class="l">Kalem</th>${T.map(o=>`<th>${o.ad}<br><span style="font-weight:400">M $</span></th><th>$/t</th><th>%</th>`).join("")}</tr></thead><tbody>`;
-  for(const [l,f,t,not] of R){ const cls=t==="a"?"ara2":t==="s"?"son":t==="b"?"bilgi":"";
-    h+=`<tr class="${cls}"><td class="l">${esc(l)}${not?`<span class="kn">${esc(not)}</span>`:""}</td>${T.map(o=>{ const v=f(o); if(t==="t") return `<td>${ton(v)}</td><td></td><td></td>`;
-      const pt=o.t?v/o.t:0, ps=o.sat?v/o.sat:0, c=l==="Satış geliri"?"":t==="g"||t==="b"?(v<0?"n":v>0?"p":""):(v<0?"n":"p");
-      return `<td class="${c}">${t==="s"||t==="a"?"<b>":""}${hc(v,t,l)}${t==="s"||t==="a"?"</b>":""}</td><td class="muted">${(pt<0?"−":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${l==="Satış geliri"?"":(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; }).join("")}</tr>`; }
+  // tür: h=hacim, ana=ana kalem (kalın), alt=bileşen (girintili), ara=ara toplam (kalın), son=net kâr, b=bilgi
+  const R=[
+    ["Satış hacmi",o=>o.t,"h","kargo tonu"],
+    ["Satış geliri",o=>o.sat,"ana","Tüpraş vergisiz fiyatı ± satış farkı"],
+    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"alt","CIF Med ± alım primi, tahliye farkı dahil"],
+    ["Gemi navlun farkı",o=>-o.nav,"alt","büyük gemi kazancı (+), küçük gemi farkı (−)"],
+    ["İkinci liman (kısmi tahliye)",o=>-o.ik,"alt"],
+    ["Brüt marj",o=>o.br,"ara"],
+    ["Finansman",o=>-o.fin,"alt","stokta kalma ve müşteri vadesi"],
+    ["Hedge öncesi marj",o=>o.br-o.fin,"ara"],
+    ["Ürün hedge sonucu",o=>o.hb,"alt","ICE Gasoil; kilit fiyatı − satış dönemi CIF"],
+    ["Hedge işlem maliyeti",o=>-o.hi,"alt"],
+    ["Hedge teminat finansmanı",o=>-o.ht,"alt"],
+    ["Net marj (hedge dahil)",o=>o.net,"ara"],
+    ["Vergi ve beyanname",o=>-o.ver,"alt","ÖTV ve KDV finansmanı, teminat komisyonu, beyanname"],
+    ["Net kâr",o=>o.nk,"son"],
+    ["Bölgesel navlun avantajı",o=>o.bol,"b","bayi tarafındaki değer; kâra dahil değil"],
+    ["Model toplamı",o=>o.mt,"b","net kâr + bölgesel avantaj"],
+    ["Tahsilat süresinde kur farkı",o=>o.kur,"b","net marjın içinde"]];
+  const son=T[T.length-1], mx=Math.max(1,...R.filter(r=>r[2]!=="h"&&r[0]!=="Satış geliri"&&r[0]!=="Ürün alışı").map(r=>Math.abs(r[1](son))));
+  const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), sg=(v,t)=>(t==="alt"&&v>0?"+":"");
+  let h=`<thead><tr><th class="l">Kalem</th>${T.map((o,k)=>`<th class="yb">${o.ad}<br><span>M $</span></th><th>$/t</th><th>%</th>`).join("")}<th class="l bar-h">${son.ad} · etki</th></tr></thead><tbody>`;
+  for(const [l,f,t,not] of R){
+    h+=`<tr class="k-${t}"><td class="l"><span class="kl">${esc(l)}</span>${not?`<span class="kn">${esc(not)}</span>`:""}</td>`;
+    for(const o of T){ const v=f(o);
+      if(t==="h"){ h+=`<td class="yb">${ton(v)}</td><td></td><td></td>`; continue; }
+      const pt=o.t?v/o.t:0, ps=o.sat?v/o.sat:0, c=t==="ana"||t==="b"?"":(v<0?"n":"p");
+      h+=`<td class="yb ${c}">${sg(v,t)}${m(v)}</td><td class="muted">${(pt<0?"−":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${t==="ana"?"100":(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; }
+    const v=f(son), w=t==="h"||l==="Satış geliri"||l==="Ürün alışı"?0:Math.min(100,Math.abs(v)/mx*100);
+    h+=`<td class="l bar">${w?`<i class="${v<0?"n":"p"}${t==="ara"||t==="son"?" kal":""}" style="width:${w.toFixed(1)}%"></i>`:""}</td></tr>`; }
   $("g-kar").innerHTML=h+`</tbody>`;
-  $("g-ksub").textContent=`kargo bazında, kargonun satışa hazır olduğu yıla · $/t kargo tonu başına · % satış gelirine oran${Object.keys(V.girdi||{}).length?" · sizin ticari koşullarınızla":""}`;
+  $("g-ksub").textContent=`kargo bazında, kargonun satışa hazır olduğu yıla · $/t kargo tonu başına · % satış gelirine oran${Object.keys(V.girdi||{}).length?" · sizin girdilerinizle":""}`;
 }
 
+/* girdiler.json: bir panelin anahtarlarını yenileriyle değiştirir, diğer panellerinkini korur */
+function girdiYaz(anahtarlar,yeni){ const fs=require("fs"), path=require("path"), o={};
+  for(const [k,v] of Object.entries(V.girdi||{})) if(!anahtarlar.includes(k)) o[k]=v; Object.assign(o,yeni);
+  fs.mkdirSync(path.dirname(V.girdiYolu),{recursive:true}); if(Object.keys(o).length) fs.writeFileSync(V.girdiYolu,JSON.stringify(o,null,1)); else if(fs.existsSync(V.girdiYolu)) fs.unlinkSync(V.girdiYolu); }
 /* ---------- Ticari koşullar: kullanıcı girdisi (Excel Özet G5:I14); masaüstünde model bu değerlerle yeniden hesaplanır ---------- */
 function ticari(){
   const el=$("g-tic"), T=(V.tic||[]).filter(r=>r[1]!=="Değer");
   if(!T.length){ el.innerHTML=`<p class="not">Bu paketteki Excel modelinde ticari koşullar paneli yok (paket 57 ve sonrası).</p>`; return; }
-  const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, nG=Object.keys(G).length;
+  const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, TK=T.filter(r=>r[4]).map(r=>r[4]), nG=TK.filter(k=>k in G).length;
   const bir=l=>/USD\/t/.test(l)?"$/t":/TL\/m³/.test(l)?"TL/m³":/gün/i.test(l)?"gün":"";
   const onEk=l=>/COD/.test(l)?"COD ±":/Tüpraş ±/.test(l)?"Tüpraş ±":"";
   const adT=l=>l.replace(/ \((USD\/t|TL\/m³|gün)\)$/,"").replace(/: COD \+ gün$/,"").replace(/: Tüpraş ±$/,"");
@@ -185,15 +195,15 @@ function ticari(){
   const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i); i.classList.toggle("hata",!isFinite(v)); if(!isFinite(v)) hata=true; else if(Math.abs(v-Number(i.defaultValue.replace(",",".")))>1e-12) deg=true; }
     btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
   for(const i of I){ i.addEventListener("input",kontrol); i.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!btn.disabled) btn.click(); }); }
-  const kaydet=(o)=>{ const fs=require("fs"), path=require("path"); fs.mkdirSync(path.dirname(V.girdiYolu),{recursive:true}); if(o) fs.writeFileSync(V.girdiYolu,JSON.stringify(o,null,1)); else if(fs.existsSync(V.girdiYolu)) fs.unlinkSync(V.girdiYolu); };
+  const kaydet=(o)=>girdiYaz(TK,o||{});
   btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dv=i.dataset.d===""?null:Number(i.dataset.d); if(dv===null||Math.abs(v-dv)>1e-12) o[i.dataset.h]=v; }
-    try{ kaydet(Object.keys(o).length?o:null); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
+    try{ kaydet(o); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
   const sf=$("tic-sifir"); if(sf) sf.onclick=()=>{ try{ kaydet(null); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
 
 /* ---------- PAZAR VE AKIŞ ---------- */
 const A=V.akis, VAD={REF:"Referans · 3,5 $/t, MR, 150 bin m³",TARIFE_2:"GTS tarifesi 2 $/t",TARIFE_5:"GTS tarifesi 5 $/t",RAKIP_MERSIN_YARI:"Mersin tarifesi yarıya iner",RAKIP_MERSIN_TAM:"Mersin tarifesi sıfırlanır",GEMI_LR1:"LR1 gemi",GEMI_LR2:"LR2 gemi",TANK_120:"Tank 120 bin m³",TANK_200:"Tank 200 bin m³",DEVIR_12:"Azami devir 12",GERCEKCI:"Gerçekçi: Mersin −%50, LR2, devir 12",GERCEKCI_200:"Gerçekçi + tank 200 bin m³"};
-const S={sen:"HEDEF_150",vaka:"GERCEKCI_200",ku:"m",fu:"m",rs:0,ms:"Baz",acik:new Set()};
+const S={sen:"HEDEF_150",vaka:"GERCEKCI_200",ku:"m",fu:"m",rs:0,ms:"Baz",acik:new Set(),hu:"m",hku:"m",hhep:false,hkhep:false};
 const tAd=t=>{ const x=V.term[t]; return x?(x[0]==="T227"?"GTS Dörtyol":x[1]):"?"; };
 const PJ=V.geo.proj, pj=(la,lo)=>[(lo-PJ.minx)*PJ.cos*PJ.sx,(PJ.maxy-la)*PJ.sx];
 function akis(){
@@ -295,6 +305,80 @@ function ekonomi(){
   fc();
   zaman($("e-tem"),{aria:"Teminat bakiyesi",seri:[{ad:"ÖTV teminat bakiyesi",renk:C.kur,v:V.vn.map(r=>r[0]),alan:1},{ad:"Vergi nakit işletme sermayesi",renk:C.gts,v:V.vn.map(r=>r[1])}],fmt:v=>nf.format(v),sifir:1,h:180});
   $("e-oz").innerHTML=`<thead><tr><th class="l">Gösterge</th><th>Motorin</th><th>Benzin</th><th>Toplam</th><th class="l">Not</th></tr></thead><tbody>`+OZ.filter(r=>r[1]!=="Motorin").map(r=>{ const b=r[1]==null&&r[2]==null&&r[3]==null; if(b) return `<tr class="ara"><td colspan="5">${esc(r[0])}</td></tr>`; const f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000||Number.isInteger(v)?nf.format(v):nf2.format(v)):esc(v); return `<tr><td class="l">${esc(r[0])}</td><td>${f(r[1])}</td><td>${f(r[2])}</td><td><b>${f(r[3])}</b></td><td class="l muted" style="white-space:normal;min-width:180px">${esc(r[4]||"")}</td></tr>`; }).join("")+`</tbody>`;
+}
+
+/* ---------- HEDGE: emtia (ICE Gasoil) ve kur (TL forward) ayrıntısı (kullanıcı 01.11.2026 18:37) ---------- */
+// kargo alanları: [19] ürün hedge brüt, [20] işlem maliyeti, [21] teminat finansmanı, [14] ürün hedge net, [23] fiyatlama günü, [24] kilit fiyatı,
+// [25] satış dönemi CIF ort., [26] hedge oranı, [27] kur varış, [28] kur tahsilat ort., [29] kur forward, [30] kur hedge etkisi, [31] satış TL/t, [22] tahsilat kur farkı (hedgesiz)
+const HY=(k)=>k.length>=32;
+function hedgeAyar(){
+  const el=$("h-ayar"), H=V.hgir||[]; if(!H.length){ el.innerHTML=`<p class="not">Bu modelde hedge ayarları bulunamadı.</p>`; return; }
+  const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, KS=H.map(r=>r[1]), nG=KS.filter(k=>k in G).length;
+  const yuz=l=>/oranı|marjı/.test(l), ad=l=>l.replace(/ \(USD\/t;.*\)$/," (USD/t)").replace(" (ICE Gasoil ile çapraz)"," (ICE Gasoil ile çapraz)");
+  const grp=[["Emtia (ürün) hedge",["Ürün hedge","Motorin ürün hedge oranı","Benzin ürün hedge oranı (ICE Gasoil ile çapraz)","ICE Gasoil işlem maliyeti (USD/t; borsa + takas + komisyon + kayma, gidiş-dönüş)","Teminat (initial margin) oranı"]],["Kur hedge (TL forward)",["Kur hedge","Kur hedge oranı","Forward banka marjı"]]];
+  let h="";
+  for(const [g,L] of grp){ h+=`<div class="tic-g">${g}</div>`;
+    for(const l of L){ const r=H.find(x=>x[0]===l); if(!r) continue; const id="hg-"+r[1].replace(/\W/g,""), deg=r[3]!=null&&r[3]!==r[2];
+      const inp=typeof r[2]==="string"?`<select id="${id}" data-h="${r[1]}" data-d="${esc(r[3]??"")}" ${yaz?"":"disabled"}>${["Açık","Kapalı"].map(o=>`<option${o===r[2]?" selected":""}>${o}</option>`).join("")}</select>`
+        :`<input id="${id}" type="text" inputmode="decimal" data-h="${r[1]}" data-y="${yuz(l)?1:0}" data-d="${r[3]??""}" value="${String(yuz(l)?+(r[2]*100).toFixed(4):r[2]).replace(".",",")}" ${yaz?"":"disabled"}><em>${yuz(l)?"%":"$/t"}</em>`;
+      h+=`<div class="kt tic-k${deg?" deg":""}"><label for="${id}">${esc(ad(l))}</label><div class="tic-i">${inp}</div><small>${deg?`<b>model varsayılanı ${typeof r[3]==="number"&&yuz(l)?nf.format(r[3]*100)+" %":esc(String(r[3]).replace(".",","))}</b>`:""}</small></div>`; } }
+  el.innerHTML=`<div class="tic">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="hg-hesap" disabled>Modeli bu hedge ayarlarıyla hesapla</button>${nG?`<button type="button" class="btn" id="hg-sifir">Hedge ayarlarını varsayılana döndür</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin hedge ayarlarınız (${nG})`:"Model varsayılanları"}</span><span class="not" id="hg-d"></span>`:`<span class="not">Hedge ayarlarını masaüstü uygulamasında değiştirebilirsiniz; model yeniden hesaplanır.</span>`}</div>`;
+  if(!yaz) return;
+  const I=[...el.querySelectorAll("[data-h]")], btn=$("hg-hesap"), d=$("hg-d");
+  const deger=i=>{ if(i.tagName==="SELECT") return i.value; const n=Number(i.value.trim().replace("−","-").replace(",",".")); return i.dataset.y==="1"?n/100:n; };
+  const ilk=new Map(I.map(i=>[i,i.tagName==="SELECT"?i.value:i.value]));
+  const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ if(i.tagName!=="SELECT"){ const ok=isFinite(deger(i)); i.classList.toggle("hata",!ok); if(!ok) hata=true; } if(i.value!==ilk.get(i)) deg=true; } btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
+  for(const i of I) i.addEventListener(i.tagName==="SELECT"?"change":"input",kontrol);
+  btn.onclick=()=>{ const o={}; for(const i of I){ const v=deger(i), dv=i.dataset.d; const esit=typeof v==="string"?v===dv:(dv!==""&&Math.abs(v-Number(dv))<1e-12); if(!esit) o[i.dataset.h]=v; }
+    try{ girdiYaz(KS,o); }catch(e){ d.textContent="Kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
+  const sf=$("hg-sifir"); if(sf) sf.onclick=()=>{ try{ girdiYaz(KS,{}); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
+}
+function hedge(){
+  hedgeAyar();
+  const A=[...V.km.filter(k=>HY(k)&&yilOk(k[4])).map(k=>["Motorin",k]),...V.kb.filter(k=>HY(k)&&yilOk(k[4])).map(k=>["Benzin",k])];
+  if(!A.length){ $("h-ek").innerHTML=`<p class="not">Bu paketteki model hedge ayrıntısı vermiyor.</p>`; return; }
+  const sm=(L,f)=>L.reduce((a,x)=>a+f(x[1],x[0]),0), kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  const hg=k=>(V.hgir||[]).find(x=>x[0]===k), urun=hg("Ürün hedge"), kur=hg("Kur hedge"), kuro=hg("Kur hedge oranı");
+  /* emtia */
+  const hb=sm(A,k=>k[19]), hi=sm(A,k=>k[20]), ht=sm(A,k=>k[21]), hn=sm(A,k=>k[14]), tT=sm(A,k=>k[2]), tH=sm(A,k=>k[2]*(k[26]||0));
+  const HM=A.filter(([u,k])=>k[26]>0), wk=HM.reduce((a,[,k])=>a+k[2]*k[26],0)||1, kil=HM.reduce((a,[,k])=>a+k[24]*k[2]*k[26],0)/wk, pen=HM.reduce((a,[,k])=>a+k[25]*k[2]*k[26],0)/wk;
+  $("h-ek").innerHTML=kt("Hedge sonucu (net)",usd(hn),`brüt ${usd(hb)} − işlem ${usd(hi)} − teminat finansmanı ${usd(ht)}`,hn<0?"neg":"pos")
+    +kt("Hedge edilen hacim",ton(tH),`toplam kargo ${ton(tT)} · %${nf.format(tT?tH/tT*100:0)} · ürün hedge ${urun?esc(urun[2]):"–"}`)
+    +kt("Ortalama kilit fiyatı",nf1.format(kil)+" $/t",`hedge edilen kargolar, ton ağırlıklı · satış dönemi CIF ort. ${nf1.format(pen)} $/t`)
+    +kt("Ton başına",nf1.format(tH?hn/tH:0)+" $/t",`hedge edilen ton başına net · kilit − satış dönemi ${nf1.format(kil-pen)} $/t`);
+  // aylık hedge sonucu
+  const ay=new Map(); for(const [u,k] of A){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,c:0}).get(key); if(u==="Motorin") o.m+=k[19]; else o.b+=k[19]; o.c-=k[20]+k[21]; }
+  const AL=[...ay].sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+  cubuk($("h-eay"),{aria:"Aylık hedge sonucu",kat:AL.map(a=>a.ad),seri:[{ad:"Motorin hedge (brüt)",renk:C.mot,v:AL.map(a=>a.m)},{ad:"Benzin çapraz hedge (brüt)",renk:C.ben,v:AL.map(a=>a.b)},{ad:"İşlem + teminat maliyeti",renk:C.ink3,v:AL.map(a=>a.c)}],fmt:v=>nf1.format(v/1e6),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",h:165});
+  // vadeli eğri ile temsili yol
+  const vm=new Map((V.vad||[]).map(r=>[r[0].slice(0,7),r])), gk=i=>gun(i).toISOString().slice(0,7);
+  zaman($("h-egri"),{aria:"Vadeli eğri ve temsili yol",seri:[{ad:"CIF Med motorin – temsili fiyat yolu",renk:C.ink3,v:V.fiy.map(r=>r[0])},{ad:"Motorin vadeli eğrisi (ICE LSGO + fark, aylık)",renk:C.gts,v:V.gm.map((_,i)=>{ const r=vm.get(gk(i)); return r?r[2]:null; }),kalin:2.2}],fmt:nf.format,h:180});
+  // kargo tablosu (emtia)
+  const et=()=>{ const L=A.filter(([u])=>S.hu==="b"?u==="Benzin":u==="Motorin"), N=S.hhep?L.length:20;
+    $("h-etab").innerHTML=`<thead><tr><th>No</th><th class="l">Fiyatlama</th><th class="l">Satışa hazır</th><th>Ton</th><th>Oran</th><th>CIF fiyatlama $/t</th><th>Kilit $/t</th><th>Satış dönemi CIF $/t</th><th>Fark $/t</th><th>Brüt</th><th>Maliyet</th><th>Net</th></tr></thead><tbody>`
+      +L.slice(0,N).map(([u,k])=>{ const f=k[24]-k[25]; return `<tr><td>${k[0]}</td><td class="l">${tk(k[23])}</td><td class="l">${tk(k[4])}</td><td>${ton(k[2])}</td><td>%${nf.format((k[26]||0)*100)}</td><td>${nf1.format(k[9])}</td><td>${nf1.format(k[24])}</td><td>${nf1.format(k[25])}</td><td class="${f>=0?"p":"n"}">${(f<0?"−":"+")+nf1.format(Math.abs(f))}</td><td class="${k[19]>=0?"p":"n"}">${usd(k[19])}</td><td class="n">${usd(-(k[20]+k[21]))}</td><td class="${k[14]>=0?"p":"n"}"><b>${usd(k[14])}</b></td></tr>`; }).join("")
+      +(L.length>20?`<tr><td colspan="12" class="empty"><button type="button" class="btn" id="h-hep">${S.hhep?"İlk 20 kargo":`Tümü (${L.length})`}</button></td></tr>`:"")+`</tbody>`;
+    const b=$("h-hep"); if(b) b.onclick=()=>{ S.hhep=!S.hhep; et(); }; };
+  for(const b of $("h-eu").querySelectorAll("button")) b.onclick=()=>{ S.hu=b.dataset.u; for(const x of $("h-eu").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); et(); };
+  et();
+  /* kur */
+  const ke=sm(A,k=>k[30]), kf=sm(A,k=>k[22]), acik=kur&&kur[2]==="Açık";
+  const yak=sm(A,k=>{ const tl=(k[31]||0)*k[2]; return k[29]&&k[28]?tl*(1/k[29]-1/k[28])*(kuro?kuro[2]:1):0; });
+  const fw=A.reduce((a,[,k])=>a+(k[29]-k[28])*k[2],0)/(tT||1);
+  $("h-kk").innerHTML=kt("Kur hedge",acik?"Açık":"Kapalı",`oran %${nf.format((kuro?kuro[2]:0)*100)} · satış günü TL tahsilatı tahsil gününe forward ile sabitlenir`,acik?"":"")
+    +kt("Kur hedge etkisi (model)",usd(ke),acik?"satış gelirine dahil":"kur hedge kapalı",ke<0?"neg":ke>0?"pos":"")
+    +kt("Tahsilat süresinde kur farkı",usd(kf),`hedgesiz; satış günü kuruna göre · net marjın içinde`,kf<0?"neg":"pos")
+    +kt(acik?"Forward − tahsilat kuru":"Açık olsaydı (yaklaşık)",acik?nf2.format(fw)+" TL":usd(yak),acik?"ton ağırlıklı ortalama":`forward ort. tahsilat kurundan ${nf2.format(fw)} TL yüksek · kesin sonuç için kur hedge'i açıp hesaplayın`,(!acik&&yak<0)?"neg":"");
+  zaman($("h-kegri"),{aria:"USD/TRY",seri:[{ad:"USD/TRY – temsili yol",renk:C.kur,v:V.fiy.map(r=>r[2])},{ad:"USD/TRY forward (faiz paritesi, aylık)",renk:C.gts,v:V.gm.map((_,i)=>{ const r=vm.get(gk(i)); return r?r[4]:null; }),kalin:2.2}],fmt:v=>nf1.format(v),h:170});
+  const ktb=()=>{ const L=A.filter(([u])=>S.hku==="b"?u==="Benzin":u==="Motorin"), N=S.hkhep?L.length:20;
+    $("h-ktab").innerHTML=`<thead><tr><th>No</th><th class="l">Satışa hazır</th><th>Ton</th><th>Satış TL/t</th><th>Kur varış</th><th>Tahsilat ort.</th><th>Forward</th><th>Forward − tahsilat</th><th>Kur farkı (hedgesiz)</th><th>Kur hedge etkisi</th></tr></thead><tbody>`
+      +L.slice(0,N).map(([u,k])=>{ const f=k[29]-k[28]; return `<tr><td>${k[0]}</td><td class="l">${tk(k[4])}</td><td>${ton(k[2])}</td><td>${nf.format(k[31]||0)}</td><td>${nf2.format(k[27])}</td><td>${nf2.format(k[28])}</td><td>${nf2.format(k[29])}</td><td class="muted">${(f<0?"−":"+")+nf2.format(Math.abs(f))}</td><td class="${k[22]>=0?"p":"n"}">${usd(k[22])}</td><td class="${k[30]>0?"p":k[30]<0?"n":""}">${k[30]?usd(k[30]):"–"}</td></tr>`; }).join("")
+      +(L.length>20?`<tr><td colspan="10" class="empty"><button type="button" class="btn" id="h-khep">${S.hkhep?"İlk 20 kargo":`Tümü (${L.length})`}</button></td></tr>`:"")+`</tbody>`;
+    const b=$("h-khep"); if(b) b.onclick=()=>{ S.hkhep=!S.hkhep; ktb(); }; };
+  for(const b of $("h-ku").querySelectorAll("button")) b.onclick=()=>{ S.hku=b.dataset.u; for(const x of $("h-ku").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); ktb(); };
+  ktb();
+  $("h-esub").textContent=`${YIL||"2027–2028"} · kargonun satışa hazır olduğu yıl · ICE Gasoil futures (benzin için çapraz hedge)`;
+  $("h-ksub").textContent=`${YIL||"2027–2028"} · USD/TRY forward, TL faizi ve USD faizinden (faiz paritesi) + banka marjı`;
 }
 
 /* ---------- RİSK ---------- */

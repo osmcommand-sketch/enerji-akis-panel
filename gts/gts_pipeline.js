@@ -134,11 +134,13 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     for (const s of ['Baz', 'Ayı', 'Boğa']) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · CIF motorin ${p}`]], 1));
     for (const s of ['Baz', 'Ayı', 'Boğa']) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · USD/TRY ${p}`]], 3));
     return row; });
-  const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17]), R2(r[10] || 0), R2(r[25] || 0), R2(r[26] || 0), R2(r[29] || 0), R2(r[30] || 0), R2(r[36] || 0), R2(r[37] || 0)]);
+  const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17]), R2(r[10] || 0), R2(r[25] || 0), R2(r[26] || 0), R2(r[29] || 0), R2(r[30] || 0), R2(r[36] || 0), R2(r[37] || 0), tarih(r[5]), R2(r[27], 1), R2(r[28], 1), R2(r[38], 3), R2(r[22], 3), R2(r[33], 3), R2(r[34], 3), R2(r[35] || 0), R2(r[32], 1)]);
   O.km = kargo('Motorin_Kargolar'); O.kb = kargo('Benzin_Kargolar');
   O.vn = satir('Vergi_Nakit', 4).filter((r) => serial(r[0])).map((r) => [R2((r[13] || 0) / 1e6), R2((r[24] || 0) / 1e6)]);
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);
   O.tank = []; for (const r of satir('Tank', 3)) { if (!serial(r[0])) continue; O.tank.push([R2(r[1]), R2(r[4]), R2(r[8]), R2(r[11])]); if (!O.tkap) O.tkap = [R2(r[2]), R2(r[5]), R2(r[9]), R2(r[12])]; }
+  O.vad = satir('Vadeli', 5, Math.min(40, X.sayfa('Vadeli').length - 1), 9).filter((x) => serial(x[0])).map((x) => [tarih(x[0]), R2(x[2], 1), R2(x[3], 1), R2(x[6], 1), R2(x[7], 3)]);
+  { const HL = ['Ürün hedge','Motorin ürün hedge oranı','Benzin ürün hedge oranı (ICE Gasoil ile çapraz)','ICE Gasoil işlem maliyeti (USD/t; borsa + takas + komisyon + kayma, gidiş-dönüş)','Teminat (initial margin) oranı','Kur hedge','Kur hedge oranı','Forward banka marjı']; O.hgir = []; const G = X.sayfa('Girdiler'); for (let i = 1; i < G.length; i++) { const x = G[i]; if (x && HL.includes(x[0])) O.hgir.push([x[0], 'Girdiler!B' + i, x[1], X.orijinal('Girdiler', 'B' + i)]); } }
   O.mev = satir('Mevsimsellik', 4, 27, 10).filter((x) => typeof x[6] === 'number').map((x) => [x[6], tarih(x[7]), R2(x[8], 4)]);
   // Monte Carlo (önceki model sürümleri)
   const LAB = { mc_dav: { K: 'Davranış yok', A: 'Davranış, tavan yok', T15: 'Satış tavanı 1,5×', T12: 'Satış tavanı 1,2×', T11: 'Satış tavanı 1,1×', T10: 'Satış tavanı 1,0×', Q50: 'Bayi kotası %50' },

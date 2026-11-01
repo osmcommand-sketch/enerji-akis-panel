@@ -518,6 +518,26 @@ table.kar tr.ara2 td{background:var(--surface);border-top:1px solid var(--line)}
 table.kar tr.son td{background:#FFF6E0;font-size:13.5px;border-top:2px solid var(--ink-3)}
 table.kar tr.bilgi td{color:var(--ink-3);font-size:12px}table.kar tr.bilgi td.p,table.kar tr.bilgi td.n{color:var(--ink-2)}
 table.kar th:not(:first-child),table.kar td:not(:first-child){min-width:62px}
+
+.tic-i select{font:600 14px var(--f-body);padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);width:auto}
+table.kar{font-variant-numeric:tabular-nums}
+table.kar td{background:var(--surface)}
+table.kar td,table.kar th{border-bottom:1px solid var(--line)}
+table.kar th span{font-weight:400}
+table.kar th.yb,table.kar td.yb{border-left:1px solid var(--line)}
+table.kar .kl{display:inline}table.kar .kn{display:block;font-size:10.5px;color:var(--ink-3);white-space:normal;font-weight:400}
+table.kar tr.k-alt td:first-child{padding-left:26px}
+table.kar tr.k-alt td{color:var(--ink-2)}
+table.kar tr.k-ana td,table.kar tr.k-ara td,table.kar tr.k-son td{font-weight:700;color:var(--ink)}
+table.kar tr.k-ana td.muted,table.kar tr.k-ara td.muted{font-weight:500}
+table.kar tr.k-ara td{background:var(--surface-2);border-top:1px solid #C9D2D7}
+table.kar tr.k-ara td.n,table.kar tr.k-son td.n{color:#B3412E}table.kar tr.k-ara td.p,table.kar tr.k-son td.p{color:#1D7A4A}
+table.kar tr.k-son td{background:#FFF1CC;font-size:14px;border-top:2px solid #B8860B;border-bottom:2px solid #B8860B}
+table.kar tr.k-b td{color:var(--ink-3);font-size:12px;background:var(--surface)}table.kar tr.k-b td:first-child{font-style:italic}
+table.kar tr.k-h td{color:var(--ink-2);font-size:12px}
+table.kar td.bar{width:18%;min-width:120px;padding-right:12px}table.kar td.bar i{display:block;height:9px;border-radius:2px;opacity:.55}table.kar td.bar i.kal{height:12px;opacity:.9}
+table.kar td.bar i.p{background:#1D7A4A}table.kar td.bar i.n{background:#B3412E}
+table.kar th.bar-h{font-weight:500}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -542,6 +562,7 @@ table.kar th:not(:first-child),table.kar td:not(:first-child){min-width:62px}
     <button type="button" role="tab" data-v="akis" aria-selected="false">Pazar ve akış</button>
     <button type="button" role="tab" data-v="operasyon" aria-selected="false">Operasyon</button>
     <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
+    <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
     <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
     <button type="button" role="tab" data-v="varsayim" aria-selected="false">Varsayımlar</button>
   </nav>
@@ -638,6 +659,34 @@ table.kar th:not(:first-child),table.kar td:not(:first-child){min-width:62px}
     <section>
       <div class="head"><h2>Özet tablosu</h2><span class="sub">Ozet sayfası · tüm dönem</span></div>
       <div class="scroll" style="max-height:none"><table class="t ozd" id="e-oz"></table></div>
+    </section>
+  </div>
+
+  <!-- HEDGE -->
+  <div class="v" data-v="hedge" hidden>
+    <section>
+      <div class="head"><h2>Hedge ayarları</h2><span class="sub">Excel modeli · Girdiler (riskten korunma)</span></div>
+      <div id="h-ayar"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Emtia hedge (ürün fiyatı)</h2><span class="sub" id="h-esub"></span></div>
+      <p class="lead">Her kargonun fiyatı fiyatlama gününde belirlenir; ürün satılana kadar fiyat düşerse stok değer kaybeder. Hedge, satış döneminin fiyatını vadeli eğriden kilitler: sonuç = (kilit fiyatı − satış dönemindeki gerçekleşen CIF) × ton × oran − işlem maliyeti − teminat finansmanı.</p>
+      <div class="kpi4" id="h-ek"></div>
+      <h3>Aylık hedge sonucu <span class="sub">M $ · kargonun satışa hazır olduğu ay</span></h3>
+      <div class="grf" id="h-eay"></div>
+      <h3>Vadeli eğri ve fiyat yolu <span class="sub">$/t</span></h3>
+      <div class="grf" id="h-egri"></div>
+      <div class="ctl"><div class="seg" role="group" aria-label="Ürün" id="h-eu"><button type="button" data-u="m" aria-pressed="true">Motorin</button><button type="button" data-u="b" aria-pressed="false">Benzin</button></div></div>
+      <div class="scroll" style="max-height:none"><table class="t" id="h-etab"></table></div>
+    </section>
+    <section>
+      <div class="head"><h2>Kur hedge (TL forward)</h2><span class="sub" id="h-ksub"></span></div>
+      <p class="lead">Satış TL fiyatla yapılır, tahsilat vade sonunda TL gelir. Bu sürede TL değer kaybederse dolar geliri azalır. Kur hedge, satış günü tahsil edilecek TL tutarını tahsil gününün forward kuruyla dolara sabitler.</p>
+      <div class="kpi4" id="h-kk"></div>
+      <h3>USD/TRY: forward ve kur yolu</h3>
+      <div class="grf" id="h-kegri"></div>
+      <div class="ctl"><div class="seg" role="group" aria-label="Ürün" id="h-ku"><button type="button" data-u="m" aria-pressed="true">Motorin</button><button type="button" data-u="b" aria-pressed="false">Benzin</button></div></div>
+      <div class="scroll" style="max-height:none"><table class="t" id="h-ktab"></table></div>
     </section>
   </div>
 
