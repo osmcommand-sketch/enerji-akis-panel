@@ -110,7 +110,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const oz = satir('Ozet', 1, 83, 5);
   O.oz_bas = oz.slice(1, 4).map((x) => x[0]);
   O.oz = oz.slice(4).filter((x) => x[0] != null).map((x) => [x[0], R2(x[1], 2), R2(x[2], 2), R2(x[3], 2), x[4]]);
-  O.gir = satir('Girdiler', 1, 146, 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
+  O.tic = satir('Ozet', 5, 30, 9).filter((x) => x[6] != null).map((x) => [x[6], R2(x[7], 2), x[8]]);
+  O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);
   O.gm = gunluk('Motorin_Gunluk'); O.gb = gunluk('Benzin_Gunluk');
