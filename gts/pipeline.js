@@ -519,9 +519,11 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
     const oz = {};
     for (const u of ['Motorin', 'Benzin']) {
       const f = t => QA(`select sum(Leg2_Ton_km)/sum(Miktar_ton), sum(case when Leg2_Mesafe_km>700 then Miktar_ton else 0 end), sum(Miktar_ton) from ${t} where Urun='${u}' and Leg2_Ton_km is not null`)[0];
-      const o = f('FACT_AKARYAKIT_AKIS_ONCE_TAHSIS'), n = f('FACT_AKARYAKIT_AKIS');
+      // paket 75+: resmî Leg2 ilçe bazına hizalandı (REF_LEG2_ESKI); önce/sonra aynı (eski) tabanda karşılaştırılır, resmî ilçe bazlı değer ayrıca
+      const eski = hasTable('REF_LEG2_ESKI') ? QA(`select sum(a.Miktar_ton*coalesce(e.Leg2_Mesafe_km_eski,a.Leg2_Mesafe_km))/sum(a.Miktar_ton), sum(case when coalesce(e.Leg2_Mesafe_km_eski,a.Leg2_Mesafe_km)>700 then a.Miktar_ton else 0 end), sum(a.Miktar_ton) from FACT_AKARYAKIT_AKIS a left join REF_LEG2_ESKI e using(Akis_ID) where a.Urun='${u}' and a.Leg2_Ton_km is not null`)[0] : null;
+      const o = f('FACT_AKARYAKIT_AKIS_ONCE_TAHSIS'), r0 = f('FACT_AKARYAKIT_AKIS'), n = eski || r0;
       const dg = hasTable('SCN_AKIS_TAHSIS_OZET') ? QA(`select sum(Degisen_ton) from SCN_AKIS_TAHSIS_OZET where Urun='${u}'`)[0][0] : 0;
-      oz[u] = [pr(o[0], 1), pr(n[0], 1), pr(o[1]), pr(n[1]), pr(n[2]), pr(dg || 0)];
+      oz[u] = [pr(o[0], 1), pr(n[0], 1), pr(o[1]), pr(n[1]), pr(n[2]), pr(dg || 0), eski ? pr(r0[0], 1) : null, eski ? pr(r0[1]) : null];
     }
     const I = Q('select * from SCN_AKIS_TAHSIS_INCELEME');
     const y = I.filter(r => /^700/.test(r.Tur)).map(r => [r.Sirket, r.Urun, r.Il, r.Terminal, pr(r.Yeni_atanan_ton, 1), pr(r.Leg2_km, 1), pr(r.Il_ort_km_once, 1)]).sort((a, b) => b[4] - a[4]);
@@ -530,10 +532,11 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
     // kontroller: tahsisle değişen terminal tonu kapasiteyi aşıyor mu; Batman (T13) demiryolu yükü
     const kap = [];
     if (hasTable('REF_TERMINAL_KAPASITE')) {
+      const sonra = QA("select count(*) from pragma_table_info('REF_TERMINAL_KAPASITE') where name='Yukleme_Tahsis_Oncesi_ton'")[0][0] > 0;   // paket 75+: tablo tahsis sonrasıyla güncel
       const dt = new Map(QA(`with o as (select Terminal_ID t, sum(Miktar_ton) v from FACT_AKARYAKIT_AKIS_ONCE_TAHSIS group by 1), n as (select Terminal_ID t, sum(Miktar_ton) v from FACT_AKARYAKIT_AKIS group by 1)
         select n.t, n.v - coalesce(o.v,0) from n left join o using(t)`));
       for (const r of Q('select k.Terminal_ID, coalesce(d.Terminal_Adi, k.Terminal_ID) ad, k.Kapasite_ton, k.Yukleme_ton from REF_TERMINAL_KAPASITE k left join DIM_TERMINAL d using(Terminal_ID) where k.Kapasite_ton>0')) {
-        const d = dt.get(r.Terminal_ID) || 0, yn = (r.Yukleme_ton || 0) + d;
+        const d = dt.get(r.Terminal_ID) || 0, yn = (r.Yukleme_ton || 0) + (sonra ? 0 : d);
         if (d > 0 && yn > r.Kapasite_ton + 1) kap.push([r.ad, pr(r.Kapasite_ton), pr(yn), pr(yn / r.Kapasite_ton, 3), pr(d)]);
       }
     }

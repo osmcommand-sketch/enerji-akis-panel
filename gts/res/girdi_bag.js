@@ -11,16 +11,18 @@
     const aIdx = lab.size ? [...lab.values()][0] % 16384 : 0;
     const sat = (l) => lab.has(l) ? Math.floor(lab.get(l) / 16384) + 1 : 0, deg = (l) => { const x = lab.has(l) && K.cells.get(lab.get(l) + 1); return x && typeof x.v === 'number' ? x.v : null; };
     const tl = sat('TL finansman faizi (yıllık)'), ft = sat('Forward için TL faizi (yıllık)'), fu = sat('Forward için USD faizi (yıllık)'), fm = sat('Forward banka marjı');
-    const FW = tl && ft ? { tl, ft, fu, fm, tl0: deg('TL finansman faizi (yıllık)'), fu0: deg('Forward için USD faizi (yıllık)'), fm0: deg('Forward banka marjı') } : null;
+    // paket 75+: model forward TL faizini (B106 = B73) ve finansman seçimini (B158) kendisi bağlıyor → panel bağlantısı kapalı
+    const fFt = ft && K.cells.get(lab.get('Forward için TL faizi (yıllık)') + 1), modelFW = !!(fFt && fFt.f), modelFin = lab.has('Stok ve alacak finansmanı');
+    const FW = tl && ft && !modelFW ? { tl, ft, fu, fm, tl0: deg('TL finansman faizi (yıllık)'), fu0: deg('Forward için USD faizi (yıllık)'), fm0: deg('Forward banka marjı') } : null;
     const harf = (i) => { let n = i - aIdx + 1, s = ''; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
-    const FR = []; // kargo finansmanı hücreleri: B47 × (stok günü + B72 vade ...)
+    const FR = []; if (!modelFin) // kargo finansmanı hücreleri: B47 × (stok günü + B72 vade ...)
     for (const sh of ['Motorin_Kargolar', 'Benzin_Kargolar']) { const S = W[sh]; if (!S) continue;
       for (const [k, x] of S.cells) if (x.f && /Girdiler!\$B\$47\*\(/.test(x.f) && /Girdiler!\$B\$72/.test(x.f)) FR.push(sh + '!' + harf(k % 16384) + (Math.floor(k / 16384) + 1)); }
     const bag = (g) => { const o = { ...g };
       if (FW) o['Girdiler!B' + FW.ft] = ('Girdiler!B' + FW.tl) in g ? g['Girdiler!B' + FW.tl] : FW.tl0;
       if ((g['GTS!FinansmanPrimde'] || 'Alım priminde') === 'Alım priminde') for (const a of FR) o[a] = 0;
       return o; };
-    return { bag, FW, FR };
+    return { bag, FW, FR, modelFW, modelFin };
   }
   const api = { kur };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else kok.GirdiBag = api;
