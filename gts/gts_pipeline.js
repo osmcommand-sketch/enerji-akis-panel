@@ -116,16 +116,20 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const HS = require(path.join(resDir, 'hesap.js'));
   const xb = Z.oku(xl);
   log(Object.keys(girdi).length ? 'Model sizin girdilerinizle yeniden hesaplanıyor' : 'Model hesaplanıyor');
-  const X = HS.hesapla(xb, girdi);
+  let X = HS.hesapla(xb, girdi);
+  // Girdiler'deki bir hücre artık Ozet panelinden besleniyorsa (=Ozet!$H$n), eski girdi anahtarını panele taşı
+  { const tas = {}; for (const k of Object.keys(girdi)) { const [sh, adr] = k.split('!'); if (sh !== 'Girdiler') continue; const f = X.formulMetni(sh, adr), m = f && /^=?\s*(?:IF\(\s*)?Ozet!\$?H\$?(\d+)/.exec(f); if (m && !(('Ozet!H' + m[1]) in girdi)) tas[k] = 'Ozet!H' + m[1]; }
+    if (Object.keys(tas).length) { for (const [a, b] of Object.entries(tas)) { girdi[b] = girdi[a]; delete girdi[a]; }
+      try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} log('Girdiler yeni panele taşındı'); X = HS.hesapla(xb, girdi); } }
   O.girdi = girdi; O.girdiYolu = gy; O.hesap = X.formul;
   const satir = (ad, a, b, mc) => { const R = X.sayfa(ad), out = []; const son = b || R.length - 1; for (let i = a; i <= son; i++) { const r = R[i] || []; const q = []; const n = mc || r.length; for (let j = 0; j < n; j++) q[j] = r[j] === undefined ? null : r[j]; out.push(q); } return out; };
   const R2 = (x, n = 0) => pr(x, n);
   const oz = satir('Ozet', 1, 83, 5);
   O.oz_bas = oz.slice(1, 4).map((x) => x[0]);
   O.oz = oz.slice(4).filter((x) => x[0] != null).map((x) => [x[0], R2(x[1], 2), R2(x[2], 2), R2(x[3], 2), x[4]]);
-  O.tic = []; { const R = X.sayfa('Ozet'); for (let i = 5; i <= 30; i++) { const x = R[i]; if (!x || x[6] == null) continue; O.tic.push([x[6], R2(x[7], 2), x[8], R2(X.orijinal('Ozet', 'H' + i), 2), 'Ozet!H' + i]); } }
+  O.tic = []; { const R = X.sayfa('Ozet'); for (let i = 5; i <= 30; i++) { const x = R[i]; if (!x || x[6] == null) continue; const fm = X.formulMu('Ozet', 'H' + i), bas = x[7] == null && x[8] == null && !fm && !(('Ozet!H' + i) in girdi), ad = bas ? null : 'Ozet!H' + i, v = girdi['Ozet!H' + i] ?? x[7], tur = x[7] == null && x[8] == null && !fm ? '' : fm ? 'bilgi' : typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? 'sec' : /\(%\)/.test(x[6]) ? 'yuzde' : /boş\s*=/.test(x[6]) ? 'bos' : ''; O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, x[8], fm || bas ? null : (o => typeof o === 'number' ? R2(o, 4) : o)(X.orijinal('Ozet', 'H' + i)), fm || bas ? null : ad, tur]); } }
   { const G = X.sayfa('Girdiler'), bul = (l) => G.findIndex((x) => x && x[0] === l), b38 = bul("Motorin – GTS'de tahliye (t), boş = tam kargo"), b153 = bul('2027 motorin GTS partisi (t), boş = B40');
-    if (b38 > 0 && b153 > 0) { O.tic.push(['Gemi ve parti', null, null]);
+    if (b38 > 0 && b153 > 0 && !X.formulMu('Girdiler', 'B' + b38)) { O.tic.push(['Gemi ve parti', null, null]);
       O.tic.push(['Motorin GTS partisi (t)', R2(girdi['Girdiler!B' + b38] ?? G[b38][1]), 'Her kargoda GTS\'de tahliye edilen motorin; geminin kalanı ikinci limana gider. 2027 partisi boşsa iki yıl için de geçerli. Girdiler B' + b38 + '.', R2(X.orijinal('Girdiler', 'B' + b38)), 'Girdiler!B' + b38]);
       O.tic.push(['2027 motorin GTS partisi (t)', (() => { const v = girdi['Girdiler!B' + b153] ?? G[b153][1]; return v == null || v === '' ? null : R2(v); })(), 'Yalnız 2027 kargoları için; boş = yukarıdaki parti. Girdiler B' + b153 + '.', null, 'Girdiler!B' + b153, 1]); } }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
@@ -145,7 +149,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);
   O.tank = []; for (const r of satir('Tank', 3)) { if (!serial(r[0])) continue; O.tank.push([R2(r[1]), R2(r[4]), R2(r[8]), R2(r[11])]); if (!O.tkap) O.tkap = [R2(r[2]), R2(r[5]), R2(r[9]), R2(r[12])]; }
   O.vad = satir('Vadeli', 5, Math.min(40, X.sayfa('Vadeli').length - 1), 9).filter((x) => serial(x[0])).map((x) => [tarih(x[0]), R2(x[2], 1), R2(x[3], 1), R2(x[6], 1), R2(x[7], 3)]);
-  { const HL = ['Ürün hedge','Motorin ürün hedge oranı','Benzin ürün hedge oranı (ICE Gasoil ile çapraz)','ICE Gasoil işlem maliyeti (USD/t; borsa + takas + komisyon + kayma, gidiş-dönüş)','Teminat (initial margin) oranı','Kur hedge','Kur hedge oranı','Forward banka marjı']; O.hgir = []; const G = X.sayfa('Girdiler'); for (let i = 1; i < G.length; i++) { const x = G[i]; if (x && HL.includes(x[0])) O.hgir.push([x[0], 'Girdiler!B' + i, x[1], X.orijinal('Girdiler', 'B' + i)]); } }
+  { const HL = ['Ürün hedge','Motorin ürün hedge oranı','Benzin ürün hedge oranı (ICE Gasoil ile çapraz)','ICE Gasoil işlem maliyeti (USD/t; borsa + takas + komisyon + kayma, gidiş-dönüş)','Teminat (initial margin) oranı','Kur hedge','Kur hedge oranı','Forward banka marjı']; O.hgir = []; const G = X.sayfa('Girdiler'); for (let i = 1; i < G.length; i++) { const x = G[i]; if (x && HL.includes(x[0])) { const f = X.formulMetni('Girdiler', 'B' + i), m = f && /^=?\s*Ozet!\$?H\$?(\d+)\s*$/.exec(f), adr = m ? 'Ozet!H' + m[1] : 'Girdiler!B' + i; O.hgir.push([x[0], adr, x[1], m ? X.orijinal('Ozet', 'H' + m[1]) : X.orijinal('Girdiler', 'B' + i)]); } } }
   O.mev = satir('Mevsimsellik', 4, 27, 10).filter((x) => typeof x[6] === 'number').map((x) => [x[6], tarih(x[7]), R2(x[8], 4)]);
   // Monte Carlo (önceki model sürümleri)
   const LAB = { mc_dav: { K: 'Davranış yok', A: 'Davranış, tavan yok', T15: 'Satış tavanı 1,5×', T12: 'Satış tavanı 1,2×', T11: 'Satış tavanı 1,1×', T10: 'Satış tavanı 1,0×', Q50: 'Bayi kotası %50' },

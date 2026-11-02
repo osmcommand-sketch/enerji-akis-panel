@@ -276,6 +276,8 @@ function hesapla(buf, girdiler = {}) {
   const cache = {};
   return {
     sayfalar: Object.keys(S), formul: n,
+    formulMu(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), x = S[sh] && S[sh].cells.get((+m[2] - 1) * 16384 + kolNo(m[1])); return !!(x && x.f); },
+    formulMetni(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), x = S[sh] && S[sh].cells.get((+m[2] - 1) * 16384 + kolNo(m[1])); return x && x.f ? String(x.f) : null; },
     orijinal(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), x = S[sh] && S[sh].cells.get((+m[2] - 1) * 16384 + kolNo(m[1])); return x && x.v !== BOS && !isErr(x.v) ? x.v : null; },
     sayfa(ad) {
       if (cache[ad]) return cache[ad]; const S0 = S[ad]; if (!S0) throw new Error('Excel modelinde "' + ad + '" sayfası yok.');
