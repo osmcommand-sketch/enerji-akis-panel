@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.50",
+ "surum": "1.0.51",
  "kabuk": 1,
- "tarih": "2026-11-02T18:58:46+03:00",
- "notlar": "Kaynak bazlı satış primi altındaki not kaldırıldı",
+ "tarih": "2026-11-02T19:05:19+03:00",
+ "notlar": "Ticari koşullar: dengeli 3 kolon (Alım/Satış/Müşteri · Faiz/Kaynak primi · Hedge ve parti/Faaliyet giderleri), ortalama fiyatlar üst şeritte",
  "dosyalar": {
-  "ui/index.html": "2daba9a177a3d37910a3483728c59ac620f617ffcfc880699245b68ca69b8232",
+  "ui/index.html": "abd43410ecbdc4af72b6c7f16900adc394b97ffcbc2d0ccf8750ea9dbe76c752",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "90d3269498b111c48eb834b66fc7e7133f6b72db1912b7dacde06a95bd030393",
+  "ui/pano.js": "29275bd4cbef5bd5a21d40dd2472d90d180618f3ceb44c55a487583363f60295",
   "gts_pipeline.js": "32f36b8eb5d7ee4cdf55f31371c51fead87b5b8197b9ad19c774086cd0e415c4",
   "pipeline.js": "6af95d7c2691d854f4b673cbb95c8c97733831b714bc3cfc2330b247824c9442",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",

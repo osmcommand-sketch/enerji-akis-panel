@@ -571,6 +571,13 @@ table.kar tr.k-acl2 td{background:#FFFDF7;font-size:11px;color:var(--ink-3)}tabl
 table.izg tr.varsay td{background:#FFF7E0}table.izg td.n,table.mc2 td.n{color:#B3412E}table.izg td.p,table.mc2 td.p{color:#1D7A4A}table.mc2 td,table.izg td{font-variant-numeric:tabular-nums}
 table.kar tr.k-g2 td:first-child{padding-left:40px}table.kar tr.k-alt .kn,table.kar tr.k-ana .kn{max-width:520px}
 table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}table.kar tr.k-acl .kl{font-style:italic}
+.tf3{columns:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.tf-k{display:flex;flex-direction:column;gap:12px;min-width:0}.tf-k .tf-g{margin-bottom:0}
+@media (max-width:1100px){.tf3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.tf3{grid-template-columns:minmax(0,1fr)}}
+.tf-ozet{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px;padding:9px 12px;margin-bottom:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font:400 13px var(--f-body);color:var(--ink-2,var(--ink))}
+.tf-ozet b{font:600 14px var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink)}
+.tf-oz-b{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
