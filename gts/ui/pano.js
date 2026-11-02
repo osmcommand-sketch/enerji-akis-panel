@@ -220,6 +220,10 @@ function karTablo(){
 function girdiYaz(anahtarlar,yeni){ const fs=require("fs"), path=require("path"), o={};
   for(const [k,v] of Object.entries(V.girdi||{})) if(!anahtarlar.includes(k)) o[k]=v; Object.assign(o,yeni);
   fs.mkdirSync(path.dirname(V.girdiYolu),{recursive:true}); if(Object.keys(o).length) fs.writeFileSync(V.girdiYolu,JSON.stringify(o,null,1)); else if(fs.existsSync(V.girdiYolu)) fs.unlinkSync(V.girdiYolu); }
+/* Forward maliyeti (kullanıcı 02.11.2026 17:47): TL ve USD faizinden faiz paritesiyle; vade = satış vadesi (model formülüyle aynı) */
+function fwHesap(tl,usd,m,d){ return (1+tl*d/365)/(1+usd*d/360)*(1+(m||0))-1; }
+function fwMetin(o,T,tl,usd,d){ if(!o) return "–"; const vr=T&&T.find(x=>/^Satış vadesi/.test(x[0])); d=d??(vr&&typeof vr[1]==="number"?vr[1]:17); tl=tl??o.tl; usd=usd??o.usd;
+  if(!isFinite(tl)||!isFinite(usd)) return "–"; return `${nf.format(d)} gün %${nf2.format(fwHesap(tl,usd,o.marj,d)*100)} · aylık %${nf2.format(fwHesap(tl,usd,o.marj,30)*100)}`; }
 /* ---------- Ticari koşullar: kullanıcı girdisi (Excel Özet G5:I14); masaüstünde model bu değerlerle yeniden hesaplanır ---------- */
 function ticari(){
   const el=$("g-tic"), T0=(V.tic||[]).filter(r=>r[1]!=="Değer");
@@ -244,7 +248,8 @@ function ticari(){
     const t=tur(r), id="tg-"+(r[4]||r[0]).replace(/[^\w]/g,""), yz=t==="yuzde", gv=v=>typeof v==="number"&&yz?v*100:v, deg=r[3], deg2=r[4]&&deg!=null&&deg!==r[1];
     const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*('?[a-zçğıöşü]*)?\.?/g,"").trim();
     let inp;
-    if(t==="bilgi") inp=`<output id="${id}">${esc(typeof r[1]==="number"?f(r[1]):String(r[1]??"–").replace(/(\d),(?=\d{3}\b)/g,"$1."))}</output>`;
+    if(r[4]==="GTS!ForwardBilgi") inp=`<output id="tg-fw">${fwMetin(r[6],T)}</output>`;
+    else if(t==="bilgi") inp=`<output id="${id}">${esc(typeof r[1]==="number"?f(r[1]):String(r[1]??"–").replace(/(\d),(?=\d{3}\b)/g,"$1."))}</output>`;
     else if(t==="sec") inp=`<select id="${id}" data-h="${esc(r[4]||"")}" data-d="${esc(deg??"")}" ${yaz&&r[4]?"":"disabled"}>${((r[6]&&r[6].liste)||["Açık","Kapalı"]).map(o=>`<option${o===r[1]?" selected":""}>${o}</option>`).join("")}</select>`;
     else inp=`<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}"${yz?' data-y="1"':""} value="${f(gv(r[1]))}"${t==="bos"?` data-bos="1" placeholder="boş"`:""}${r[6]&&r[6].min!=null&&isFinite(r[6].min)?` data-min="${r[6].min}"`:""}${r[6]&&r[6].max!=null&&isFinite(r[6].max)?` data-max="${r[6].max}"`:""}${r[6]&&r[6].hata?` data-hata="${esc(r[6].hata)}"`:""}${r[6]&&r[6].tip==="whole"?' data-tam="1"':""} ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n">`;
     const ek=[/^Alım primi/.test(r[0])?"eksi = iskonto":"", !BZ&&/benzin/i.test(r[0])?"benzin ithalatı kapalı":"", r===ana?"2028 · boş = tam gemi":t==="bos"?"boş = 2028 partisi":"", /^Uygulanan parti/.test(r[0])?"2027 / 2028":"", /^Bayi kotası/.test(r[0])?"zam beklentisinde normal günün üstüne azami ek alım":"", /^Asgari müşteri/.test(r[0])?(V.minAlim&&V.minAlim.n?`${V.minAlim.n} dağıtıcı çıkarıldı · motorin −${ton(V.minAlim.tonM)} (%${nf1.format(V.minAlim.sM*100)})`:"0 = sınır yok"):"", r[7]&&r[7].tl!=null?`%${nf1.format(r[7].pay*100)} hacim · potansiyel ${nf.format(r[7].tl)} TL/m³${typeof r[1]==="number"&&r[1]>r[7].tl?' · <b class="uyar">potansiyeli aşıyor</b>':""}`:"", /^Satış hedefi/.test(r[0])&&V.hedef?`hedef ${nf.format(V.hedef.tam/1e3)} kt/yıl → ${nf.format(V.hedef.tam*(r[1]||1)/1e3)} kt/yıl${(()=>{ const p=V.kartab&&V.kartab.rows.find(x=>/^PLANLANAN SATIŞ/.test(x[0])); return p&&YIL?` · ${YIL} planlanan ${nf.format(p[YIL==="2027"?1:2]/1e3)} kt`:""; })()}`:"", t==="bilgi"?"model hesabı":""].filter(Boolean);
@@ -268,6 +273,8 @@ function ticari(){
   const I=[...el.querySelectorAll("[data-h]")].filter(i=>i.dataset.h), btn=$("tic-hesap"), d=$("tic-d");
   const oku=i=>{ if(i.tagName==="SELECT") return i.value; const v=sayi(i.value); if(v===null) return i.dataset.bos?null:NaN; return i.dataset.y?v/100:v; };
   const ilk=new Map(I.map(i=>[i,i.value]));
+  { const fr=T.find(x=>x[4]==="GTS!ForwardBilgi"), ip=re=>I.find(i=>{ const r=T.find(x=>x[4]===i.dataset.h); return r&&re.test(r[0]); }), iTL=ip(/^TL faizi/), iUS=ip(/^USD faizi/), iVD=ip(/^Satış vadesi/), o=$("tg-fw");
+    if(fr&&o&&iTL&&iUS){ const yen=()=>{ const v=x=>x?oku(x):null; o.textContent=fwMetin(fr[6],T,v(iTL),v(iUS),iVD?v(iVD):null); }; for(const i of [iTL,iUS,iVD]) if(i) i.addEventListener("input",yen); } }
   const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i); const ok=v===null||typeof v==="string"||isFinite(v)&&(!i.dataset.bos||v>0)&&(i.dataset.min==null||v>=+i.dataset.min-1e-9)&&(i.dataset.max==null||v<=+i.dataset.max+1e-9)&&(!i.dataset.tam||Math.abs(v-Math.round(v))<1e-9); i.classList.toggle("hata",!ok); if(!ok){ hata=i.dataset.hata||true; continue; } if(i.value.trim()!==ilk.get(i).trim()) deg=true; }
     btn.disabled=hata||!deg; d.textContent=hata?(typeof hata==="string"?"Geçersiz değer: "+hata:"Geçerli bir sayı girin."):deg?"Değişiklikler hesaplanmadı.":""; };
   for(const i of I){ i.addEventListener(i.tagName==="SELECT"?"change":"input",kontrol); i.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!btn.disabled) btn.click(); }); }

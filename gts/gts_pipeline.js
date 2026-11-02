@@ -137,16 +137,23 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const HS = require(path.join(resDir, 'hesap.js'));
   const xb = Z.oku(xl);
   log(Object.keys(girdi).length ? 'Model sizin girdilerinizle yeniden hesaplanıyor' : 'Model hesaplanıyor');
-  let X = HS.hesapla(xb, girdi);
+  // Forward faizleri (kullanıcı 02.11.2026 17:47): forward TL faizi = Genel bakıştaki TL faizi; USD faizi panelden girilir
+  const FW = (() => { const K = HS.kitapAc(xb).Girdiler, lab = new Map(); if (!K) return null; for (const [k, x] of K.cells) if (typeof x.v === 'string' && !lab.has(x.v)) lab.set(x.v, k);
+    const sat = (l) => lab.has(l) ? Math.floor(lab.get(l) / 16384) + 1 : 0, deg = (l) => { const x = lab.has(l) && K.cells.get(lab.get(l) + 1); return x && typeof x.v === 'number' ? x.v : null; };
+    const tl = sat('TL finansman faizi (yıllık)'), ft = sat('Forward için TL faizi (yıllık)'), fu = sat('Forward için USD faizi (yıllık)'), fm = sat('Forward banka marjı');
+    return tl && ft ? { tl, ft, fu, fm, tl0: deg('TL finansman faizi (yıllık)'), fu0: deg('Forward için USD faizi (yıllık)'), fm0: deg('Forward banka marjı') } : null; })();
+  const bag = (g) => FW ? { ...g, ['Girdiler!B' + FW.ft]: ('Girdiler!B' + FW.tl) in g ? g['Girdiler!B' + FW.tl] : FW.tl0 } : g;
+  const HSh = (g) => HS.hesapla(xb, bag(g));
+  let X = HSh(girdi);
   // Girdiler'deki bir hücre artık Ozet panelinden besleniyorsa (=Ozet!$H$n), eski girdi anahtarını panele taşı
   { const tas = {}; for (const k of Object.keys(girdi)) { const [sh, adr] = k.split('!'); if (sh !== 'Girdiler') continue; const f = X.formulMetni(sh, adr), m = f && /^=?\s*(?:IF\(\s*)?Ozet!\$?H\$?(\d+)/.exec(f); if (m && !(('Ozet!H' + m[1]) in girdi)) tas[k] = 'Ozet!H' + m[1]; }
     if (Object.keys(tas).length) { for (const [a, b] of Object.entries(tas)) { girdi[b] = girdi[a]; delete girdi[a]; }
-      try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} log('Girdiler yeni panele taşındı'); X = HS.hesapla(xb, girdi); } }
+      try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} log('Girdiler yeni panele taşındı'); X = HSh(girdi); } }
   // Satış hedefi (hedef tonajın %'si; kullanıcı 02.11.2026 12:37): seçili senaryonun yıllık hedefi (Girdiler B9) bu oranla ölçeklenir
   const SY = 'GTS!SatisYuzde', sy = typeof girdi[SY] === 'number' ? girdi[SY] : 1; O.hedef = null;
   { const G0 = X.sayfa('Girdiler'), b9 = G0[9] && G0[9][0] && /^Seçili motorin/.test(G0[9][0]) ? G0[9][1] : null;
     if (typeof b9 === 'number') { O.hedef = { tam: b9, oran: sy };
-      if (Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in girdi)) { log('Satış hedefi %' + Math.round(sy * 100) + ' ile yeniden hesaplanıyor'); X = HS.hesapla(xb, { ...girdi, 'Girdiler!B9': b9 * sy }); } } }
+      if (Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in girdi)) { log('Satış hedefi %' + Math.round(sy * 100) + ' ile yeniden hesaplanıyor'); X = HSh({ ...girdi, 'Girdiler!B9': b9 * sy }); } } }
   // Asgari müşteri alımı (kullanıcı 02.11.2026 17:01): aylık alımı eşiğin altındaki dağıtıcıya satış yok; satış onların payı kadar düşer
   const MA = 'GTS!MinAylik', esik = typeof girdi[MA] === 'number' ? girdi[MA] : 1000, ekG = {}; O.minAlim = null;
   { const MAm = require(path.join(resDir, 'min_alim.js')), R = X.sayfa('Ozet'), G0 = X.sayfa('Girdiler');
@@ -156,7 +163,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     O.minAlim = m || { esik, n: 0, sir: [] };
     if (m && m.n && b9 && !('Girdiler!B9' in girdi)) { ekG['Girdiler!B9'] = b9 * (1 - m.sM); if (bz && m.sB > 0 && !('Girdiler!B10' in girdi)) ekG['Girdiler!B10'] = b10 * (1 - m.sB);
       log(`Aylık ${Math.round(esik)} t altındaki ${m.n} dağıtıcı çıkarıldı; satış %${(m.sM * 100).toFixed(1)} düşük hesaplanıyor`);
-      X = HS.hesapla(xb, { ...girdi, ...(O.hedef && Math.abs(sy - 1) > 1e-9 ? { 'Girdiler!B9': O.hedef.tam * sy } : {}), ...ekG }); } }
+      X = HSh({ ...girdi, ...(O.hedef && Math.abs(sy - 1) > 1e-9 ? { 'Girdiler!B9': O.hedef.tam * sy } : {}), ...ekG }); } }
   // Risk tablolarını kullanıcının girdileriyle yeniden hesapla (istek bayrağı Risk sekmesindeki düğmeden; sonuç önbellekte)
   { const IST = 'GTS!RiskHesapla', cy = path.join(path.dirname(gy), 'risk_hesap.json'), temel = {}; for (const [k, v] of Object.entries(girdi)) if (k !== IST) temel[k] = v;
     const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length;
@@ -172,9 +179,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       kos.push(['Kapalı', 25, 60000, 17], ['Kapalı', 40, 60000, 17]);
       const izg = [], N = kos.length + 5; let n = 0;
       for (const [h, pk, l, v] of kos) { n++; log(`Risk tabloları hesaplanıyor ${n}/${N}`); const g = { ...taban, 'Ozet!H17': h, 'Ozet!H14': v, 'Ozet!H20': pk * 1000, 'Ozet!H21': pk * 1000 }; if (LIM) g[LIM] = l;
-        try { const [a, b] = nk(HS.hesapla(xb, g)); izg.push(['Sizin girdileriniz', h, pk, l, v, pr(a), pr(b), pr(a + b)]); } catch (e) { log('Izgara hatası: ' + e.message); } }
+        try { const [a, b] = nk(HSh(g)); izg.push(['Sizin girdileriniz', h, pk, l, v, pr(a), pr(b), pr(a + b)]); } catch (e) { log('Izgara hatası: ' + e.message); } }
       const BT = [['Hedge kapalı', { 'Ozet!H17': 'Kapalı' }], ['ICE vadeli (tarihsel) – %100', { 'Ozet!H17': 'Açık', 'Ozet!H18': 1, 'Ozet!H23': 'ICE vadeli (tarihsel)' }], ['ICE vadeli (tarihsel) – %50', { 'Ozet!H17': 'Açık', 'Ozet!H18': 0.5, 'Ozet!H23': 'ICE vadeli (tarihsel)' }], ['Piyasa eğrisi (29.10.2026 eğim) – %100', { 'Ozet!H17': 'Açık', 'Ozet!H18': 1, 'Ozet!H23': 'Piyasa eğrisi' }], ['Düz kilit – %100', { 'Ozet!H17': 'Açık', 'Ozet!H18': 1, 'Ozet!H23': 'Düz' }]];
-      const bt = []; if (SEN) for (const [ad, o] of BT) { n++; log(`Risk tabloları hesaplanıyor ${n}/${N}`); try { const [a, b] = nk(HS.hesapla(xb, { ...taban, [SEN]: 'Tarihsel 2024–25', ...o })); bt.push([ad, pr(a / 1e6, 2), pr(b / 1e6, 2), pr((a + b) / 1e6, 2)]); } catch (e) { log('Tarihsel test hatası: ' + e.message); } }
+      const bt = []; if (SEN) for (const [ad, o] of BT) { n++; log(`Risk tabloları hesaplanıyor ${n}/${N}`); try { const [a, b] = nk(HSh({ ...taban, [SEN]: 'Tarihsel 2024–25', ...o })); bt.push([ad, pr(a / 1e6, 2), pr(b / 1e6, 2), pr((a + b) / 1e6, 2)]); } catch (e) { log('Tarihsel test hatası: ' + e.message); } }
       RH = { anahtar, zaman: new Date().toISOString(), sure: Math.round((Date.now() - t0) / 1000), izg, bt };
       try { fs.writeFileSync(cy, JSON.stringify(RH)); } catch {} delete girdi[IST]; try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} O.riskEski = null; }
     O.riskHesap = RH ? { zaman: RH.zaman, sure: RH.sure, izg: RH.izg, bt: RH.bt } : null; }
@@ -203,6 +210,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && x[0] === 'TL finansman faizi (yıllık)');
     if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { const k = O.tic.findIndex((r) => /^Satış vadesi/.test(r[0])), v = G[i][1], o = X.orijinal('Girdiler', 'B' + i);
       O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['TL faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'ÖTV/KDV nakdinin ve TL finansmanının yıllık faizi; İthalat vergi avantajını belirler. Girdiler B' + i + '.', typeof o === 'number' ? R2(o, 4) : o, 'Girdiler!B' + i, 'yuzde', X.dogrulama('Girdiler', 'B' + i) || { tip: 'decimal', min: 0, max: 2, hata: '%0 ile %200 arası' }]); } }
+  if (FW && FW.fu) { const k = O.tic.findIndex((r) => /^TL faizi/.test(r[0])), G = X.sayfa('Girdiler'), v = G[FW.fu][1], tl = G[FW.tl][1], m = FW.fm ? G[FW.fm][1] : 0;
+    O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['USD faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'Kur hedge forward\'ının USD faizi; forward TL faizi yukarıdaki TL faizidir. Girdiler B' + FW.fu + '.', typeof FW.fu0 === 'number' ? R2(FW.fu0, 4) : FW.fu0, 'Girdiler!B' + FW.fu, 'yuzde', X.dogrulama('Girdiler', 'B' + FW.fu) || { tip: 'decimal', min: 0, max: 1, hata: '%0 ile %100 arası' }],
+      ['Forward maliyeti (kur hedge)', null, 'Faiz paritesi: forward = spot × (1 + TL faizi × vade/365) / (1 + USD faizi × vade/360) × (1 + banka marjı); vade = satış vadesi. Girdiler B' + FW.ft + ' = TL faizi.', null, 'GTS!ForwardBilgi', 'bilgi', { tl: R2(tl, 4), usd: R2(v, 4), marj: R2(m || 0, 4) }]); }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);
