@@ -291,7 +291,7 @@ function akis(){
   doldur(); ciz();
   function ciz(){
     const oi=A.oz.findIndex(r=>r[0]===S.sen&&r[1]===S.vaka), o=A.oz[oi], f=o[9]>0?HT.v/o[9]:1, fb=BZ?f:0, fu=u=>u?f:fb;
-    $("a-sub").textContent=`${HT.ad} ${ton(HT.v)} · dağılım deseni: 2026 akışı, ${S.sen==="BAZ_075"?"Baz 0,75 Mt":"Hedef 1,5 Mt"} senaryosu · ${VAD[S.vaka]||S.vaka}`;
+    $("a-sub").textContent="";
     const kt=(l,v,s,c="")=>`<div class="kt ${c}" style="grid-column:span 3"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
     const KY=A.ky.filter(r=>r[0]===oi&&(BZ||r[3])).map(r=>{ const q=fu(r[3]); return [r[0],r[1],r[2],r[3],r[4],r[5],r[6]*q,r[7]*q,r[8],r[9]]; }),
       IK=A.ik.filter(r=>r[0]===oi&&(BZ||r[5])).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],r[6]*fu(r[5]),r[7],r[8]]),
