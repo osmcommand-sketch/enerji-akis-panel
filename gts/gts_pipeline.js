@@ -147,6 +147,16 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const G0 = X.sayfa('Girdiler'), b9 = G0[9] && G0[9][0] && /^Seçili motorin/.test(G0[9][0]) ? G0[9][1] : null;
     if (typeof b9 === 'number') { O.hedef = { tam: b9, oran: sy };
       if (Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in girdi)) { log('Satış hedefi %' + Math.round(sy * 100) + ' ile yeniden hesaplanıyor'); X = HS.hesapla(xb, { ...girdi, 'Girdiler!B9': b9 * sy }); } } }
+  // Asgari müşteri alımı (kullanıcı 02.11.2026 17:01): aylık alımı eşiğin altındaki dağıtıcıya satış yok; satış onların payı kadar düşer
+  const MA = 'GTS!MinAylik', esik = typeof girdi[MA] === 'number' ? girdi[MA] : 1000, ekG = {}; O.minAlim = null;
+  { const MAm = require(path.join(resDir, 'min_alim.js')), R = X.sayfa('Ozet'), G0 = X.sayfa('Girdiler');
+    const sat = (l) => { const r = R.find((x) => x && x[0] === l); return r && typeof r[1] === 'number' ? r[1] : 0; };
+    const b9 = G0[9] && typeof G0[9][1] === 'number' ? G0[9][1] : null, b10 = G0[10] && typeof G0[10][1] === 'number' ? G0[10][1] : 0, bz = b10 > 0;
+    const m = MAm.minAlim(O.akis, b9, sat('Motorin satışı (t)'), sat('Benzin satışı (t)'), esik, bz);
+    O.minAlim = m || { esik, n: 0, sir: [] };
+    if (m && m.n && b9 && !('Girdiler!B9' in girdi)) { ekG['Girdiler!B9'] = b9 * (1 - m.sM); if (bz && m.sB > 0 && !('Girdiler!B10' in girdi)) ekG['Girdiler!B10'] = b10 * (1 - m.sB);
+      log(`Aylık ${Math.round(esik)} t altındaki ${m.n} dağıtıcı çıkarıldı; satış %${(m.sM * 100).toFixed(1)} düşük hesaplanıyor`);
+      X = HS.hesapla(xb, { ...girdi, ...(O.hedef && Math.abs(sy - 1) > 1e-9 ? { 'Girdiler!B9': O.hedef.tam * sy } : {}), ...ekG }); } }
   // Risk tablolarını kullanıcının girdileriyle yeniden hesapla (istek bayrağı Risk sekmesindeki düğmeden; sonuç önbellekte)
   { const IST = 'GTS!RiskHesapla', cy = path.join(path.dirname(gy), 'risk_hesap.json'), temel = {}; for (const [k, v] of Object.entries(girdi)) if (k !== IST) temel[k] = v;
     const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length;
@@ -154,6 +164,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (girdi[IST]) { const t0 = Date.now(), G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
       for (const [k, v] of Object.entries(temel)) if (!k.startsWith('GTS!')) taban[k] = v;
       if (b9 && Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in taban)) taban['Girdiler!B9'] = b9 * sy;
+      Object.assign(taban, ekG);
       const bulB = (re) => { const i = G0.findIndex((x) => x && typeof x[0] === 'string' && re.test(x[0])); return i > 0 ? 'Girdiler!B' + i : null; };
       const LIM = bulB(/^İkinci liman uğrak maliyeti/), SEN = bulB(/^Fiyat senaryosu$/);
       const nk = (Y) => { const R = Y.sayfa('Ozet'), r = R.find((x) => x && typeof x[0] === 'string' && /^Toplam: (net kâr|şirket sonucu) \(USD\)$/.test(x[0])); return r ? [r[1], r[2]] : [null, null]; };
@@ -178,6 +189,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       O.tic.push([x[6], typeof gv === 'number' ? R2(gv, 4) : gv, String(x[8] || '').replace(/^Bilgi;?\s*/i, '').replace(/Girdiler B\d+'?[a-zçğıöşü]* değiştirilir\.?/i, '').trim() || null, typeof go === 'number' ? R2(go, 4) : go, ga, gd && gd.liste || /^(Açık|Kapalı)$/.test(String(gv)) ? 'sec' : /oranı|\(%\)/.test(x[6]) ? 'yuzde' : '', gd]); continue; }
     O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, x[8], fm || bas ? null : (o => typeof o === 'number' ? R2(o, 4) : o)(X.orijinal('Ozet', 'H' + i)), fm || bas ? null : ad, tur, dv, typeof x[10] === 'number' && typeof x[12] === 'number' ? { pay: R2(x[10], 4), usd: R2(x[11], 2), tl: R2(x[12], 1) } : null]); } }
   if (O.hedef) { const k = O.tic.findIndex((r) => r[4] === 'Ozet!H14'); O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Satış hedefi (%)', R2(O.hedef.oran, 4), 'Seçili senaryonun yıllık hedef tonajı bu oranla ölçeklenir; mevsimsellik ve rampa aynen uygulanır.', 1, SY, 'yuzde', { tip: 'decimal', min: 0.1, max: 1.5, hata: '%10 ile %150 arası' }]); }
+  { const k = O.tic.findIndex((r) => r[4] === SY || r[4] === 'Ozet!H14'); O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Asgari müşteri alımı – aylık (t)', esik, 'Aylık alımı bu değerin altında kalan dağıtıcıya satış yapılmaz; motorin satışı onların payı kadar düşer. 0 = sınır yok.', 1000, MA, '', { tip: 'decimal', min: 0, max: 20000, hata: '0 ile 20.000 t arası' }]); }
   // Müşteri davranışı: bayi kotası (Girdiler; Ozet panelinde yok) – kullanıcı 02.11.2026 11:29
   { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && typeof x[0] === 'string' && /^Bayi kotası/.test(x[0]));
     if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { const ad = 'Girdiler!B' + i, v = girdi[ad] ?? G[i][1], o = X.orijinal('Girdiler', 'B' + i);
