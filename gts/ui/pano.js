@@ -150,17 +150,17 @@ function karlilik(KI,SI){
   const R=[
     ["Satış hacmi",o=>o.t,"h","kargo tonu"],
     ["Satış geliri",o=>o.sat,"ana","Tüpraş vergisiz fiyatı ± satış farkı"],
-    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"alt","CIF Med ± alım primi, elleçleme, ek seyir ve tahliye farkı dahil"],
+    ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"alt","CIF Med ± alım primi, elleçleme, ek seyir ve fire dahil"],
     ["Gemi navlun farkı",o=>-o.nav,"alt","büyük gemi kazancı (+), küçük gemi farkı (−)"],
     ["İkinci liman (kısmi tahliye)",o=>-o.ik,"alt"],
     ["Brüt marj",o=>o.br,"ara"],
     ["Tüpraş primi",o=>o.br-o.fd-o.ap+o.nav+o.ik,"acl","satış fiyatı − satış dönemindeki CIF Med"],
     ["Stokta fiyat değişimi",o=>o.fd,"acl","satış dönemi CIF − fiyatlama günü CIF; düşen piyasada zarar"],
-    ["Alım primi, elleçleme ve tahliye farkı",o=>o.ap,"acl","CIF Med ile ürün alışı arasındaki fark (navlun hariç)"],
+    ["Alım primi, elleçleme ve fire",o=>o.ap,"acl","CIF Med ile ürün alışı arasındaki fark (navlun hariç)"],
     ["Alım primi / iskontosu",o=>-o.pr,"acl2","Ticari koşullar: CIF Med ± USD/t; prim (+) zarar, iskonto (−) kazanç"],
     ["GTS elleçleme tarifesi",o=>-o.el,"acl2",`${nf1.format(EL)} USD/t · Girdiler B48`],
     ["İthal kargo ek seyir",o=>-o.sy,"acl2",`${nf1.format(SY)} USD/t · Girdiler B49`],
-    ["Tahliye farkı",o=>o.ap+o.pr+o.el+o.sy,"acl2","konşimento ile tahliye edilen ton farkı (%"+nf1.format(gn("Tahliye farkı (gemi B/L − tahliye, %)")*100)+"); tüm alış bedeline uygulanır"],
+    ["Fire",o=>o.ap+o.pr+o.el+o.sy,"acl2","konşimento ile tahliye edilen ton farkı (%"+nf1.format(gn("Tahliye farkı (gemi B/L − tahliye, %)")*100)+"); tüm alış bedeline uygulanır"],
     ["Navlun farkı ve ikinci liman",o=>-o.nav-o.ik,"acl","Gemi navlun farkı + İkinci liman satırları"],
     ["Finansman",o=>-o.fin,"alt","stokta kalma ve müşteri vadesi"],
     ["Hedge öncesi marj",o=>o.br-o.fin,"ara"],
@@ -202,7 +202,7 @@ function karTablo(){
     const ad0=ad.replace(/\s*\([^)]*\)\s*/g,""), ana=ad0===ad0.toLocaleUpperCase("tr-TR")&&/[A-ZÇĞİÖŞÜ]/.test(ad0), son=/^NET KÂR/.test(ad), bilgi=/^Bilgi/.test(ad);
     const miktar=/\((t|m³)\)$/.test(ad), oran=/oranı$|marjı$/.test(ad), birim=/\(USD\/t/.test(ad);
     const tur=son?"son":ana?(/BRÜT KÂR/.test(ad)?"ara":"ana"):bilgi?"b":"alt", cls=`k-${tur}${gir>1?" k-g2":""}`;
-    h+=`<tr class="${cls}"><td class="l"><span class="kl">${esc(ad.replace(/^Bilgi: (.)/,(_,c)=>c.toLocaleUpperCase("tr-TR")))}</span>${r[6]?`<span class="kn">${esc(r[6])}</span>`:""}</td>`;
+    h+=`<tr class="${cls}"><td class="l"><span class="kl">${esc(ad.replace(/^Bilgi: (.)/,(_,c)=>c.toLocaleUpperCase("tr-TR")).replace(/^Tahliye \/ ölçüm farkı$/,"Fire"))}</span>${r[6]?`<span class="kn">${esc(r[6])}</span>`:""}</td>`;
     for(const [,j] of kol){ const v=r[j];
       if(typeof v!=="number"){ h+=`<td class="yb"></td><td></td><td></td>`; continue; }
       if(miktar){ h+=`<td class="yb">${/m³/.test(ad)?nf.format(v)+" m³":ton(v)}</td><td></td><td></td>`; continue; }
