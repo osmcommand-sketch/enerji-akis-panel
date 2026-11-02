@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.54",
+ "surum": "1.0.55",
  "kabuk": 1,
- "tarih": "2026-11-02T22:10:21+03:00",
- "notlar": "Bölgesel navlun avantajı satırları kaldırıldı (Genel bakış, Kârlılık, Ekonomi)",
+ "tarih": "2026-11-02T22:13:11+03:00",
+ "notlar": "Kambiyo (yasal defter) Ekonomi sayfasına taşındı; yıllara göre tabloda kambiyo satırı",
  "dosyalar": {
-  "ui/index.html": "ce37b379363f76d82b9ad3d6bb7c43809b9a991cbb84c3d12138efd25c08f72d",
+  "ui/index.html": "2f91f6f05f451b59c3f011a514448622105abd6d6a9feb17667473e27d25fab9",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "32ba0c3ae91c3a08db0224ccab6191518055a8c9adf49bc8548135e189ac85d7",
+  "ui/pano.js": "18a235d385046831c5c1f7b0a445ad569ab751e35ad3d1849d0506900523b007",
   "gts_pipeline.js": "e212a5b77bd766905c79ecf3cf6751037e848f3208edb2f956748fc18163b001",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
