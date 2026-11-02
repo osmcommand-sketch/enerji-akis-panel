@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.23",
+ "surum": "1.0.24",
  "kabuk": 1,
- "tarih": "2026-11-02T11:31:10+03:00",
- "notlar": "Ticari koşullar: Müşteri davranışı – bayi kotası (Girdiler B138)",
+ "tarih": "2026-11-02T11:35:46+03:00",
+ "notlar": "Ortalama Tüpraş fiyatı TL/m³ cinsinden",
  "dosyalar": {
   "ui/index.html": "5db617a15e9451615c47ec5967dfce01954708d5d1d3020d71e325bbb420192d",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "bba77620736c2d6284af41850721dfcc2da43f7675de1f05c851d9d6d217de4b",
+  "ui/pano.js": "a70a2b8057ef48907b57f310cd411211512a83bc3655c32254e67ada076fbf1c",
   "gts_pipeline.js": "82720ec4c3e0e6ea67b6451ee99ea9d6f06522210942ef521c478251c594501a",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",

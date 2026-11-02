@@ -255,8 +255,9 @@ function ticari(){
       const kw=K.reduce((a,k)=>a+w(k),0), cfK=kw?K.reduce((a,k)=>a+k[9]*w(k),0)/kw:null;
       const sr=V.kartab&&V.kartab.rows.find(r=>/Ortalama satış fiyatı/.test(r[0])), sat=sr?sr[YIL==="2027"?1:YIL==="2028"?2:3]:null, d1=v=>v==null?"–":nf1.format(v);
       const sat1=(l,v,alt)=>`<div class="tf-r bilgi"><label>${l}<small>${alt}</small></label><div class="tf-v"><output>${v}</output></div><span class="tf-u">$/t</span></div>`;
-      const kr=(l,v)=>`<div class="tf-r bilgi"><label>${l}</label><div class="tf-v"><output>${v}</output></div><span class="tf-u">$/t</span></div>`;
-      h+=`<div class="tf-g"><h4>Ortalama fiyatlar · ${YIL||"2027–2028"}</h4>`+kr("Tüpraş fiyatı (vergisiz)",d1(tp))+kr("Platts CIF Med motorin",d1(cf))+`</div>`; } }
+      const YG=(v=>isFinite(v)&&v>0?v:.845)(+gir("Tüpraş fiyatı dönüşüm yoğunluğu – motorin (t/m³)")), tl=(v=>v.length?v.reduce((a,b)=>a+b,0)/v.length:null)(Fs.filter(r=>typeof r[3]==="number"&&typeof r[2]==="number").map(r=>r[3]*r[2]*YG));
+      const kr=(l,v,u)=>`<div class="tf-r bilgi"><label>${l}</label><div class="tf-v"><output>${v}</output></div><span class="tf-u">${u}</span></div>`;
+      h+=`<div class="tf-g"><h4>Ortalama fiyatlar · ${YIL||"2027–2028"}</h4>`+kr("Tüpraş fiyatı (vergisiz)",tl==null?"–":nf.format(tl),"TL/m³")+kr("Platts CIF Med motorin",d1(cf),"$/t")+`</div>`; } }
   el.innerHTML=`<div class="tf">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="tic-hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="tic-sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="tic-d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
   if(!yaz) return;
   const I=[...el.querySelectorAll("[data-h]")].filter(i=>i.dataset.h), btn=$("tic-hesap"), d=$("tic-d");
