@@ -138,11 +138,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const xb = Z.oku(xl);
   log(Object.keys(girdi).length ? 'Model sizin girdilerinizle yeniden hesaplanıyor' : 'Model hesaplanıyor');
   // Forward faizleri (kullanıcı 02.11.2026 17:47): forward TL faizi = Genel bakıştaki TL faizi; USD faizi panelden girilir
-  const FW = (() => { const K = HS.kitapAc(xb).Girdiler, lab = new Map(); if (!K) return null; for (const [k, x] of K.cells) if (typeof x.v === 'string' && !lab.has(x.v)) lab.set(x.v, k);
-    const sat = (l) => lab.has(l) ? Math.floor(lab.get(l) / 16384) + 1 : 0, deg = (l) => { const x = lab.has(l) && K.cells.get(lab.get(l) + 1); return x && typeof x.v === 'number' ? x.v : null; };
-    const tl = sat('TL finansman faizi (yıllık)'), ft = sat('Forward için TL faizi (yıllık)'), fu = sat('Forward için USD faizi (yıllık)'), fm = sat('Forward banka marjı');
-    return tl && ft ? { tl, ft, fu, fm, tl0: deg('TL finansman faizi (yıllık)'), fu0: deg('Forward için USD faizi (yıllık)'), fm0: deg('Forward banka marjı') } : null; })();
-  const bag = (g) => FW ? { ...g, ['Girdiler!B' + FW.ft]: ('Girdiler!B' + FW.tl) in g ? g['Girdiler!B' + FW.tl] : FW.tl0 } : g;
+  // panel bağlantıları: forward TL faizi = TL faizi; stok ve alacak finansmanı alım priminde (res/girdi_bag.js)
+  const GB = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xb), FW = GB.FW, bag = GB.bag;
   const HSh = (g) => HS.hesapla(xb, bag(g));
   let X = HSh(girdi);
   // Girdiler'deki bir hücre artık Ozet panelinden besleniyorsa (=Ozet!$H$n), eski girdi anahtarını panele taşı
@@ -169,7 +166,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length;
     let RH = null; try { const c = JSON.parse(fs.readFileSync(cy, 'utf8')); if (c && c.anahtar === anahtar) RH = c; else if (c) O.riskEski = c.zaman || true; } catch {}
     if (girdi[IST]) { const t0 = Date.now(), G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
-      for (const [k, v] of Object.entries(temel)) if (!k.startsWith('GTS!')) taban[k] = v;
+      for (const [k, v] of Object.entries(temel)) if (!k.startsWith('GTS!') || k === 'GTS!FinansmanPrimde') taban[k] = v;
       if (b9 && Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in taban)) taban['Girdiler!B9'] = b9 * sy;
       Object.assign(taban, ekG);
       const bulB = (re) => { const i = G0.findIndex((x) => x && typeof x[0] === 'string' && re.test(x[0])); return i > 0 ? 'Girdiler!B' + i : null; };
@@ -213,6 +210,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   if (FW && FW.fu) { const k = O.tic.findIndex((r) => /^TL faizi/.test(r[0])), G = X.sayfa('Girdiler'), v = G[FW.fu][1], tl = G[FW.tl][1], m = FW.fm ? G[FW.fm][1] : 0;
     O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['USD faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'Kur hedge forward\'ının USD faizi; forward TL faizi yukarıdaki TL faizidir. Girdiler B' + FW.fu + '.', typeof FW.fu0 === 'number' ? R2(FW.fu0, 4) : FW.fu0, 'Girdiler!B' + FW.fu, 'yuzde', X.dogrulama('Girdiler', 'B' + FW.fu) || { tip: 'decimal', min: 0, max: 1, hata: '%0 ile %100 arası' }],
       ['Forward maliyeti (kur hedge)', null, 'Faiz paritesi: forward = spot × (1 + TL faizi × vade/365) / (1 + USD faizi × vade/360) × (1 + banka marjı); vade = satış vadesi. Girdiler B' + FW.ft + ' = TL faizi.', null, 'GTS!ForwardBilgi', 'bilgi', { tl: R2(tl, 4), usd: R2(v, 4), marj: R2(m || 0, 4) }]); }
+  { const k = O.tic.findIndex((r) => /^Alım primi \/ iskontosu – motorin/.test(r[0])), v = girdi['GTS!FinansmanPrimde'] || 'Alım priminde';
+    if (GB.FR.length) O.tic.splice(k >= 0 ? k + 1 : 0, 0, ['Stok ve alacak finansmanı', v, 'Kargonun stokta kaldığı ve müşteri vadesindeki günlerin USD faizi. Alım priminde: tedarikçi fiyatına dahil, model ayrıca hesaplamaz (kullanıcı 02.11.2026). Ayrıca hesapla: kargo bedeli × USD finansman faizi (Girdiler B47) × gün.', 'Alım priminde', 'GTS!FinansmanPrimde', 'sec', { tip: 'list', liste: ['Alım priminde', 'Ayrıca hesapla'] }]); }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);

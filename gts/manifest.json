@@ -1,17 +1,18 @@
 {
  "uygulama": "gts",
- "surum": "1.0.44",
+ "surum": "1.0.45",
  "kabuk": 1,
- "tarih": "2026-11-02T17:51:15+03:00",
- "notlar": "Genel bakış > Satış tarafı: USD faizi girdisi; forward TL faizi = TL faizi; forward maliyeti (vade ve aylık) canlı hesaplanır",
+ "tarih": "2026-11-02T17:59:24+03:00",
+ "notlar": "Stok ve alacak finansmanı alım primi içinde (mükerrer kaldırıldı; Alım tarafında seçilebilir); hedge teminat finansmanı aynen",
  "dosyalar": {
   "ui/index.html": "2daba9a177a3d37910a3483728c59ac620f617ffcfc880699245b68ca69b8232",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "ec3481730d39f5af959bc532e7857b84d0e6d63ac6401ad60816f746ea9e9964",
-  "gts_pipeline.js": "699301fe3d51dc51f274b8c10987fd0500b7418ad2d37ee7dcf7c2ae236774e4",
+  "ui/pano.js": "bfa09e6fd3618574f9fc3cf6b995a76b2b610e6e238d26c4b3b49a75d76d6dff",
+  "gts_pipeline.js": "04ed4127c3251f38b9947e31d99660313af8e08d8a39d48ec6e42f9779774dc4",
   "pipeline.js": "6af95d7c2691d854f4b673cbb95c8c97733831b714bc3cfc2330b247824c9442",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
   "res/min_alim.js": "19330244def68914ec23426badc1069d9ee9775b7e8ab75eea74a47aca5a64f8",
+  "res/girdi_bag.js": "e9d802a8e62221c9d2883f756764da142fc1bd774aa4c3ff0c9fa9f2d478c93c",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

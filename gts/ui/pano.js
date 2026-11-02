@@ -162,7 +162,7 @@ function karlilik(KI,SI){
     ["İthal kargo ek seyir",o=>-o.sy,"acl2",`${nf1.format(SY)} USD/t · Girdiler B49`],
     ["Fire",o=>o.ap+o.pr+o.el+o.sy,"acl2","konşimento ile tahliye edilen ton farkı (%"+nf1.format(gn("Tahliye farkı (gemi B/L − tahliye, %)")*100)+"); tüm alış bedeline uygulanır"],
     V.km.some(k=>k[17])?["Navlun farkı ve ikinci liman",o=>-o.nav-o.ik,"acl","Gemi navlun farkı + İkinci liman satırları"]:["İkinci liman",o=>-o.ik,"acl","kısmi tahliye uğrak maliyeti"],
-    ["Finansman",o=>-o.fin,"alt","stokta kalma ve müşteri vadesi"],
+    ["Finansman",o=>-o.fin,"alt",((V.tic||[]).find(r=>r[4]==="GTS!FinansmanPrimde"||r[0]==="Stok ve alacak finansmanı")||[])[1]==="Alım priminde"?"stokta kalma ve müşteri vadesi · alım primi içinde, ayrıca hesaplanmaz":"stokta kalma ve müşteri vadesi"],
     ["Hedge öncesi marj",o=>o.br-o.fin,"ara"],
     ["Ürün hedge sonucu",o=>o.hb,"alt","ICE Gasoil; kilit fiyatı − satış dönemi CIF"],
     ["Hedge işlem maliyeti",o=>-o.hi,"alt"],
