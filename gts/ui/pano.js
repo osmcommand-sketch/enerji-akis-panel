@@ -303,7 +303,7 @@ function akis(){
     const nSir=new Set(KY.map(r=>r[1])).size;
     const KG={M:0,D:0,B:0,K:0}; for(const r of KY) KG[kayKod(r)]+=r[6]; const KT=KG.M+KG.D+KG.B+KG.K||1;
     $("a-kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı`)
-      +(KG.D+KG.B+KG.K>0?kt("Bayinin bugünkü kaynağı · Mersin üçüncü taraf",pct(KG.M/KT),[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(KG[g])}</span>`).join(" · ")+` · Mersin üçüncü taraf ${ton(KG.M)}`):"");
+      +(KG.D+KG.B+KG.K>0?kt("Bayinin bugünkü kaynağı · Mersin ithal",pct(KG.M/KT),[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(KG[g])}</span>`).join(" · ")+` · Mersin ithal ${ton(KG.M)}`):"");
     dagPanel(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $("a-term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
@@ -320,7 +320,7 @@ function akis(){
     $("a-ssub").textContent=`${SM.size} dağıtıcı · ${HT.ad} ${ton(HT.v)} 2026 akışındaki paylarına göre · satıra tıklayınca iller açılır`;
   }
 }
-const KAYG={M:["Mersin üçüncü taraf terminalinden",C.gts],D:["Tüpraş Mersin deposundan","#C0504D"],B:["Tüpraş Batman'dan","#7B4FA0"],K:["Tüpraş Kırıkkale'den","#2A8C8C"]};
+const KAYG={M:["Mersin terminalinden (ithal ürün)",C.gts],D:["Tüpraş Mersin deposundan","#C0504D"],B:["Tüpraş Batman'dan","#7B4FA0"],K:["Tüpraş Kırıkkale'den","#2A8C8C"]};
 const kayKod=r=>r[10]||(()=>{ const c=V.term[r[4]]&&V.term[r[4]][0]; return c==="T13"?"B":c==="T21"?"K":"M"; })();
 function harita(KY,IK,TM,SF){
   const G=V.geo, u=G.w/1000, add=(m,k,x)=>m.set(k,(m.get(k)||0)+x);
