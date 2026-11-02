@@ -1290,7 +1290,7 @@ function tahsisInceleme(){
   const UR=U?[U]:["Motorin","Benzin"], C={Motorin:"#2A5591",Benzin:"#B7791F"};
   let k="";
   for(const u of UR){ let o=T.oz[u]; if(SI){ const z=(T.s||[]).find(r=>r[0]===SI&&r[1]===u); o=z?[z[3],z[4],z[5],z[6],z[2],z[7]]:null; } if(!o) continue;
-    k+=kompKart(`${u} · bayiye ortalama mesafe`,[],{buyuk:`${nf1.format(o[0])} → ${nf1.format(o[1])} km`,alt:`${dk(o[0],o[1])} km · ${ton(o[4])} · il dağılımı değişen ${ton(o[5])}`,span:UR.length>1?3:6});
+    k+=kompKart(`${u} · bayiye ortalama mesafe`,[],{buyuk:`${nf1.format(o[0])} → ${nf1.format(o[1])} km`,alt:`${dk(o[0],o[1])} km · ${ton(o[4])} · il dağılımı değişen ${ton(o[5])}${o[6]!=null&&!SI?`<br>resmî akış, ilçe bazlı gerçek mesafe: ${nf1.format(o[6])} km`:""}`,span:UR.length>1?3:6});
     k+=kompKart(`${u} · 700 km üstü hacim`,[],{buyuk:`${tk(o[2])} → ${tk(o[3])}`,alt:o[3]>o[2]?"tahsisle arttı":"tahsisle azaldı",span:UR.length>1?3:6}); }
   const Y=T.y.filter(r=>uOk(r)&&sOk(r)), YL=L?Y.filter(r=>r[5]>L):[], yT=Y.reduce((q,r)=>q+r[4],0), lT=YL.reduce((q,r)=>q+r[4],0);
   k+=kompKart(L?`${nf.format(L)} km sınırıyla geri alınacak`:"Yeni 700 km üstü atamalar",[],{buyuk:L?tk(lT):tk(yT),alt:L?`${YL.length} satır · ${new Set(YL.map(r=>r[0])).size} şirket · 700+ yeni atamaların ${pct(yT?lT/yT:0)}'i`:`${Y.length} satır · ${new Set(Y.map(r=>r[0])).size} şirket`,span:6});
