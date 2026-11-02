@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.47",
+ "surum": "1.0.48",
  "kabuk": 1,
- "tarih": "2026-11-02T18:09:14+03:00",
- "notlar": "Ticari koşullar paneli yeniden düzenlendi: Alım, Satış, Müşteri davranışı, Kaynak bazlı prim, Faiz ve finansman, Hedge, Gemi ve parti, Faaliyet giderleri",
+ "tarih": "2026-11-02T18:46:48+03:00",
+ "notlar": "USD/t alanlarına sınır (yıllık tutar girilmesin), kayıtlı geçersiz değer açılışta işaretlenir; sörvey ve pazarlama alanının altında yıllık karşılığı",
  "dosyalar": {
   "ui/index.html": "2daba9a177a3d37910a3483728c59ac620f617ffcfc880699245b68ca69b8232",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "3ea0fc0557ef36d72a5453812ebc77ae8fdabd1093d169a661594f77c78c6f10",
+  "ui/pano.js": "aedd8c2279ac63f0caf62355be41bfc88ecd424ddbb6fe44d544581b4f268396",
   "gts_pipeline.js": "32f36b8eb5d7ee4cdf55f31371c51fead87b5b8197b9ad19c774086cd0e415c4",
   "pipeline.js": "6af95d7c2691d854f4b673cbb95c8c97733831b714bc3cfc2330b247824c9442",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
