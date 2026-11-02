@@ -24,7 +24,9 @@ const yilOk=s=>!YIL||String(s).slice(0,4)===YIL;
 
 /* ---------- Özet sayfası satırları ---------- */
 const OZ=V.oz, yI=OZ.findIndex(r=>r[0]==="Yıllara göre");
-const oz=(l,yil)=>{ const a=yil?yI:0, b=yil?OZ.length:yI; for(let i=a;i<b;i++) if(OZ[i][0]===l) return OZ[i]; return [l,null,null,null,""]; };
+const OZA={"Toplam (USD)":["Toplam: şirket sonucu (USD)"],"Bölgesel navlun avantajı (USD)":["Bölgesel navlun avantajı – bayiye kalır (bilgi)","Bölgesel navlun avantajı – bayiye kalır (USD, bilgi)"]};
+const oz=(l,yil)=>{ const a=yil?yI:0, b=yil?OZ.length:yI; for(const x of [l,...(OZA[l]||[])]) for(let i=a;i<b;i++) if(OZ[i][0]===x) return OZ[i]; return [l,null,null,null,""]; };
+const SIRKET=OZ.some(r=>/şirket sonucu/.test(r[0]||""));
 const gir=l=>{ const r=V.gir.find(x=>x[0]===l); return r?r[1]:null; };
 
 /* ---------- grafik yardımcıları ---------- */
@@ -115,11 +117,11 @@ function genel(){
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
   const nk=j=>(Y("Net marj (USD)")[j]||0)-(Y("Vergi + beyanname maliyeti (USD)")[j]||0);
   if(YIL){ const j=YIL==="2027"?1:2;
-    $("g-kpi").innerHTML=kt(YIL+" net kâr",usd(nk(j)),`hedge dahil, vergi sonrası · model toplamı ${usd(top[j])} (bölgesel avantaj dahil)`,nk(j)<0?"neg":"pos")
+    $("g-kpi").innerHTML=kt(YIL+" net kâr",usd(nk(j)),`hedge dahil, vergi sonrası · ${SIRKET?`bayiye kalan bölgesel avantaj ${usd(oz("Bölgesel navlun avantajı (USD)",1)[j]||0)} (bilgi)`:`model toplamı ${usd(top[j])} (bölgesel avantaj dahil)`}`,nk(j)<0?"neg":"pos")
       +kt("Satış",ton(sm[j]+sb[j]),`${BZ?`motorin ${ton(sm[j])} · benzin ${ton(sb[j])}`:"yalnız motorin"}<br>hedefin ${pct(ora[j])}`)
       +kt("Gemi varışı",nf.format(gv[j]),`${YIL} varış tarihine göre`)
       +kt("Tepe teminat",nf1.format(tem[j]/1e9)+" milyar TL",`${YIL} ÖTV teminat mektubu tepe bakiyesi`); }
-  else $("g-kpi").innerHTML=kt("İki yıl net kâr",usd(nk(3)),`2027 ${usd(nk(1))} · 2028 ${usd(nk(2))} · hedge dahil, vergi sonrası<br>model toplamı ${usd(top[3])} (bölgesel avantaj dahil)`,nk(3)<0?"neg":"pos")
+  else $("g-kpi").innerHTML=kt("İki yıl net kâr",usd(nk(3)),`2027 ${usd(nk(1))} · 2028 ${usd(nk(2))} · hedge dahil, vergi sonrası<br>${SIRKET?`bayiye kalan bölgesel avantaj ${usd(oz("Bölgesel navlun avantajı (USD)",1)[3]||0)} (bilgi)`:`model toplamı ${usd(top[3])} (bölgesel avantaj dahil)`}`,nk(3)<0?"neg":"pos")
     +kt("Satış",ton(sm[3]+sb[3]),`${BZ?`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}`:"yalnız motorin"}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
     +kt("Gemi varışı",nf.format(gv[3]),`${BZ?`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · `:"motorin kargoları · "}2027 ${gv[1]} · 2028 ${gv[2]}`)
     +kt("Tepe teminat",nf1.format(tem[3]/1e9)+" milyar TL",`ÖTV teminat mektubu limiti · tepe vergi nakit ${nf1.format(oz("Tepe vergi nakit işletme sermayesi (TL)")[3]/1e9)} milyar TL`);
@@ -135,8 +137,11 @@ function karlilik(){
   const Y=k=>oz(k,1), yillar=[["2027",1],["2028",2]], kol=YIL?yillar.filter(x=>x[0]===YIL):yillar.concat([["Toplam",3]]);
   const gn=l=>{ const v=+gir(l); return isFinite(v)?v:0; }, EL=gn("GTS elleçleme tarifesi (USD/t)"), SY=gn("İthal kargo ek seyir (USD/t)"), PR=[gn("Alım primi / iskontosu – motorin (USD/t, CIF Med ±)"),gn("Alım primi / iskontosu – benzin (USD/t, CIF Med ±)")];
   const top=(y)=>{ const o={t:0,sat:0,al:0,nav:0,ik:0,br:0,fin:0,hb:0,hi:0,ht:0,net:0,kur:0,n:0,fd:0,ap:0,pr:0,el:0,sy:0};
-    for(const [li,L] of [V.km,V.kb].entries()) for(const k of L){ if(y!=="Toplam"&&k[4].slice(0,4)!==y) continue; if(k.length<23) continue;
-      o.t+=k[2]; o.al+=k[16]; o.nav+=k[17]; o.ik+=k[18]; o.br+=k[12]; o.fin+=k[15]; o.hb+=k[19]; o.hi+=k[20]; o.ht+=k[21]; o.net+=k[13]; o.kur+=k[22]; o.n++; if(k.length>=26){ o.fd+=(k[25]-k[9])*k[2]; o.ap+=k[9]*k[2]-(k[16]-k[17]-k[18]); o.pr+=PR[li]*k[2]; o.el+=EL*k[2]; o.sy+=SY*k[2]; } }
+    for(const [li,L] of [V.km,V.kb].entries()) for(const k of L){ const yn=k.length>=34&&typeof k[32]==="number"&&typeof k[33]==="number"; let w=1;
+      if(y!=="Toplam"){ if(yn) w=y==="2027"?k[33]:1-k[33]; else if(k[4].slice(0,4)!==y) continue; }
+      if(k.length<23||!w) continue; const sf=yn&&k[2]?k[32]/k[2]:1, q=w*sf, tn=k[2]*q;
+      o.t+=tn; o.al+=k[16]*q; o.nav+=k[17]*q; o.ik+=k[18]*q; o.br+=k[12]*w; o.fin+=k[15]*w; o.hb+=k[19]*w; o.hi+=k[20]*w; o.ht+=k[21]*w; o.net+=k[13]*w; o.kur+=k[22]*q; o.n++;
+      if(k.length>=26){ o.fd+=(k[25]-k[9])*tn; o.ap+=(k[9]*k[2]-(k[16]-k[17]-k[18]))*q; o.pr+=PR[li]*tn; o.el+=EL*tn; o.sy+=SY*tn; } }
     o.sat=o.al+o.br; return o; };
   const T=kol.map(([y,j])=>{ const o=top(y); o.ver=Y("Vergi + beyanname maliyeti (USD)")[j]||0; o.bol=Y("Bölgesel navlun avantajı (USD)")[j]||0; o.nk=o.net-o.ver; o.mt=o.nk+o.bol; o.ad=y; return o; });
   if(!T[0].n){ $("g-kar").innerHTML=`<tbody><tr><td class="l">Bu paketteki model kalem ayrıntısı vermiyor.</td></tr></tbody>`; return; }
@@ -164,8 +169,8 @@ function karlilik(){
     ["Net marj (hedge dahil)",o=>o.net,"ara"],
     ["Vergi ve beyanname",o=>-o.ver,"alt","ÖTV ve KDV finansmanı, teminat komisyonu, beyanname"],
     ["Net kâr",o=>o.nk,"son"],
-    ["Bölgesel navlun avantajı",o=>o.bol,"b","bayi tarafındaki değer; kâra dahil değil"],
-    ["Model toplamı",o=>o.mt,"b","net kâr + bölgesel avantaj"],
+    ["Bölgesel navlun avantajı",o=>o.bol,"b",SIRKET?"Tüpraş ± 0 satışta bayide kalır; şirket sonucuna dahil değil":"bayi tarafındaki değer; kâra dahil değil"],
+    ...(SIRKET?[]:[["Model toplamı",o=>o.mt,"b","net kâr + bölgesel avantaj"]]),
     ["Tahsilat süresinde kur farkı",o=>o.kur,"b","net marjın içinde"]];
   const son=T[T.length-1], mx=Math.max(1,...R.filter(r=>r[2]!=="h"&&r[0]!=="Satış geliri"&&r[0]!=="Ürün alışı").map(r=>Math.abs(r[1](son))));
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), sg=(v,t)=>(t==="alt"&&v>0?"+":"");
@@ -208,11 +213,11 @@ function ticari(){
     const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*('?[a-zçğıöşü]*)?\.?/g,"").trim();
     let inp;
     if(t==="bilgi") inp=`<output id="${id}">${esc(typeof r[1]==="number"?f(r[1]):String(r[1]??"–").replace(/(\d),(?=\d{3}\b)/g,"$1."))}</output>`;
-    else if(t==="sec") inp=`<select id="${id}" data-h="${esc(r[4]||"")}" data-d="${esc(deg??"")}" ${yaz&&r[4]?"":"disabled"}>${["Açık","Kapalı"].map(o=>`<option${o===r[1]?" selected":""}>${o}</option>`).join("")}</select>`;
-    else inp=`<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}"${yz?' data-y="1"':""} value="${f(gv(r[1]))}"${t==="bos"?` data-bos="1" placeholder="boş"`:""} ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n">`;
+    else if(t==="sec") inp=`<select id="${id}" data-h="${esc(r[4]||"")}" data-d="${esc(deg??"")}" ${yaz&&r[4]?"":"disabled"}>${((r[6]&&r[6].liste)||["Açık","Kapalı"]).map(o=>`<option${o===r[1]?" selected":""}>${o}</option>`).join("")}</select>`;
+    else inp=`<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}"${yz?' data-y="1"':""} value="${f(gv(r[1]))}"${t==="bos"?` data-bos="1" placeholder="boş"`:""}${r[6]&&r[6].min!=null&&isFinite(r[6].min)?` data-min="${r[6].min}"`:""}${r[6]&&r[6].max!=null&&isFinite(r[6].max)?` data-max="${r[6].max}"`:""}${r[6]&&r[6].hata?` data-hata="${esc(r[6].hata)}"`:""}${r[6]&&r[6].tip==="whole"?' data-tam="1"':""} ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n">`;
     const ek=[/^Alım primi/.test(r[0])?"eksi = iskonto":"", !BZ&&/benzin/i.test(r[0])?"benzin ithalatı kapalı":"", r===ana?"2028 · boş = tam gemi":t==="bos"?"boş = 2028 partisi":"", /^Uygulanan parti/.test(r[0])?"2027 / 2028":"", t==="bilgi"?"model hesabı":""].filter(Boolean);
     const alt=[deg2?`<b>varsayılan ${typeof deg==="number"?f(gv(deg)):esc(String(deg))}</b>`:"",...ek].filter(Boolean).join(" · ");
-    const lab=adT(r[0]).replace(/^Alım primi \/ iskontosu – /,"Alım primi – ").replace(/^Motorin GTS partisi.*$/,"Motorin partisi").replace(/^2027 motorin GTS partisi.*$/,"2027 partisi").replace(/^Uygulanan parti.*$/,"Uygulanan parti").replace(/^Satış fiyatı – /,"Satış fiyatı – ");
+    const lab=adT(r[0]).replace(/^Alım primi \/ iskontosu – /,"Alım primi – ").replace(/^Motorin GTS partisi.*$/,"Motorin partisi").replace(/^2027 motorin GTS partisi.*$/,"2027 partisi").replace(/^Uygulanan parti.*$/,"Uygulanan parti").replace(/^Hedge kilit fiyatı.*$/,"Hedge kilit fiyatı").replace(/^Satış fiyatı – /,"Satış fiyatı – ");
     h+=`<div class="tf-r${deg2?" deg":""}${t==="bilgi"?" bilgi":""}" title="${esc(not)}"><label for="${id}">${esc(lab)}<small id="${id}-n">${alt}</small></label>
       <div class="tf-v">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}${inp}</div><span class="tf-u">${t!=="bilgi"&&t!=="sec"?bir(r[0]):""}</span></div>`; }
   if(acik) h+="</div>";
@@ -221,8 +226,8 @@ function ticari(){
   const I=[...el.querySelectorAll("[data-h]")].filter(i=>i.dataset.h), btn=$("tic-hesap"), d=$("tic-d");
   const oku=i=>{ if(i.tagName==="SELECT") return i.value; const v=sayi(i.value); if(v===null) return i.dataset.bos?null:NaN; return i.dataset.y?v/100:v; };
   const ilk=new Map(I.map(i=>[i,i.value]));
-  const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i); const ok=v===null||typeof v==="string"||isFinite(v)&&(!i.dataset.bos||v>0); i.classList.toggle("hata",!ok); if(!ok){ hata=true; continue; } if(i.value.trim()!==ilk.get(i).trim()) deg=true; }
-    btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
+  const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ const v=oku(i); const ok=v===null||typeof v==="string"||isFinite(v)&&(!i.dataset.bos||v>0)&&(i.dataset.min==null||v>=+i.dataset.min-1e-9)&&(i.dataset.max==null||v<=+i.dataset.max+1e-9)&&(!i.dataset.tam||Math.abs(v-Math.round(v))<1e-9); i.classList.toggle("hata",!ok); if(!ok){ hata=i.dataset.hata||true; continue; } if(i.value.trim()!==ilk.get(i).trim()) deg=true; }
+    btn.disabled=hata||!deg; d.textContent=hata?(typeof hata==="string"?"Geçersiz değer: "+hata:"Geçerli bir sayı girin."):deg?"Değişiklikler hesaplanmadı.":""; };
   for(const i of I){ i.addEventListener(i.tagName==="SELECT"?"change":"input",kontrol); i.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!btn.disabled) btn.click(); }); }
   const kaydet=(o)=>girdiYaz(TK,o||{});
   btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dd=i.dataset.d; if(v===null) continue;
@@ -322,7 +327,7 @@ function operasyon(){
 function ekonomi(){
   const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],["Bölgesel navlun avantajı (USD)",musd,1],["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
   $("e-yil").classList.toggle("y27",YIL==="2027"); $("e-yil").classList.toggle("y28",YIL==="2028");
-  $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const r=oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi"); const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc(l.replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","Vergi ve beyanname (−)"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
+  $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const r=oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi"); const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc((SIRKET&&l==="Toplam (USD)"?"Şirket sonucu (USD)":SIRKET&&l==="Toplam (USD/t)"?"Şirket sonucu (USD/t)":SIRKET&&l.startsWith("Bölgesel")?"Bölgesel navlun avantajı – bayiye kalır, bilgi (USD)":l).replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","Vergi ve beyanname (−)"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
   // aylık net marj
   const ay=new Map(); const ek=(L,u)=>{ for(const k of L){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,n:0}).get(key); o[u]+=k[13]; o.n++; } };
   ek(V.km,"m"); ek(V.kb,"b"); const AL=[...ay].filter(([k])=>!YIL||String(Math.floor(k/100))===YIL).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);

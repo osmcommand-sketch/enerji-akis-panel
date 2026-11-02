@@ -107,7 +107,10 @@ function kitapAc(buf) {
       cells.set(r * 16384 + c, { v, f: fm ? xmlCoz(fm[1]) : null });
       if (r > maxR) maxR = r; if (c > maxC) maxC = c;
     }
-    S[s.ad] = { ad: s.ad, cells, maxR, maxC };
+    const dv = []; for (const m of x.matchAll(/<dataValidation\b([^>]*)>([\s\S]*?)<\/dataValidation>/g)) { const at = (k) => { const q = new RegExp('\\b' + k + '="([^"]*)"').exec(m[1]); return q ? xmlCoz(q[1]) : null; };
+      const f1 = /<formula1>([\s\S]*?)<\/formula1>/.exec(m[2]), f2 = /<formula2>([\s\S]*?)<\/formula2>/.exec(m[2]);
+      dv.push({ sqref: at('sqref') || '', tip: at('type'), bos: at('allowBlank') === 'true' || at('allowBlank') === '1', hata: at('error'), f1: f1 ? xmlCoz(f1[1]) : null, f2: f2 ? xmlCoz(f2[1]) : null }); }
+    S[s.ad] = { ad: s.ad, cells, maxR, maxC, dv };
   }
   return S;
 }
@@ -276,6 +279,13 @@ function hesapla(buf, girdiler = {}) {
   const cache = {};
   return {
     sayfalar: Object.keys(S), formul: n,
+    dogrulama(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), r = +m[2], c = kolNo(m[1]); if (!S[sh]) return null;
+      for (const d of S[sh].dv || []) for (const ar of d.sqref.split(/\s+/)) { const q = /^([A-Z]+)(\d+)(?::([A-Z]+)(\d+))?$/.exec(ar); if (!q) continue; const c1 = kolNo(q[1]), r1 = +q[2], c2 = q[3] ? kolNo(q[3]) : c1, r2 = q[4] ? +q[4] : r1;
+        if (r >= r1 && r <= r2 && c >= c1 && c <= c2) { const o = { tip: d.tip, bos: d.bos, hata: d.hata };
+          if (d.tip === 'list' && d.f1 && /^".*"$/.test(d.f1)) o.liste = d.f1.slice(1, -1).split(',');
+          else if (d.tip === 'whole' || d.tip === 'decimal') { o.min = Number(d.f1); o.max = d.f2 != null ? Number(d.f2) : null; }
+          return o; } }
+      return null; },
     formulMu(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), x = S[sh] && S[sh].cells.get((+m[2] - 1) * 16384 + kolNo(m[1])); return !!(x && x.f); },
     formulMetni(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), x = S[sh] && S[sh].cells.get((+m[2] - 1) * 16384 + kolNo(m[1])); return x && x.f ? String(x.f) : null; },
     orijinal(sh, adr) { const m = /^([A-Z]+)(\d+)$/.exec(adr), x = S[sh] && S[sh].cells.get((+m[2] - 1) * 16384 + kolNo(m[1])); return x && x.v !== BOS && !isErr(x.v) ? x.v : null; },

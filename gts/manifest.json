@@ -1,16 +1,16 @@
 {
  "uygulama": "gts",
- "surum": "1.0.13",
+ "surum": "1.0.14",
  "kabuk": 1,
- "tarih": "2026-11-02T07:55:17+03:00",
- "notlar": "Ticari koşullar paneli: üç sütunlu düzenli form",
+ "tarih": "2026-11-02T08:43:48+03:00",
+ "notlar": "Paket 63: şirket sonucu, satılan tona göre yıl bölüşü, hedge kilidi seçimi, Tarihsel 2024–25 senaryosu, girdi sınırları",
  "dosyalar": {
   "ui/index.html": "59e53ead1ff25e0b82e8954409b7b586b15aa5a2a35053b6b875ed58f181a303",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "ab449c5bac002074c41f259aefec7759a162a929e68eed238bd8dcad53775888",
-  "gts_pipeline.js": "342eef99581ee94a862115d9fb45ad99532c25fafea0d9fdd034492d18eab992",
+  "ui/pano.js": "17b6a4b4966387a83f854714220241d9b71154066f673951db1e8d52ec87ae33",
+  "gts_pipeline.js": "7b885f182f008253eaae7e727a744bd0b871d960ca2fce63c49f3dc435c93d84",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
-  "res/hesap.js": "594517b2433bceef7cc21c439e0c34503f5873882b8959553133d0e276b4a944",
+  "res/hesap.js": "33bb97748bf0bdbc6bd8ba3f733d708f21a6449737a3b4ec70cc7787a13094d6",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

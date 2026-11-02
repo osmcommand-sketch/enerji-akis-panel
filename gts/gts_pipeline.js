@@ -127,7 +127,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const oz = satir('Ozet', 1, 83, 5);
   O.oz_bas = oz.slice(1, 4).map((x) => x[0]);
   O.oz = oz.slice(4).filter((x) => x[0] != null).map((x) => [x[0], R2(x[1], 2), R2(x[2], 2), R2(x[3], 2), x[4]]);
-  O.tic = []; { const R = X.sayfa('Ozet'); for (let i = 5; i <= 30; i++) { const x = R[i]; if (!x || x[6] == null) continue; const fm = X.formulMu('Ozet', 'H' + i), bas = x[7] == null && x[8] == null && !fm && !(('Ozet!H' + i) in girdi), ad = bas ? null : 'Ozet!H' + i, v = girdi['Ozet!H' + i] ?? x[7], tur = x[7] == null && x[8] == null && !fm ? '' : fm ? 'bilgi' : typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? 'sec' : /\(%\)/.test(x[6]) ? 'yuzde' : /boş\s*=/.test(x[6]) ? 'bos' : ''; O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, x[8], fm || bas ? null : (o => typeof o === 'number' ? R2(o, 4) : o)(X.orijinal('Ozet', 'H' + i)), fm || bas ? null : ad, tur]); } }
+  O.tic = []; { const R = X.sayfa('Ozet'); for (let i = 5; i <= 30; i++) { const x = R[i]; if (!x || x[6] == null) continue; const fm = X.formulMu('Ozet', 'H' + i), bas = x[7] == null && x[8] == null && !fm && !(('Ozet!H' + i) in girdi), ad = bas ? null : 'Ozet!H' + i, v = girdi['Ozet!H' + i] ?? x[7], dv = fm || bas ? null : X.dogrulama('Ozet', 'H' + i), tur = x[7] == null && x[8] == null && !fm ? '' : fm ? 'bilgi' : dv && dv.liste ? 'sec' : typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? 'sec' : /\(%\)/.test(x[6]) ? 'yuzde' : /boş\s*=/.test(x[6]) ? 'bos' : ''; O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, x[8], fm || bas ? null : (o => typeof o === 'number' ? R2(o, 4) : o)(X.orijinal('Ozet', 'H' + i)), fm || bas ? null : ad, tur, dv]); } }
   { const G = X.sayfa('Girdiler'), bul = (l) => G.findIndex((x) => x && x[0] === l), b38 = bul("Motorin – GTS'de tahliye (t), boş = tam kargo"), b153 = bul('2027 motorin GTS partisi (t), boş = B40');
     if (b38 > 0 && b153 > 0 && !X.formulMu('Girdiler', 'B' + b38)) { O.tic.push(['Gemi ve parti', null, null]);
       O.tic.push(['Motorin GTS partisi (t)', R2(girdi['Girdiler!B' + b38] ?? G[b38][1]), 'Her kargoda GTS\'de tahliye edilen motorin; geminin kalanı ikinci limana gider. 2027 partisi boşsa iki yıl için de geçerli. Girdiler B' + b38 + '.', R2(X.orijinal('Girdiler', 'B' + b38)), 'Girdiler!B' + b38]);
@@ -138,12 +138,12 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   O.gm = gunluk('Motorin_Gunluk'); O.gb = gunluk('Benzin_Gunluk');
   const hdr = satir('Fiyatlar', 4, 4)[0], ix = {}; hdr.forEach((h, i) => { if (h) ix[h] = i; });
   const t2027 = Date.UTC(2027, 0, 1) / 864e5 + 25569;
-  O.sn = ['Baz', 'Ayı', 'Boğa', 'Makul'].filter((x) => ix[`${x} · CIF motorin Yol`] != null);
+  O.sn = ['Baz', 'Ayı', 'Boğa', 'Makul', 'Tarihsel 2024–25'].filter((x) => ix[`${x} · CIF motorin Yol`] != null);
   O.fiy = satir('Fiyatlar', 5).filter((r) => serial(r[0]) && r[0] >= t2027 - 0.5).map((r) => { const row = [R2(r[1], 1), R2(r[2], 1), R2(r[3], 3), R2(r[6], 1), R2(r[7], 1), R2(r[8]), R2(r[9])];
     for (const s of O.sn) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · CIF motorin ${p}`]], 1));
     for (const s of O.sn) for (const p of ['P10', 'P50', 'P90', 'Yol']) row.push(R2(r[ix[`${s} · USD/TRY ${p}`]], 3));
     return row; });
-  const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17]), R2(r[10] || 0), R2(r[25] || 0), R2(r[26] || 0), R2(r[29] || 0), R2(r[30] || 0), R2(r[36] || 0), R2(r[37] || 0), tarih(r[5]), R2(r[27], 1), R2(r[28], 1), R2(r[38], 3), R2(r[22], 3), R2(r[33], 3), R2(r[34], 3), R2(r[35] || 0), R2(r[32], 1)]);
+  const kargo = (ad) => satir(ad, 4).filter((r) => typeof r[0] === 'number' && r[1] === 1).map((r) => [r[0], r[2], R2(r[3]), tarih(r[4]), tarih(r[39]), tarih(r[13]), tarih(r[14]), R2(r[15]), R2(r[16], 1), R2(r[6], 1), R2(r[9], 1), R2(r[18], 1), R2(r[20]), R2(r[21]), R2(r[31]), R2(r[17]), R2(r[10] || 0), R2(r[25] || 0), R2(r[26] || 0), R2(r[29] || 0), R2(r[30] || 0), R2(r[36] || 0), R2(r[37] || 0), tarih(r[5]), R2(r[27], 1), R2(r[28], 1), R2(r[38], 3), R2(r[22], 3), R2(r[33], 3), R2(r[34], 3), R2(r[35] || 0), R2(r[32], 1), typeof r[45] === 'number' ? R2(r[45]) : null, typeof r[47] === 'number' ? R2(r[47], 6) : null]);
   O.km = kargo('Motorin_Kargolar'); O.kb = kargo('Benzin_Kargolar');
   O.vn = satir('Vergi_Nakit', 4).filter((r) => serial(r[0])).map((r) => [R2((r[13] || 0) / 1e6), R2((r[24] || 0) / 1e6)]);
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);
