@@ -227,9 +227,20 @@ function fwMetin(o,T,tl,usd,d){ if(!o) return "–"; const vr=T&&T.find(x=>/^Sat
 /* ---------- Ticari koşullar: kullanıcı girdisi (Excel Özet G5:I14); masaüstünde model bu değerlerle yeniden hesaplanır ---------- */
 function ticari(){
   const el=$("g-tic"), T0=(V.tic||[]).filter(r=>r[1]!=="Değer");
-  // grupları sırala: kaynak bazlı satış primi, satış tarafının hemen arkasına
-  const T=(()=>{ const G=[]; for(const r of T0){ if(r[1]==null&&r[2]==null&&!r[4]&&r[5]!=="not") G.push([r]); else if(G.length) G[G.length-1].push(r); else G.push([r]); }
-    const k=G.findIndex(g=>/^Kaynak bazlı/.test(g[0][0])), st=G.findIndex(g=>/^Satış tarafı/.test(g[0][0])); if(k>st+1&&st>=0){ const [x]=G.splice(k,1); G.splice(st+1,0,x); } return G.flat(); })();
+  // panel düzeni (kullanıcı 02.11.2026 18:04): satırlar konu başlıklarına göre; düzene girmeyen satır kendi başlığında kalır
+  const T=(()=>{ const G=[]; for(const r of T0){ if(r[1]==null&&r[2]==null&&!r[4]&&r[5]!=="not") G.push([r]); else if(G.length) G[G.length-1].push(r); else G.push([[ "Diğer",null,null],r]); }
+    const kul=new Set(), out=[], al=(re)=>{ const x=[]; for(const g of G) for(const r of g.slice(1)) if(!kul.has(r)&&r[5]!=="not"&&re.test(r[0])){ kul.add(r); x.push(r); } return x; };
+    const DUZEN=[["Alım tarafı",[/^Alım primi \/ iskontosu – motorin/,/^Alım primi \/ iskontosu – benzin/,/^Alım ödeme vadesi/,/^Fiyatlama/,/^Stok ve alacak finansmanı/]],
+      ["Satış tarafı",[/^Satış fiyatı – motorin/,/^Satış fiyatı – benzin/,/^Satış vadesi/,/^Satış hedefi/,/^Asgari müşteri/]],
+      ["Müşteri davranışı",[/^Bayi kotası/]],[/^Kaynak bazlı/,null],
+      ["Faiz ve finansman",[/^TL faizi/,/^USD borçlanma/,/^USD faizi/]],
+      ["Hedge",[/^Ürün hedge/,/^Motorin hedge oranı/,/^Benzin.*hedge/i,/^Hedge kilit/,/^Kur hedge \(/,/^Kur hedge oranı/,/^Forward maliyeti/]],
+      ["Gemi ve parti",[/partisi/,/^Uygulanan parti/]],[/^Faaliyet giderleri/,null]];
+    for(const [ad,L] of DUZEN){
+      if(L===null){ const g=G.find(g=>ad.test(g[0][0])); if(g){ const x=g.slice(1).filter(r=>!kul.has(r)); x.forEach(r=>kul.add(r)); if(x.some(r=>r[5]!=="not")) out.push(g[0],...x); } continue; }
+      const x=L.flatMap(al); if(x.length) out.push([ad,null,null],...x); }
+    for(const g of G){ const x=g.slice(1).filter(r=>!kul.has(r)&&r[5]!=="not"); if(x.length&&!/^Girdi paneli/.test(g[0][0])) out.push(g[0],...x); else if(x.length) out.push(["Diğer",null,null],...x); }
+    return out; })();
   if(!T.length){ el.innerHTML=`<p class="not">Bu paketteki Excel modelinde ticari koşullar paneli yok (paket 57 ve sonrası).</p>`; return; }
   const yaz=typeof require==="function"&&V.girdiYolu&&window.gts, G=V.girdi||{}, TK=T.filter(r=>r[4]).map(r=>r[4]), nG=TK.filter(k=>k in G).length;
   const tur=r=>r[5]===1?"bos":r[5]||(/partisi/.test(r[0])?"bos":"");
@@ -254,7 +265,7 @@ function ticari(){
     else inp=`<input id="${id}" type="text" inputmode="decimal" data-h="${esc(r[4]||"")}" data-d="${deg??""}"${yz?' data-y="1"':""} value="${f(gv(r[1]))}"${t==="bos"?` data-bos="1" placeholder="boş"`:""}${r[6]&&r[6].min!=null&&isFinite(r[6].min)?` data-min="${r[6].min}"`:""}${r[6]&&r[6].max!=null&&isFinite(r[6].max)?` data-max="${r[6].max}"`:""}${r[6]&&r[6].hata?` data-hata="${esc(r[6].hata)}"`:""}${r[6]&&r[6].tip==="whole"?' data-tam="1"':""} ${yaz&&r[4]?"":"disabled"} aria-describedby="${id}-n">`;
     const ek=[/^Alım primi/.test(r[0])?"eksi = iskonto":"", !BZ&&/benzin/i.test(r[0])?"benzin ithalatı kapalı":"", r===ana?"2028 · boş = tam gemi":t==="bos"?"boş = 2028 partisi":"", /^Uygulanan parti/.test(r[0])?"2027 / 2028":"", /^Bayi kotası/.test(r[0])?"zam beklentisinde normal günün üstüne azami ek alım":"", /^Asgari müşteri/.test(r[0])?(V.minAlim&&V.minAlim.n?`${V.minAlim.n} dağıtıcı çıkarıldı · motorin −${ton(V.minAlim.tonM)} (%${nf1.format(V.minAlim.sM*100)})`:"0 = sınır yok"):"", r[7]&&r[7].tl!=null?`%${nf1.format(r[7].pay*100)} hacim · potansiyel ${nf.format(r[7].tl)} TL/m³${typeof r[1]==="number"&&r[1]>r[7].tl?' · <b class="uyar">potansiyeli aşıyor</b>':""}`:"", /^Satış hedefi/.test(r[0])&&V.hedef?`hedef ${nf.format(V.hedef.tam/1e3)} kt/yıl → ${nf.format(V.hedef.tam*(r[1]||1)/1e3)} kt/yıl${(()=>{ const p=V.kartab&&V.kartab.rows.find(x=>/^PLANLANAN SATIŞ/.test(x[0])); return p&&YIL?` · ${YIL} planlanan ${nf.format(p[YIL==="2027"?1:2]/1e3)} kt`:""; })()}`:"", t==="bilgi"?"model hesabı":""].filter(Boolean);
     const alt=[deg2?`<b>varsayılan ${typeof deg==="number"?f(gv(deg)):esc(String(deg))}</b>`:"",...ek].filter(Boolean).join(" · ");
-    const lab=adT(r[0]).replace(/^Alım primi \/ iskontosu – /,"Alım primi – ").replace(/^Motorin GTS partisi.*$/,"Motorin partisi").replace(/^2027 motorin GTS partisi.*$/,"2027 partisi").replace(/^Uygulanan parti.*$/,"Uygulanan parti").replace(/^Hedge kilit fiyatı.*$/,"Hedge kilit fiyatı").replace(/^Bayi kotası.*$/,"Bayi kotası").replace(/^Asgari müşteri alımı.*$/,"Asgari müşteri alımı (aylık)").replace(/^Satış hedefi.*$/,"Satış hedefi").replace(/^Satış fiyatı – motorin.*ağırlıklı.*$/,"Satış primi – motorin, ağırlıklı").replace(/^Mersin üçüncü taraf terminallerinden gelen bayi.*$/,"Mersin üçüncü taraf terminali bayisi").replace(/\s*\(TL\/m³\)$/,"").replace(/^Satış fiyatı – /,"Satış fiyatı – ");
+    const lab=adT(r[0]).replace(/^Alım primi \/ iskontosu – /,"Alım primi – ").replace(/^Motorin GTS partisi.*$/,"Motorin partisi").replace(/^2027 motorin GTS partisi.*$/,"2027 partisi").replace(/^Uygulanan parti.*$/,"Uygulanan parti").replace(/^Hedge kilit fiyatı.*$/,"Hedge kilit fiyatı").replace(/^Bayi kotası.*$/,"Bayi kotası").replace(/^Asgari müşteri alımı.*$/,"Asgari müşteri alımı (aylık)").replace(/^USD faizi – yıllık.*$/,"USD faizi – forward").replace(/^USD borçlanma faizi – yıllık.*$/,"USD borçlanma faizi").replace(/^TL faizi – yıllık.*$/,"TL faizi").replace(/^Satış hedefi.*$/,"Satış hedefi").replace(/^Satış fiyatı – motorin.*ağırlıklı.*$/,"Satış primi – motorin, ağırlıklı").replace(/^Mersin üçüncü taraf terminallerinden gelen bayi.*$/,"Mersin üçüncü taraf terminali bayisi").replace(/\s*\(TL\/m³\)$/,"").replace(/^Satış fiyatı – /,"Satış fiyatı – ");
     h+=`<div class="tf-r${deg2?" deg":""}${t==="bilgi"?" bilgi":""}" title="${esc(not)}"><label for="${id}">${esc(lab)}<small id="${id}-n">${alt}</small></label>
       <div class="tf-v">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}${inp}</div><span class="tf-u">${t!=="sec"?bir(r[0]):""}</span></div>`; }
   if(acik) h+="</div>";
