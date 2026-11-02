@@ -738,11 +738,12 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     </section>
     <section id="r-iki">
       <div class="head"><h2>İki yıllık sonuçlar · parti, liman, vade ve hedge</h2><span class="sub" id="r-izsub"></span></div>
+      <div class="tic-a" id="r-hdurum" style="margin:0 0 10px"></div>
       <div class="scroll" style="max-height:none"><table class="t kar izg" id="r-izg"></table></div>
-      <p class="not">PDM ızgarası, kullanıcının Makul fiyat modeliyle (ICE LSGO vadeli eğrisi 29.10.2026). Bölgesel navlun avantajı dahil değil. Parti 2027 ve 2028 için aynı.</p>
+      <p class="not" id="r-iznot">PDM ızgarası, kullanıcının Makul fiyat modeliyle (ICE LSGO vadeli eğrisi 29.10.2026). Bölgesel navlun avantajı dahil değil. Parti 2027 ve 2028 için aynı.</p>
       <h3>Monte Carlo · önceki fiyat modeli <span class="chip eski">Baz / Ayı / Boğa yolları · Makul öncesi</span></h3>
       <div class="scroll" style="max-height:none"><table class="t kar mc2" id="r-mc2"></table></div>
-      <p class="not">Kullanıcı yeni fiyat modelini gönderince durduruldu: varsayılan koşul her senaryoda 100 yol, 25 kt seçenekleri 10–30 yol. Zarar olasılığı = net kârın sıfırın altında kaldığı yolların oranı.</p>
+      <p class="not">Satış hedefi %100 ve o günkü varsayılan koşullarla; uygulama içinde yeniden hesaplanamaz (yüzlerce fiyat yolu gerekir). Kullanıcı yeni fiyat modelini gönderince durduruldu: varsayılan koşul her senaryoda 100 yol, 25 kt seçenekleri 10–30 yol. Zarar olasılığı = net kârın sıfırın altında kaldığı yolların oranı.</p>
     </section>
     <section id="r-tar" hidden>
       <div class="head"><h2>Tarihsel test · 2024–2025</h2><span class="sub">gerçek CIF Med, Tüpraş, kur, ICE ve VİOP verisi modele uygulandı · şirket sonucu</span></div>
@@ -755,7 +756,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     </section>
     <section>
       <div class="head"><h2>Monte Carlo sonuçları</h2><span class="chip eski">önceki model sürümü · 2027 tek yıl</span></div>
-      <p class="lead">Bu çalıştırmalar 31.10.2026'da, iki yıllık model ve son süreç kurallarından önce yapıldı. Seviyeler eskidir; seçenekleri birbirleriyle karşılaştırmak için kullanılmalı. Çubuk P10–P90 aralığı, nokta ortalama, çizgi medyan; sağdaki oran zarar olasılığı.</p>
+      <p class="lead">Satış hedefi %100 ve varsayılan koşullarla. Bu çalıştırmalar 31.10.2026'da, iki yıllık model ve son süreç kurallarından önce yapıldı. Seviyeler eskidir; seçenekleri birbirleriyle karşılaştırmak için kullanılmalı. Çubuk P10–P90 aralığı, nokta ortalama, çizgi medyan; sağdaki oran zarar olasılığı.</p>
       <div class="ctl"><div class="seg" role="group" aria-label="Fiyat senaryosu" id="r-msen"><button type="button" data-s="Baz" aria-pressed="true">Baz</button><button type="button" data-s="Ayı" aria-pressed="false">Ayı</button><button type="button" data-s="Boğa" aria-pressed="false">Boğa</button></div></div>
       <h3>Riskten korunma <span class="sub">300 yol × 4 seçenek</span></h3><div class="grf" id="r-hedge"></div>
       <h3>Gemi kombinasyonu <span class="sub">taban 7 gün, eski vergi kurgusu</span></h3><div class="grf" id="r-gemi"></div>

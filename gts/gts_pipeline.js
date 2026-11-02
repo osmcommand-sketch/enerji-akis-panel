@@ -140,6 +140,26 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const G0 = X.sayfa('Girdiler'), b9 = G0[9] && G0[9][0] && /^Seçili motorin/.test(G0[9][0]) ? G0[9][1] : null;
     if (typeof b9 === 'number') { O.hedef = { tam: b9, oran: sy };
       if (Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in girdi)) { log('Satış hedefi %' + Math.round(sy * 100) + ' ile yeniden hesaplanıyor'); X = HS.hesapla(xb, { ...girdi, 'Girdiler!B9': b9 * sy }); } } }
+  // Risk tablolarını kullanıcının girdileriyle yeniden hesapla (istek bayrağı Risk sekmesindeki düğmeden; sonuç önbellekte)
+  { const IST = 'GTS!RiskHesapla', cy = path.join(path.dirname(gy), 'risk_hesap.json'), temel = {}; for (const [k, v] of Object.entries(girdi)) if (k !== IST) temel[k] = v;
+    const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length;
+    let RH = null; try { const c = JSON.parse(fs.readFileSync(cy, 'utf8')); if (c && c.anahtar === anahtar) RH = c; else if (c) O.riskEski = c.zaman || true; } catch {}
+    if (girdi[IST]) { const t0 = Date.now(), G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
+      for (const [k, v] of Object.entries(temel)) if (!k.startsWith('GTS!')) taban[k] = v;
+      if (b9 && Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in taban)) taban['Girdiler!B9'] = b9 * sy;
+      const bulB = (re) => { const i = G0.findIndex((x) => x && typeof x[0] === 'string' && re.test(x[0])); return i > 0 ? 'Girdiler!B' + i : null; };
+      const LIM = bulB(/^İkinci liman uğrak maliyeti/), SEN = bulB(/^Fiyat senaryosu$/);
+      const nk = (Y) => { const R = Y.sayfa('Ozet'), r = R.find((x) => x && typeof x[0] === 'string' && /^Toplam: (net kâr|şirket sonucu) \(USD\)$/.test(x[0])); return r ? [r[1], r[2]] : [null, null]; };
+      const kos = []; for (const v of [0, 17]) for (const pk of [25, 30, 35, 40]) for (const l of [0, 60000]) kos.push(['Açık', pk, l, v]);
+      kos.push(['Kapalı', 25, 60000, 17], ['Kapalı', 40, 60000, 17]);
+      const izg = [], N = kos.length + 5; let n = 0;
+      for (const [h, pk, l, v] of kos) { n++; log(`Risk tabloları hesaplanıyor ${n}/${N}`); const g = { ...taban, 'Ozet!H17': h, 'Ozet!H14': v, 'Ozet!H20': pk * 1000, 'Ozet!H21': pk * 1000 }; if (LIM) g[LIM] = l;
+        try { const [a, b] = nk(HS.hesapla(xb, g)); izg.push(['Sizin girdileriniz', h, pk, l, v, pr(a), pr(b), pr(a + b)]); } catch (e) { log('Izgara hatası: ' + e.message); } }
+      const BT = [['Hedge kapalı', { 'Ozet!H17': 'Kapalı' }], ['ICE vadeli (tarihsel) – %100', { 'Ozet!H17': 'Açık', 'Ozet!H18': 1, 'Ozet!H23': 'ICE vadeli (tarihsel)' }], ['ICE vadeli (tarihsel) – %50', { 'Ozet!H17': 'Açık', 'Ozet!H18': 0.5, 'Ozet!H23': 'ICE vadeli (tarihsel)' }], ['Piyasa eğrisi (29.10.2026 eğim) – %100', { 'Ozet!H17': 'Açık', 'Ozet!H18': 1, 'Ozet!H23': 'Piyasa eğrisi' }], ['Düz kilit – %100', { 'Ozet!H17': 'Açık', 'Ozet!H18': 1, 'Ozet!H23': 'Düz' }]];
+      const bt = []; if (SEN) for (const [ad, o] of BT) { n++; log(`Risk tabloları hesaplanıyor ${n}/${N}`); try { const [a, b] = nk(HS.hesapla(xb, { ...taban, [SEN]: 'Tarihsel 2024–25', ...o })); bt.push([ad, pr(a / 1e6, 2), pr(b / 1e6, 2), pr((a + b) / 1e6, 2)]); } catch (e) { log('Tarihsel test hatası: ' + e.message); } }
+      RH = { anahtar, zaman: new Date().toISOString(), sure: Math.round((Date.now() - t0) / 1000), izg, bt };
+      try { fs.writeFileSync(cy, JSON.stringify(RH)); } catch {} delete girdi[IST]; try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} O.riskEski = null; }
+    O.riskHesap = RH ? { zaman: RH.zaman, sure: RH.sure, izg: RH.izg, bt: RH.bt } : null; }
   O.girdi = girdi; O.girdiYolu = gy; O.hesap = X.formul;
   const satir = (ad, a, b, mc) => { const R = X.sayfa(ad), out = []; const son = b || R.length - 1; for (let i = a; i <= son; i++) { const r = R[i] || []; const q = []; const n = mc || r.length; for (let j = 0; j < n; j++) q[j] = r[j] === undefined ? null : r[j]; out.push(q); } return out; };
   const R2 = (x, n = 0) => pr(x, n);

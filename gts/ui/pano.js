@@ -455,8 +455,18 @@ function hedge(){
 }
 
 /* ---------- RİSK: iki yıllık ızgara ve Monte Carlo ---------- */
+function riskDurum(){ // Risk tablolarının kaynağı: PDM çalıştırması ya da kullanıcının girdileriyle uygulama içi yeniden hesap
+  const el=$("r-hdurum"); if(!el) return; const RH=V.riskHesap, yaz=typeof require==="function"&&V.girdiYolu&&window.gts, nG=Object.keys(V.girdi||{}).filter(k=>k!=="GTS!RiskHesapla").length;
+  const zm=t=>{ try{ return new Date(t).toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch{ return ""; } };
+  let h=RH?`<span class="chip ok">Sizin girdilerinizle hesaplandı · ${zm(RH.zaman)}</span> <span class="not">Parti, liman, vade ve hedge tablosu ile tarihsel test, Ticari koşullardaki girdilerinizle (satış hedefi dahil) uygulama içinde yeniden hesaplandı.</span>`
+    :`<span class="chip eski">PDM çalıştırması · varsayılan girdiler, satış hedefi %100</span> <span class="not">${nG?(V.riskEski?"Girdileriniz son hesaptan sonra değişti. ":"Girdileriniz bu tablolara yansımadı. "):""}${yaz?"Düğmeyle tablolar sizin girdilerinizle yeniden hesaplanır (yaklaşık 1–2 dakika).":"Masaüstü uygulamasında sizin girdilerinizle yeniden hesaplanabilir."}</span>`;
+  if(yaz&&!RH) h+=` <button type="button" class="btn" id="r-hbtn">Risk tablolarını girdilerimle hesapla</button>`;
+  { const n=$("r-iznot"); if(n&&RH) n.textContent="Uygulama içi hesap: Ticari koşullardaki tüm girdileriniz sabit, yalnız tablodaki dört koşul değişiyor; parti 2027 ve 2028 için aynı. Net kâr Karlılık tablosundaki tanımla (faaliyet giderleri dahil)."; }
+  el.innerHTML=h; const b=$("r-hbtn"); if(b) b.onclick=()=>{ try{ girdiYaz(["GTS!RiskHesapla"],{"GTS!RiskHesapla":true}); }catch(e){ el.insertAdjacentHTML("beforeend",`<span class="not">Kaydedilemedi: ${esc(e.message)}</span>`); return; } b.disabled=true; b.textContent="Hesaplanıyor…"; window.gts.yenile(); };
+}
 function iki(){
-  const IZ=V.izg||[], M2=V.mc2||[], mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)/1e6), cl=v=>v<0?"n":"p";
+  riskDurum();
+  const IZ=V.riskHesap&&V.riskHesap.izg&&V.riskHesap.izg.length?V.riskHesap.izg:(V.izg||[]), M2=V.mc2||[], mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)/1e6), cl=v=>v<0?"n":"p";
   $("r-iki").hidden=!IZ.length&&!M2.length; if(!IZ.length&&!M2.length) return;
   const vs=+gir("Satış vadesi (gün)")||17;
   const R=[...IZ].sort((a,b)=>(a[1]===b[1]?0:a[1]==="Açık"?-1:1)||a[4]-b[4]||a[2]-b[2]||a[3]-b[3]);
@@ -468,7 +478,7 @@ function iki(){
   const hc=o=>`<td class="${cl(o[2])}">${mm(o[2])}</td><td class="muted">${mm(o[1])} … ${mm(o[3])}</td><td class="${o[4]>=.5?"n":""}"><b>%${nf.format(o[4]*100)}</b></td>`;
   $("r-mc2").innerHTML=`<thead><tr><th class="l">Senaryo</th><th class="l">Koşul</th><th>Yol</th>${(YIL?[YIL]:["2027","2028","İki yıl"]).map((y,k)=>`<th>${y} medyan${k?"":"<br><span>M $</span>"}</th><th>P10 … P90</th><th>Zarar olas.</th>`).join("")}<th></tr></thead><tbody>`
     +M.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(cfg(r[1]))}</td><td>${r[2]}</td>${K7?hc(r[3]):K8?hc(r[4]):hc(r[3])+hc(r[4])+hc(r[5])}</tr>`).join("")+`</tbody>`;
-  $("r-izsub").textContent=`Makul fiyat yolu · net kâr${YIL?" "+YIL:""} · ${IZ.length} çalıştırma`; const h2=$("r-iki").querySelector("h2"); if(h2) h2.textContent=YIL?`${YIL} sonuçları · parti, liman, vade ve hedge`:"İki yıllık sonuçlar · parti, liman, vade ve hedge";
+  $("r-izsub").textContent=`${V.riskHesap&&V.riskHesap.izg&&V.riskHesap.izg.length?"sizin girdileriniz":"Makul fiyat yolu, PDM"} · net kâr${YIL?" "+YIL:""} · ${IZ.length} çalıştırma`; const h2=$("r-iki").querySelector("h2"); if(h2) h2.textContent=YIL?`${YIL} sonuçları · parti, liman, vade ve hedge`:"İki yıllık sonuçlar · parti, liman, vade ve hedge";
   { const f=document.querySelector('[data-v="risk"] .head .sub'); if(f&&YIL) f.textContent=`${YIL} · kullanıcı fiyat modelleri · P10–P90 bandı, P50 ve temsili yol`; }
 }
 
@@ -480,7 +490,7 @@ function tarihsel(){
   $("r-tkpi").innerHTML=(u20?kt("Hedge etkinliği",`%${nf.format(u20[6]*100)}`,`${u20[0]} iş günü · 1:1 ICE ile CIF Med fiyat oynaklığının karşılanan payı`)+kt("Beta (CIF / ICE)",nf2.format(u20[1]),`R² ${nf2.format(u20[2])} · ${u20[0]} iş günü`):"")
     +(bz("CIF Med − ICE")!=null?kt("Baz riski",`${nf1.format(bz("CIF Med − ICE"))} ± ${nf1.format(bz("Baz standart")||0)} $/t`,`CIF Med − ICE front ortalama ± std · aralık ${esc(String(bz("Baz en düşük")||"").replace(/\./g,",").replace(/-/g,"−").replace(" / "," … "))}`):"")
     +(bz("ICE devir")!=null?kt("ICE devir maliyeti",`${esc(String(bz("ICE devir")).split("/")[1]||"").trim().replace(".",",").replace("-","−")} $/t`,`${esc(String(bz("ICE devir")).split("/")[0]).trim()} devir ortalaması · geriye doğru eğri`):"");
-  const B=H.bt, Y1=YIL==="2027", Y2=YIL==="2028", bt=r=>Y1?r[1]:Y2?r[2]:r[3], mx=Math.max(1,...B.map(r=>Math.abs(bt(r)))), mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)), cl=v=>v<0?"n":"p";
+  const B=V.riskHesap&&V.riskHesap.bt&&V.riskHesap.bt.length?V.riskHesap.bt:H.bt, Y1=YIL==="2027", Y2=YIL==="2028", bt=r=>Y1?r[1]:Y2?r[2]:r[3], mx=Math.max(1,...B.map(r=>Math.abs(bt(r)))), mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)), cl=v=>v<0?"n":"p";
   $("r-tbt").innerHTML=`<thead><tr><th class="l">Hedge kurgusu</th>${Y1?`<th>Yıl 1 · 2027 karşılığı<br><span>≈2024 · M $</span></th>`:Y2?`<th>Yıl 2 · 2028 karşılığı<br><span>≈2025 · M $</span></th>`:`<th>Yıl 1<br><span>≈2024</span></th><th>Yıl 2<br><span>≈2025</span></th><th>İki yıl<br><span>M $</span></th>`}<th class="l bar-h">${Y1?"yıl 1":Y2?"yıl 2":"iki yıl"}</th></tr></thead><tbody>`
     +B.map(r=>`<tr><td class="l">${esc(r[0])}</td>${Y1||Y2?`<td class="${cl(bt(r))}"><b>${mm(bt(r))}</b></td>`:`<td class="${cl(r[1])}">${mm(r[1])}</td><td class="${cl(r[2])}">${mm(r[2])}</td><td class="${cl(r[3])}"><b>${mm(r[3])}</b></td>`}<td class="l bar"><i class="${bt(r)<0?"n":"p"}" style="width:${(Math.abs(bt(r))/mx*100).toFixed(1)}%"></i></td></tr>`).join("")+`</tbody>`;
   $("r-tuf").innerHTML=`<thead><tr><th>Ufuk<br><span>iş günü</span></th><th>Beta</th><th>R²</th><th>Oynaklık hedgesiz<br><span>$/t std</span></th><th>1:1 hedge ile</th><th>Etkinlik</th><th>Ort. CIF değişimi</th><th>Ort. ICE (devir ayarlı)</th></tr></thead><tbody>`
