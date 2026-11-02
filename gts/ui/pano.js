@@ -472,7 +472,7 @@ function risk(){
 
 /* ---------- VARSAYIMLAR ---------- */
 function varsayim(){
-  const f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000?nf.format(v):Math.abs(v)<1&&v!==0?nf.format(v*1e4)/1e4+"":String(v).replace(".",",")):esc(v);
+  const n4=new Intl.NumberFormat("tr-TR",{maximumFractionDigits:4}), f=v=>v==null?"":typeof v==="number"?(Math.abs(v)>=1000?nf.format(v):n4.format(v)):esc(v);
   $("v-gir").innerHTML=`<thead><tr><th class="l">Girdi</th><th>Değer</th><th class="l">Not</th></tr></thead><tbody>`+V.gir.slice(1).map(r=>r[1]==null&&r[2]==null?`<tr class="ara"><td colspan="3">${esc(r[0])}</td></tr>`:`<tr><td class="l" style="white-space:normal">${esc(r[0])}</td><td><b>${f(r[1])}</b></td><td class="l muted" style="white-space:normal">${r[2]!=null?f(r[2]):""}</td></tr>`).join("")+`</tbody>`;
   $("v-par").innerHTML=`<thead><tr><th class="l">Parametre</th><th class="l">Değer</th><th class="l">Kaynak</th></tr></thead><tbody>`+A.pr.map(r=>`<tr><td class="l">${esc(r[0])}</td><td class="l"><b>${esc(r[1])}</b></td><td class="l muted" style="white-space:normal">${esc(r[2])}</td></tr>`).join("")+`</tbody>`;
 }
