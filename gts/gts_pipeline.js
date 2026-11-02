@@ -135,6 +135,11 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const tas = {}; for (const k of Object.keys(girdi)) { const [sh, adr] = k.split('!'); if (sh !== 'Girdiler') continue; const f = X.formulMetni(sh, adr), m = f && /^=?\s*(?:IF\(\s*)?Ozet!\$?H\$?(\d+)/.exec(f); if (m && !(('Ozet!H' + m[1]) in girdi)) tas[k] = 'Ozet!H' + m[1]; }
     if (Object.keys(tas).length) { for (const [a, b] of Object.entries(tas)) { girdi[b] = girdi[a]; delete girdi[a]; }
       try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} log('Girdiler yeni panele taşındı'); X = HS.hesapla(xb, girdi); } }
+  // Satış hedefi (hedef tonajın %'si; kullanıcı 02.11.2026 12:37): seçili senaryonun yıllık hedefi (Girdiler B9) bu oranla ölçeklenir
+  const SY = 'GTS!SatisYuzde', sy = typeof girdi[SY] === 'number' ? girdi[SY] : 1; O.hedef = null;
+  { const G0 = X.sayfa('Girdiler'), b9 = G0[9] && G0[9][0] && /^Seçili motorin/.test(G0[9][0]) ? G0[9][1] : null;
+    if (typeof b9 === 'number') { O.hedef = { tam: b9, oran: sy };
+      if (Math.abs(sy - 1) > 1e-9 && !('Girdiler!B9' in girdi)) { log('Satış hedefi %' + Math.round(sy * 100) + ' ile yeniden hesaplanıyor'); X = HS.hesapla(xb, { ...girdi, 'Girdiler!B9': b9 * sy }); } } }
   O.girdi = girdi; O.girdiYolu = gy; O.hesap = X.formul;
   const satir = (ad, a, b, mc) => { const R = X.sayfa(ad), out = []; const son = b || R.length - 1; for (let i = a; i <= son; i++) { const r = R[i] || []; const q = []; const n = mc || r.length; for (let j = 0; j < n; j++) q[j] = r[j] === undefined ? null : r[j]; out.push(q); } return out; };
   const R2 = (x, n = 0) => pr(x, n);
@@ -145,6 +150,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (ref) { const ga = 'Girdiler!B' + ref[1], gd = X.dogrulama('Girdiler', 'B' + ref[1]), gv = girdi[ga] ?? x[7], go = X.orijinal('Girdiler', 'B' + ref[1]);
       O.tic.push([x[6], typeof gv === 'number' ? R2(gv, 4) : gv, String(x[8] || '').replace(/^Bilgi;?\s*/i, '').replace(/Girdiler B\d+'?[a-zçğıöşü]* değiştirilir\.?/i, '').trim() || null, typeof go === 'number' ? R2(go, 4) : go, ga, gd && gd.liste || /^(Açık|Kapalı)$/.test(String(gv)) ? 'sec' : /oranı|\(%\)/.test(x[6]) ? 'yuzde' : '', gd]); continue; }
     O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, x[8], fm || bas ? null : (o => typeof o === 'number' ? R2(o, 4) : o)(X.orijinal('Ozet', 'H' + i)), fm || bas ? null : ad, tur, dv]); } }
+  if (O.hedef) { const k = O.tic.findIndex((r) => r[4] === 'Ozet!H14'); O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Satış hedefi (%)', R2(O.hedef.oran, 4), 'Seçili senaryonun yıllık hedef tonajı bu oranla ölçeklenir; mevsimsellik ve rampa aynen uygulanır.', 1, SY, 'yuzde', { tip: 'decimal', min: 0.1, max: 1.5, hata: '%10 ile %150 arası' }]); }
   // Müşteri davranışı: bayi kotası (Girdiler; Ozet panelinde yok) – kullanıcı 02.11.2026 11:29
   { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && typeof x[0] === 'string' && /^Bayi kotası/.test(x[0]));
     if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { const ad = 'Girdiler!B' + i, v = girdi[ad] ?? G[i][1], o = X.orijinal('Girdiler', 'B' + i);
