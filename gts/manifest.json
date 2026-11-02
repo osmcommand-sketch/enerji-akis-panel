@@ -1,14 +1,14 @@
 {
  "uygulama": "gts",
- "surum": "1.0.40",
+ "surum": "1.0.41",
  "kabuk": 1,
- "tarih": "2026-11-02T15:48:41+03:00",
- "notlar": "Pazar ve akış: yakın ikmal noktaları yan yana, etiketler tek blok",
+ "tarih": "2026-11-02T16:20:38+03:00",
+ "notlar": "Paket 73: Tüpraş Mersin kaynak kodu TUPRAS_MERSIN (İzmit + 513 TL/m³ tüm Mersin kümesi Tüpraş alımlarına), resmî akış yeniden tahsisi sonrası KAYMA",
  "dosyalar": {
   "ui/index.html": "2daba9a177a3d37910a3483728c59ac620f617ffcfc880699245b68ca69b8232",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
   "ui/pano.js": "33e5fd4edc1ede4605d1f49af9f625bbaf2af6af26d35431f199ba80cab876db",
-  "gts_pipeline.js": "5cc014ada6dd3b4caac091b9c43c55e840d6133b43b80725dcad521fef8028ef",
+  "gts_pipeline.js": "e9e58fa129c42826af6ce41ceb1844d350ffdab2023f3ffe9566fe188df98dda",
   "pipeline.js": "d6bd63ace943780c1749a5102a448934f81f006f0c85c4ac0ca440200b00be42",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
