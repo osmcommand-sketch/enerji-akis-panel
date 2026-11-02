@@ -236,6 +236,7 @@ function ticari(){
   const bzGiz=r=>!BZ&&/benzin/i.test(r[0])&&!(r[4]&&r[4] in G)&&(r[3]==null||r[3]===r[1]);
   for(const r of T){ if(r[1]==null&&r[2]==null&&!r[4]){ h+=`${acik?"</div>":""}<div class="tf-g"><h4>${esc(r[0].replace(/\s*\(Karlilik\)$/,""))}</h4>`; acik=true; continue; }
     if(bzGiz(r)) continue;
+    if(/^Satış ve pazarlama/.test(r[0])&&!(r[4]&&r[4] in G)) continue; // kullanıcı 02.11.2026 11:39: panelden kaldırıldı
     const t=tur(r), id="tg-"+(r[4]||r[0]).replace(/[^\w]/g,""), yz=t==="yuzde", gv=v=>typeof v==="number"&&yz?v*100:v, deg=r[3], deg2=r[4]&&deg!=null&&deg!==r[1];
     const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*('?[a-zçğıöşü]*)?\.?/g,"").trim();
     let inp;
