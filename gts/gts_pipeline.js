@@ -145,6 +145,11 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (ref) { const ga = 'Girdiler!B' + ref[1], gd = X.dogrulama('Girdiler', 'B' + ref[1]), gv = girdi[ga] ?? x[7], go = X.orijinal('Girdiler', 'B' + ref[1]);
       O.tic.push([x[6], typeof gv === 'number' ? R2(gv, 4) : gv, String(x[8] || '').replace(/^Bilgi;?\s*/i, '').replace(/Girdiler B\d+'?[a-zçğıöşü]* değiştirilir\.?/i, '').trim() || null, typeof go === 'number' ? R2(go, 4) : go, ga, gd && gd.liste || /^(Açık|Kapalı)$/.test(String(gv)) ? 'sec' : /oranı|\(%\)/.test(x[6]) ? 'yuzde' : '', gd]); continue; }
     O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, x[8], fm || bas ? null : (o => typeof o === 'number' ? R2(o, 4) : o)(X.orijinal('Ozet', 'H' + i)), fm || bas ? null : ad, tur, dv]); } }
+  // Müşteri davranışı: bayi kotası (Girdiler; Ozet panelinde yok) – kullanıcı 02.11.2026 11:29
+  { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && typeof x[0] === 'string' && /^Bayi kotası/.test(x[0]));
+    if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { const ad = 'Girdiler!B' + i, v = girdi[ad] ?? G[i][1], o = X.orijinal('Girdiler', 'B' + i);
+      O.tic.push(['Müşteri davranışı', null, null]);
+      O.tic.push(['Bayi kotası – zam beklentisinde azami ek alım (%)', typeof v === 'number' ? R2(v, 4) : v, 'Zam beklentisinde bayi normal gününün en çok bu kadar fazlasını alabilir (piyasa geneli kota; fazlası başka tedarikçiye gitmez). Girdiler B' + i + '.', typeof o === 'number' ? R2(o, 4) : o, ad, 'yuzde', X.dogrulama('Girdiler', 'B' + i) || { tip: 'decimal', min: 0, max: 10, hata: '%0 ile %1.000 arası' }]); } }
   { const G = X.sayfa('Girdiler'), bul = (l) => G.findIndex((x) => x && x[0] === l), b38 = bul("Motorin – GTS'de tahliye (t), boş = tam kargo"), b153 = bul('2027 motorin GTS partisi (t), boş = B40');
     if (b38 > 0 && b153 > 0 && !X.formulMu('Girdiler', 'B' + b38)) { O.tic.push(['Gemi ve parti', null, null]);
       O.tic.push(['Motorin GTS partisi (t)', R2(girdi['Girdiler!B' + b38] ?? G[b38][1]), 'Her kargoda GTS\'de tahliye edilen motorin; geminin kalanı ikinci limana gider. 2027 partisi boşsa iki yıl için de geçerli. Girdiler B' + b38 + '.', R2(X.orijinal('Girdiler', 'B' + b38)), 'Girdiler!B' + b38]);
