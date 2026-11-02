@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.39",
+ "surum": "1.0.40",
  "kabuk": 1,
- "tarih": "2026-11-02T15:37:00+03:00",
- "notlar": "Pazar ve akış: Mersin kaynağı etiketi düzeltildi (ithal ürün)",
+ "tarih": "2026-11-02T15:48:41+03:00",
+ "notlar": "Pazar ve akış: yakın ikmal noktaları yan yana, etiketler tek blok",
  "dosyalar": {
   "ui/index.html": "2daba9a177a3d37910a3483728c59ac620f617ffcfc880699245b68ca69b8232",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "15b66ece4c43e78cf93cf64b7e01419d98da5e78a81c8557c6e6c52ebd60621e",
+  "ui/pano.js": "33e5fd4edc1ede4605d1f49af9f625bbaf2af6af26d35431f199ba80cab876db",
   "gts_pipeline.js": "5cc014ada6dd3b4caac091b9c43c55e840d6133b43b80725dcad521fef8028ef",
   "pipeline.js": "d6bd63ace943780c1749a5102a448934f81f006f0c85c4ac0ca440200b00be42",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
