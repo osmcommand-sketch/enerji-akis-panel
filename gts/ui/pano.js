@@ -129,6 +129,7 @@ function genel(){
   if(!$("g-not")) $("g-kpi").insertAdjacentHTML("afterend",`<p class="not" id="g-not">${V.kartab?"Net kâr = Karlılık tablosundaki net kâr (net satışlar − satılan malın maliyeti − faaliyet giderleri, kurumlar vergisi öncesi)":"Net kâr = net marj (hedge dahil) − vergi ve beyanname maliyeti"}; bölgesel navlun avantajı bayi tarafındaki değerdir, kâra dahil değildir. Sonuç tek bir fiyat yolundan gelir: <b id="g-yol"></b>. Parti boyutu, ikinci liman, vade ve hedge karşılaştırması ile iki yıllık Monte Carlo Risk sekmesindedir.</p>`);
   { const sn=gir("Fiyat senaryosu")||"Baz", yo=gir("Fiyat yolu"); $("g-yol").textContent=sn==="Makul"?"Makul senaryo (kullanıcı fiyat modeli)":`${sn} senaryosu, ${yo==="P50"?"P50 (günlük medyan)":"temsili yol"}`; }
   ticari();
+  yasalDefter();
   if(V.kartab){ karTablo(); karlilik("e-kar","e-ksub"); $("e-karsec").hidden=false; } else { karlilik("g-kar","g-ksub"); const e=$("e-karsec"); if(e) e.hidden=true; }
 }
 
@@ -172,7 +173,7 @@ function karlilik(KI,SI){
     ["Net kâr",o=>o.nk,"son"],
     ["Bölgesel navlun avantajı",o=>o.bol,"b",SIRKET?"Tüpraş ± 0 satışta bayide kalır; şirket sonucuna dahil değil":"bayi tarafındaki değer; kâra dahil değil"],
     ...(SIRKET?[]:[["Model toplamı",o=>o.mt,"b","net kâr + bölgesel avantaj"]]),
-    ["Tahsilat süresinde kur farkı",o=>o.kur,"b","net marjın içinde"]];
+    ["TL tahsilatın USD karşılığı (vade etkisi)",o=>o.kur,"b","net marjın içinde · TL defterde kambiyo değil"]];
   const son=T[T.length-1], mx=Math.max(1,...R.filter(r=>r[2]!=="h"&&r[0]!=="Satış geliri"&&r[0]!=="Ürün alışı").map(r=>Math.abs(r[1](son))));
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), sg=(v,t)=>(t==="alt"&&v>0?"+":"");
   let h=`<thead><tr><th class="l">Kalem</th>${T.map((o,k)=>`<th class="yb">${o.ad}<br><span>M $</span></th><th>$/t</th><th>%</th>`).join("")}<th class="l bar-h">${son.ad} · etki</th></tr></thead><tbody>`;
@@ -191,6 +192,20 @@ function karlilik(KI,SI){
 }
 
 /* Kârlılık tablosu: Excel modelinin Karlilik sayfası (kullanıcı 02.11.2026 10:43) */
+/* Yasal defter (TL) görünümü – kambiyo kârı/zararı (kullanıcı 02.11.2026 20:04): beyanname açılış kuru ile kargo fatura vadesi kuru farkı */
+function yasalDefter(){ const el=$("g-yasal"), sec=$("g-yasalsec"); if(!el||!sec) return; const Kb=V.kambiyo&&V.kambiyo.yil; if(!Kb||!Object.keys(Kb).length){ sec.hidden=true; return; } sec.hidden=false;
+  const ys=(YIL?[YIL]:["2027","2028"]).filter(y=>Kb[y]), top=ys.length>1, Y=y=>y==="Toplam"?ys.reduce((a,k)=>{ for(const f of ["usd","tlOdeme","tlBeyan","ktl","kusd"]) a[f]=(a[f]||0)+Kb[k][f]; a.gw=(a.gw||0)+Kb[k].gun*Kb[k].usd; return a; },{}):{...Kb[y],gw:Kb[y].gun*Kb[y].usd};
+  const kol=top?[...ys,"Toplam"]:ys, M=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), sg=v=>(v>0?"+":v<0?"−":"")+nf1.format(Math.abs(v)/1e6);
+  const sat=(l,f,c,n)=>`<tr class="${c||""}"><td class="l"><span class="kl">${l}</span>${n?`<span class="kn">${n}</span>`:""}</td>${kol.map(y=>{ const o=Y(y), v=f(o); return `<td class="yb${c==="k-son"?(v.n<0?" n":" p"):""}">${v.t}</td>`; }).join("")}</tr>`;
+  el.innerHTML=`<thead><tr><th class="l">Kalem</th>${kol.map(y=>`<th class="yb">${y}</th>`).join("")}</tr></thead><tbody>`
+    +sat("Beyan edilen ürün alış bedeli",o=>({t:M(o.usd)+" M $"}),"k-alt","ithalat beyannamesine giren kargo bedeli (FIFO)")
+    +sat("TL maliyet – fatura vadesi kuruyla",o=>({t:M(o.tlOdeme)+" M TL"}),"k-alt",`fiilen ödenen TL · vade = COD${V.kambiyo.odv?" + "+nf.format(V.kambiyo.odv)+" gün":""}`)
+    +sat("TL maliyet – beyanname kuruyla",o=>({t:M(o.tlBeyan)+" M TL"}),"k-alt","yasal defterde satılan malın maliyeti")
+    +sat("Ortalama kur – fatura vadesi / beyanname",o=>({t:nf2.format(o.tlOdeme/o.usd)+" / "+nf2.format(o.tlBeyan/o.usd)}),"k-alt")
+    +sat("Ödemeden beyannameye geçen süre",o=>({t:(o.gw<0?"−":"")+nf1.format(Math.abs(o.usd?o.gw/o.usd:0))+" gün"}),"k-alt","ağırlıklı ortalama · eksi = ödeme beyannameden sonra")
+    +sat("Kambiyo kârı / zararı",o=>({t:sg(o.ktl)+" M TL",n:o.ktl}),"k-son","beyanname kuru − fatura vadesi kuru · + kâr")
+    +sat("Kambiyo, USD karşılığı",o=>({t:sg(o.kusd)+" M $",n:o.kusd}),"k-alt","beyanname günü kuruyla")+`</tbody>`;
+}
 function karTablo(){
   const K=V.kartab, L=K.rows, bul=re=>L.find(r=>re.test(r[0].trim()));
   const TN=bul(/^Gerçekleşen satış – bayi alımı/)||bul(/^PLANLANAN SATIŞ/), ns=bul(/^NET SATIŞLAR/);
@@ -202,7 +217,7 @@ function karTablo(){
     const ad0=ad.replace(/\s*\([^)]*\)\s*/g,""), ana=ad0===ad0.toLocaleUpperCase("tr-TR")&&/[A-ZÇĞİÖŞÜ]/.test(ad0), son=/^NET KÂR/.test(ad), bilgi=/^Bilgi/.test(ad);
     const miktar=/\((t|m³)\)$/.test(ad), oran=/oranı$|marjı$/.test(ad), birim=/\(USD\/t/.test(ad);
     const tur=son?"son":ana?(/BRÜT KÂR/.test(ad)?"ara":"ana"):bilgi?"b":"alt", cls=`k-${tur}${gir>1?" k-g2":""}`;
-    h+=`<tr class="${cls}"><td class="l"><span class="kl">${esc(ad.replace(/^Bilgi: (.)/,(_,c)=>c.toLocaleUpperCase("tr-TR")).replace(/^Tahliye \/ ölçüm farkı$/,"Fire"))}</span>${r[6]?`<span class="kn">${esc(r[6])}</span>`:""}</td>`;
+    h+=`<tr class="${cls}"><td class="l"><span class="kl">${esc(ad.replace(/^Bilgi: (.)/,(_,c)=>c.toLocaleUpperCase("tr-TR")).replace(/^Tahliye \/ ölçüm farkı$/,"Fire").replace(/^Tahsilat kur farkı \(vade boyunca TL değer kaybı\)$/,"TL tahsilatın USD karşılığı (vade etkisi)"))}</span>${r[6]?`<span class="kn">${esc(r[6])}</span>`:""}</td>`;
     for(const [,j] of kol){ const v=r[j];
       if(typeof v!=="number"){ h+=`<td class="yb"></td><td></td><td></td>`; continue; }
       if(miktar){ h+=`<td class="yb">${/m³/.test(ad)?nf.format(v)+" m³":ton(v)}</td><td></td><td></td>`; continue; }
@@ -527,7 +542,7 @@ function hedge(){
   const fw=A.reduce((a,[,k])=>a+(k[29]-k[28])*k[2],0)/(tT||1);
   $("h-kk").innerHTML=kt("Kur hedge",acik?"Açık":"Kapalı",`oran %${nf.format((kuro?kuro[2]:0)*100)} · satış günü TL tahsilatı tahsil gününe forward ile sabitlenir`,acik?"":"")
     +kt("Kur hedge etkisi (model)",usd(ke),acik?"satış gelirine dahil":"kur hedge kapalı",ke<0?"neg":ke>0?"pos":"")
-    +kt("Tahsilat süresinde kur farkı",usd(kf),`hedgesiz; satış günü kuruna göre · net marjın içinde`,kf<0?"neg":"pos")
+    +kt("TL tahsilatın USD karşılığı (vade etkisi)",usd(kf),`hedgesiz; satış günü kuruna göre · net marjın içinde`,kf<0?"neg":"pos")
     +kt(acik?"Forward − tahsilat kuru":"Açık olsaydı (yaklaşık)",acik?nf2.format(fw)+" TL":usd(yak),acik?"ton ağırlıklı ortalama":`forward ort. tahsilat kurundan ${nf2.format(fw)} TL yüksek · kesin sonuç için kur hedge'i açıp hesaplayın`,(!acik&&yak<0)?"neg":"");
   zaman($("h-kegri"),{aria:"USD/TRY",seri:[{ad:"USD/TRY – temsili yol",renk:C.kur,v:V.fiy.map(r=>r[2])},{ad:"USD/TRY forward (faiz paritesi, aylık)",renk:C.gts,v:V.gm.map((_,i)=>{ const r=vm.get(gk(i)); return r?r[4]:null; }),kalin:2.2}],fmt:v=>nf1.format(v),h:170});
   const ktb=()=>{ const L=A.filter(([u])=>S.hku==="b"?u==="Benzin":u==="Motorin"), N=S.hkhep?L.length:20;

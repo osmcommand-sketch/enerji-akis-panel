@@ -216,6 +216,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && x[0] === 'Finansman faizi (yıllık, USD)');
     if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { let k = O.tic.findIndex((r) => r[4] === 'GTS!ForwardBilgi'); if (k < 0) k = O.tic.findIndex((r) => /^USD faizi|^TL faizi/.test(r[0])); const v = G[i][1], o = X.orijinal('Girdiler', 'B' + i);
       O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['USD borçlanma faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'Hedge teminatının (initial margin) finansmanı; stok ve alacak finansmanı "Ayrıca hesapla" seçiliyse kargo finansmanı da bu faizle. Girdiler B' + i + '.', typeof o === 'number' ? R2(o, 4) : o, 'Girdiler!B' + i, 'yuzde', X.dogrulama('Girdiler', 'B' + i) || { tip: 'decimal', min: 0, max: 1, hata: '%0 ile %100 arası' }]); } }
+  // yasal defter görünümü – kambiyo (kullanıcı 02.11.2026 20:04)
+  try { O.kambiyo = require(path.join(resDir, 'kambiyo.js')).kambiyo((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kambiyo = null; log('Kambiyo hesabı: ' + e.message); }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);
