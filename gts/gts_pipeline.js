@@ -120,6 +120,11 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const db = new SQL.Database(new Uint8Array(dbBuf));
   const has = (t) => db.exec(`select count(*) from sqlite_master where name='${t}'`)[0].values[0][0] > 0;
   const Q = (s) => { const r = db.exec(s); if (!r.length) return []; const { columns, values } = r[0]; return values.map((v) => Object.fromEntries(columns.map((c, i) => [c, v[i]]))); };
+  // kayma satırları bayinin bugünkü kaynağıyla (SCN_GTS_KAYMA.Kaynak; paket 70+): [10] = M / D (Tüpraş Mersin deposu) / B / K
+  if (Q("select count(*) n from pragma_table_info('SCN_GTS_KAYMA') where name='Kaynak'")[0].n) {
+    const oi = new Map(G.oz.map((r, i) => [r[0] + '|' + r[1], i])), si = new Map(D.sir.map((r, i) => [r[0], i])), ti = new Map(D.term.map((r, i) => [r[0], i])), KK = { MERSIN: 'M', T31_TUPRAS_DEPO: 'D', T13: 'B', T21: 'K' };
+    O.akis.ky = Q('select Senaryo_ID a,Vaka_ID b,Sirket_ID s,Il_ID i,Urun u,Kaynak_Terminal_ID k,Hedef_Terminal_ID h,Kaynak q,sum(Kayan_ton) v,sum(Ithal_ton) m,sum(Kayan_ton*Km_once) o,sum(Kayan_ton*Km_sonra) n from SCN_GTS_KAYMA where Kayan_ton>0.5 group by 1,2,3,4,5,6,7,8 order by 1,2,3,4,5,6,7,8')
+      .map((r) => [oi.has(r.a + '|' + r.b) ? oi.get(r.a + '|' + r.b) : -1, si.has(r.s) ? si.get(r.s) : -1, r.i, r.u === 'Benzin' ? 0 : 1, ti.has(r.k) ? ti.get(r.k) : -1, ti.has(r.h) ? ti.get(r.h) : -1, pr(r.v), pr(r.m), pr(r.o / r.v), pr(r.n / r.v), KK[r.q] || 'M']); }
   O.tk_genel = has('SCN_GTS_TANK_GENEL') ? Q('select * from SCN_GTS_TANK_GENEL').map((r) => [r.Gosterge, r.Deger]) : [];
   O.blot = has('SCN_GTS_BENZIN_LOT') ? Q('select * from SCN_GTS_BENZIN_LOT order by 2,3').map((r) => [r.Senaryo_ID, pr(r.Benzin_lot_ton), pr(r.Lot_gun_tuketim, 1), pr(r.Varis_sayisi), pr(r.Ort_stok_ton), pr(r.Tepe_stok_ton), pr(r.Finansman_USD_yil), pr(r.Finansman_USD_t, 2), pr(r.Sok5_tepe_USD)]) : [];
   db.close();

@@ -297,13 +297,13 @@ function akis(){
     const oi=A.oz.findIndex(r=>r[0]===S.sen&&r[1]===S.vaka), o=A.oz[oi], f=o[9]>0?HT.v/o[9]:1, fb=BZ?f:0, fu=u=>u?f:fb;
     $("a-sub").textContent="";
     const kt=(l,v,s,c="")=>`<div class="kt ${c}" style="grid-column:span 3"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
-    const KY=A.ky.filter(r=>r[0]===oi&&(BZ||r[3])).map(r=>{ const q=fu(r[3]); return [r[0],r[1],r[2],r[3],r[4],r[5],r[6]*q,r[7]*q,r[8],r[9]]; }),
+    const KY=A.ky.filter(r=>r[0]===oi&&(BZ||r[3])).map(r=>{ const q=fu(r[3]); return [r[0],r[1],r[2],r[3],r[4],r[5],r[6]*q,r[7]*q,r[8],r[9],r[10]]; }),
       IK=A.ik.filter(r=>r[0]===oi&&(BZ||r[5])).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],r[6]*fu(r[5]),r[7],r[8]]),
       TM=A.tm.filter(r=>r[0]===oi&&(BZ||r[2])).map(r=>[r[0],r[1],r[2],r[3],r[3]+(r[4]-r[3])*fu(r[2])]);
     const nSir=new Set(KY.map(r=>r[1])).size;
-    const KG={M:0,B:0,K:0}; for(const r of KY) KG[kayGrp(r[4])]+=r[6];
+    const KG={M:0,D:0,B:0,K:0}; for(const r of KY) KG[kayKod(r)]+=r[6]; const KT=KG.M+KG.D+KG.B+KG.K||1;
     $("a-kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı`)
-      +(KG.B+KG.K>0?kt("Bayinin bugünkü kaynağı",`Mersin ${pct(KG.M/(KG.M+KG.B+KG.K))}`,`<span style="color:${KAYG.B[1]}">Tüpraş Batman ${ton(KG.B)}</span> · <span style="color:${KAYG.K[1]}">Tüpraş Kırıkkale ${ton(KG.K)}</span> · Mersin ${ton(KG.M)}`):"");
+      +(KG.D+KG.B+KG.K>0?kt("Bayinin bugünkü kaynağı · Mersin üçüncü taraf",pct(KG.M/KT),[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(KG[g])}</span>`).join(" · ")+` · Mersin üçüncü taraf ${ton(KG.M)}`):"");
     dagPanel(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $("a-term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
@@ -320,8 +320,8 @@ function akis(){
     $("a-ssub").textContent=`${SM.size} dağıtıcı · ${HT.ad} ${ton(HT.v)} 2026 akışındaki paylarına göre · satıra tıklayınca iller açılır`;
   }
 }
-const KAYG={M:["Mersin'den",C.gts],B:["Tüpraş Batman'dan","#7B4FA0"],K:["Tüpraş Kırıkkale'den","#2A8C8C"]};
-const kayGrp=t=>{ const c=V.term[t]&&V.term[t][0]; return c==="T13"?"B":c==="T21"?"K":"M"; };
+const KAYG={M:["Mersin üçüncü taraf terminalinden",C.gts],D:["Tüpraş Mersin deposundan","#C0504D"],B:["Tüpraş Batman'dan","#7B4FA0"],K:["Tüpraş Kırıkkale'den","#2A8C8C"]};
+const kayKod=r=>r[10]||(()=>{ const c=V.term[r[4]]&&V.term[r[4]][0]; return c==="T13"?"B":c==="T21"?"K":"M"; })();
 function harita(KY,IK,TM,SF){
   const G=V.geo, u=G.w/1000, add=(m,k,x)=>m.set(k,(m.get(k)||0)+x);
   const IV=new Map(), IU=new Map(); for(const r of KY){ add(IV,r[2],r[6]); const o=IU.get(r[2])||IU.set(r[2],[0,0,0,0]).get(r[2]); o[r[3]]+=r[6]; o[2]+=r[6]*r[8]; o[3]+=r[6]*r[9]; }
@@ -330,8 +330,8 @@ function harita(KY,IK,TM,SF){
   const gt=Object.keys(V.term).find(k=>V.term[k][0]==="T227"); let e="";
   if(gt!=null){ const [gx,gy]=pj(V.term[gt][3],V.term[gt][4]);
     // kaynak grubuna göre yay: bayinin bugünkü kaynağı Mersin / Tüpraş Batman / Tüpraş Kırıkkale
-    const KV=new Map(); for(const r of KY){ const g=kayGrp(r[4]), k=r[2]+"|"+g; KV.set(k,(KV.get(k)||0)+r[6]); }
-    for(const [k,x] of [...KV].sort((a,b)=>a[1]-b[1])){ const [i0,g]=k.split("|"), i=+i0, c=G.c&&G.c[i]; if(!c||x<0.01*mx) continue; if(Math.hypot(c[0]-gx,c[1]-gy)<4*u) continue; const h=g==="M"?18:g==="B"?30:42;
+    const KV=new Map(); for(const r of KY){ const g=kayKod(r), k=r[2]+"|"+g; KV.set(k,(KV.get(k)||0)+r[6]); }
+    for(const [k,x] of [...KV].sort((a,b)=>a[1]-b[1])){ const [i0,g]=k.split("|"), i=+i0, c=G.c&&G.c[i]; if(!c||x<0.01*mx) continue; if(Math.hypot(c[0]-gx,c[1]-gy)<4*u) continue; const h=g==="M"?18:g==="D"?26:g==="B"?34:44;
       e+=`<path d="M${gx.toFixed(1)},${gy.toFixed(1)} Q${((gx+c[0])/2).toFixed(1)},${(Math.min(gy,c[1])-h*u).toFixed(1)} ${c[0].toFixed(1)},${c[1].toFixed(1)}" stroke="${KAYG[g][1]}" stroke-opacity=".8" stroke-linecap="round" stroke-width="${(0.6*u+5*u*Math.sqrt(x/mx)).toFixed(2)}" fill="none"><title>GTS → ${esc(V.il[i]||"")} · bugün ${KAYG[g][0]}: ${ton(x)}</title></path>`; } }
   let dt=""; const mk=Math.max(1,...IK.map(r=>r[6])); for(const r of IK){ if(r[3]==null) continue; const [px,py]=pj(r[3],r[4]), sv=r[7]-r[8]; dt+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${Math.max(1.2*u,5*u*Math.sqrt(r[6]/mk)).toFixed(1)}" fill="${sv>=100?C.pos:sv>=50?"#5FA36F":"#A7C9AE"}" fill-opacity=".85" stroke="#fff" stroke-width="${(0.4*u).toFixed(2)}"><title>${esc(r[2])} · ${r[5]?"motorin":"benzin"} ${ton(r[6])} · ${nf.format(r[7])} → ${nf.format(r[8])} km</title></circle>`; }
   const TV=new Map(); for(const r of TM) add(TV,r[1],r[4]-r[3]); const mT=Math.max(1,...[...TV.values()].map(Math.abs)); let nd="", lb="";
@@ -341,12 +341,12 @@ function harita(KY,IK,TM,SF){
   let sf=""; if(SF&&SF.length){ const ms=Math.max(1,...SF.map(r=>r[1])); for(const [t,v,k] of [...SF].sort((a,b)=>b[1]-a[1])){ const x=V.term[t]; if(!x||x[0]==="T227") continue; const [px,py]=pj(x[3],x[4]), a=Math.max(3*u,13*u*Math.sqrt(v/ms));
       sf+=`<rect x="${(px-a/2).toFixed(1)}" y="${(py-a/2).toFixed(1)}" width="${a.toFixed(1)}" height="${a.toFixed(1)}" rx="${(1.5*u).toFixed(1)}" fill="${C.mot}" fill-opacity=".78" stroke="#fff" stroke-width="${(0.8*u).toFixed(2)}"><title>${esc(tAd(t))} · 2026 motorin ikmali ${ton(v)}${k>=0.5?` · GTS'ye kayan ${ton(k)}`:""}</title></rect>`
         +(v>=0.08*ms&&!TV.has(t)?`<text x="${(px+a/2+3*u).toFixed(1)}" y="${(py+3*u).toFixed(1)}" style="font:${(9.5*u).toFixed(1)}px var(--f-body);fill:${C.mot};paint-order:stroke;stroke:#fff;stroke-width:${(3*u).toFixed(1)}">${esc(tAd(t))} ${ton(v)}</text>`:""); } }
-  $("a-harita").innerHTML=`<svg viewBox="0 0 ${G.w} ${G.h}" role="img" aria-label="GTS'ye kayan hacim haritası">${m}<g>${e}</g><g>${dt}</g><g>${nd}</g><g>${sf}</g><g style="pointer-events:none">${lb}</g></svg><div class="lg">${["M","B","K"].filter(g=>KY.some(r=>kayGrp(r[4])===g)).map(g=>`<span><i style="background:${KAYG[g][1]};height:4px"></i>GTS → il · bugün ${KAYG[g][0]}</span>`).join("")}<span><i class="k" style="background:#fff;border:1.5px solid ${C.neg};border-radius:50%"></i>hacim kaybeden terminal</span>${SF&&SF.length?`<span><i class="k" style="background:${C.mot};border-radius:2px"></i>şirketin ikmal noktaları · 2026 motorin</span>`:""}${IK.length?`<span><i class="k" style="background:${C.pos};border-radius:50%"></i>ilçe · Leg2 kısalması ≥ 100 km (koyu)</span>`:`<span class="muted">ilçe noktaları yalnız referans vakada</span>`}</div>`;
+  $("a-harita").innerHTML=`<svg viewBox="0 0 ${G.w} ${G.h}" role="img" aria-label="GTS'ye kayan hacim haritası">${m}<g>${e}</g><g>${dt}</g><g>${nd}</g><g>${sf}</g><g style="pointer-events:none">${lb}</g></svg><div class="lg">${["M","D","B","K"].filter(g=>KY.some(r=>kayKod(r)===g)).map(g=>`<span><i style="background:${KAYG[g][1]};height:4px"></i>GTS → il · bugün ${KAYG[g][0]}</span>`).join("")}<span><i class="k" style="background:#fff;border:1.5px solid ${C.neg};border-radius:50%"></i>hacim kaybeden terminal</span>${SF&&SF.length?`<span><i class="k" style="background:${C.mot};border-radius:2px"></i>şirketin ikmal noktaları · 2026 motorin</span>`:""}${IK.length?`<span><i class="k" style="background:${C.pos};border-radius:50%"></i>ilçe · Leg2 kısalması ≥ 100 km (koyu)</span>`:`<span class="muted">ilçe noktaları yalnız referans vakada</span>`}</div>`;
 }
 /* Dağıtıcı paneli (kullanıcı 02.11.2026 13:15): tıklanan dağıtıcı haritayı filtreler; 10 kt altı "Diğer" altında toplanır */
 const DAG_ESIK=20000;
 function dagPanel(KY,IK,TM){
-  const SM=new Map(); for(const r of KY){ const o=SM.get(r[1])||SM.set(r[1],{t:0,ko:0,ks:0,il:new Set(),g:{M:0,B:0,K:0}}).get(r[1]); o.t+=r[6]; o.ko+=r[6]*r[8]; o.ks+=r[6]*r[9]; o.il.add(r[2]); o.g[kayGrp(r[4])]+=r[6]; }
+  const SM=new Map(); for(const r of KY){ const o=SM.get(r[1])||SM.set(r[1],{t:0,ko:0,ks:0,il:new Set(),g:{M:0,D:0,B:0,K:0}}).get(r[1]); o.t+=r[6]; o.ko+=r[6]*r[8]; o.ks+=r[6]*r[9]; o.il.add(r[2]); o.g[kayKod(r)]+=r[6]; }
   const L=[...SM].sort((a,b)=>b[1].t-a[1].t), B=L.filter(([,o])=>o.t>=DAG_ESIK), K=L.filter(([,o])=>o.t<DAG_ESIK), TT=L.reduce((a,[,o])=>a+o.t,0);
   if(S.dsec!=null&&S.dsec!=="diger"&&!SM.has(S.dsec)) S.dsec=null; if(S.dsec==="diger"&&!K.length) S.dsec=null;
   const secili=S.dsec==null?null:S.dsec==="diger"?new Set(K.map(([s])=>s)):new Set([S.dsec]);
@@ -358,7 +358,7 @@ function dagPanel(KY,IK,TM){
   const ko=K.reduce((a,[,o])=>({t:a.t+o.t,ko:a.ko+o.ko,ks:a.ks+o.ks}),{t:0,ko:0,ks:0});
   $("a-il").innerHTML=`<div class="r"><b>Dağıtıcılar</b><span class="muted">${L.length} · ${ton(TT)}</span></div>`
     +sat("",`Tümü`,`${L.length} dağıtıcı`,ton(TT),S.dsec==null)
-    +B.map(([s,o])=>sat(s,esc(V.sir[s]||"?"),`${o.il.size} il · ${kk(o)}${o.g.B>=500||o.g.K>=500?`<br>${o.g.B>=500?`<span style="color:${KAYG.B[1]}">Batman ${ton(o.g.B)}</span> `:""}${o.g.K>=500?`<span style="color:${KAYG.K[1]}">Kırıkkale ${ton(o.g.K)}</span>`:""}`:""}`,ton(o.t),S.dsec===s)).join("")
+    +B.map(([s,o])=>sat(s,esc(V.sir[s]||"?"),`${o.il.size} il · ${kk(o)}${o.g.D>=500||o.g.B>=500||o.g.K>=500?`<br>${[["D","Tüpraş Mersin"],["B","Batman"],["K","Kırıkkale"]].filter(([g])=>o.g[g]>=500).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(o.g[g])}</span>`).join(" ")}`:""}`,ton(o.t),S.dsec===s)).join("")
     +(K.length?sat("diger","Diğer",`${K.length} dağıtıcı · her biri 20 kt altı`,ton(ko.t),S.dsec==="diger"):"");
   for(const b of $("a-il").querySelectorAll("button[data-d]")) b.onclick=()=>{ const d=b.dataset.d; S.dsec=d===""?null:d==="diger"?"diger":(S.dsec===+d?null:+d); dagPanel(KY,IK,TM); };
   $("a-hsub").textContent=S.dsec==null?"il rengi ve çizgi kalınlığı GTS'den ile giden ton · dağıtıcıya tıklayın":S.dsec==="diger"?`Diğer · ${K.length} küçük dağıtıcı`:`${V.sir[S.dsec]||"?"} · GTS'den illere ve hacim kaybeden terminaller`;
