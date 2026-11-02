@@ -255,10 +255,27 @@ function ticari(){
       const kw=K.reduce((a,k)=>a+w(k),0), cfK=kw?K.reduce((a,k)=>a+k[9]*w(k),0)/kw:null;
       const sr=V.kartab&&V.kartab.rows.find(r=>/Ortalama satış fiyatı/.test(r[0])), sat=sr?sr[YIL==="2027"?1:YIL==="2028"?2:3]:null, d1=v=>v==null?"–":nf1.format(v);
       const sat1=(l,v,alt)=>`<div class="tf-r bilgi"><label>${l}<small>${alt}</small></label><div class="tf-v"><output>${v}</output></div><span class="tf-u">$/t</span></div>`;
-      h+=`<div class="tf-g"><h4>Fiyat ortalamaları · ${YIL||"2027–2028"}</h4>`
-        +sat1("Tüpraş fiyatı (vergisiz)",d1(tp),`günlük ortalama${sat!=null?` · satış ağırlıklı, ± fark dahil ${d1(sat)}`:""}`)
-        +sat1("Platts CIF Med motorin",d1(cf),`günlük ortalama${cfK!=null?` · kargo fiyatlama ağırlıklı ${d1(cfK)}`:""}`)
-        +(tp!=null&&cf!=null?sat1("Tüpraş − CIF Med",(tp-cf<0?"−":"+")+nf1.format(Math.abs(tp-cf)),"günlük ortalamalar farkı"):"")+`</div>`; } }
+      // Tüpraş fiyatı kırılımı: parite = (n günlük ort. CIF) × (n günlük ort. kur) × yoğunluk × (1 + prim); Tüpraş yalnız sapma ≥ eşik olunca güncellenir
+      const gn=(l,d)=>{ const v=+gir(l); return isFinite(v)&&v!==0?v:d; }, PW=Math.round(gn("Sapma ortalama penceresi (gün)",5)), PRM=+gir("Tüpraş primi – motorin")||0, ES=gn("Tüpraş fiyat değişikliği eşiği (sapma)",.03), YG=gn("Tüpraş fiyatı dönüşüm yoğunluğu – motorin (t/m³)",.845), H12=+gir("Satış fiyatı farkı – motorin (Tüpraş ± TL/m³)")||0;
+      const idx=F.map((_,i)=>i).filter(i=>!YIL||yr(i)===YIL);
+      let sC=0,sL=0,sP=0,sE=0,sT=0,n=0, wT=0,wF=0,wS=0;
+      for(const i of idx){ const r=F[i]; if(!(r[2]>0)) continue; let c=0,k=0,m=0; for(let q=Math.max(0,i-PW+1);q<=i;q++){ c+=F[q][0]; k+=F[q][2]; m++; } c/=m; k/=m;
+        const par=c*k/r[2], pp=par*PRM; sC+=r[0]; sL+=par-r[0]; sP+=pp; sE+=r[3]-par-pp; sT+=r[3]; n++;
+        const sv=V.gm[i]?V.gm[i][0]:0; if(sv>0){ wS+=sv; wT+=sv*r[3]; wF+=sv*H12/r[2]/YG; } }
+      const A=v=>n?v/n:null, sg=v=>v==null?"–":(v<0?"−":"+")+nf1.format(Math.abs(v));
+      const kr=(l,v,alt,c="")=>`<div class="tf-r bilgi ${c}"><label>${l}${alt?`<small>${alt}</small>`:""}</label><div class="tf-v"><output>${v}</output></div><span class="tf-u">$/t</span></div>`;
+      h+=`<div class="tf-g tf-kir"><h4>Tüpraş fiyatı kırılımı · ${YIL||"2027–2028"}</h4>`
+        +kr("Platts CIF Med motorin",d1(A(sC)),"günlük ortalama","k1")
+        +kr(`${PW} günlük ortalama ve kur etkisi`,sg(A(sL)),`Tüpraş paritesi son ${PW} günün ortalama CIF ve kuruyla kurulur`,"k2")
+        +kr(`Tüpraş primi %${nf1.format(PRM*100)}`,sg(A(sP)),"parite üzerine (Girdiler B134)","k2")
+        +kr(`Fiyat değişikliği eşiği (%${nf.format(ES*100)})`,sg(A(sE)),`Tüpraş fiyatı ancak parite %${nf.format(ES*100)} saptığında güncellenir; aradaki gecikme`,"k2")
+        +kr("Tüpraş fiyatı (vergisiz)",d1(A(sT)),`günlük ortalama · TL/m³ ÷ kur ÷ ${String(YG).replace(".",",")}`,"k3")
+        +(wS?kr("Satış zamanlaması",sg((sat!=null?sat-wF/wS:wT/wS)-A(sT)),"satışların yılın hangi günlerine düştüğü (satış ağırlığı)","k2")
+          +kr("Satış fiyatı farkı",sg(wF/wS),`Ozet H12: ${nf.format(H12)} TL/m³ → $/t`,"k2")
+          +kr("Ortalama satış fiyatı",d1(sat!=null?sat:wT/wS+wF/wS),sat!=null?"Karlılık tablosundaki satış ağırlıklı fiyat":"satış ağırlıklı","k3"):"")
+        +`</div><div class="tf-g"><h4>CIF Med · ${YIL||"2027–2028"}</h4>`
+        +kr("Platts CIF Med motorin",d1(cf),`günlük ortalama${cfK!=null?` · kargo fiyatlama ağırlıklı ${d1(cfK)}`:""}`)
+        +(tp!=null&&cf!=null?kr("Tüpraş − CIF Med",sg(tp-cf),"günlük ortalamalar farkı"):"")+`</div>`; } }
   el.innerHTML=`<div class="tf">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="tic-hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="tic-sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="tic-d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
   if(!yaz) return;
   const I=[...el.querySelectorAll("[data-h]")].filter(i=>i.dataset.h), btn=$("tic-hesap"), d=$("tic-d");
