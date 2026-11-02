@@ -118,11 +118,11 @@ function genel(){
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
   const nk=j=>SIRKET&&typeof top[j]==="number"?top[j]:(Y("Net marj (USD)")[j]||0)-(Y("Vergi + beyanname maliyeti (USD)")[j]||0), nkNot=V.kartab?"hedge ve faaliyet giderleri dahil, kurumlar vergisi öncesi":"hedge dahil, vergi sonrası";
   if(YIL){ const j=YIL==="2027"?1:2;
-    $("g-kpi").innerHTML=kt(YIL+" net kâr",usd(nk(j)),`${nkNot} · ${SIRKET?`bayiye kalan bölgesel avantaj ${usd(oz("Bölgesel navlun avantajı (USD)",1)[j]||0)} (bilgi)`:`model toplamı ${usd(top[j])} (bölgesel avantaj dahil)`}`,nk(j)<0?"neg":"pos")
+    $("g-kpi").innerHTML=kt(YIL+" net kâr",usd(nk(j)),`${nkNot}`,nk(j)<0?"neg":"pos")
       +kt("Satış",ton(sm[j]+sb[j]),`${BZ?`motorin ${ton(sm[j])} · benzin ${ton(sb[j])}`:"yalnız motorin"}<br>hedefin ${pct(ora[j])}`)
       +kt("Gemi varışı",nf.format(gv[j]),`${YIL} varış tarihine göre`)
       +kt("Tepe teminat",nf1.format(tem[j]/1e9)+" milyar TL",`${YIL} ÖTV teminat mektubu tepe bakiyesi`); }
-  else $("g-kpi").innerHTML=kt("İki yıl net kâr",usd(nk(3)),`2027 ${usd(nk(1))} · 2028 ${usd(nk(2))} · ${nkNot}<br>${SIRKET?`bayiye kalan bölgesel avantaj ${usd(oz("Bölgesel navlun avantajı (USD)",1)[3]||0)} (bilgi)`:`model toplamı ${usd(top[3])} (bölgesel avantaj dahil)`}`,nk(3)<0?"neg":"pos")
+  else $("g-kpi").innerHTML=kt("İki yıl net kâr",usd(nk(3)),`2027 ${usd(nk(1))} · 2028 ${usd(nk(2))} · ${nkNot}`,nk(3)<0?"neg":"pos")
     +kt("Satış",ton(sm[3]+sb[3]),`${BZ?`motorin ${ton(sm[3])} · benzin ${ton(sb[3])}`:"yalnız motorin"}<br>hedefin ${pct(ora[1])} (2027) · ${pct(ora[2])} (2028)`)
     +kt("Gemi varışı",nf.format(gv[3]),`${BZ?`motorin ${oz("Kargo sayısı (dönem varışı)")[1]} · benzin ${oz("Kargo sayısı (dönem varışı)")[2]} kargo · `:"motorin kargoları · "}2027 ${gv[1]} · 2028 ${gv[2]}`)
     +kt("Tepe teminat",nf1.format(tem[3]/1e9)+" milyar TL",`ÖTV teminat mektubu limiti · tepe vergi nakit ${nf1.format(oz("Tepe vergi nakit işletme sermayesi (TL)")[3]/1e9)} milyar TL`);
@@ -171,8 +171,6 @@ function karlilik(KI,SI){
     ["Net marj (hedge dahil)",o=>o.net,"ara"],
     ["İthalat vergi avantajı",o=>-o.ver,"alt","ÖTV ve KDV: müşteriden tahsil ile devlete ödeme arasındaki günlerin TL faizi − teminat komisyonu − beyanname"],
     ["Net kâr",o=>o.nk,"son"],
-    ["Bölgesel navlun avantajı",o=>o.bol,"b",SIRKET?"Tüpraş ± 0 satışta bayide kalır; şirket sonucuna dahil değil":"bayi tarafındaki değer; kâra dahil değil"],
-    ...(SIRKET?[]:[["Model toplamı",o=>o.mt,"b","net kâr + bölgesel avantaj"]]),
     ["TL tahsilatın USD karşılığı (vade etkisi)",o=>o.kur,"b","net marjın içinde · TL defterde kambiyo değil"]];
   const son=T[T.length-1], mx=Math.max(1,...R.filter(r=>r[2]!=="h"&&r[0]!=="Satış geliri"&&r[0]!=="Ürün alışı").map(r=>Math.abs(r[1](son))));
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), sg=(v,t)=>(t==="alt"&&v>0?"+":"");
@@ -213,7 +211,7 @@ function karTablo(){
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), s1=v=>(v<0?"−":"")+nf1.format(Math.abs(v)), yz=v=>(v<0?"−":"")+nf1.format(Math.abs(v)*100);
   let h=`<thead><tr><th class="l">Kalem</th>${kol.map(([y])=>`<th class="yb">${y}<br><span>M $</span></th><th>$/t</th><th>%</th>`).join("")}</tr></thead><tbody>`;
   for(const r of L){ const ham=r[0], ad=ham.trim(), gir=Math.floor((ham.length-ham.trimStart().length)/2);
-    if(/^Kontrol|Ozet'e eklenen/.test(ad)) continue;
+    if(/^Kontrol|Ozet'e eklenen|^Bilgi: bölgesel navlun/i.test(ad)) continue;   // kullanıcı 02.11.2026 22:08: bölgesel avantaj gösterilmez
     const ad0=ad.replace(/\s*\([^)]*\)\s*/g,""), ana=ad0===ad0.toLocaleUpperCase("tr-TR")&&/[A-ZÇĞİÖŞÜ]/.test(ad0), son=/^NET KÂR/.test(ad), bilgi=/^Bilgi/.test(ad);
     const miktar=/\((t|m³)\)$/.test(ad), oran=/oranı$|marjı$/.test(ad), birim=/\(USD\/t/.test(ad);
     const tur=son?"son":ana?(/BRÜT KÂR/.test(ad)?"ara":"ana"):bilgi?"b":"alt", cls=`k-${tur}${gir>1?" k-g2":""}`;
@@ -465,7 +463,7 @@ function operasyon(){
 
 /* ---------- EKONOMİ ---------- */
 function ekonomi(){
-  const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],...(V.kartab?[["Diğer faaliyet giderleri (USD)",x=>musd(-x),1]]:[]),["Bölgesel navlun avantajı (USD)",musd,1],["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
+  const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],...(V.kartab?[["Diğer faaliyet giderleri (USD)",x=>musd(-x),1]]:[]),["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
   $("e-yil").classList.toggle("kilit",!!KILIT); { const z=$("e-ozsec"); if(z) z.hidden=!!KILIT; } $("e-yil").classList.toggle("y27",YIL==="2027"&&!KILIT); $("e-yil").classList.toggle("y28",YIL==="2028");
   $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const fg=l.startsWith("Diğer faaliyet")?(V.kartab.rows.find(x=>/Ozet'e eklenen/.test(x[0]))||[l,0,0,0]):null, r=fg||oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi")||!!fg; const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc((SIRKET&&l==="Toplam (USD)"?(V.kartab?"Net kâr (USD)":"Şirket sonucu (USD)"):SIRKET&&l==="Toplam (USD/t)"?(V.kartab?"Net kâr (USD/t)":"Şirket sonucu (USD/t)"):SIRKET&&l.startsWith("Bölgesel")?"Bölgesel navlun avantajı – bayiye kalır, bilgi (USD)":l).replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","İthalat vergi avantajı"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
   // aylık net marj
