@@ -255,7 +255,8 @@ function ticari(){
   const ana=T.find(r=>/^Motorin GTS partisi/.test(r[0]));
   let h="", acik=false;
   const bzGiz=r=>!BZ&&/benzin/i.test(r[0])&&!(r[4]&&r[4] in G)&&(r[3]==null||r[3]===r[1]);
-  for(const r of T){ if(r[5]==="not"){ if(acik) h+=`<p class="tf-not">${esc(r[0].replace(/^Not:\s*/,""))}</p>`; continue; }
+  for(const r of T){ if(r[5]==="not"&&/SCN_GTS_RAFINERI_FARKI|paylar ve potansiyel/.test(r[0])) continue; // kullanıcı 02.11.2026 18:57: not kaldırıldı
+    if(r[5]==="not"){ if(acik) h+=`<p class="tf-not">${esc(r[0].replace(/^Not:\s*/,""))}</p>`; continue; }
     if(r[1]==null&&r[2]==null&&!r[4]){ h+=`${acik?"</div>":""}<div class="tf-g"><h4>${esc(r[0].replace(/\s*\(Karlilik\)$/,"").replace(/\s*\(Tüpraş İzmit ± TL\/m³\)$/,""))}</h4>`; acik=true; continue; }
     if(bzGiz(r)) continue;
     if(/^Satış ve pazarlama/.test(r[0])&&!(r[4]&&r[4] in G)) continue; // kullanıcı 02.11.2026 11:39: panelden kaldırıldı
