@@ -199,6 +199,10 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (b38 > 0 && b153 > 0 && !X.formulMu('Girdiler', 'B' + b38)) { O.tic.push(['Gemi ve parti', null, null]);
       O.tic.push(['Motorin GTS partisi (t)', R2(girdi['Girdiler!B' + b38] ?? G[b38][1]), 'Her kargoda GTS\'de tahliye edilen motorin; geminin kalanı ikinci limana gider. 2027 partisi boşsa iki yıl için de geçerli. Girdiler B' + b38 + '.', R2(X.orijinal('Girdiler', 'B' + b38)), 'Girdiler!B' + b38]);
       O.tic.push(['2027 motorin GTS partisi (t)', (() => { const v = girdi['Girdiler!B' + b153] ?? G[b153][1]; return v == null || v === '' ? null : R2(v); })(), 'Yalnız 2027 kargoları için; boş = yukarıdaki parti. Girdiler B' + b153 + '.', null, 'Girdiler!B' + b153, 1]); } }
+  // TL finansman faizi (kullanıcı 02.11.2026 17:43): Genel bakışta değiştirilebilir; satış vadesinin arkasına
+  { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && x[0] === 'TL finansman faizi (yıllık)');
+    if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { const k = O.tic.findIndex((r) => /^Satış vadesi/.test(r[0])), v = G[i][1], o = X.orijinal('Girdiler', 'B' + i);
+      O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['TL faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'ÖTV/KDV nakdinin ve TL finansmanının yıllık faizi; İthalat vergi avantajını belirler. Girdiler B' + i + '.', typeof o === 'number' ? R2(o, 4) : o, 'Girdiler!B' + i, 'yuzde', X.dogrulama('Girdiler', 'B' + i) || { tip: 'decimal', min: 0, max: 2, hata: '%0 ile %200 arası' }]); } }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
   const gunluk = (ad) => satir(ad, 4).filter((r) => serial(r[0])).map((r) => [R2(r[2] || 0), R2(r[6] || 0), R2(r[7] || 0), R2(r[9] || 0), R2(r[10] || 0), R2(r[17] || 0), R2(r[18] || 0, 4), R2(r[22] || 0), R2(r[23] || 0)]);
   O.g0 = tarih(satir('Motorin_Gunluk', 4).find((r) => serial(r[0]))[0]);
