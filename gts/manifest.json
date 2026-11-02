@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.12",
+ "surum": "1.0.13",
  "kabuk": 1,
- "tarih": "2026-11-02T07:48:57+03:00",
- "notlar": "Paket 61: hedge ve parti girdileri Ozet panelinden; eski girdiler otomatik taşınır",
+ "tarih": "2026-11-02T07:55:17+03:00",
+ "notlar": "Ticari koşullar paneli: üç sütunlu düzenli form",
  "dosyalar": {
-  "ui/index.html": "d6cd0dfd088c59d8b03aed54f8af686747d6cc37e57edb3135ecc3f4a5ba2e3d",
+  "ui/index.html": "59e53ead1ff25e0b82e8954409b7b586b15aa5a2a35053b6b875ed58f181a303",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "b7d40ab0189bc9bc0a623bec96076fdc56b929e3ef971054b07027fd0e4b6bf6",
+  "ui/pano.js": "ab449c5bac002074c41f259aefec7759a162a929e68eed238bd8dcad53775888",
   "gts_pipeline.js": "342eef99581ee94a862115d9fb45ad99532c25fafea0d9fdd034492d18eab992",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "594517b2433bceef7cc21c439e0c34503f5873882b8959553133d0e276b4a944",
