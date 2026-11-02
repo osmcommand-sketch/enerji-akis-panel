@@ -70,6 +70,20 @@ const tarih = (v) => { if (!serial(v)) return v; const d = new Date(Date.UTC(189
 function pr(x, n = 0) { if (typeof x !== 'number' || !isFinite(x)) return x; const m = Math.pow(10, n), y = x * m, f = Math.floor(y), d = y - f;
   const r = Math.abs(d - 0.5) < 1e-9 && d === 0.5 ? (f % 2 === 0 ? f : f + 1) : Math.round(y); return n ? r / m : r; }
 
+/* Hedge_Kalibrasyon: ufuk tablosu, baz göstergeleri, geriye dönük test, okuma notları */
+function hkalOku(rows) { const o = { ufuk: [], baz: [], bt: [], okuma: [], baslik: null }; let mod = '';
+  for (const r of rows) { if (!r || r.every((x) => x == null || x === '')) continue; const a = r[0];
+    if (!o.baslik && typeof a === 'string' && /kalibrasyon/i.test(a)) { o.baslik = a; continue; }
+    if (typeof a === 'string' && /^Ufuk/.test(a)) { mod = 'u'; continue; }
+    if (typeof a === 'string' && /^Geriye dönük test/.test(a)) { mod = 'b0'; o.btBaslik = a; continue; }
+    if (mod === 'b0' && a === 'Hedge') { mod = 'b'; continue; }
+    if (typeof a === 'string' && /^Okuma/.test(a)) { mod = 'o'; continue; }
+    if (mod === 'u' && typeof a === 'number') { o.ufuk.push(r.slice(0, 10)); continue; }
+    if (mod === 'u' && typeof a === 'string') { o.baz.push([a, r[3]]); continue; }
+    if (mod === 'b' && typeof a === 'string' && typeof r[3] === 'number') { o.bt.push([a, r[1], r[2], r[3]]); continue; }
+    if (mod === 'o' && typeof a === 'string') o.okuma.push(a.replace(/^•\s*/, '')); }
+  return o.ufuk.length || o.bt.length ? o : null; }
+
 /* ---------- csv ---------- */
 function csvOku(t) { const L = t.replace(/^﻿/, '').split(/\r?\n/).filter((x) => x.length); const h = L[0].split(','); return L.slice(1).map((l) => { const a = l.split(','); const o = {}; h.forEach((k, i) => (o[k] = a[i])); return o; }); }
 
@@ -168,6 +182,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const gg = new Map(); for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
     const oz = (v) => { v = [...v].sort((p, q) => p - q); const n = v.length, q = (p) => v[Math.min(n - 1, Math.max(0, pr(p * (n - 1))))]; return [pr(v.reduce((p, c) => p + c, 0) / n), pr(q(0.1)), pr(q(0.5)), pr(q(0.9)), pr(v.filter((z) => z < 0).length / n, 3)]; };
     O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; }); }
+  // Hedge kalibrasyonu ve tarihsel geriye dönük test (Hedge_Kalibrasyon sayfası, sabit değerler)
+  O.hkal = null; try { const H = X.sayfa('Hedge_Kalibrasyon'); if (H) O.hkal = hkalOku(H.map((r) => (r || []).slice(0, 10))); } catch (e) { O.hkal = null; }
   // Kararlar: README'deki GTS bölüm başlıkları (kullanıcı kararları tarihleriyle)
   O.karar = [];
   const rd = Z.bul(/(^|\/)README[^/]*\.md$/i)[0];

@@ -501,6 +501,7 @@ table.t tr.sel td{background:#FFF6E0}
 .tf-v output{font:600 14px var(--f-body);color:var(--ink-2);text-align:right;width:100%;padding-right:8px;font-variant-numeric:tabular-nums}
 .tf-u{font:500 12px var(--f-body);color:var(--ink-3)}
 @media(max-width:420px){.tf-r{grid-template-columns:minmax(0,1fr) 120px 34px}}
+ul.okuma{margin:10px 0 0;padding-left:18px}ul.okuma li{margin:3px 0}
 .tic-a{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}.tic-a .ana{font:600 14px var(--f-body);background:var(--ink);color:#fff;border:0;border-radius:8px;padding:9px 16px;cursor:pointer}.tic-a .ana:disabled{opacity:.4;cursor:default}
 
 .tic{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:10px}.tic-g{grid-column:1/-1;font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}.tic-k b{font-size:20px}.tic-k small{font-size:12px;color:var(--ink-3)}
@@ -733,6 +734,15 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
       <h3>Monte Carlo · önceki fiyat modeli <span class="chip eski">Baz / Ayı / Boğa yolları · Makul öncesi</span></h3>
       <div class="scroll" style="max-height:none"><table class="t kar mc2" id="r-mc2"></table></div>
       <p class="not">Kullanıcı yeni fiyat modelini gönderince durduruldu: varsayılan koşul her senaryoda 100 yol, 25 kt seçenekleri 10–30 yol. Zarar olasılığı = net kârın sıfırın altında kaldığı yolların oranı.</p>
+    </section>
+    <section id="r-tar" hidden>
+      <div class="head"><h2>Tarihsel test · 2024–2025</h2><span class="sub">gerçek CIF Med, Tüpraş, kur, ICE ve VİOP verisi modele uygulandı · şirket sonucu</span></div>
+      <div class="kpi4" id="r-tkpi"></div>
+      <h3>Geriye dönük test <span class="sub">fiyat senaryosu Tarihsel 2024–25, varsayılan ticari koşullar, yalnız motorin</span></h3>
+      <div class="scroll" style="max-height:none"><table class="t kar izg" id="r-tbt"></table></div>
+      <h3>Hedge kalibrasyonu <span class="sub">CIF Med motorin ile ICE gasoil front, ufka göre</span></h3>
+      <div class="scroll" style="max-height:none"><table class="t kar izg" id="r-tuf"></table></div>
+      <ul class="not okuma" id="r-tok"></ul>
     </section>
     <section>
       <div class="head"><h2>Monte Carlo sonuçları</h2><span class="chip eski">önceki model sürümü · 2027 tek yıl</span></div>

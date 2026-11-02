@@ -433,6 +433,22 @@ function iki(){
   $("r-izsub").textContent=`Makul fiyat yolu · net kâr (hedge dahil, vergi sonrası) · ${IZ.length} çalıştırma`;
 }
 
+/* ---------- RİSK: tarihsel test ve hedge kalibrasyonu ---------- */
+function tarihsel(){
+  const H=V.hkal, el=$("r-tar"); el.hidden=!H; if(!H) return;
+  const bz=l=>{ const r=H.baz.find(x=>x[0].startsWith(l)); return r?r[1]:null; }, u20=H.ufuk.find(r=>r[0]===20)||H.ufuk[0];
+  const kt=(l,v,s)=>`<div class="kt"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  $("r-tkpi").innerHTML=(u20?kt("Hedge etkinliği",`%${nf.format(u20[6]*100)}`,`${u20[0]} iş günü · 1:1 ICE ile CIF Med fiyat oynaklığının karşılanan payı`)+kt("Beta (CIF / ICE)",nf2.format(u20[1]),`R² ${nf2.format(u20[2])} · ${u20[0]} iş günü`):"")
+    +(bz("CIF Med − ICE")!=null?kt("Baz riski",`${nf1.format(bz("CIF Med − ICE"))} ± ${nf1.format(bz("Baz standart")||0)} $/t`,`CIF Med − ICE front ortalama ± std · aralık ${esc(String(bz("Baz en düşük")||"").replace(/\./g,",").replace(/-/g,"−").replace(" / "," … "))}`):"")
+    +(bz("ICE devir")!=null?kt("ICE devir maliyeti",`${esc(String(bz("ICE devir")).split("/")[1]||"").trim().replace(".",",").replace("-","−")} $/t`,`${esc(String(bz("ICE devir")).split("/")[0]).trim()} devir ortalaması · geriye doğru eğri`):"");
+  const B=H.bt, mx=Math.max(1,...B.map(r=>Math.abs(r[3]))), mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)), cl=v=>v<0?"n":"p";
+  $("r-tbt").innerHTML=`<thead><tr><th class="l">Hedge kurgusu</th><th>Yıl 1<br><span>≈2024</span></th><th>Yıl 2<br><span>≈2025</span></th><th>İki yıl<br><span>M $</span></th><th class="l bar-h">iki yıl</th></tr></thead><tbody>`
+    +B.map(r=>`<tr><td class="l">${esc(r[0])}</td><td class="${cl(r[1])}">${mm(r[1])}</td><td class="${cl(r[2])}">${mm(r[2])}</td><td class="${cl(r[3])}"><b>${mm(r[3])}</b></td><td class="l bar"><i class="${r[3]<0?"n":"p"}" style="width:${(Math.abs(r[3])/mx*100).toFixed(1)}%"></i></td></tr>`).join("")+`</tbody>`;
+  $("r-tuf").innerHTML=`<thead><tr><th>Ufuk<br><span>iş günü</span></th><th>Beta</th><th>R²</th><th>Oynaklık hedgesiz<br><span>$/t std</span></th><th>1:1 hedge ile</th><th>Etkinlik</th><th>Ort. CIF değişimi</th><th>Ort. ICE (devir ayarlı)</th></tr></thead><tbody>`
+    +H.ufuk.map(r=>`<tr${r[0]===20?' class="varsay"':""}><td>${r[0]}</td><td>${nf2.format(r[1])}</td><td>${nf2.format(r[2])}</td><td>${nf1.format(r[3])}</td><td>${nf1.format(r[4])}</td><td><b>%${nf.format(r[6]*100)}</b></td><td class="${cl(r[7])}">${mm(r[7])}</td><td class="${cl(r[8])}">${mm(r[8])}</td></tr>`).join("")+`</tbody>`;
+  $("r-tok").innerHTML=H.okuma.map(x=>`<li>${esc(x)}</li>`).join("");
+}
+
 /* ---------- RİSK ---------- */
 function risk(){
   const F=V.fiy, SN=V.sn||["Baz","Ayı","Boğa"];
@@ -443,7 +459,7 @@ function risk(){
     zaman($("r-kur"),{aria:"USD/TRY yelpazesi",seri:[{ad:"USD/TRY P50",renk:C.kur,v:F.map(r=>r[k+1])},{ad:"temsili yol",renk:C.gts,v:F.map(r=>r[k+3]),kalin:1.4}],bant:[{ad:"P10–P90",lo:F.map(r=>r[k]),hi:F.map(r=>r[k+2]),renk:C.kur}],fmt:v=>nf1.format(v),h:165}); };
   for(const b of $("r-sen").querySelectorAll("button")) b.onclick=()=>{ S.rs=+b.dataset.s; for(const x of $("r-sen").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); fc(); };
   fc();
-  iki();
+  iki(); tarihsel();
   const sec=(L,s)=>L.filter(r=>r[2]===s).map(r=>[r[1],r[4],r[5],r[6],r[7],r[8]]);
   const mc=()=>{ const s=S.ms;
     aralik($("r-hedge"),sec(V.mc_hedge,s).sort((a,b)=>b[1]-a[1]),{aria:"Hedge seçenekleri"});
