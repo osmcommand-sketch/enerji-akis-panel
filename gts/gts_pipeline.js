@@ -182,6 +182,10 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const gg = new Map(); for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
     const oz = (v) => { v = [...v].sort((p, q) => p - q); const n = v.length, q = (p) => v[Math.min(n - 1, Math.max(0, pr(p * (n - 1))))]; return [pr(v.reduce((p, c) => p + c, 0) / n), pr(q(0.1)), pr(q(0.5)), pr(q(0.9)), pr(v.filter((z) => z < 0).length / n, 3)]; };
     O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; }); }
+  // Karlılık tablosu (Excel Karlilik sayfası)
+  O.kartab = null; try { if (X.sayfalar.includes('Karlilik')) { const K = X.sayfa('Karlilik'), rows = [];
+    for (let i = 6; i < K.length; i++) { const r = K[i]; if (!r || typeof r[0] !== 'string' || !r[0].trim()) continue; rows.push([r[0], ...[1, 2, 3, 4, 5].map((j) => (typeof r[j] === 'number' ? pr(r[j], 4) : null)), r[6] || null]); }
+    if (rows.length) O.kartab = { bas: K[2] && K[2][0], not: K[3] && K[3][0], rows }; } } catch (e) { O.kartab = null; }
   // Hedge kalibrasyonu ve tarihsel geriye dönük test (Hedge_Kalibrasyon sayfası, sabit değerler)
   O.hkal = null; try { const H = X.sayfa('Hedge_Kalibrasyon'); if (H) O.hkal = hkalOku(H.map((r) => (r || []).slice(0, 10))); } catch (e) { O.hkal = null; }
   // Kararlar: README'deki GTS bölüm başlıkları (kullanıcı kararları tarihleriyle)

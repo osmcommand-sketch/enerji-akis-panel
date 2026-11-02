@@ -483,8 +483,8 @@ table.t tr.sel td{background:#FFF6E0}
 .tic-i input:disabled{background:transparent;border-color:transparent;padding-left:0;color:var(--ink)}.tic-i input.hata{border-color:#B3412E;background:#FDECEA}.tic-i input:focus-visible{outline:2px solid var(--gts);outline-offset:1px}
 .tic-i em{font-style:normal;font:500 13px var(--f-body);color:var(--ink-2);white-space:nowrap}.tic-k label{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .tic-k.deg{border-color:#E9C46A;background:#FFFBF0}.tic-k small b{color:#8A4B0B;font:600 12px var(--f-body)}
-.tf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
-@media(max-width:1100px){.tf{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:680px){.tf{grid-template-columns:minmax(0,1fr)}}
+.tf{columns:3;column-gap:12px}.tf-g{break-inside:avoid;-webkit-column-break-inside:avoid;display:block;margin-bottom:12px}
+@media(max-width:1100px){.tf{columns:2}}@media(max-width:680px){.tf{columns:1}}
 .tf-g{border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
 .tf-g h4{margin:0;padding:8px 12px;font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line);background:var(--bg,transparent)}
 .tf-r{display:grid;grid-template-columns:minmax(0,1fr) 132px 40px;align-items:center;gap:8px;padding:7px 10px 7px 9px;min-height:48px;border-left:3px solid transparent}
@@ -565,6 +565,7 @@ table.kar tr.k-aclb td{background:var(--surface);font:600 10px var(--f-mono);let
 table.kar tr.k-acl td{background:#FFFBF0;font-size:12px;color:var(--ink-2)}table.kar tr.k-acl td:first-child{padding-left:38px;border-left:3px solid #E9C46A}
 table.kar tr.k-acl2 td{background:#FFFDF7;font-size:11px;color:var(--ink-3)}table.kar tr.k-acl2 td:first-child{padding-left:56px;border-left:3px solid #F3DFA8}table.kar tr.k-acl2 td.p{color:#1D7A4A}table.kar tr.k-acl2 td.n{color:#B3412E}
 table.izg tr.varsay td{background:#FFF7E0}table.izg td.n,table.mc2 td.n{color:#B3412E}table.izg td.p,table.mc2 td.p{color:#1D7A4A}table.mc2 td,table.izg td{font-variant-numeric:tabular-nums}
+table.kar tr.k-g2 td:first-child{padding-left:40px}table.kar tr.k-alt .kn,table.kar tr.k-ana .kn{max-width:520px}
 table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}table.kar tr.k-acl .kl{font-style:italic}
 </style>
 
@@ -605,6 +606,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <section>
       <div class="head"><h2>Kârlılık</h2><span class="sub" id="g-ksub"></span></div>
       <div class="scroll" style="max-height:none"><table class="t kar" id="g-kar"></table></div>
+      <p class="not" id="g-knot"></p>
     </section>
   </div>
 
@@ -667,8 +669,13 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
   <!-- EKONOMİ -->
   <div class="v" data-v="ekonomi" hidden>
     <section>
-      <div class="head"><h2>Yıllara göre sonuç</h2><span class="sub">M $ · kargo marjı, kargonun satışa hazır olduğu yıla yazılır</span></div>
+      <div class="head"><h2>Yıllara göre sonuç</h2><span class="sub">M $ · Özet "Yıllara göre" bloğu · kargo marjı satılan tona göre yıllara bölünür</span></div>
       <div class="scroll" style="max-height:none"><table class="t" id="e-yil"></table></div>
+    </section>
+    <section id="e-karsec" hidden>
+      <div class="head"><h2>Marj analizi · kargo bazında</h2><span class="sub" id="e-ksub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t kar" id="e-kar"></table></div>
+      <p class="not">Brüt marj burada hedge hariçtir (Tüpraş primi, stokta fiyat değişimi ve alım maliyetine ayrıştırılır); Karlılık tablosundaki satılan malın maliyeti ise ürün hedge sonucunu içerir. Net kâr ikisinde aynıdır.</p>
     </section>
     <section>
       <div class="head"><h2>Aylık kargo net marjı</h2><span class="sub">M $ · net marj = brüt marj − finansman + ürün hedge · satışa hazır olduğu ay</span></div>

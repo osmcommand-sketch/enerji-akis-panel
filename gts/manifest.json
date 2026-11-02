@@ -1,16 +1,16 @@
 {
  "uygulama": "gts",
- "surum": "1.0.16",
+ "surum": "1.0.17",
  "kabuk": 1,
- "tarih": "2026-11-02T10:25:07+03:00",
- "notlar": "Varsayımlar: 1'den küçük sayıların gösterimi düzeltildi (yoğunluk 0,845)",
+ "tarih": "2026-11-02T10:53:43+03:00",
+ "notlar": "Paket 64: Karlılık tablosu Excel'deki yapıyla, faaliyet gideri girdileri, net kâr tanımı; formül motorunda YEAR/MONTH/DAY dizi desteği",
  "dosyalar": {
-  "ui/index.html": "a1f97ed11808eca01fd161a1c6dd439d17fce3b0cf7056077ffc97d3ad87c0b3",
+  "ui/index.html": "05143802e6238fcc2ff7ad0cdb4b596866c99ff2d4b97c683964c833f37d4aa2",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "179352be80e43773e79aba367d6e6b2deaad2e2c0b7b20b3f0190a72d5d75084",
-  "gts_pipeline.js": "b3a80d486f2f00bc6b8fe307339fc16c65085540f7029f6393268c25512c477e",
+  "ui/pano.js": "3ce006ec3e5db968d3b0cdbfb02be88b98ca0c0c97b77b0a746e90193611b562",
+  "gts_pipeline.js": "6de149cf4251c15749f423ba6d013cb957512b4873cca815c234873e52a61d57",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
-  "res/hesap.js": "33bb97748bf0bdbc6bd8ba3f733d708f21a6449737a3b4ec70cc7787a13094d6",
+  "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

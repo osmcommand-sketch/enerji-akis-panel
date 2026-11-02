@@ -232,7 +232,8 @@ function motor(S) {
         if (t > 0) { let lo = 0, hi = L.length - 1, res = -1; while (lo <= hi) { const mid = (lo + hi) >> 1; const x = L[mid]; if (x === BOS || cmp(x, v) <= 0) { if (x !== BOS) res = mid; lo = mid + 1; } else hi = mid - 1; } return res < 0 ? E.NA : res + 1; }
         { let res = -1; for (let i = 0; i < L.length; i++) { if (cmp(L[i], v) >= 0) res = i; else break; } return res < 0 ? E.NA : res + 1; } }
       case 'DATE': { const y = nm(0), m = nm(1), d = nm(2); for (const x of [y, m, d]) if (isErr(x)) return x; return serial(Math.floor(y), Math.floor(m), Math.floor(d)); }
-      case 'YEAR': case 'MONTH': case 'DAY': { const x = nm(0); if (isErr(x)) return x; const d = tarihOf(x); return n.n === 'YEAR' ? d.getUTCFullYear() : n.n === 'MONTH' ? d.getUTCMonth() + 1 : d.getUTCDate(); }
+      case 'YEAR': case 'MONTH': case 'DAY': { const tf = (x) => { const d = tarihOf(x); return n.n === 'YEAR' ? d.getUTCFullYear() : n.n === 'MONTH' ? d.getUTCMonth() + 1 : d.getUTCDate(); };
+        const a0 = e(0); if (a0 instanceof Arr) return ikiliF(a0, 0, (x) => tf(x)); const x = nm(0); if (isErr(x)) return x; return tf(x); }
       case 'WEEKDAY': { const x = nm(0); if (isErr(x)) return x; const t = A.length > 1 ? nm(1) : 1, w = tarihOf(x).getUTCDay(); return t === 2 ? (w === 0 ? 7 : w) : t === 3 ? (w === 0 ? 6 : w - 1) : w + 1; }
       case 'EOMONTH': { const x = nm(0), m = nm(1); if (isErr(x)) return x; if (isErr(m)) return m; const d = tarihOf(x); return serial(d.getUTCFullYear(), d.getUTCMonth() + 1 + Math.trunc(m) + 1, 0); }
       case 'ROW': { if (!A.length) return ctx.r + 1; const r = ref(A[0], ctx); return r ? r.r1 + 1 : E.VAL; }
