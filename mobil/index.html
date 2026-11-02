@@ -430,6 +430,11 @@ table.gts tr.grp-v td{background:var(--surface-2);font:600 11px var(--f-mono);le
 table.gts .yy td:nth-child(n+2){min-width:110px}
 .gts-par{columns:2;column-gap:28px;font-size:12.5px;color:var(--ink-2);margin:0;padding-left:18px}.gts-par li{break-inside:avoid;margin-bottom:4px}
 @media (max-width:700px){.gts-ctl .f{width:100%}.gts-ctl .seg{display:flex}.gts-ctl .seg button{min-width:0;flex:1}.gts-par{columns:1}.wf{grid-template-columns:120px minmax(0,1fr) 74px}#f-gts-v{width:100%}}
+.wrap[data-sayfa="tahinc"]>:not(header):not(nav):not(.tin-only):not(footer){display:none}.wrap:not([data-sayfa="tahinc"]) .tin-only{display:none}
+.tin td.ust{color:var(--neg,#B42318);font-weight:600}.tin tr.ust td:first-child{box-shadow:inset 3px 0 0 var(--neg,#B42318)}.tin td.fk{color:var(--neg,#B42318)}
+.tin-ctl{border:1px solid var(--line,#D8DEE4);border-radius:8px;padding:10px 14px;margin-top:12px;background:var(--surface-2)}.tin-ctl li{margin:4px 0}
+.tin-more{margin-top:8px}
+#k-tin{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}#k-tin .kc{grid-column:span var(--sp,6)}@media (max-width:700px){#k-tin .kc{grid-column:1/-1}}
 </style>
 
 <div class="wrap" id="wrap" data-sayfa="akis">
@@ -490,6 +495,7 @@ table.gts .yy td:nth-child(n+2){min-width:110px}
     <button type="button" role="tab" id="tab-kaynak" data-sayfa="kaynak" aria-selected="false"><span class="uz">Tedarik tahsisi kaynak bazlı</span><span class="kz" aria-hidden="true">Tahsis · kaynak</span></button>
     <button type="button" role="tab" id="tab-musteri" data-sayfa="musteri" aria-selected="false"><span class="uz">Dağıtıcılar arası ticaret</span><span class="kz" aria-hidden="true">Ticaret</span></button>
     <button type="button" role="tab" id="tab-tasima" data-sayfa="tasima" aria-selected="false"><span class="uz">Taşıma</span><span class="kz" aria-hidden="true">Taşıma</span></button>
+    <button type="button" role="tab" id="tab-tahinc" data-sayfa="tahinc" aria-selected="false"><span class="uz">Tahsis incelemesi</span><span class="kz" aria-hidden="true">İnceleme</span></button>
     <button type="button" role="tab" id="tab-akzin" data-sayfa="akzin" aria-selected="false"><span class="uz">Tedarik zinciri</span><span class="kz" aria-hidden="true">Zincir</span></button>
     <button type="button" role="tab" id="tab-takas" data-sayfa="takas" aria-selected="false"><span class="uz">Takas</span><span class="kz" aria-hidden="true">Takas</span></button>
     <button type="button" role="tab" id="tab-bayi" data-sayfa="bayi" aria-selected="false"><span class="uz">Bayiler</span><span class="kz" aria-hidden="true">Bayiler</span></button>
@@ -785,6 +791,37 @@ table.gts .yy td:nth-child(n+2){min-width:110px}
       <li>Kaynak: Enerji Master DB REF_RAFINERI_URUN, REF_RAFINERI_URUN_AKIS, REF_RAFINERI_URUN_ITHALAT (PDM 26.10.2026). Üretim EPDK 2026 tahmini Tablo 1.1 (akaryakıt kapsamı dışı toplam 9,25 Mt); ihracat EPDK rafinerici "Diğer" ihracatı (Tüpraş 1,83, Star 0,71 Mt) – Star IM-EX kargolarıyla, Tüpraş'ta tanker dışı kısım bitüm + petrol koku varsayımıyla bölündü (düşük güven).</li>
       <li>Akış varsayımları (fabrika listeleri olmadığı için "varsayım" etiketli): bitüm il talebi motorin satış payıyla, rafineri → il en kısa mesafe; nafta ve Star reformatı Petkim Aliağa'ya boru hattıyla; petrol koku rafineri yakınındaki çimento illerine eşit payla; baz yağ Kocaeli / İstanbul / İzmir madeni yağ üreticilerine.</li>
       <li>İthalat: rafineri iskelesi IM-EX fuel oil (ara ürün beslemesi) ve nafta kargoları, EPDK rafinerici "Diğer" ithalatına ölçekli (Tüpraş 2,41, Star 0,52 Mt). Stok farkı yalnız Tüpraş İzmit nafta ve diğer ürünlerde (IM-EX ihracatı üretimi aşıyor).</li>
+    </ul>
+  </section>
+  <div class="filters tin-only" role="search" aria-label="Tahsis incelemesi filtreleri">
+    <div class="f"><label for="f-tin-u">Ürün</label><select id="f-tin-u"><option value="">Motorin ve benzin</option><option value="Motorin">Motorin</option><option value="Benzin">Benzin</option></select></div>
+    <div class="f"><label for="f-tin-s">Şirket</label><select id="f-tin-s"></select></div>
+    <div class="f"><label for="f-tin-l">Tek taşıma üst sınırı</label><select id="f-tin-l"><option value="0">Sınır yok (resmî akış)</option><option value="1000">1.000 km</option><option value="900">900 km</option><option value="800">800 km</option><option value="700">700 km</option></select></div>
+    <button type="button" class="clear" id="clear-tin">Filtreleri temizle</button>
+  </div>
+  <section class="tin-only" aria-labelledby="h-tin">
+    <div class="head"><h2 id="h-tin">Şirket içi tahsis · önce ve sonra</h2><span class="sub" id="s-tin"></span></div>
+    <p class="lead">Her şirketin terminallerindeki hacmi ve her ildeki satışı sabit tutulup il × terminal eşleşmesi en az ton-km olacak şekilde yeniden yapıldı (kullanıcı kararı 02.11.2026). Tek taşıma için üst sınır henüz yok: aşağıdaki listeler sınır kararını vermek için. Üst sınır seçilince sınırı aşan yeni atamalar işaretlenir ve geri alınacak hacim gösterilir.</p>
+    <div class="kg" id="k-tin"></div>
+    <div id="tin-kontrol"></div>
+  </section>
+  <section class="tin-only" aria-labelledby="h-tin-y">
+    <div class="head"><h2 id="h-tin-y">700 km üstü yeni atamalar</h2><span class="sub" id="s-tin-y"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-tin-y" class="tin"></table></div>
+    <button type="button" class="clear tin-more" id="tin-y-more" hidden></button>
+  </section>
+  <section class="tin-only" aria-labelledby="h-tin-u">
+    <div class="head"><h2 id="h-tin-u">İl ortalaması 50 km'den fazla uzayan</h2><span class="sub" id="s-tin-u"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-tin-u" class="tin"></table></div>
+    <button type="button" class="clear tin-more" id="tin-u-more" hidden></button>
+  </section>
+  <section class="tin-only" aria-labelledby="h-tin-s">
+    <div class="head"><h2 id="h-tin-s">Şirket özeti</h2><span class="sub" id="s-tin-s">bayiye ortalama mesafe ve 700 km üstü hacim · tahsis önce → sonra</span></div>
+    <div class="scroll" style="max-height:none"><table id="t-tin-s" class="tin"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB SCN_AKIS_TAHSIS_INCELEME, SCN_AKIS_TAHSIS_OZET; önce = FACT_AKARYAKIT_AKIS_ONCE_TAHSIS, sonra = resmî FACT_AKARYAKIT_AKIS (PDM paket 73, 02.11.2026). Mesafe: terminal → bayi ilçeleri karayolu km, şirketin il içi ilçe payıyla.</li>
+      <li>Motorin il dağılımı en az ton-km çözümünden; benzin "motorini takip eder" kuralıyla yeni motorin terminal paylarına göre dağıtıldı, bu yüzden benzinde terminal toplamları kayabilir.</li>
+      <li>"Geri alınacak hacim": sınırı aşan yeni atamaların toplamı. Gerçek etki bu hacmin bir sonraki en yakın terminale dönmesiyle hesaplanır (PDM yeniden çözer).</li>
     </ul>
   </section>
   <section class="lay-only" aria-labelledby="h-lay">

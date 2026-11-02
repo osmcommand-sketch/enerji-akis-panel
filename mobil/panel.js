@@ -1272,6 +1272,55 @@ const RF_KAL=["Uretim","Ithalat","Ihracat","Ic_Kullanim","Yurtici_Teslim","Stok_
 const fRU=document.getElementById("f-rfu-u"), fRR=document.getElementById("f-rfu-r");
 fRU.addEventListener("change",()=>{S.rfU=fRU.value; render();}); fRR.addEventListener("change",()=>{S.rfR=fRR.value; render();});
 document.getElementById("clear-rfu").addEventListener("click",()=>{S.rfU=""; S.rfR=""; render();});
+
+// Şirket içi tahsis incelemesi (kullanıcı 02.11.2026 16:24; pano pdm-akis-tahsis-resmi)
+if(S.tiU===undefined){ S.tiU=""; S.tiS=""; S.tiL=0; S.tiYn=40; S.tiUn=40; }
+const fTU=document.getElementById("f-tin-u"), fTS=document.getElementById("f-tin-s"), fTL=document.getElementById("f-tin-l");
+fTU.addEventListener("change",()=>{S.tiU=fTU.value; render();}); fTS.addEventListener("change",()=>{S.tiS=fTS.value; render();}); fTL.addEventListener("change",()=>{S.tiL=+fTL.value; render();});
+document.getElementById("clear-tin").addEventListener("click",()=>{S.tiU=""; S.tiS=""; S.tiL=0; render();});
+document.getElementById("tin-y-more").addEventListener("click",()=>{S.tiYn=S.tiYn>40?40:1e9; render();});
+document.getElementById("tin-u-more").addEventListener("click",()=>{S.tiUn=S.tiUn>40?40:1e9; render();});
+function tahsisInceleme(){
+  const T=D.tin, tk=v=>nf1.format(v/1000)+" kt", km=v=>nf.format(Math.round(v))+" km", dk=(a,b)=>{ const d=b-a; return (d<0?"−":"+")+nf1.format(Math.abs(d)); };
+  if(!T){ document.getElementById("k-tin").innerHTML=`<p class="muted">Bu veri sürümünde şirket içi tahsis incelemesi yok (paket 73 ve sonrası).</p>`; for(const id of ["t-tin-y","t-tin-u","t-tin-s"]) document.getElementById(id).innerHTML=""; return; }
+  const U=S.tiU, SI=S.tiS, L=S.tiL, uOk=r=>!U||r[1]===U, sOk=r=>!SI||r[0]===SI;
+  const sirk=[...new Set([...T.y,...T.u].map(r=>r[0]))].sort((a,b)=>a.localeCompare(b,"tr"));
+  fTS.innerHTML=`<option value="">Tüm şirketler</option>`+sirk.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join(""); fTS.value=SI; fTU.value=U; fTL.value=String(L);
+  // kartlar
+  const UR=U?[U]:["Motorin","Benzin"], C={Motorin:"#2A5591",Benzin:"#B7791F"};
+  let k="";
+  for(const u of UR){ let o=T.oz[u]; if(SI){ const z=(T.s||[]).find(r=>r[0]===SI&&r[1]===u); o=z?[z[3],z[4],z[5],z[6],z[2],z[7]]:null; } if(!o) continue;
+    k+=kompKart(`${u} · bayiye ortalama mesafe`,[],{buyuk:`${nf1.format(o[0])} → ${nf1.format(o[1])} km`,alt:`${dk(o[0],o[1])} km · ${ton(o[4])} · il dağılımı değişen ${ton(o[5])}`,span:UR.length>1?3:6});
+    k+=kompKart(`${u} · 700 km üstü hacim`,[],{buyuk:`${tk(o[2])} → ${tk(o[3])}`,alt:o[3]>o[2]?"tahsisle arttı":"tahsisle azaldı",span:UR.length>1?3:6}); }
+  const Y=T.y.filter(r=>uOk(r)&&sOk(r)), YL=L?Y.filter(r=>r[5]>L):[], yT=Y.reduce((q,r)=>q+r[4],0), lT=YL.reduce((q,r)=>q+r[4],0);
+  k+=kompKart(L?`${nf.format(L)} km sınırıyla geri alınacak`:"Yeni 700 km üstü atamalar",[],{buyuk:L?tk(lT):tk(yT),alt:L?`${YL.length} satır · ${new Set(YL.map(r=>r[0])).size} şirket · 700+ yeni atamaların ${pct(yT?lT/yT:0)}'i`:`${Y.length} satır · ${new Set(Y.map(r=>r[0])).size} şirket`,span:6});
+  document.getElementById("k-tin").innerHTML=k;
+  document.getElementById("s-tin").textContent=`${YIL} · ${[U||"motorin + benzin",SI||null].filter(Boolean).join(" · ")}`;
+  // kontroller
+  const kap=T.kap||[], bat=(T.bat||[]).filter(b=>Math.abs(b[2]-b[1])>=1);
+  document.getElementById("tin-kontrol").innerHTML=(kap.length||bat.length)?`<div class="tin-ctl"><b>Kontroller</b><ul class="notes" style="margin:4px 0 0">`
+    +kap.map(r=>`<li>Kapasite: ${esc(r[0])} doluluk ${pct(r[3])} (kapasite ${ton(r[1])}, tahsisle +${ton(r[4])}, çoğu benzin).</li>`).join("")
+    +bat.map(b=>`<li>Batman demiryolu (Tüpraş Batman'a demiryoluyla gelen ${b[0].toLocaleLowerCase("tr")}): ${ton(b[1])} → ${ton(b[2])}. Tahsisin bu yükü değiştirmemesi bekleniyordu.</li>`).join("")
+    +`<li class="muted">Bu iki tablo (REF_TERMINAL_KAPASITE, REF_DEMIRYOLU_KORIDOR) tahsisten sonra yeniden hesaplanmadı; PDM'ye iletildi.</li></ul></div>`:"";
+  // 700+ tablo
+  const yS=Y.slice(0,S.tiYn);
+  document.getElementById("t-tin-y").innerHTML=`<thead><tr><th class="l">Şirket</th><th class="l">Ürün</th><th class="l">İl</th><th class="l">Yeni terminal</th><th>Ton</th><th>Mesafe</th><th>İl ort. önce</th></tr></thead><tbody>`
+    +yS.map(r=>{ const ust=L&&r[5]>L; return `<tr${ust?' class="ust"':""}><td class="l">${esc(r[0])}</td><td class="l">${esc(r[1])}</td><td class="l">${esc(r[2])}</td><td class="l">${esc(r[3])}</td><td>${nf.format(Math.round(r[4]))}</td><td${ust?' class="ust"':""}>${km(r[5])}</td><td>${km(r[6])}</td></tr>`; }).join("")
+    +`<tr class="grp tg"><td class="l" colspan="4"><b>Toplam ${Y.length} satır</b></td><td><b>${nf.format(Math.round(yT))}</b></td><td colspan="2"></td></tr></tbody>`;
+  document.getElementById("s-tin-y").textContent="tahsisle şirkete yeni atanan, terminal → il mesafesi 700 km'yi aşan hacim · ton";
+  const ym=document.getElementById("tin-y-more"); ym.hidden=Y.length<=40; ym.textContent=S.tiYn>40?"İlk 40 satırı göster":`Tüm ${Y.length} satırı göster`;
+  // 50+ km uzayan
+  const V=T.u.filter(r=>uOk(r)&&sOk(r)), vT=V.reduce((q,r)=>q+r[3],0);
+  document.getElementById("t-tin-u").innerHTML=`<thead><tr><th class="l">Şirket</th><th class="l">Ürün</th><th class="l">İl</th><th>Ton</th><th>Önce</th><th>Sonra</th><th>Fark</th></tr></thead><tbody>`
+    +V.slice(0,S.tiUn).map(r=>`<tr><td class="l">${esc(r[0])}</td><td class="l">${esc(r[1])}</td><td class="l">${esc(r[2])}</td><td>${nf.format(Math.round(r[3]))}</td><td>${km(r[4])}</td><td${L&&r[5]>L?' class="ust"':""}>${km(r[5])}</td><td class="fk">+${nf.format(Math.round(r[5]-r[4]))}</td></tr>`).join("")
+    +`<tr class="grp tg"><td class="l" colspan="3"><b>Toplam ${V.length} şirket × il × ürün</b></td><td><b>${nf.format(Math.round(vT))}</b></td><td colspan="3"></td></tr></tbody>`;
+  document.getElementById("s-tin-u").textContent="şirketin o ildeki bayilerine ton ağırlıklı ortalama mesafesi · sıra: ton × uzama";
+  const um=document.getElementById("tin-u-more"); um.hidden=V.length<=40; um.textContent=S.tiUn>40?"İlk 40 satırı göster":`Tüm ${V.length} satırı göster`;
+  // şirket özeti
+  const Z=(T.s||[]).filter(r=>uOk(r)&&sOk(r)&&r[7]>=0.5);
+  document.getElementById("t-tin-s").innerHTML=`<thead><tr><th class="l">Şirket</th><th class="l">Ürün</th><th>Satış</th><th>Mesafe önce</th><th>Mesafe sonra</th><th>700+ önce</th><th>700+ sonra</th><th>İl dağılımı değişen</th></tr></thead><tbody>`
+    +Z.map(r=>`<tr><td class="l">${esc(r[0])}</td><td class="l">${esc(r[1])}</td><td>${ton(r[2])}</td><td>${nf1.format(r[3])}</td><td>${nf1.format(r[4])}</td><td>${r[5]>=0.5?ton(r[5]):"–"}</td><td${r[6]>r[5]+0.5?' class="fk"':""}>${r[6]>=0.5?ton(r[6]):"–"}</td><td>${ton(r[7])}</td></tr>`).join("")+`</tbody>`;
+}
 function rafUrunleri(){
   const U=D.rfu||[], A=D.rfa||[];
   if(!U.length){ document.getElementById("k-rfu").innerHTML=`<p class="muted">Bu veri sürümünde rafineri ürünleri katmanı yok.</p>`; return; }
@@ -2785,6 +2834,7 @@ function render(){
   if(BAY()){ bayiler(); return; }
   if(RAFP()){ rafineriler(); rafUretim(); return; }
   if(S.sayfa==="rafurun"){ rafUrunleri(); return; }
+  if(S.sayfa==="tahinc"){ tahsisInceleme(); return; }
   if(TASP()){ tasima(); return; }
   if(TKS()){ const av=new Map(); for(const f of AF) if(isTk(f)&&(S.sid<0||f[11]===S.sid)) av.set(f[0],(av.get(f[0])||0)+f[6]);
     if(S.alc>=0&&!av.has(S.alc)) S.alc=-1;
@@ -2832,6 +2882,6 @@ document.addEventListener("click",e=>{
   render();
 });
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("tr[tabindex]")) e.target.click()});
-if(location.hash==="#tahsis") S.sayfa="kaynak";   // terminal bazlı tahsis sayfaları kaldırıldı (kullanıcı 23.10.2026 20:27)
+if(location.hash==="#tahinc") S.sayfa="tahinc"; else if(location.hash==="#tahsis") S.sayfa="kaynak";   // terminal bazlı tahsis sayfaları kaldırıldı (kullanıcı 23.10.2026 20:27)
  else if(location.hash==="#kaynak") S.sayfa="kaynak"; else if(location.hash==="#ithalat") S.sayfa="ithalat"; else if(location.hash==="#takas") S.sayfa="takas"; else if(location.hash==="#transit") S.sayfa="transit"; else if(location.hash==="#hava") S.sayfa="hava"; else if(location.hash==="#deniz") S.sayfa="deniz"; else if(location.hash==="#stok") S.sayfa="stok"; else if(location.hash==="#gts") S.sayfa="gts"; else if(location.hash==="#bayi") S.sayfa="bayi"; else if(location.hash==="#rafineri") S.sayfa="rafineri";
 render();

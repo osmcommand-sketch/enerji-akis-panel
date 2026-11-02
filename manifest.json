@@ -1,15 +1,15 @@
 {
- "surum": "1.0.78",
+ "surum": "1.0.79",
  "kabuk": 1,
- "tarih": "2026-11-02T14:33:06+03:00",
- "notlar": "GTS senaryo v3.1: Batman/Kırıkkale/Tüpraş Mersin deposu kaynaklı kayma; kaçınılan rafineri/depo farkı kalemi",
+ "tarih": "2026-11-02T16:35:44+03:00",
+ "notlar": "Paket 73: Akaryakıt > Tahsis incelemesi (şirket içi tahsis önce/sonra, 700 km üstü yeni atamalar, il ortalaması uzayanlar, üst sınır seçici, kontroller)",
  "dosyalar": {
-  "ui/index.html": "62cacd69617e8e8f59ff32f2efb50f590e3130694ac23fee5faedf727f33b3b3",
+  "ui/index.html": "4d3cae6004dbeaa159fc26fd650e1ebde6d318c8b83bcf2ecffcd0c09e2ba4fc",
   "ui/app.css": "e98fc0b4ab415ed65a27ddc7b14e2125053c2f40630becdbf9b094d0f2e61653",
   "ui/app.js": "6be64abf58d134d87816a6bbdaf1756074fe57a135e416ba8477efb34f49fbf5",
-  "ui/panel.css": "3c534d97ece01d0cbc1760de5c6b0e4c6aa9a472fcb594925c27bd4fbc3d2048",
-  "ui/panel.js": "82948b7b63d4b2f6632f5ebf38de572cb0a7d3144998c92906b08afdd2cbb085",
-  "pipeline.js": "d6bd63ace943780c1749a5102a448934f81f006f0c85c4ac0ca440200b00be42",
+  "ui/panel.css": "73c923c2d7c86b62c1c9fdbd5273dbbb689002a9c41146bb84436716b3b332d3",
+  "ui/panel.js": "2f817dd188ae555c214de139d683f7763d91c3e3c83e20eb24a5e692f298740f",
+  "pipeline.js": "6af95d7c2691d854f4b673cbb95c8c97733831b714bc3cfc2330b247824c9442",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

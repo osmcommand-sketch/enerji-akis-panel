@@ -396,6 +396,37 @@
       <li>İthalat: rafineri iskelesi IM-EX fuel oil (ara ürün beslemesi) ve nafta kargoları, EPDK rafinerici "Diğer" ithalatına ölçekli (Tüpraş 2,41, Star 0,52 Mt). Stok farkı yalnız Tüpraş İzmit nafta ve diğer ürünlerde (IM-EX ihracatı üretimi aşıyor).</li>
     </ul>
   </section>
+  <div class="filters tin-only" role="search" aria-label="Tahsis incelemesi filtreleri">
+    <div class="f"><label for="f-tin-u">Ürün</label><select id="f-tin-u"><option value="">Motorin ve benzin</option><option value="Motorin">Motorin</option><option value="Benzin">Benzin</option></select></div>
+    <div class="f"><label for="f-tin-s">Şirket</label><select id="f-tin-s"></select></div>
+    <div class="f"><label for="f-tin-l">Tek taşıma üst sınırı</label><select id="f-tin-l"><option value="0">Sınır yok (resmî akış)</option><option value="1000">1.000 km</option><option value="900">900 km</option><option value="800">800 km</option><option value="700">700 km</option></select></div>
+    <button type="button" class="clear" id="clear-tin">Filtreleri temizle</button>
+  </div>
+  <section class="tin-only" aria-labelledby="h-tin">
+    <div class="head"><h2 id="h-tin">Şirket içi tahsis · önce ve sonra</h2><span class="sub" id="s-tin"></span></div>
+    <p class="lead">Her şirketin terminallerindeki hacmi ve her ildeki satışı sabit tutulup il × terminal eşleşmesi en az ton-km olacak şekilde yeniden yapıldı (kullanıcı kararı 02.11.2026). Tek taşıma için üst sınır henüz yok: aşağıdaki listeler sınır kararını vermek için. Üst sınır seçilince sınırı aşan yeni atamalar işaretlenir ve geri alınacak hacim gösterilir.</p>
+    <div class="kg" id="k-tin"></div>
+    <div id="tin-kontrol"></div>
+  </section>
+  <section class="tin-only" aria-labelledby="h-tin-y">
+    <div class="head"><h2 id="h-tin-y">700 km üstü yeni atamalar</h2><span class="sub" id="s-tin-y"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-tin-y" class="tin"></table></div>
+    <button type="button" class="clear tin-more" id="tin-y-more" hidden></button>
+  </section>
+  <section class="tin-only" aria-labelledby="h-tin-u">
+    <div class="head"><h2 id="h-tin-u">İl ortalaması 50 km'den fazla uzayan</h2><span class="sub" id="s-tin-u"></span></div>
+    <div class="scroll" style="max-height:none"><table id="t-tin-u" class="tin"></table></div>
+    <button type="button" class="clear tin-more" id="tin-u-more" hidden></button>
+  </section>
+  <section class="tin-only" aria-labelledby="h-tin-s">
+    <div class="head"><h2 id="h-tin-s">Şirket özeti</h2><span class="sub" id="s-tin-s">bayiye ortalama mesafe ve 700 km üstü hacim · tahsis önce → sonra</span></div>
+    <div class="scroll" style="max-height:none"><table id="t-tin-s" class="tin"></table></div>
+    <ul class="notes">
+      <li>Kaynak: Enerji Master DB SCN_AKIS_TAHSIS_INCELEME, SCN_AKIS_TAHSIS_OZET; önce = FACT_AKARYAKIT_AKIS_ONCE_TAHSIS, sonra = resmî FACT_AKARYAKIT_AKIS (PDM paket 73, 02.11.2026). Mesafe: terminal → bayi ilçeleri karayolu km, şirketin il içi ilçe payıyla.</li>
+      <li>Motorin il dağılımı en az ton-km çözümünden; benzin "motorini takip eder" kuralıyla yeni motorin terminal paylarına göre dağıtıldı, bu yüzden benzinde terminal toplamları kayabilir.</li>
+      <li>"Geri alınacak hacim": sınırı aşan yeni atamaların toplamı. Gerçek etki bu hacmin bir sonraki en yakın terminale dönmesiyle hesaplanır (PDM yeniden çözer).</li>
+    </ul>
+  </section>
   <section class="lay-only" aria-labelledby="h-lay">
     <div class="head"><h2 id="h-lay">LPG · Ocak–Ağustos 2025 ve 2026</h2><span class="sub" id="s-lay"></span></div>
     <p class="lead">Aynı dönem karşılaştırması, tamamı gerçekleşen: EPDK aylık LPG Piyasası Sektör Raporları (Ocak–Ağustos 2026; her rapor 2025'in aynı ayını da verir). Eylül–Aralık tahmini bu sayfada yoktur.</p>

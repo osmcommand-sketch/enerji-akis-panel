@@ -513,6 +513,33 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   // Diğer / benzin ihrakiyesi ve akaryakıt dışı rafineri ürünleri (PDM 26.10.2026)
   const IDG = hasTable('REF_IHRAKIYE_DIGER') ? Q('select * from REF_IHRAKIYE_DIGER order by Miktar_ton desc').map(r => [sg(r.Sirket_ID), bix.has(r.Teslim_Noktasi_ID) ? bix.get(r.Teslim_Noktasi_ID) : -1, tix.has(r.Besleme_Terminal_ID) ? tix.get(r.Besleme_Terminal_ID) : -1, pr(r.Deniz_km || 0), r.Urun === 'Benzin' ? 0 : 1, pr(r.Miktar_ton || 0, 1), sidx.has(r.Sirket_ID) ? '' : (r.Unvan || '')]) : [];
   const RFU = hasTable('REF_RAFINERI_URUN') ? Q('select Rafineri,Urun,Kalem,sum(Miktar_ton) Miktar_ton,group_concat(distinct Guven) Guven from REF_RAFINERI_URUN group by 1,2,3 order by 1,2,3').map(r => [r.Rafineri, r.Urun, r.Kalem, pr(r.Miktar_ton || 0), r.Guven || '']) : [];
+  // Şirket içi tahsis incelemesi (kullanıcı kararı 02.11.2026 15:59; pano pdm-akis-tahsis-resmi): üst sınır kararı için liste
+  const TIN = (() => {
+    if (!hasTable('SCN_AKIS_TAHSIS_INCELEME') || !hasTable('FACT_AKARYAKIT_AKIS_ONCE_TAHSIS')) return null;
+    const oz = {};
+    for (const u of ['Motorin', 'Benzin']) {
+      const f = t => QA(`select sum(Leg2_Ton_km)/sum(Miktar_ton), sum(case when Leg2_Mesafe_km>700 then Miktar_ton else 0 end), sum(Miktar_ton) from ${t} where Urun='${u}' and Leg2_Ton_km is not null`)[0];
+      const o = f('FACT_AKARYAKIT_AKIS_ONCE_TAHSIS'), n = f('FACT_AKARYAKIT_AKIS');
+      const dg = hasTable('SCN_AKIS_TAHSIS_OZET') ? QA(`select sum(Degisen_ton) from SCN_AKIS_TAHSIS_OZET where Urun='${u}'`)[0][0] : 0;
+      oz[u] = [pr(o[0], 1), pr(n[0], 1), pr(o[1]), pr(n[1]), pr(n[2]), pr(dg || 0)];
+    }
+    const I = Q('select * from SCN_AKIS_TAHSIS_INCELEME');
+    const y = I.filter(r => /^700/.test(r.Tur)).map(r => [r.Sirket, r.Urun, r.Il, r.Terminal, pr(r.Yeni_atanan_ton, 1), pr(r.Leg2_km, 1), pr(r.Il_ort_km_once, 1)]).sort((a, b) => b[4] - a[4]);
+    const u = I.filter(r => !/^700/.test(r.Tur)).map(r => [r.Sirket, r.Urun, r.Il, pr(r.Ton, 1), pr(r.Il_ort_km_once, 1), pr(r.Il_ort_km_sonra, 1)]).sort((a, b) => (b[5] - b[4]) * b[3] - (a[5] - a[4]) * a[3]);
+    const s = hasTable('SCN_AKIS_TAHSIS_OZET') ? Q('select * from SCN_AKIS_TAHSIS_OZET order by Degisen_ton desc').map(r => [r.Sirket_Adi, r.Urun, pr(r.Ton), pr(r.Km_once, 1), pr(r.Km_sonra, 1), pr(r.Ust700_once), pr(r.Ust700_sonra), pr(r.Degisen_ton)]) : [];
+    // kontroller: tahsisle değişen terminal tonu kapasiteyi aşıyor mu; Batman (T13) demiryolu yükü
+    const kap = [];
+    if (hasTable('REF_TERMINAL_KAPASITE')) {
+      const dt = new Map(QA(`with o as (select Terminal_ID t, sum(Miktar_ton) v from FACT_AKARYAKIT_AKIS_ONCE_TAHSIS group by 1), n as (select Terminal_ID t, sum(Miktar_ton) v from FACT_AKARYAKIT_AKIS group by 1)
+        select n.t, n.v - coalesce(o.v,0) from n left join o using(t)`));
+      for (const r of Q('select k.Terminal_ID, coalesce(d.Terminal_Adi, k.Terminal_ID) ad, k.Kapasite_ton, k.Yukleme_ton from REF_TERMINAL_KAPASITE k left join DIM_TERMINAL d using(Terminal_ID) where k.Kapasite_ton>0')) {
+        const d = dt.get(r.Terminal_ID) || 0, yn = (r.Yukleme_ton || 0) + d;
+        if (d > 0 && yn > r.Kapasite_ton + 1) kap.push([r.ad, pr(r.Kapasite_ton), pr(yn), pr(yn / r.Kapasite_ton, 3), pr(d)]);
+      }
+    }
+    const bat = ['Motorin', 'Benzin'].map(u => [u, ...['FACT_AKARYAKIT_AKIS_ONCE_TAHSIS', 'FACT_AKARYAKIT_AKIS'].map(t => pr(QA(`select coalesce(sum(Miktar_ton),0) from ${t} where Terminal_ID='T13' and Urun='${u}' and Leg1_Tasima_Modu like '%Demiryolu%'`)[0][0]))]);
+    return { oz, y, u, s, kap, bat };
+  })();
   const RFA = hasTable('REF_RAFINERI_URUN_AKIS') ? Q('select * from REF_RAFINERI_URUN_AKIS order by Miktar_ton desc').map(r => [r.Urun, r.Rafineri, tix.has(r.Kaynak_Terminal_ID) ? tix.get(r.Kaynak_Terminal_ID) : -1, r.Alici_Sektor || '', r.Alici_Tesis || '', r.Il_ID != null ? r.Il_ID : -1, r.Tasima_Modu || '', pr(r.Mesafe_km || 0), pr(r.Miktar_ton || 0), r.Varsayim ? 1 : 0]) : [];
   const RFI = hasTable('REF_RAFINERI_URUN_ITHALAT') ? Q('select * from REF_RAFINERI_URUN_ITHALAT').map(r => [r.Urun_Katman, r.Rafineri, r.Kargo_Ham || '', pr(r.Ithalat_ton || 0)]) : [];
   // Zorunlu petrol stoku ve kupon (PDM 29.10.2026: REF_STOK_*)
@@ -550,7 +577,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
       return [O(r.Senaryo_ID, r.Vaka_ID), r.Il_ID, tt(r.Ilce || ''), k ? pr(parseFloat(k.Enlem), 4) : null, k ? pr(parseFloat(k.Boylam), 4) : null, U(r.Urun), pr(r.Kayan_ton), pr(r.Km_once || 0), pr(r.Km_sonra || 0)]; }) : [];
     GTS.pr = hasTable('SCN_GTS_PARAMETRE') ? Q('select * from SCN_GTS_PARAMETRE').map(r => [r.Parametre, String(r.Deger), r.Kaynak || '']) : [];
   }
-  const d = { gts: GTS, stk: STK, idg: IDG, rfu: RFU, rfa: RFA, rfi: RFI, eay: EAY, eih: EIH, lpm: LPM, lpmc: LPMC, mgo: MGO, bnk: BNK, dzd: DZD, dzs: DZS, rpu: RPU, rkap: RKAP, trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
+  const d = { gts: GTS, stk: STK, idg: IDG, rfu: RFU, rfa: RFA, tin: TIN, rfi: RFI, eay: EAY, eih: EIH, lpm: LPM, lpmc: LPMC, mgo: MGO, bnk: BNK, dzd: DZD, dzs: DZS, rpu: RPU, rkap: RKAP, trtt: TRTT, trs: TRS, tryt: TRYT, hvd: HVD, trts: TRTS, trt: TRT, trn: TRN, trk: TRK, imx: IMX, iul: IUL, lkg: LKG, aic: AIC, ailk: AILK, rur: RUR, yil: YIL, yilnot: YILNOT, lzp: LZP, lilk: LILK, lilc: LILC, lsin: LSIN, lagi: LAGI, lyt: LYTL, luret: LURET, lihr: LIHR, ltas: LTAS, lbay: LBAY, lpgk: LPGK, lfs: LFS, lith: LITH, lulke: LULKE, lay: LAY, lyil: LYIL, tty: [...TTX.keys()], tr: TR, tk: TK, by: BY, byx: BYX, air: AIR, ug: UG, sep: SEP, term: TERM,
     kay: KAY.map(k => [k.Kaynak_ID, k.Kaynak_Adi, k.Kaynak_Tipi, sg(k.Sirket_ID), tix.has(k.Terminal_ID) ? tix.get(k.Terminal_ID) : -1]), mod: MODS, lted: LTED, il: IL, hub: hubs, sir: SIR, dep: DEP, lf: LF, af: AF, urun: urun.map(u => u.Urun), kan: KAN };
 
   /* ---------------- konsolide ---------------- */
@@ -668,7 +695,7 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
   /* ---------------- build_dash2: panelin tuttuğu alanlar ---------------- */
   const keep = {}; for (const k of ['term', 'kay', 'sir', 'ug', 'sep', 'af', 'lf', 'by', 'mod', 'tk']) keep[k] = d[k];
   keep.bi = d.bi || []; keep.tr = d.tr || []; keep.tty = d.tty || []; keep.lted = d.lted || [];
-  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air', 'hvd', 'trs', 'tryt', 'trtt', 'rpu', 'rkap', 'bnk', 'dzd', 'dzs', 'mgo', 'eay', 'eih', 'lpm', 'lpmc', 'idg', 'rfu', 'rfa', 'rfi']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.stk = d.stk || {}; keep.gts = d.gts || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
+  for (const k of ['lith', 'lulke', 'lay', 'lyil', 'lfs', 'tlis', 'tmeta', 'luret', 'lihr', 'ltas', 'lbay', 'dep', 'lyt', 'lsin', 'lagi', 'lilc', 'lzp', 'lilk', 'trt', 'trn', 'trk', 'trts', 'air', 'hvd', 'trs', 'tryt', 'trtt', 'rpu', 'rkap', 'bnk', 'dzd', 'dzs', 'mgo', 'eay', 'eih', 'lpm', 'lpmc', 'idg', 'rfu', 'rfa', 'rfi']) keep[k] = d[k] || []; keep.lpgk = d.lpgk || {}; keep.tin = d.tin || null; keep.stk = d.stk || {}; keep.gts = d.gts || {}; keep.yil = d.yil || 2025; keep.rur = d.rur || []; keep.aic = d.aic || []; keep.iul = d.iul || []; keep.imx = d.imx || []; keep.lkg = d.lkg || []; keep.ailk = d.ailk || []; keep.yilnot = d.yilnot || '';
   keep.il = d.il.map(r => [r[0], r[1], r[3], r[4]]); keep.hub = d.hub.map(h => ({ ad: h.ad, lat: h.lat, lon: h.lon }));
   const ozet = {
     akaryakit_t: QA('select sum(Miktar_ton) from FACT_AKARYAKIT_AKIS')[0][0], lpg_t: QA('select sum(Miktar_ton) from FACT_LPG_AKIS')[0][0],
