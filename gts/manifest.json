@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.30",
+ "surum": "1.0.31",
  "kabuk": 1,
- "tarih": "2026-11-02T12:56:20+03:00",
- "notlar": "Pazar ve akış: hedef satışa göre; hedef müşteriler dağıtıcılar, her birinin alım miktarı",
+ "tarih": "2026-11-02T13:01:56+03:00",
+ "notlar": "Pazar ve akış: yalnız GTS satış kartı",
  "dosyalar": {
   "ui/index.html": "a780d14c184b6d7566773a6fd3b7322bfbd750703dfda89250446e498976f32a",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "baf0eb1f334d3064ebbf39eb9f0770b9ede70751f67f6f00e769450467a842da",
+  "ui/pano.js": "30683a4de7fd989e1625b74892f5774cc0ab9f8ab8acf51efef6392ad6eacfad",
   "gts_pipeline.js": "a5a8744ca6a315e06703e5b508c23c1ad44fa535dfeeb90772b12f4b6234d31e",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",

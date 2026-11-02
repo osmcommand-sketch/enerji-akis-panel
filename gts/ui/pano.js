@@ -297,10 +297,7 @@ function akis(){
       IK=A.ik.filter(r=>r[0]===oi&&(BZ||r[5])).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],r[6]*fu(r[5]),r[7],r[8]]),
       TM=A.tm.filter(r=>r[0]===oi&&(BZ||r[2])).map(r=>[r[0],r[1],r[2],r[3],r[3]+(r[4]-r[3])*fu(r[2])]);
     const nSir=new Set(KY.map(r=>r[1])).size;
-    $("a-kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı`)
-      +kt("Leg2 motorin",km(o[14]),`önce ${km(o[13])} · ortalama kısalma ${km(o[31])}`)
-      +kt("Dağıtıcıların navlun tasarrufu",usd(o[23]*f),`2026 senaryosundan hacimle ölçekli · GTS geliri ${usd(o[29]*f)}`,o[23]>=0?"pos":"neg")
-      +kt("Azami tarife",nf1.format(o[33])+" $/t",`müşteri navlun tasarrufunun tamamını tarifeye bıraktığında`);
+    $("a-kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı`);
     harita(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $("a-term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
