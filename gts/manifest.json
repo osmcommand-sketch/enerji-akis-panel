@@ -1,14 +1,14 @@
 {
  "uygulama": "gts",
- "surum": "1.0.17",
+ "surum": "1.0.18",
  "kabuk": 1,
- "tarih": "2026-11-02T10:53:43+03:00",
- "notlar": "Paket 64: Karlılık tablosu Excel'deki yapıyla, faaliyet gideri girdileri, net kâr tanımı; formül motorunda YEAR/MONTH/DAY dizi desteği",
+ "tarih": "2026-11-02T11:04:19+03:00",
+ "notlar": "Ticari koşullar: Kur hedge değiştirilebilir (Girdiler B104)",
  "dosyalar": {
   "ui/index.html": "05143802e6238fcc2ff7ad0cdb4b596866c99ff2d4b97c683964c833f37d4aa2",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
   "ui/pano.js": "3ce006ec3e5db968d3b0cdbfb02be88b98ca0c0c97b77b0a746e90193611b562",
-  "gts_pipeline.js": "6de149cf4251c15749f423ba6d013cb957512b4873cca815c234873e52a61d57",
+  "gts_pipeline.js": "35d2aca4afc237015878f874d0858ad6441799623ced7e82bc538820705ba955",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
