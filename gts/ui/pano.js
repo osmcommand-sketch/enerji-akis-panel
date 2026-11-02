@@ -279,21 +279,28 @@ const A=V.akis, VAD={REF:"Referans · 3,5 $/t, MR, 150 bin m³",TARIFE_2:"GTS ta
 const S={sen:"HEDEF_150",vaka:"GERCEKCI_200",ku:"m",fu:"m",rs:0,ms:"Baz",acik:new Set(),hu:"m",hku:"m",hhep:false,hkhep:false};
 const tAd=t=>{ const x=V.term[t]; return x?(x[0]==="T227"?"GTS Dörtyol":x[1]):"?"; };
 const PJ=V.geo.proj, pj=(la,lo)=>[(lo-PJ.minx)*PJ.cos*PJ.sx,(PJ.maxy-la)*PJ.sx];
+/* Pazar ve akış hedef satışa göre (kullanıcı 02.11.2026 12:53): 2026 akış senaryosunun şirket × il × terminal kayma deseni,
+   modelin hedef satışına ölçeklenir; hedef müşteriler dağıtıcılar. */
+function hedefTon(){ const yil=+gir("Seçili motorin (t/yıl)")||(V.hedef?V.hedef.tam*(V.hedef.oran||1):0), sat=oz("Motorin satışı (t)",1);
+  const v=YIL?sat[YIL==="2027"?1:2]:yil; return {yil, v:typeof v==="number"?v:yil, ad:YIL?YIL+" satış":"yıllık hedef"}; }
 function akis(){
-  const sel=$("a-vaka");
+  const sel=$("a-vaka"), HT=hedefTon(); S.sen=HT.yil&&HT.yil<=1125000?"BAZ_075":"HEDEF_150"; { const sg=$("a-sen"); if(sg) sg.hidden=true; }
   const doldur=()=>{ const L=A.oz.filter(r=>r[0]===S.sen); if(!L.some(r=>r[1]===S.vaka)) S.vaka="REF"; let og="",h=""; for(const r of L){ if(r[2]!==og){ if(og) h+="</optgroup>"; h+=`<optgroup label="${esc(r[2])}">`; og=r[2]; } h+=`<option value="${esc(r[1])}">${esc(VAD[r[1]]||r[1])}</option>`; } sel.innerHTML=h+"</optgroup>"; sel.value=S.vaka; };
   sel.onchange=()=>{ S.vaka=sel.value; ciz(); };
   for(const b of $("a-sen").querySelectorAll("button")) b.onclick=()=>{ S.sen=b.dataset.s; for(const x of $("a-sen").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); doldur(); ciz(); };
   doldur(); ciz();
   function ciz(){
-    const oi=A.oz.findIndex(r=>r[0]===S.sen&&r[1]===S.vaka), o=A.oz[oi];
-    $("a-sub").textContent=`${S.sen==="BAZ_075"?"Baz · 0,75 Mt":"Hedef · 1,5 Mt"} · ${VAD[S.vaka]||S.vaka}`;
+    const oi=A.oz.findIndex(r=>r[0]===S.sen&&r[1]===S.vaka), o=A.oz[oi], f=o[9]>0?HT.v/o[9]:1, fb=BZ?f:0, fu=u=>u?f:fb;
+    $("a-sub").textContent=`${HT.ad} ${ton(HT.v)} · dağılım deseni: 2026 akışı, ${S.sen==="BAZ_075"?"Baz 0,75 Mt":"Hedef 1,5 Mt"} senaryosu · ${VAD[S.vaka]||S.vaka}`;
     const kt=(l,v,s,c="")=>`<div class="kt ${c}" style="grid-column:span 3"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
-    $("a-kart").innerHTML=kt("GTS'ye kayan",ton(o[9]+o[10]),`motorin ${ton(o[9])} · benzin ${ton(o[10])}${o[12]>=0.5?` · <b style="color:${C.neg}">hedef açığı ${ton(o[12])}</b>`:""}`)
+    const KY=A.ky.filter(r=>r[0]===oi&&(BZ||r[3])).map(r=>{ const q=fu(r[3]); return [r[0],r[1],r[2],r[3],r[4],r[5],r[6]*q,r[7]*q,r[8],r[9]]; }),
+      IK=A.ik.filter(r=>r[0]===oi&&(BZ||r[5])).map(r=>[r[0],r[1],r[2],r[3],r[4],r[5],r[6]*fu(r[5]),r[7],r[8]]),
+      TM=A.tm.filter(r=>r[0]===oi&&(BZ||r[2])).map(r=>[r[0],r[1],r[2],r[3],r[3]+(r[4]-r[3])*fu(r[2])]);
+    const nSir=new Set(KY.map(r=>r[1])).size;
+    $("a-kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı`)
       +kt("Leg2 motorin",km(o[14]),`önce ${km(o[13])} · ortalama kısalma ${km(o[31])}`)
-      +kt("Müşteri neti",usd(o[30]),`navlun tasarrufu ${usd(o[23])} · GTS geliri ${usd(o[29])}`,o[30]>=0?"pos":"neg")
-      +kt("Azami tarife",nf1.format(o[33])+" $/t",`devir ${nf1.format(o[21])} / yıl · ${o[32]} şirket`);
-    const KY=A.ky.filter(r=>r[0]===oi), IK=A.ik.filter(r=>r[0]===oi), TM=A.tm.filter(r=>r[0]===oi);
+      +kt("Dağıtıcıların navlun tasarrufu",usd(o[23]*f),`2026 senaryosundan hacimle ölçekli · GTS geliri ${usd(o[29]*f)}`,o[23]>=0?"pos":"neg")
+      +kt("Azami tarife",nf1.format(o[33])+" $/t",`müşteri navlun tasarrufunun tamamını tarifeye bıraktığında`);
     harita(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $("a-term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
@@ -301,11 +308,13 @@ function akis(){
     const SM=new Map(); for(const r of KY){ const x=SM.get(r[1])||SM.set(r[1],{v:[0,0],it:0,ko:0,ks:0,il:new Map()}).get(r[1]); x.v[r[3]]+=r[6]; x.it+=r[7]; x.ko+=r[6]*r[8]; x.ks+=r[6]*r[9]; const y=x.il.get(r[2])||x.il.set(r[2],{v:[0,0],ko:0,ks:0}).get(r[2]); y.v[r[3]]+=r[6]; y.ko+=r[6]*r[8]; y.ks+=r[6]*r[9]; }
     const SL=[...SM].sort((a,b)=>(b[1].v[0]+b[1].v[1])-(a[1].v[0]+a[1].v[1]));
     const kk=(x)=>{ const t=x.v[0]+x.v[1]; return t?`${nf.format(x.ko/t)} → ${nf.format(x.ks/t)}`:""; };
-    let h=`<thead><tr><th class="l">Şirket / il</th><th>Motorin</th><th>Benzin</th><th>İthal payı</th><th>Leg2 km önce → sonra</th></tr></thead><tbody>`;
-    for(const [s,x] of SL){ const ac=S.acik.has(s); h+=`<tr class="top" data-s="${s}" aria-expanded="${ac}"><td class="l">${ac?"▾":"▸"} ${esc(V.sir[s]||"?")} <span class="muted">· ${x.il.size} il</span></td><td>${ton(x.v[1])}</td><td>${ton(x.v[0])}</td><td>${pct(x.v[1]?x.it/x.v[1]:0)}</td><td>${kk(x)}</td></tr>`;
-      if(ac) for(const [i,y] of [...x.il].sort((a,b)=>(b[1].v[0]+b[1].v[1])-(a[1].v[0]+a[1].v[1]))) h+=`<tr><td class="l" style="padding-left:28px">${esc(V.il[i]||"?")}</td><td>${ton(y.v[1])}</td><td>${ton(y.v[0])}</td><td></td><td>${kk(y)}</td></tr>`; }
+    const TOP=SL.reduce((a,[,x])=>a+x.v[0]+x.v[1],0)||1, ay=YIL?12:12;
+    let h=`<thead><tr><th class="l">Dağıtıcı / il</th><th>Pay</th><th>${YIL?YIL+" alım":"Yıllık alım"}<br><span>motorin, t</span></th>${BZ?"<th>Benzin, t</th>":""}<th>Aylık ort.<br><span>t/ay</span></th><th>Leg2 km önce → sonra</th></tr></thead><tbody>`;
+    for(const [s,x] of SL){ const ac=S.acik.has(s), t=x.v[0]+x.v[1]; h+=`<tr class="top" data-s="${s}" aria-expanded="${ac}"><td class="l">${ac?"▾":"▸"} <b>${esc(V.sir[s]||"?")}</b> <span class="muted">· ${esc((V.sirg&&V.sirg[s])||"")}${V.sirg&&V.sirg[s]?" · ":""}${x.il.size} il</span></td><td class="muted">${pct(t/TOP)}</td><td><b>${ton(x.v[1])}</b></td>${BZ?`<td>${ton(x.v[0])}</td>`:""}<td>${ton((x.v[0]+x.v[1])/ay)}</td><td>${kk(x)}</td></tr>`;
+      if(ac) for(const [i,y] of [...x.il].sort((a,b)=>(b[1].v[0]+b[1].v[1])-(a[1].v[0]+a[1].v[1]))) h+=`<tr><td class="l" style="padding-left:28px">${esc(V.il[i]||"?")}</td><td class="muted">${pct((y.v[0]+y.v[1])/TOP)}</td><td>${ton(y.v[1])}</td>${BZ?`<td>${ton(y.v[0])}</td>`:""}<td>${ton((y.v[0]+y.v[1])/ay)}</td><td>${kk(y)}</td></tr>`; }
+    h+=`<tr class="top"><td class="l"><b>Toplam</b></td><td class="muted">%100</td><td><b>${ton(SL.reduce((a,[,x])=>a+x.v[1],0))}</b></td>${BZ?`<td>${ton(SL.reduce((a,[,x])=>a+x.v[0],0))}</td>`:""}<td>${ton(TOP/ay)}</td><td></td></tr>`;
     const tb=$("a-sir"); tb.innerHTML=h+`</tbody>`; for(const tr of tb.querySelectorAll("tr[data-s]")) tr.onclick=()=>{ const s=+tr.dataset.s; S.acik.has(s)?S.acik.delete(s):S.acik.add(s); ciz(); };
-    $("a-ssub").textContent=`${SM.size} şirket · satıra tıklayınca iller açılır`;
+    $("a-ssub").textContent=`${SM.size} dağıtıcı · ${HT.ad} ${ton(HT.v)} 2026 akışındaki paylarına göre · satıra tıklayınca iller açılır`;
   }
 }
 function harita(KY,IK,TM){

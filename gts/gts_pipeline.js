@@ -111,7 +111,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   for (const r of G.tm) used.add(r[1]); for (const r of G.ky) { used.add(r[4]); used.add(r[5]); }
   const TM = {}; for (const t of [...used].filter((x) => x >= 0).sort((a, b) => a - b)) { const T = D.term[t], h = D.hub[T[2]]; TM[t] = [T[0], T[1], h.ad, h.lat, h.lon]; }
   O.akis = { oz: G.oz, tm: G.tm, ky: G.ky, ik: G.ik, pr: G.pr }; O.term = TM;
-  O.sir = {}; D.sir.forEach((s, i) => (O.sir[i] = s[1]));
+  O.sir = {}; O.sirg = {}; D.sir.forEach((s, i) => { O.sir[i] = s[1]; if (s[2] && s[2] !== s[1]) O.sirg[i] = s[2]; });
   O.il = {}; for (const r of D.il) O.il[r[0]] = r[1];
   const g = JSON.parse(fs.readFileSync(path.join(resDir, 'tr_svg.json'), 'utf8')); O.geo = { p: g.p, c: g.c, proj: g.proj, w: g.w, h: g.h };
   // SCN_GTS_TANK_GENEL / BENZIN_LOT
