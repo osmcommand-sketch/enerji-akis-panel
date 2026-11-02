@@ -322,7 +322,7 @@ function akis(){
 }
 const KAYG={M:["Mersin'den",C.gts],B:["Tüpraş Batman'dan","#7B4FA0"],K:["Tüpraş Kırıkkale'den","#2A8C8C"]};
 const kayGrp=t=>{ const c=V.term[t]&&V.term[t][0]; return c==="T13"?"B":c==="T21"?"K":"M"; };
-function harita(KY,IK,TM){
+function harita(KY,IK,TM,SF){
   const G=V.geo, u=G.w/1000, add=(m,k,x)=>m.set(k,(m.get(k)||0)+x);
   const IV=new Map(), IU=new Map(); for(const r of KY){ add(IV,r[2],r[6]); const o=IU.get(r[2])||IU.set(r[2],[0,0,0,0]).get(r[2]); o[r[3]]+=r[6]; o[2]+=r[6]*r[8]; o[3]+=r[6]*r[9]; }
   const mx=Math.max(1,...IV.values());
@@ -338,7 +338,10 @@ function harita(KY,IK,TM){
   for(const [t,d] of [...TV].sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))){ const x=V.term[t]; if(!x) continue; const [px,py]=pj(x[3],x[4]), r=Math.max(2.2*u,14*u*Math.sqrt(Math.abs(d)/mT)), g=d>0;
     nd+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r.toFixed(1)}" fill="${g?C.gts:"#fff"}" fill-opacity="${g?".92":".65"}" stroke="${g?"#fff":C.neg}" stroke-width="${(1.2*u).toFixed(2)}"><title>${esc(tAd(t))}: ${g?"+":""}${ton(d)}</title></circle>`;
     if(g||Math.abs(d)>=0.3*mT) lb+=`<text x="${(px+(g?-r-4*u:r+3*u)).toFixed(1)}" y="${(py+(g?-r:3*u)).toFixed(1)}" text-anchor="${g?"end":"start"}" style="font:${(10*u).toFixed(1)}px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:${(3*u).toFixed(1)}">${esc(tAd(t))}</text>`; }
-  $("a-harita").innerHTML=`<svg viewBox="0 0 ${G.w} ${G.h}" role="img" aria-label="GTS'ye kayan hacim haritası">${m}<g>${e}</g><g>${dt}</g><g>${nd}</g><g style="pointer-events:none">${lb}</g></svg><div class="lg">${["M","B","K"].filter(g=>KY.some(r=>kayGrp(r[4])===g)).map(g=>`<span><i style="background:${KAYG[g][1]};height:4px"></i>GTS → il · bugün ${KAYG[g][0]}</span>`).join("")}<span><i class="k" style="background:#fff;border:1.5px solid ${C.neg};border-radius:50%"></i>hacim kaybeden terminal</span>${IK.length?`<span><i class="k" style="background:${C.pos};border-radius:50%"></i>ilçe · Leg2 kısalması ≥ 100 km (koyu)</span>`:`<span class="muted">ilçe noktaları yalnız referans vakada</span>`}</div>`;
+  let sf=""; if(SF&&SF.length){ const ms=Math.max(1,...SF.map(r=>r[1])); for(const [t,v,k] of [...SF].sort((a,b)=>b[1]-a[1])){ const x=V.term[t]; if(!x||x[0]==="T227") continue; const [px,py]=pj(x[3],x[4]), a=Math.max(3*u,13*u*Math.sqrt(v/ms));
+      sf+=`<rect x="${(px-a/2).toFixed(1)}" y="${(py-a/2).toFixed(1)}" width="${a.toFixed(1)}" height="${a.toFixed(1)}" rx="${(1.5*u).toFixed(1)}" fill="${C.mot}" fill-opacity=".78" stroke="#fff" stroke-width="${(0.8*u).toFixed(2)}"><title>${esc(tAd(t))} · 2026 motorin ikmali ${ton(v)}${k>=0.5?` · GTS'ye kayan ${ton(k)}`:""}</title></rect>`
+        +(v>=0.08*ms&&!TV.has(t)?`<text x="${(px+a/2+3*u).toFixed(1)}" y="${(py+3*u).toFixed(1)}" style="font:${(9.5*u).toFixed(1)}px var(--f-body);fill:${C.mot};paint-order:stroke;stroke:#fff;stroke-width:${(3*u).toFixed(1)}">${esc(tAd(t))} ${ton(v)}</text>`:""); } }
+  $("a-harita").innerHTML=`<svg viewBox="0 0 ${G.w} ${G.h}" role="img" aria-label="GTS'ye kayan hacim haritası">${m}<g>${e}</g><g>${dt}</g><g>${nd}</g><g>${sf}</g><g style="pointer-events:none">${lb}</g></svg><div class="lg">${["M","B","K"].filter(g=>KY.some(r=>kayGrp(r[4])===g)).map(g=>`<span><i style="background:${KAYG[g][1]};height:4px"></i>GTS → il · bugün ${KAYG[g][0]}</span>`).join("")}<span><i class="k" style="background:#fff;border:1.5px solid ${C.neg};border-radius:50%"></i>hacim kaybeden terminal</span>${SF&&SF.length?`<span><i class="k" style="background:${C.mot};border-radius:2px"></i>şirketin ikmal noktaları · 2026 motorin</span>`:""}${IK.length?`<span><i class="k" style="background:${C.pos};border-radius:50%"></i>ilçe · Leg2 kısalması ≥ 100 km (koyu)</span>`:`<span class="muted">ilçe noktaları yalnız referans vakada</span>`}</div>`;
 }
 /* Dağıtıcı paneli (kullanıcı 02.11.2026 13:15): tıklanan dağıtıcı haritayı filtreler; 10 kt altı "Diğer" altında toplanır */
 const DAG_ESIK=20000;
@@ -347,7 +350,8 @@ function dagPanel(KY,IK,TM){
   const L=[...SM].sort((a,b)=>b[1].t-a[1].t), B=L.filter(([,o])=>o.t>=DAG_ESIK), K=L.filter(([,o])=>o.t<DAG_ESIK), TT=L.reduce((a,[,o])=>a+o.t,0);
   if(S.dsec!=null&&S.dsec!=="diger"&&!SM.has(S.dsec)) S.dsec=null; if(S.dsec==="diger"&&!K.length) S.dsec=null;
   const secili=S.dsec==null?null:S.dsec==="diger"?new Set(K.map(([s])=>s)):new Set([S.dsec]);
-  if(secili){ const KYf=KY.filter(r=>secili.has(r[1])), TMf=[]; for(const r of KYf){ TMf.push([0,r[4],r[3],r[6],0],[0,r[5],r[3],0,r[6]]); } harita(KYf,[],TMf); }
+  if(secili){ const KYf=KY.filter(r=>secili.has(r[1])), TMf=[]; for(const r of KYf){ TMf.push([0,r[4],r[3],r[6],0],[0,r[5],r[3],0,r[6]]); }
+    const SF=S.dsec!=="diger"?(V.saf||[]).filter(r=>r[0]===S.dsec).map(r=>[r[1],r[2],KYf.filter(k=>k[4]===r[1]).reduce((a,k)=>a+k[6],0)]):null; harita(KYf,[],TMf,SF); }
   else harita(KY,IK,TM);
   const kk=o=>o.t?`${nf.format(o.ko/o.t)} → ${nf.format(o.ks/o.t)} km`:"";
   const sat=(key,ad,alt,v,on)=>`<button type="button" class="r dg${on?" on":""}" data-d="${key}" aria-pressed="${on}"><span>${ad}${alt?`<br><small class="muted">${alt}</small>`:""}</span><b>${v}</b></button>`;

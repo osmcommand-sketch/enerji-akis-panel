@@ -109,6 +109,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   const O = {};
   const G = D.gts, used = new Set();
   for (const r of G.tm) used.add(r[1]); for (const r of G.ky) { used.add(r[4]); used.add(r[5]); }
+  { const ks = new Set(G.ky.map((r) => r[1])), sa = new Map(); for (const r of D.af || []) if (r[3] === 1 && ks.has(r[0])) { const k = r[0] + '|' + r[1]; sa.set(k, (sa.get(k) || 0) + r[6]); }
+    O.saf = [...sa].filter(([, v]) => v >= 500).map(([k, v]) => { const [a, b] = k.split('|').map(Number); return [a, b, Math.round(v)]; }); for (const r of O.saf) used.add(r[1]); }
   const TM = {}; for (const t of [...used].filter((x) => x >= 0).sort((a, b) => a - b)) { const T = D.term[t], h = D.hub[T[2]]; TM[t] = [T[0], T[1], h.ad, h.lat, h.lon]; }
   O.akis = { oz: G.oz, tm: G.tm, ky: G.ky, ik: G.ik, pr: G.pr }; O.term = TM;
   O.sir = {}; O.sirg = {}; D.sir.forEach((s, i) => { O.sir[i] = s[1]; if (s[2] && s[2] !== s[1]) O.sirg[i] = s[2]; });
