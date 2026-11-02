@@ -18,7 +18,8 @@ const ND=V.gm.length;
 const BZ=V.gb.reduce((a,r)=>a+r[0],0)>0.5;
 const bzs=a=>BZ?a:a.filter(x=>!/benzin/i.test(x.ad||""));
 /* yıl filtresi (kullanıcı 01.11.2026): "" = tüm dönem, "2027", "2028" */
-let YIL=""; try{ YIL=localStorage.getItem("gts.yil")||""; }catch{}
+/* Pano 2027'ye kilitli (kullanıcı 02.11.2026 11:08); kaldırmak için KILIT="" */
+const KILIT="2027"; let YIL=KILIT; if(!KILIT) try{ YIL=localStorage.getItem("gts.yil")||""; }catch{}
 const PEN={i0:0,n:ND}; const penAyarla=()=>{ if(!YIL){ PEN.i0=0; PEN.n=ND; return; } let a=-1,b=-1; for(let i=0;i<ND;i++) if(String(gun(i).getUTCFullYear())===YIL){ if(a<0) a=i; b=i; } if(a<0){ YIL=""; PEN.i0=0; PEN.n=ND; } else { PEN.i0=a; PEN.n=b-a+1; } };
 const yilOk=s=>!YIL||String(s).slice(0,4)===YIL;
 
@@ -97,7 +98,7 @@ function goster(v){ if(!SEK.includes(v)) v="genel";
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
   if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,ekonomi,hedge,risk,varsayim})[v](); } }
-{ const ys=$("yilsec"); if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
+{ const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
 for(const b of document.querySelectorAll(".tabs [data-v]")) b.addEventListener("click",()=>{ if(location.hash!=="#"+b.dataset.v) location.hash=b.dataset.v; else goster(b.dataset.v); });
@@ -112,7 +113,7 @@ function wfKart(baslik,K,toplam,alt){
   return `<section><div class="head"><h2>${esc(baslik)}</h2><span class="sub">${alt}</span></div><div class="wf" role="img" aria-label="${esc(baslik)} köprüsü">${h}</div></section>`;
 }
 function genel(){
-  { const y0=V.g0.slice(0,4), y1=String(new Date(Date.parse(V.g0+"T00:00:00Z")+(V.gm.length-1)*864e5).getUTCFullYear()); $("g-h").textContent=(y0===y1?y0:y0+"–"+y1)+" senaryo modeli"; }
+  { const y0=V.g0.slice(0,4), y1=String(new Date(Date.parse(V.g0+"T00:00:00Z")+(V.gm.length-1)*864e5).getUTCFullYear()); $("g-h").textContent=(KILIT||(y0===y1?y0:y0+"–"+y1))+" senaryo modeli"; }
   const Y=k=>oz(k,1), top=Y("Toplam (USD)"), sm=Y("Motorin satışı (t)"), sb=Y("Benzin satışı (t)"), ora=Y("Satış / hedef tonaj"), tem=Y("Tepe teminat bakiyesi (TL)"), gv=Y("Gemi varışı (adet, varış tarihine göre)");
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
   const nk=j=>SIRKET&&typeof top[j]==="number"?top[j]:(Y("Net marj (USD)")[j]||0)-(Y("Vergi + beyanname maliyeti (USD)")[j]||0), nkNot=V.kartab?"hedge ve faaliyet giderleri dahil, kurumlar vergisi öncesi":"hedge dahil, vergi sonrası";
@@ -352,7 +353,7 @@ function operasyon(){
 /* ---------- EKONOMİ ---------- */
 function ekonomi(){
   const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],...(V.kartab?[["Diğer faaliyet giderleri (USD)",x=>musd(-x),1]]:[]),["Bölgesel navlun avantajı (USD)",musd,1],["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
-  $("e-yil").classList.toggle("y27",YIL==="2027"); $("e-yil").classList.toggle("y28",YIL==="2028");
+  $("e-yil").classList.toggle("kilit",!!KILIT); { const z=$("e-ozsec"); if(z) z.hidden=!!KILIT; } $("e-yil").classList.toggle("y27",YIL==="2027"&&!KILIT); $("e-yil").classList.toggle("y28",YIL==="2028");
   $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const fg=l.startsWith("Diğer faaliyet")?(V.kartab.rows.find(x=>/Ozet'e eklenen/.test(x[0]))||[l,0,0,0]):null, r=fg||oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi")||!!fg; const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc((SIRKET&&l==="Toplam (USD)"?(V.kartab?"Net kâr (USD)":"Şirket sonucu (USD)"):SIRKET&&l==="Toplam (USD/t)"?(V.kartab?"Net kâr (USD/t)":"Şirket sonucu (USD/t)"):SIRKET&&l.startsWith("Bölgesel")?"Bölgesel navlun avantajı – bayiye kalır, bilgi (USD)":l).replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","Vergi ve beyanname (−)"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
   // aylık net marj
   const ay=new Map(); const ek=(L,u)=>{ for(const k of L){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,n:0}).get(key); o[u]+=k[13]; o.n++; } };
@@ -448,15 +449,16 @@ function iki(){
   $("r-iki").hidden=!IZ.length&&!M2.length; if(!IZ.length&&!M2.length) return;
   const vs=+gir("Satış vadesi (gün)")||17;
   const R=[...IZ].sort((a,b)=>(a[1]===b[1]?0:a[1]==="Açık"?-1:1)||a[4]-b[4]||a[2]-b[2]||a[3]-b[3]);
-  const mx=Math.max(1,...R.map(r=>Math.abs(r[5]+r[6])));
-  $("r-izg").innerHTML=`<thead><tr><th class="l">Ürün hedge</th><th>Vade</th><th>Parti</th><th>İkinci liman</th><th>Net kâr 2027<br><span>M $</span></th><th>2028</th><th>İki yıl</th><th class="l bar-h">iki yıl</th></tr></thead><tbody>`+R.map(r=>{ const t=r[5]+r[6], v=r[2]===40&&r[3]===60000&&r[4]===17&&r[1]==="Açık";
-    return `<tr class="${v?"varsay":""}"><td class="l">${esc(r[1])}${v?' <span class="chip">varsayılan</span>':""}</td><td>${r[4]?nf.format(r[4])+" gün":"peşin"}</td><td>${nf.format(r[2])} kt</td><td>${r[3]?nf.format(r[3])+" $":"yok"}</td><td class="${cl(r[5])}">${mm(r[5])}</td><td class="${cl(r[6])}">${mm(r[6])}</td><td class="${cl(t)}"><b>${mm(t)}</b></td><td class="l bar"><i class="${t<0?"n":"p"}" style="width:${(Math.abs(t)/mx*100).toFixed(1)}%"></i></td></tr>`; }).join("")+`</tbody>`;
+  const K7=YIL==="2027", K8=YIL==="2028", tt=r=>K7?r[5]:K8?r[6]:r[5]+r[6], mx=Math.max(1,...R.map(r=>Math.abs(tt(r))));
+  $("r-izg").innerHTML=`<thead><tr><th class="l">Ürün hedge</th><th>Vade</th><th>Parti</th><th>İkinci liman</th>${YIL?`<th>Net kâr ${YIL}<br><span>M $</span></th>`:`<th>Net kâr 2027<br><span>M $</span></th><th>2028</th><th>İki yıl</th>`}<th class="l bar-h">${YIL||"iki yıl"}</th></tr></thead><tbody>`+R.map(r=>{ const t=tt(r), v=r[2]===40&&r[3]===60000&&r[4]===17&&r[1]==="Açık";
+    return `<tr class="${v?"varsay":""}"><td class="l">${esc(r[1])}${v?' <span class="chip">varsayılan</span>':""}</td><td>${r[4]?nf.format(r[4])+" gün":"peşin"}</td><td>${nf.format(r[2])} kt</td><td>${r[3]?nf.format(r[3])+" $":"yok"}</td>${YIL?`<td class="${cl(t)}"><b>${mm(t)}</b></td>`:`<td class="${cl(r[5])}">${mm(r[5])}</td><td class="${cl(r[6])}">${mm(r[6])}</td><td class="${cl(t)}"><b>${mm(t)}</b></td>`}<td class="l bar"><i class="${t<0?"n":"p"}" style="width:${(Math.abs(t)/mx*100).toFixed(1)}%"></i></td></tr>`; }).join("")+`</tbody>`;
   const SO={Baz:0,"Ayı":1,"Boğa":2}, M=[...M2].sort((a,b)=>(SO[a[0]]??9)-(SO[b[0]]??9)||b[2]-a[2]);
   const cfg=c=>{ const m=/^(\d+)kt_L(\d+)k_V(\d+)/.exec(c); return m?`${m[1]} kt · ikinci liman ${+m[2]?m[2]+" bin $":"yok"} · ${+m[3]?"vade "+m[3]+" gün":"peşin"}`:c; };
   const hc=o=>`<td class="${cl(o[2])}">${mm(o[2])}</td><td class="muted">${mm(o[1])} … ${mm(o[3])}</td><td class="${o[4]>=.5?"n":""}"><b>%${nf.format(o[4]*100)}</b></td>`;
-  $("r-mc2").innerHTML=`<thead><tr><th class="l">Senaryo</th><th class="l">Koşul</th><th>Yol</th><th>2027 medyan<br><span>M $</span></th><th>P10 … P90</th><th>Zarar olas.</th><th>2028 medyan</th><th>P10 … P90</th><th>Zarar olas.</th><th>İki yıl medyan</th><th>P10 … P90</th><th>Zarar olas.</th></tr></thead><tbody>`
-    +M.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(cfg(r[1]))}</td><td>${r[2]}</td>${hc(r[3])}${hc(r[4])}${hc(r[5])}</tr>`).join("")+`</tbody>`;
-  $("r-izsub").textContent=`Makul fiyat yolu · net kâr (hedge dahil, vergi sonrası) · ${IZ.length} çalıştırma`;
+  $("r-mc2").innerHTML=`<thead><tr><th class="l">Senaryo</th><th class="l">Koşul</th><th>Yol</th>${(YIL?[YIL]:["2027","2028","İki yıl"]).map((y,k)=>`<th>${y} medyan${k?"":"<br><span>M $</span>"}</th><th>P10 … P90</th><th>Zarar olas.</th>`).join("")}<th></tr></thead><tbody>`
+    +M.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(cfg(r[1]))}</td><td>${r[2]}</td>${K7?hc(r[3]):K8?hc(r[4]):hc(r[3])+hc(r[4])+hc(r[5])}</tr>`).join("")+`</tbody>`;
+  $("r-izsub").textContent=`Makul fiyat yolu · net kâr${YIL?" "+YIL:""} · ${IZ.length} çalıştırma`; const h2=$("r-iki").querySelector("h2"); if(h2) h2.textContent=YIL?`${YIL} sonuçları · parti, liman, vade ve hedge`:"İki yıllık sonuçlar · parti, liman, vade ve hedge";
+  { const f=document.querySelector('[data-v="risk"] .head .sub'); if(f&&YIL) f.textContent=`${YIL} · kullanıcı fiyat modelleri · P10–P90 bandı, P50 ve temsili yol`; }
 }
 
 /* ---------- RİSK: tarihsel test ve hedge kalibrasyonu ---------- */
@@ -467,9 +469,9 @@ function tarihsel(){
   $("r-tkpi").innerHTML=(u20?kt("Hedge etkinliği",`%${nf.format(u20[6]*100)}`,`${u20[0]} iş günü · 1:1 ICE ile CIF Med fiyat oynaklığının karşılanan payı`)+kt("Beta (CIF / ICE)",nf2.format(u20[1]),`R² ${nf2.format(u20[2])} · ${u20[0]} iş günü`):"")
     +(bz("CIF Med − ICE")!=null?kt("Baz riski",`${nf1.format(bz("CIF Med − ICE"))} ± ${nf1.format(bz("Baz standart")||0)} $/t`,`CIF Med − ICE front ortalama ± std · aralık ${esc(String(bz("Baz en düşük")||"").replace(/\./g,",").replace(/-/g,"−").replace(" / "," … "))}`):"")
     +(bz("ICE devir")!=null?kt("ICE devir maliyeti",`${esc(String(bz("ICE devir")).split("/")[1]||"").trim().replace(".",",").replace("-","−")} $/t`,`${esc(String(bz("ICE devir")).split("/")[0]).trim()} devir ortalaması · geriye doğru eğri`):"");
-  const B=H.bt, mx=Math.max(1,...B.map(r=>Math.abs(r[3]))), mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)), cl=v=>v<0?"n":"p";
-  $("r-tbt").innerHTML=`<thead><tr><th class="l">Hedge kurgusu</th><th>Yıl 1<br><span>≈2024</span></th><th>Yıl 2<br><span>≈2025</span></th><th>İki yıl<br><span>M $</span></th><th class="l bar-h">iki yıl</th></tr></thead><tbody>`
-    +B.map(r=>`<tr><td class="l">${esc(r[0])}</td><td class="${cl(r[1])}">${mm(r[1])}</td><td class="${cl(r[2])}">${mm(r[2])}</td><td class="${cl(r[3])}"><b>${mm(r[3])}</b></td><td class="l bar"><i class="${r[3]<0?"n":"p"}" style="width:${(Math.abs(r[3])/mx*100).toFixed(1)}%"></i></td></tr>`).join("")+`</tbody>`;
+  const B=H.bt, Y1=YIL==="2027", Y2=YIL==="2028", bt=r=>Y1?r[1]:Y2?r[2]:r[3], mx=Math.max(1,...B.map(r=>Math.abs(bt(r)))), mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)), cl=v=>v<0?"n":"p";
+  $("r-tbt").innerHTML=`<thead><tr><th class="l">Hedge kurgusu</th>${Y1?`<th>Yıl 1 · 2027 karşılığı<br><span>≈2024 · M $</span></th>`:Y2?`<th>Yıl 2 · 2028 karşılığı<br><span>≈2025 · M $</span></th>`:`<th>Yıl 1<br><span>≈2024</span></th><th>Yıl 2<br><span>≈2025</span></th><th>İki yıl<br><span>M $</span></th>`}<th class="l bar-h">${Y1?"yıl 1":Y2?"yıl 2":"iki yıl"}</th></tr></thead><tbody>`
+    +B.map(r=>`<tr><td class="l">${esc(r[0])}</td>${Y1||Y2?`<td class="${cl(bt(r))}"><b>${mm(bt(r))}</b></td>`:`<td class="${cl(r[1])}">${mm(r[1])}</td><td class="${cl(r[2])}">${mm(r[2])}</td><td class="${cl(r[3])}"><b>${mm(r[3])}</b></td>`}<td class="l bar"><i class="${bt(r)<0?"n":"p"}" style="width:${(Math.abs(bt(r))/mx*100).toFixed(1)}%"></i></td></tr>`).join("")+`</tbody>`;
   $("r-tuf").innerHTML=`<thead><tr><th>Ufuk<br><span>iş günü</span></th><th>Beta</th><th>R²</th><th>Oynaklık hedgesiz<br><span>$/t std</span></th><th>1:1 hedge ile</th><th>Etkinlik</th><th>Ort. CIF değişimi</th><th>Ort. ICE (devir ayarlı)</th></tr></thead><tbody>`
     +H.ufuk.map(r=>`<tr${r[0]===20?' class="varsay"':""}><td>${r[0]}</td><td>${nf2.format(r[1])}</td><td>${nf2.format(r[2])}</td><td>${nf1.format(r[3])}</td><td>${nf1.format(r[4])}</td><td><b>%${nf.format(r[6]*100)}</b></td><td class="${cl(r[7])}">${mm(r[7])}</td><td class="${cl(r[8])}">${mm(r[8])}</td></tr>`).join("")+`</tbody>`;
   $("r-tok").innerHTML=H.okuma.map(x=>`<li>${esc(x)}</li>`).join("");

@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.18",
+ "surum": "1.0.19",
  "kabuk": 1,
- "tarih": "2026-11-02T11:04:19+03:00",
- "notlar": "Ticari koşullar: Kur hedge değiştirilebilir (Girdiler B104)",
+ "tarih": "2026-11-02T11:10:40+03:00",
+ "notlar": "Pano 2027'ye kilitlendi: yıl filtresi gizli, tüm tablo ve göstergeler yalnız 2027",
  "dosyalar": {
-  "ui/index.html": "05143802e6238fcc2ff7ad0cdb4b596866c99ff2d4b97c683964c833f37d4aa2",
+  "ui/index.html": "fd83f83dcb86669d53d05ab563f1be3edc9560d5c32cd64c4ed5efa6531f95de",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "3ce006ec3e5db968d3b0cdbfb02be88b98ca0c0c97b77b0a746e90193611b562",
+  "ui/pano.js": "4164ac077e293e117644d8195e4d5f5cd0b6efd1ca00ce8b6b1de0d802cda49d",
   "gts_pipeline.js": "35d2aca4afc237015878f874d0858ad6441799623ced7e82bc538820705ba955",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
