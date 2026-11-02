@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.32",
+ "surum": "1.0.33",
  "kabuk": 1,
- "tarih": "2026-11-02T13:06:39+03:00",
- "notlar": "Pazar ve akış: açıklama ve vaka seçimi kaldırıldı",
+ "tarih": "2026-11-02T13:17:15+03:00",
+ "notlar": "Pazar ve akış: harita yanında dağıtıcılar; tıklayınca harita filtrelenir, 10 kt altı Diğer",
  "dosyalar": {
-  "ui/index.html": "ff6d17445e5e35244e973e461b7abb80987f82859c1083e5f6ff97509b646363",
+  "ui/index.html": "d244fd220177b5668f22e56cf37d740a3530edd772f01249185809ba06aa0336",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "1f977c64924175ea0b55494166894aaa5a9832fb44271dba86a66ae99c6e03d5",
+  "ui/pano.js": "b5922d662d9ef4be6f5148b3ea8fec29248e9125da81d8dcf260b701ca678625",
   "gts_pipeline.js": "a5a8744ca6a315e06703e5b508c23c1ad44fa535dfeeb90772b12f4b6234d31e",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",

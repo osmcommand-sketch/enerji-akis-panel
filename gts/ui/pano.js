@@ -276,7 +276,7 @@ function ticari(){
 
 /* ---------- PAZAR VE AKIŞ ---------- */
 const A=V.akis, VAD={REF:"Referans · 3,5 $/t, MR, 150 bin m³",TARIFE_2:"GTS tarifesi 2 $/t",TARIFE_5:"GTS tarifesi 5 $/t",RAKIP_MERSIN_YARI:"Mersin tarifesi yarıya iner",RAKIP_MERSIN_TAM:"Mersin tarifesi sıfırlanır",GEMI_LR1:"LR1 gemi",GEMI_LR2:"LR2 gemi",TANK_120:"Tank 120 bin m³",TANK_200:"Tank 200 bin m³",DEVIR_12:"Azami devir 12",GERCEKCI:"Gerçekçi: Mersin −%50, LR2, devir 12",GERCEKCI_200:"Gerçekçi + tank 200 bin m³"};
-const S={sen:"HEDEF_150",vaka:"GERCEKCI_200",ku:"m",fu:"m",rs:0,ms:"Baz",acik:new Set(),hu:"m",hku:"m",hhep:false,hkhep:false};
+const S={dsec:null,sen:"HEDEF_150",vaka:"GERCEKCI_200",ku:"m",fu:"m",rs:0,ms:"Baz",acik:new Set(),hu:"m",hku:"m",hhep:false,hkhep:false};
 const tAd=t=>{ const x=V.term[t]; return x?(x[0]==="T227"?"GTS Dörtyol":x[1]):"?"; };
 const PJ=V.geo.proj, pj=(la,lo)=>[(lo-PJ.minx)*PJ.cos*PJ.sx,(PJ.maxy-la)*PJ.sx];
 /* Pazar ve akış hedef satışa göre (kullanıcı 02.11.2026 12:53): 2026 akış senaryosunun şirket × il × terminal kayma deseni,
@@ -298,7 +298,7 @@ function akis(){
       TM=A.tm.filter(r=>r[0]===oi&&(BZ||r[2])).map(r=>[r[0],r[1],r[2],r[3],r[3]+(r[4]-r[3])*fu(r[2])]);
     const nSir=new Set(KY.map(r=>r[1])).size;
     $("a-kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı`);
-    harita(KY,IK,TM);
+    dagPanel(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $("a-term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
     const ls=T.filter(r=>r[4]<r[3]); $("a-tsub").textContent=`${ls.length} terminal × ürün kaybediyor · toplam kayıp ${ton(ls.reduce((a,r)=>a+r[3]-r[4],0))}`;
@@ -329,9 +329,25 @@ function harita(KY,IK,TM){
     nd+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${r.toFixed(1)}" fill="${g?C.gts:"#fff"}" fill-opacity="${g?".92":".65"}" stroke="${g?"#fff":C.neg}" stroke-width="${(1.2*u).toFixed(2)}"><title>${esc(tAd(t))}: ${g?"+":""}${ton(d)}</title></circle>`;
     if(g||Math.abs(d)>=0.3*mT) lb+=`<text x="${(px+(g?-r-4*u:r+3*u)).toFixed(1)}" y="${(py+(g?-r:3*u)).toFixed(1)}" text-anchor="${g?"end":"start"}" style="font:${(10*u).toFixed(1)}px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:${(3*u).toFixed(1)}">${esc(tAd(t))}</text>`; }
   $("a-harita").innerHTML=`<svg viewBox="0 0 ${G.w} ${G.h}" role="img" aria-label="GTS'ye kayan hacim haritası">${m}<g>${e}</g><g>${dt}</g><g>${nd}</g><g style="pointer-events:none">${lb}</g></svg><div class="lg"><span><i style="background:${C.gts};height:4px"></i>GTS → il</span><span><i class="k" style="background:#fff;border:1.5px solid ${C.neg};border-radius:50%"></i>hacim kaybeden terminal</span>${IK.length?`<span><i class="k" style="background:${C.pos};border-radius:50%"></i>ilçe · Leg2 kısalması ≥ 100 km (koyu)</span>`:`<span class="muted">ilçe noktaları yalnız referans vakada</span>`}</div>`;
-  const L=[...IU].sort((a,b)=>(b[1][0]+b[1][1])-(a[1][0]+a[1][1])), TT=KY.reduce((a,r)=>a+r[6],0);
-  $("a-il").innerHTML=`<div class="r"><b>İllere göre</b><span class="muted">${L.length} il · ${ton(TT)}</span></div>`+L.slice(0,10).map(([i,o])=>{ const t=o[0]+o[1]; return `<div class="r"><span>${esc(V.il[i]||"?")}<br><small class="muted">${nf.format(o[2]/t)} → ${nf.format(o[3]/t)} km</small></span><b>${ton(t)}</b></div>`; }).join("")+(L.length>10?`<div class="r"><span class="muted">+${L.length-10} il</span><span class="muted">${ton(L.slice(10).reduce((a,[,o])=>a+o[0]+o[1],0))}</span></div>`:"");
-  $("a-hsub").textContent="il rengi ve çizgi kalınlığı GTS'den ile giden ton";
+}
+/* Dağıtıcı paneli (kullanıcı 02.11.2026 13:15): tıklanan dağıtıcı haritayı filtreler; 10 kt altı "Diğer" altında toplanır */
+const DAG_ESIK=10000;
+function dagPanel(KY,IK,TM){
+  const SM=new Map(); for(const r of KY){ const o=SM.get(r[1])||SM.set(r[1],{t:0,ko:0,ks:0,il:new Set()}).get(r[1]); o.t+=r[6]; o.ko+=r[6]*r[8]; o.ks+=r[6]*r[9]; o.il.add(r[2]); }
+  const L=[...SM].sort((a,b)=>b[1].t-a[1].t), B=L.filter(([,o])=>o.t>=DAG_ESIK), K=L.filter(([,o])=>o.t<DAG_ESIK), TT=L.reduce((a,[,o])=>a+o.t,0);
+  if(S.dsec!=null&&S.dsec!=="diger"&&!SM.has(S.dsec)) S.dsec=null; if(S.dsec==="diger"&&!K.length) S.dsec=null;
+  const secili=S.dsec==null?null:S.dsec==="diger"?new Set(K.map(([s])=>s)):new Set([S.dsec]);
+  if(secili){ const KYf=KY.filter(r=>secili.has(r[1])), TMf=[]; for(const r of KYf){ TMf.push([0,r[4],r[3],r[6],0],[0,r[5],r[3],0,r[6]]); } harita(KYf,[],TMf); }
+  else harita(KY,IK,TM);
+  const kk=o=>o.t?`${nf.format(o.ko/o.t)} → ${nf.format(o.ks/o.t)} km`:"";
+  const sat=(key,ad,alt,v,on)=>`<button type="button" class="r dg${on?" on":""}" data-d="${key}" aria-pressed="${on}"><span>${ad}${alt?`<br><small class="muted">${alt}</small>`:""}</span><b>${v}</b></button>`;
+  const ko=K.reduce((a,[,o])=>({t:a.t+o.t,ko:a.ko+o.ko,ks:a.ks+o.ks}),{t:0,ko:0,ks:0});
+  $("a-il").innerHTML=`<div class="r"><b>Dağıtıcılar</b><span class="muted">${L.length} · ${ton(TT)}</span></div>`
+    +sat("",`Tümü`,`${L.length} dağıtıcı`,ton(TT),S.dsec==null)
+    +B.map(([s,o])=>sat(s,esc(V.sir[s]||"?"),`${o.il.size} il · ${kk(o)}`,ton(o.t),S.dsec===s)).join("")
+    +(K.length?sat("diger","Diğer",`${K.length} dağıtıcı · her biri 10 kt altı`,ton(ko.t),S.dsec==="diger"):"");
+  for(const b of $("a-il").querySelectorAll("button[data-d]")) b.onclick=()=>{ const d=b.dataset.d; S.dsec=d===""?null:d==="diger"?"diger":(S.dsec===+d?null:+d); dagPanel(KY,IK,TM); };
+  $("a-hsub").textContent=S.dsec==null?"il rengi ve çizgi kalınlığı GTS'den ile giden ton · dağıtıcıya tıklayın":S.dsec==="diger"?`Diğer · ${K.length} küçük dağıtıcı`:`${V.sir[S.dsec]||"?"} · GTS'den illere ve hacim kaybeden terminaller`;
 }
 
 /* ---------- OPERASYON ---------- */
