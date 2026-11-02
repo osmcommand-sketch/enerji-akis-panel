@@ -341,7 +341,7 @@ function harita(KY,IK,TM){
   $("a-harita").innerHTML=`<svg viewBox="0 0 ${G.w} ${G.h}" role="img" aria-label="GTS'ye kayan hacim haritası">${m}<g>${e}</g><g>${dt}</g><g>${nd}</g><g style="pointer-events:none">${lb}</g></svg><div class="lg">${["M","B","K"].filter(g=>KY.some(r=>kayGrp(r[4])===g)).map(g=>`<span><i style="background:${KAYG[g][1]};height:4px"></i>GTS → il · bugün ${KAYG[g][0]}</span>`).join("")}<span><i class="k" style="background:#fff;border:1.5px solid ${C.neg};border-radius:50%"></i>hacim kaybeden terminal</span>${IK.length?`<span><i class="k" style="background:${C.pos};border-radius:50%"></i>ilçe · Leg2 kısalması ≥ 100 km (koyu)</span>`:`<span class="muted">ilçe noktaları yalnız referans vakada</span>`}</div>`;
 }
 /* Dağıtıcı paneli (kullanıcı 02.11.2026 13:15): tıklanan dağıtıcı haritayı filtreler; 10 kt altı "Diğer" altında toplanır */
-const DAG_ESIK=10000;
+const DAG_ESIK=20000;
 function dagPanel(KY,IK,TM){
   const SM=new Map(); for(const r of KY){ const o=SM.get(r[1])||SM.set(r[1],{t:0,ko:0,ks:0,il:new Set(),g:{M:0,B:0,K:0}}).get(r[1]); o.t+=r[6]; o.ko+=r[6]*r[8]; o.ks+=r[6]*r[9]; o.il.add(r[2]); o.g[kayGrp(r[4])]+=r[6]; }
   const L=[...SM].sort((a,b)=>b[1].t-a[1].t), B=L.filter(([,o])=>o.t>=DAG_ESIK), K=L.filter(([,o])=>o.t<DAG_ESIK), TT=L.reduce((a,[,o])=>a+o.t,0);
@@ -355,7 +355,7 @@ function dagPanel(KY,IK,TM){
   $("a-il").innerHTML=`<div class="r"><b>Dağıtıcılar</b><span class="muted">${L.length} · ${ton(TT)}</span></div>`
     +sat("",`Tümü`,`${L.length} dağıtıcı`,ton(TT),S.dsec==null)
     +B.map(([s,o])=>sat(s,esc(V.sir[s]||"?"),`${o.il.size} il · ${kk(o)}${o.g.B>=500||o.g.K>=500?`<br>${o.g.B>=500?`<span style="color:${KAYG.B[1]}">Batman ${ton(o.g.B)}</span> `:""}${o.g.K>=500?`<span style="color:${KAYG.K[1]}">Kırıkkale ${ton(o.g.K)}</span>`:""}`:""}`,ton(o.t),S.dsec===s)).join("")
-    +(K.length?sat("diger","Diğer",`${K.length} dağıtıcı · her biri 10 kt altı`,ton(ko.t),S.dsec==="diger"):"");
+    +(K.length?sat("diger","Diğer",`${K.length} dağıtıcı · her biri 20 kt altı`,ton(ko.t),S.dsec==="diger"):"");
   for(const b of $("a-il").querySelectorAll("button[data-d]")) b.onclick=()=>{ const d=b.dataset.d; S.dsec=d===""?null:d==="diger"?"diger":(S.dsec===+d?null:+d); dagPanel(KY,IK,TM); };
   $("a-hsub").textContent=S.dsec==null?"il rengi ve çizgi kalınlığı GTS'den ile giden ton · dağıtıcıya tıklayın":S.dsec==="diger"?`Diğer · ${K.length} küçük dağıtıcı`:`${V.sir[S.dsec]||"?"} · GTS'den illere ve hacim kaybeden terminaller`;
 }
