@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.21",
+ "surum": "1.0.22",
  "kabuk": 1,
- "tarih": "2026-11-02T11:18:36+03:00",
- "notlar": "Ticari koşullar: Tüpraş fiyatı kırılımı (CIF, ortalama/kur, prim, eşik, zamanlama, satış farkı)",
+ "tarih": "2026-11-02T11:24:31+03:00",
+ "notlar": "Ortalama fiyatlar: yalnız Tüpraş ve CIF Med",
  "dosyalar": {
   "ui/index.html": "5db617a15e9451615c47ec5967dfce01954708d5d1d3020d71e325bbb420192d",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "7163e295ebddbd7afe78e1b2a2d62c3b3dfd0654deb28642013fb956b4d7a65d",
+  "ui/pano.js": "1428d19220ce014bff48265fd42d7cf9e21f6083088051a13826e7ae61cf437d",
   "gts_pipeline.js": "35d2aca4afc237015878f874d0858ad6441799623ced7e82bc538820705ba955",
   "pipeline.js": "ef5b4c479e7bbce247fd2405166ea0b83dc2196b08c5dbd2f26d0dbba0b04d6c",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
