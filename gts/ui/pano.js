@@ -248,6 +248,17 @@ function ticari(){
     h+=`<div class="tf-r${deg2?" deg":""}${t==="bilgi"?" bilgi":""}" title="${esc(not)}"><label for="${id}">${esc(lab)}<small id="${id}-n">${alt}</small></label>
       <div class="tf-v">${onEk(r[0])?`<em>${onEk(r[0])}</em>`:""}${inp}</div><span class="tf-u">${t!=="bilgi"&&t!=="sec"?bir(r[0]):""}</span></div>`; }
   if(acik) h+="</div>";
+  { // fiyat ortalamaları (seçili fiyat yolu; dönem = kilitli/seçili yıl)
+    const F=V.fiy||[], t0=Date.UTC(2027,0,1), yr=i=>String(new Date(t0+i*864e5).getUTCFullYear()), Fs=F.filter((_,i)=>!YIL||yr(i)===YIL);
+    if(Fs.length){ const ort=j=>{ const v=Fs.map(r=>r[j]).filter(x=>typeof x==="number"); return v.length?v.reduce((a,b)=>a+b,0)/v.length:null; }, tp=ort(3), cf=ort(0);
+      const K=V.km.filter(k=>typeof k[33]==="number"?(YIL==="2027"?k[33]>0:YIL==="2028"?k[33]<1:true):yilOk(k[4])), w=k=>k[2]*(typeof k[33]==="number"?(YIL==="2027"?k[33]:YIL==="2028"?1-k[33]:1):1);
+      const kw=K.reduce((a,k)=>a+w(k),0), cfK=kw?K.reduce((a,k)=>a+k[9]*w(k),0)/kw:null;
+      const sr=V.kartab&&V.kartab.rows.find(r=>/Ortalama satış fiyatı/.test(r[0])), sat=sr?sr[YIL==="2027"?1:YIL==="2028"?2:3]:null, d1=v=>v==null?"–":nf1.format(v);
+      const sat1=(l,v,alt)=>`<div class="tf-r bilgi"><label>${l}<small>${alt}</small></label><div class="tf-v"><output>${v}</output></div><span class="tf-u">$/t</span></div>`;
+      h+=`<div class="tf-g"><h4>Fiyat ortalamaları · ${YIL||"2027–2028"}</h4>`
+        +sat1("Tüpraş fiyatı (vergisiz)",d1(tp),`günlük ortalama${sat!=null?` · satış ağırlıklı, ± fark dahil ${d1(sat)}`:""}`)
+        +sat1("Platts CIF Med motorin",d1(cf),`günlük ortalama${cfK!=null?` · kargo fiyatlama ağırlıklı ${d1(cfK)}`:""}`)
+        +(tp!=null&&cf!=null?sat1("Tüpraş − CIF Med",(tp-cf<0?"−":"+")+nf1.format(Math.abs(tp-cf)),"günlük ortalamalar farkı"):"")+`</div>`; } }
   el.innerHTML=`<div class="tf">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="tic-hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="tic-sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="tic-d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
   if(!yaz) return;
   const I=[...el.querySelectorAll("[data-h]")].filter(i=>i.dataset.h), btn=$("tic-hesap"), d=$("tic-d");
