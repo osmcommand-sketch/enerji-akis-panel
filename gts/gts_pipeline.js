@@ -172,15 +172,20 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       X = HSh({ ...girdi, ...(O.hedef && Math.abs(sy - 1) > 1e-9 ? { [HK]: O.hedef.tam * sy } : {}), ...ekG }); } }
   // Risk tablolarını kullanıcının girdileriyle yeniden hesapla (istek bayrağı Risk sekmesindeki düğmeden; sonuç önbellekte)
   { const IST = 'GTS!RiskHesapla', cy = path.join(path.dirname(gy), 'risk_hesap.json'), temel = {}; for (const [k, v] of Object.entries(girdi)) if (k !== IST) temel[k] = v;
-    const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length;
+    const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length + '|netkar-tl-defter-1';
     let RH = null; try { const c = JSON.parse(fs.readFileSync(cy, 'utf8')); if (c && c.anahtar === anahtar) RH = c; else if (c) O.riskEski = c.zaman || true; } catch {}
-    if (girdi[IST]) { const t0 = Date.now(), G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
+    if (girdi[IST] || !RH) { const t0 = Date.now()   /* kullanıcı 03.11.2026: geçerli önbellek yoksa Risk tabloları kendiliğinden hesaplanır (tüm sayfalar aynı girdi ve net kâr tanımıyla) */, G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
       for (const [k, v] of Object.entries(temel)) if (!k.startsWith('GTS!') || k === 'GTS!FinansmanPrimde') taban[k] = v;
       if (b9 && Math.abs(sy - 1) > 1e-9 && !(HK in taban)) taban[HK] = b9 * sy;
       Object.assign(taban, ekG);
       const bulB = (re) => { const i = G0.findIndex((x) => x && typeof x[0] === 'string' && re.test(x[0])); return i > 0 ? 'Girdiler!B' + i : null; };
       const LIM = bulB(/^İkinci liman uğrak maliyeti/), SEN = bulB(/^Fiyat senaryosu$/);
-      const nk = (Y) => { const R = Y.sayfa('Ozet'), r = R.find((x) => x && typeof x[0] === 'string' && /^Toplam: (net kâr|şirket sonucu) \(USD\)$/.test(x[0])); return r ? [r[1], r[2]] : [null, null]; };
+      // net kâr TL defter tanımıyla (kullanıcı 03.11.2026 22:31; pano.js V.tld ile aynı): + tahsilat kur farkı + kambiyo + kur hedge (beyanname → vade)
+      const KBm = require(path.join(resDir, 'kambiyo.js')), hAc = (taban['GTS!KambiyoHedge'] || girdi['GTS!KambiyoHedge'] || 'Açık') === 'Açık';
+      const nk = (Y) => { const R = Y.sayfa('Ozet'), r = R.find((x) => x && typeof x[0] === 'string' && /^Toplam: (net kâr|şirket sonucu) \(USD\)$/.test(x[0])); if (!r) return [null, null];
+        const v = [r[1], r[2]]; try { const KL = Y.sayfa('Karlilik'), t = KL.find((x) => x && typeof x[0] === 'string' && /^Tahsilat kur farkı/.test(x[0].trim())), K = KBm.kambiyo((n) => { try { return Y.sayfa(n); } catch { return null; } });
+          if (t && K && K.yil) [2027, 2028].forEach((y, j) => { const k = K.yil[y] || {}; v[j] += (typeof t[j + 1] === 'number' ? t[j + 1] : 0) + (k.kusd || 0) + (hAc ? k.husd || 0 : 0); }); } catch {}
+        return v; };
       const kos = []; for (const v of [0, 17]) for (const pk of [25, 30, 35, 40]) for (const l of [0, 60000]) kos.push(['Açık', pk, l, v]);
       kos.push(['Kapalı', 25, 60000, 17], ['Kapalı', 40, 60000, 17]);
       const izg = [], N = kos.length + 5; let n = 0;

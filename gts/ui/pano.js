@@ -344,8 +344,9 @@ function ticari(){
   const kaydet=(o)=>girdiYaz(TK,o||{});
   btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dd=i.dataset.d; if(v===null) continue;
       const esit=typeof v==="string"?v===dd:(dd!==""&&Math.abs(v-Number(dd))<1e-12); if(!esit) o[i.dataset.h]=v; }
-    try{ kaydet(o); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
-  const sf=$("tic-sifir"); if(sf) sf.onclick=()=>{ try{ kaydet(null); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
+    o["GTS!RiskHesapla"]=true;   // kullanıcı 03.11.2026: Genel bakıştaki değişiklik Risk tablolarına da yansısın
+    try{ kaydet(o); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor… (Risk tabloları dahil, yaklaşık 1 dk)"; window.gts.yenile(); };
+  const sf=$("tic-sifir"); if(sf) sf.onclick=()=>{ try{ kaydet({"GTS!RiskHesapla":true}); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
 
 /* ---------- PAZAR VE AKIŞ ---------- */
@@ -529,8 +530,8 @@ function hedgeAyar(){
   const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ if(i.tagName!=="SELECT"){ const ok=isFinite(deger(i)); i.classList.toggle("hata",!ok); if(!ok) hata=true; } if(i.value!==ilk.get(i)) deg=true; } btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
   for(const i of I) i.addEventListener(i.tagName==="SELECT"?"change":"input",kontrol);
   btn.onclick=()=>{ const o={}; for(const i of I){ const v=deger(i), dv=i.dataset.d; const esit=typeof v==="string"?v===dv:(dv!==""&&Math.abs(v-Number(dv))<1e-12); if(!esit) o[i.dataset.h]=v; }
-    try{ girdiYaz(KS,o); }catch(e){ d.textContent="Kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor…"; window.gts.yenile(); };
-  const sf=$("hg-sifir"); if(sf) sf.onclick=()=>{ try{ girdiYaz(KS,{}); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
+    o["GTS!RiskHesapla"]=true; try{ girdiYaz(KS,o); }catch(e){ d.textContent="Kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor… (Risk tabloları dahil, yaklaşık 1 dk)"; window.gts.yenile(); };
+  const sf=$("hg-sifir"); if(sf) sf.onclick=()=>{ try{ girdiYaz(KS,{"GTS!RiskHesapla":true}); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
 function hedge(){
   hedgeAyar();
@@ -584,10 +585,10 @@ function hedge(){
 function riskDurum(){ // Risk tablolarının kaynağı: PDM çalıştırması ya da kullanıcının girdileriyle uygulama içi yeniden hesap
   const el=$("r-hdurum"); if(!el) return; const RH=V.riskHesap, yaz=typeof require==="function"&&V.girdiYolu&&window.gts, nG=Object.keys(V.girdi||{}).filter(k=>k!=="GTS!RiskHesapla").length;
   const zm=t=>{ try{ return new Date(t).toLocaleString("tr-TR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch{ return ""; } };
-  let h=RH?`<span class="chip ok">Sizin girdilerinizle hesaplandı · ${zm(RH.zaman)}</span> <span class="not">Parti, liman, vade ve hedge tablosu ile tarihsel test, Ticari koşullardaki girdilerinizle (satış hedefi dahil) uygulama içinde yeniden hesaplandı.</span>`
-    :`<span class="chip eski">PDM çalıştırması · varsayılan girdiler, satış hedefi %100</span> <span class="not">${nG?(V.riskEski?"Girdileriniz son hesaptan sonra değişti. ":"Girdileriniz bu tablolara yansımadı. "):""}${yaz?"Düğmeyle tablolar sizin girdilerinizle yeniden hesaplanır (yaklaşık 1–2 dakika).":"Masaüstü uygulamasında sizin girdilerinizle yeniden hesaplanabilir."}</span>`;
+  let h=RH?`<span class="chip ok">Sizin girdilerinizle hesaplandı · ${zm(RH.zaman)}</span> <span class="not">Parti, liman, vade ve hedge tablosu ile tarihsel test, Ticari koşullardaki girdilerinizle (satış hedefi dahil) ve TL defter net kâr tanımıyla uygulama içinde yeniden hesaplandı; Genel bakışta "hesapla" her seferinde bunları da yeniler. Monte Carlo tablosu PDM çalıştırmasıdır.</span>`
+    :`<span class="chip eski">PDM çalıştırması · varsayılan girdiler, satış hedefi %100, önceki (USD bazlı) net kâr tanımı</span> <span class="not">${nG?(V.riskEski?"Girdileriniz son hesaptan sonra değişti. ":"Girdileriniz bu tablolara yansımadı. "):""}${yaz?"Düğmeyle tablolar sizin girdilerinizle yeniden hesaplanır (yaklaşık 1–2 dakika).":"Masaüstü uygulamasında sizin girdilerinizle yeniden hesaplanabilir."}</span>`;
   if(yaz&&!RH) h+=` <button type="button" class="btn" id="r-hbtn">Risk tablolarını girdilerimle hesapla</button>`;
-  { const n=$("r-iznot"); if(n&&RH) n.textContent="Uygulama içi hesap: Ticari koşullardaki tüm girdileriniz sabit, yalnız tablodaki dört koşul değişiyor; parti 2027 ve 2028 için aynı. Net kâr Karlılık tablosundaki tanımla (faaliyet giderleri dahil)."; }
+  { const n=$("r-iznot"); if(n&&RH) n.textContent="Uygulama içi hesap: Ticari koşullardaki tüm girdileriniz sabit, yalnız tablodaki dört koşul değişiyor; parti 2027 ve 2028 için aynı. Net kâr Karlılık tablosundaki tanımla: faaliyet giderleri, kambiyo kârı/zararı ve kur hedge dahil (TL defter)."; }
   el.innerHTML=h; const b=$("r-hbtn"); if(b) b.onclick=()=>{ try{ girdiYaz(["GTS!RiskHesapla"],{"GTS!RiskHesapla":true}); }catch(e){ el.insertAdjacentHTML("beforeend",`<span class="not">Kaydedilemedi: ${esc(e.message)}</span>`); return; } b.disabled=true; b.textContent="Hesaplanıyor…"; window.gts.yenile(); };
 }
 function iki(){
