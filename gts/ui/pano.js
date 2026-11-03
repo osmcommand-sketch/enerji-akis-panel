@@ -33,7 +33,7 @@ V.tld=(()=>{ const K=V.kambiyo&&V.kambiyo.yil, KT=V.kartab; if(!K||!Object.keys(
     if(kf){ const t=bul(/^Bilgi: tahsilat kur farkı/)||bul(/^Tahsilat kur farkı/), km=bul(/^Kambiyo kârı \/ zararı/), hg=bul(/^Kur hedge sonucu/), v=r=>[0,1,2,3].map(j=>j&&r&&typeof r[j]==="number"?r[j]:0);
       const tah=v(t), kmb=v(km), hdg=v(hg); return {tah,kmb,hdg,d:[0,1,2,3].map(j=>tah[j]+kmb[j]+hdg[j]),model:true}; } }
   const L=KT.rows, bul=re=>L.findIndex(r=>re.test(String(r[0]).trim())), it=bul(/^Tahsilat kur farkı/); if(it<0) return null;
-  const hAc=(((V.girdi||{})['GTS!KambiyoHedge'])||((V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';
+  const hAc=(((V.tic||[]).find(r=>/^Kur hedge \(Açık/.test(r[0]))||(V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';   // tek kur hedge anahtarı (03.11.2026 19:29)
   const tah=[0,1,2,3].map(j=>j&&typeof L[it][j]==="number"?L[it][j]:0), kmb=[0,(K[2027]||{}).kusd||0,(K[2028]||{}).kusd||0], hdg=hAc?[0,(K[2027]||{}).husd||0,(K[2028]||{}).husd||0]:[0,0,0];
   kmb[3]=kmb[1]+kmb[2]; hdg[3]=hdg[1]+hdg[2]; const d=[0,1,2,3].map(j=>tah[j]+kmb[j]+hdg[j]);
   const ekle=(i,dv,isaret)=>{ if(i<0) return; for(const j of [1,2,3]) if(typeof L[i][j]==="number") L[i][j]+=isaret*dv[j]; };
@@ -142,7 +142,7 @@ function kargolar(){
   const tk=s=>s?(d=>d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear())(new Date(s+"T00:00:00Z")):"–", gem=k=>k[0]===0?"Açılış stoğu":esc(k[1]||"");
   if(S.kgN==null||!K.some(k=>k[0]===S.kgN)) S.kgN=(K.find(k=>k[0]>0)||K[0])[0];
   // kargo kâr/zarar (kullanıcı 03.11.2026 17:09): model kalemleri + TL defter düzeltmesi (kambiyo, kur hedge, tahsilat kur farkı)
-  const FZ=(V.kambiyo&&V.kambiyo.faiz)||{tl:.33,usd:.0394,marj:.001}, hAc=(((V.girdi||{})['GTS!KambiyoHedge'])||((V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';
+  const FZ=(V.kambiyo&&V.kambiyo.faiz)||{tl:.33,usd:.0394,marj:.001}, hAc=(((V.tic||[]).find(r=>/^Kur hedge \(Açık/.test(r[0]))||(V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';   // tek kur hedge anahtarı (03.11.2026 19:29)
   const beyK=x=>{ let c=0; const o=[]; for(const b of D.bey){ const a0=c, a1=c+b[1]; c=a1; const t=Math.max(0,Math.min(a1,x[22])-Math.max(a0,x[21])); if(t>0.05) o.push([b[0],t,b[2],b[3]!=null?b[3]*t/b[1]:null,b[4],b[5],t<b[1]-0.05,b[6]!=null?b[6]*t/b[1]:null]); } return o; };
   const kzH=x=>{ const B=beyK(x), od=gi(x[8]); let kmb=0, hdg=0; for(const b of B){ const kb=b[4]||0; if(!kb) continue; kmb+=(b[3]||0)/kb; const dd=od!=null?od-b[0]:0, kv=b[5]||kb;
       if(b[7]!=null){ hdg+=b[7]/kb; continue; }   // paket 78+: modelin günlük kur hedge sütunu

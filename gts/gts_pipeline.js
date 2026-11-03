@@ -182,7 +182,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       const LIM = bulB(/^İkinci liman uğrak maliyeti/), SEN = bulB(/^Fiyat senaryosu$/);
       // net kâr TL defter tanımıyla (kullanıcı 03.11.2026 22:31; pano.js V.tld ile aynı): + tahsilat kur farkı + kambiyo + kur hedge (beyanname → vade)
       const modelTLD = (Y) => { try { return Y.sayfa('Karlilik').some((x) => x && typeof x[0] === 'string' && /^KUR FARKI – YASAL DEFTER/.test(x[0].trim())); } catch { return false; } };
-      const KBm = require(path.join(resDir, 'kambiyo.js')), hAc = (taban['GTS!KambiyoHedge'] || girdi['GTS!KambiyoHedge'] || 'Açık') === 'Açık';
+      const KBm = require(path.join(resDir, 'kambiyo.js')), hAc = GB.KH ? (taban[GB.KH.a] || girdi[GB.KH.a] || GB.KH.a0) === 'Açık' : (taban['GTS!KambiyoHedge'] || girdi['GTS!KambiyoHedge'] || 'Açık') === 'Açık';
       const nk = (Y) => { const R = Y.sayfa('Ozet'), r = R.find((x) => x && typeof x[0] === 'string' && /^Toplam: (net kâr|şirket sonucu) \(USD\)$/.test(x[0])); if (!r) return [null, null];
         const v = [r[1], r[2]]; if (modelTLD(Y)) return v; try { const KL = Y.sayfa('Karlilik'), t = KL.find((x) => x && typeof x[0] === 'string' && /^Tahsilat kur farkı/.test(x[0].trim())), K = KBm.kambiyo((n) => { try { return Y.sayfa(n); } catch { return null; } });
           if (t && K && K.yil) [2027, 2028].forEach((y, j) => { const k = K.yil[y] || {}; v[j] += (typeof t[j + 1] === 'number' ? t[j + 1] : 0) + (k.kusd || 0) + (hAc ? k.husd || 0 : 0); }); } catch {}
@@ -237,6 +237,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   // kambiyonun karşılığı kur hedge (kullanıcı 03.11.2026 22:31): net kâr TL defter mantığıyla – panelde hesaplanır, model yeniden hesaplanmaz
   if (!O.tic.some((r) => /^Kambiyo kur hedge/.test(r[0]))) { const k = O.tic.findIndex((r) => /^Forward maliyeti/.test(r[0])), v = girdi['GTS!KambiyoHedge'] || 'Açık';
     O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Kur hedge – beyanname → fatura vadesi', v, 'Beyanname günü fatura vadesine forward USD alınır; kambiyo kârı/zararının karşılığı. Ödeme beyannameden önceyse (COD) korunacak borç yok, sonuç 0.', 'Açık', 'GTS!KambiyoHedge', 'sec', { tip: 'list', liste: ['Açık', 'Kapalı'] }]); }
+  // tek kur hedge anahtarı (kullanıcı 03.11.2026 19:29): alış tarafı satırı gösterilmez, 'Kur hedge' ikisini birlikte yönetir (girdi_bag.js)
+  if (GB.KH) { O.tic = O.tic.filter((r) => !(r[4] === GB.KH.b || r[4] === 'GTS!KambiyoHedge' || /^Kambiyo kur hedge|^Kur hedge – beyanname/.test(r[0])));
+    const r = O.tic.find((x) => x[4] === GB.KH.a); if (r) r[2] = 'Tek anahtar: satış tahsilatı (fatura → tahsilat) ve alış (beyanname → fatura vadesi forward) kur hedge\'i birlikte açılır / kapanır.'; }
   // kargo yaşam döngüsü (kullanıcı 03.11.2026 16:50)
   try { O.kargo = require(path.join(resDir, 'kargo_omur.js')).omur((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kargo = null; log('Kargo yaşam döngüsü: ' + e.message); }
   // yasal defter görünümü – kambiyo (kullanıcı 02.11.2026 20:04)
