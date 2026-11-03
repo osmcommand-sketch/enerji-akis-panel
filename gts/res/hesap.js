@@ -254,9 +254,68 @@ function motor(S) {
       case 'AVERAGEIF': { const rng = rg(0), mask = ifsMaske([[rng, e(1)]]), h = A.length > 2 ? rg(2) : rng; let s = 0, k = 0; for (let i = 0; i < mask.length; i++) if (mask[i]) { const v = h.v[i]; if (typeof v === 'number') { s += v; k++; } } return k ? s / k : E.DIV; }
       case 'SUMPRODUCT': { const L = A.map((_, i) => e(i)); const Ar = L.map((x) => x instanceof Arr ? x : new Arr(1, 1, [x])); const n0 = Ar[0].v.length; if (Ar.some((x) => x.v.length !== n0)) return E.VAL;
         let s = 0; for (let i = 0; i < n0; i++) { let p = 1; for (const X of Ar) { const v = X.v[i]; if (isErr(v)) return v; p *= typeof v === 'number' ? v : typeof v === 'boolean' ? (v ? 1 : 0) : 0; } s += p; } return s; }
+      /* ---- genişletilmiş işlevler (03.11.2026: paket 76 modelinde SQRT; PDM'nin olası kullanımları için yaygın işlevler) ---- */
+      case 'SQRT': case 'EXP': case 'LN': case 'LOG10': case 'SIGN': case 'TRUNC': case 'EVEN': case 'ODD': {
+        const f = { SQRT: (x) => x < 0 ? E.NUM : Math.sqrt(x), EXP: Math.exp, LN: (x) => x <= 0 ? E.NUM : Math.log(x), LOG10: (x) => x <= 0 ? E.NUM : Math.log10(x), SIGN: Math.sign,
+          TRUNC: (x) => Math.trunc(x), EVEN: (x) => { const c = Math.ceil(Math.abs(x) / 2) * 2; return Math.sign(x) * c; }, ODD: (x) => { let c = Math.ceil(Math.abs(x)); if (c % 2 === 0) c++; return (x < 0 ? -1 : 1) * c; } }[n.n];
+        if (n.n === 'TRUNC' && A.length > 1) { const x = nm(0), d = nm(1); if (isErr(x)) return x; if (isErr(d)) return d; const m = Math.pow(10, Math.trunc(d)); return Math.trunc(x * m) / m; }
+        const a0 = e(0); if (a0 instanceof Arr) return ikiliF(a0, 0, (x) => f(x)); const x = num(a0); return isErr(x) ? x : f(x); }
+      case 'POWER': { const a = e(0), b = e(1); if (a instanceof Arr || b instanceof Arr) return ikiliF(a, b, (x, y) => Math.pow(x, y)); const x = num(a), y = num(b); if (isErr(x)) return x; if (isErr(y)) return y; const r = Math.pow(x, y); return isFinite(r) ? r : E.NUM; }
+      case 'LOG': { const x = nm(0), b = A.length > 1 ? nm(1) : 10; if (isErr(x)) return x; if (isErr(b)) return b; return x <= 0 || b <= 0 || b === 1 ? E.NUM : Math.log(x) / Math.log(b); }
+      case 'PI': return Math.PI;
+      case 'ROUNDDOWN': { const x = nm(0), d = A.length > 1 ? nm(1) : 0; if (isErr(x)) return x; if (isErr(d)) return d; const m = Math.pow(10, d); return Math.sign(x) * Math.floor(Math.abs(x) * m + 1e-9) / m; }
+      case 'CEILING': case 'CEILING.MATH': case 'FLOOR': case 'FLOOR.MATH': case 'MROUND': { const x = nm(0); if (isErr(x)) return x; let k = A.length > 1 ? nm(1) : (x < 0 && /MATH/.test(n.n) ? -1 : 1); if (isErr(k)) return k; if (/MATH/.test(n.n)) k = Math.abs(k) || 1; if (k === 0) return 0;
+        if (n.n === 'MROUND') return Math.sign(x) !== Math.sign(k) && x !== 0 ? E.NUM : yuvarla(x / k, 0) * k; const up = /^CEILING/.test(n.n); const q = x / k; return (up ? Math.ceil(q - 1e-12) : Math.floor(q + 1e-12)) * k; }
+      case 'PRODUCT': { let p = 1, k = 0; for (const x of duz(A.map((_, i) => e(i)))) { const v = num(x); if (isErr(v)) return v; p *= v; k++; } return k ? p : 0; }
+      case 'COUNT': { let k = 0; for (let i = 0; i < A.length; i++) { const v = e(i); if (v instanceof Arr) { for (const x of v.v) if (typeof x === 'number') k++; } else if (typeof v === 'number') k++; } return k; }
+      case 'COUNTA': { let k = 0; for (let i = 0; i < A.length; i++) { const v = e(i); if (v instanceof Arr) { for (const x of v.v) if (x !== BOS) k++; } else if (v !== BOS) k++; } return k; }
+      case 'COUNTBLANK': { const a = rg(0); return a.v.filter((x) => x === BOS || x === '').length; }
+      case 'MEDIAN': case 'STDEV': case 'STDEV.S': case 'STDEV.P': case 'STDEVP': case 'VAR': case 'VAR.S': case 'VAR.P': case 'VARP': {
+        const L = []; for (const x of duz(A.map((_, i) => e(i)))) { const v = num(x); if (isErr(v)) return v; L.push(v); } if (!L.length) return E.DIV;
+        if (n.n === 'MEDIAN') { L.sort((a, b) => a - b); const m = L.length >> 1; return L.length % 2 ? L[m] : (L[m - 1] + L[m]) / 2; }
+        const pop = /\.P$|P$/.test(n.n) && n.n !== 'STDEV' && n.n !== 'VAR' && n.n !== 'STDEV.S' && n.n !== 'VAR.S', mu = L.reduce((a, b) => a + b, 0) / L.length, ss = L.reduce((a, b) => a + (b - mu) ** 2, 0), d = pop ? L.length : L.length - 1; if (d <= 0) return E.DIV;
+        const va = ss / d; return /^VAR/.test(n.n) ? va : Math.sqrt(va); }
+      case 'LARGE': case 'SMALL': { const L = []; for (const x of duz([e(0)])) { const v = num(x); if (!isErr(v)) L.push(v); } const k = nm(1); if (isErr(k)) return k; const i = Math.ceil(k) - 1; if (i < 0 || i >= L.length) return E.NUM; L.sort((a, b) => n.n === 'LARGE' ? b - a : a - b); return L[i]; }
+      case 'PERCENTILE': case 'PERCENTILE.INC': case 'QUARTILE': case 'QUARTILE.INC': { const L = []; for (const x of duz([e(0)])) { const v = num(x); if (!isErr(v)) L.push(v); } if (!L.length) return E.NUM; let p = nm(1); if (isErr(p)) return p; if (/^QUARTILE/.test(n.n)) p = p / 4; if (p < 0 || p > 1) return E.NUM;
+        L.sort((a, b) => a - b); const h = (L.length - 1) * p, lo = Math.floor(h); return lo + 1 < L.length ? L[lo] + (h - lo) * (L[lo + 1] - L[lo]) : L[lo]; }
+      case 'MINIFS': { const h = rg(0), cf = []; for (let i = 1; i < A.length; i += 2) cf.push([rg(i), e(i + 1)]); const mask = ifsMaske(cf); let mn = null; for (let i = 0; i < mask.length; i++) if (mask[i]) { const v = h.v[i]; if (typeof v === 'number') mn = mn === null ? v : Math.min(mn, v); else if (isErr(v)) return v; } return mn === null ? 0 : mn; }
+      case 'SUMIF': { const rng = rg(0), mask = ifsMaske([[rng, e(1)]]), h = A.length > 2 ? rg(2) : rng; let s = 0; for (let i = 0; i < mask.length; i++) if (mask[i]) { const v = h.v[i]; if (typeof v === 'number') s += v; else if (isErr(v)) return v; } return s; }
+      case 'IFNA': { const v = es(0); return isErr(v) && v.c === '#N/A' ? e(1) : v; }
+      case 'NA': return E.NA;
+      case 'IFS': { for (let i = 0; i + 1 < A.length; i += 2) { const c = bool(es(i)); if (isErr(c)) return c; if (c) return e(i + 1); } return E.NA; }
+      case 'SWITCH': { const v = es(0); let i = 1; for (; i + 1 < A.length; i += 2) { const k = es(i); if (cmp(v, k) === 0) return e(i + 1); } return i < A.length ? e(i) : E.NA; }
+      case 'XOR': { let c = 0; for (let i = 0; i < A.length; i++) { const v = e(i); const L = v instanceof Arr ? v.v.filter((x) => x !== BOS && typeof x !== 'string') : [v]; for (const x of L) { const b = bool(x); if (isErr(b)) return b; if (b) c++; } } return c % 2 === 1; }
+      case 'TRUE': return true; case 'FALSE': return false;
+      case 'ISBLANK': { const v = es(0); return v === BOS; } case 'ISERROR': { const v = es(0); return isErr(v); } case 'ISERR': { const v = es(0); return isErr(v) && v.c !== '#N/A'; } case 'ISNA': { const v = es(0); return isErr(v) && v.c === '#N/A'; }
+      case 'ISTEXT': { const v = es(0); return typeof v === 'string'; } case 'ISLOGICAL': { const v = es(0); return typeof v === 'boolean'; } case 'ISNONTEXT': { const v = es(0); return typeof v !== 'string'; }
+      case 'ISEVEN': case 'ISODD': { const x = nm(0); if (isErr(x)) return x; const t = Math.trunc(x) % 2 === 0; return n.n === 'ISEVEN' ? t : !t; }
+      case 'LEN': { const v = es(0); return isErr(v) ? v : str(v).length; }
+      case 'LEFT': case 'RIGHT': { const v = es(0); if (isErr(v)) return v; const k = A.length > 1 ? nm(1) : 1; if (isErr(k)) return k; const t = str(v); return n.n === 'LEFT' ? t.slice(0, k) : (k <= 0 ? '' : t.slice(-k)); }
+      case 'MID': { const v = es(0), a = nm(1), k = nm(2); if (isErr(v)) return v; if (isErr(a)) return a; if (isErr(k)) return k; return str(v).substr(a - 1, k); }
+      case 'UPPER': case 'LOWER': case 'TRIM': { const v = es(0); if (isErr(v)) return v; const t = str(v); return n.n === 'UPPER' ? t.toLocaleUpperCase('tr-TR') : n.n === 'LOWER' ? t.toLocaleLowerCase('tr-TR') : t.trim().replace(/\s+/g, ' '); }
+      case 'CONCATENATE': case 'CONCAT': { let t = ''; for (let i = 0; i < A.length; i++) { const v = e(i); if (v instanceof Arr) { for (const x of v.v) { if (isErr(x)) return x; if (x !== BOS) t += str(x); } } else { if (isErr(v)) return v; if (v !== BOS) t += str(v); } } return t; }
+      case 'VALUE': { const v = es(0); if (typeof v === 'number') return v; const x = Number(str(v).trim()); return isFinite(x) ? x : E.VAL; }
+      case 'N': { const v = es(0); return typeof v === 'number' ? v : typeof v === 'boolean' ? (v ? 1 : 0) : 0; }
+      case 'EDATE': { const x = nm(0), m = nm(1); if (isErr(x)) return x; if (isErr(m)) return m; const d = tarihOf(x), y = d.getUTCFullYear(), mo = d.getUTCMonth() + Math.trunc(m), son = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(); return serial(y, mo + 1, Math.min(d.getUTCDate(), son)); }
+      case 'DAYS': { const a = nm(0), b = nm(1); if (isErr(a)) return a; if (isErr(b)) return b; return Math.floor(a) - Math.floor(b); }
+      case 'YEARFRAC': { const a = nm(0), b = nm(1); if (isErr(a)) return a; if (isErr(b)) return b; const t = A.length > 2 ? nm(2) : 0; return Math.abs(b - a) / (t === 3 ? 365 : t === 2 ? 360 : 365.25); }
+      case 'VLOOKUP': case 'HLOOKUP': { const v = es(0), a = rg(1), k = nm(2); if (isErr(v)) return v; if (isErr(k)) return k; const tam = A.length > 3 ? !bool(es(3)) : false, V = n.n === 'VLOOKUP';
+        const say = V ? a.r : a.c, at = (i, j) => V ? a.at(i, j) : a.at(j, i); if (k < 1 || k > (V ? a.c : a.r)) return E.REF; let h = -1;
+        if (tam) { for (let i = 0; i < say; i++) if (cmp(at(i, 0), v) === 0 && at(i, 0) !== BOS) { h = i; break; } } else { for (let i = 0; i < say; i++) { const x = at(i, 0); if (x === BOS) continue; if (cmp(x, v) <= 0) h = i; else break; } }
+        return h < 0 ? E.NA : at(h, k - 1); }
+      case 'XLOOKUP': { const v = es(0), a = rg(1), b = rg(2); if (isErr(v)) return v; for (let i = 0; i < a.v.length; i++) if (cmp(a.v[i], v) === 0 && a.v[i] !== BOS) return b.v.length === a.v.length ? b.v[i] : (b.r === a.r ? b.at(i, 0) : b.at(0, i)); return A.length > 3 ? e(3) : E.NA; }
+      case 'NORM.S.DIST': case 'NORMSDIST': { const z = nm(0); if (isErr(z)) return z; const kum = A.length > 1 ? bool(es(1)) : true; return kum ? normCdf(z) : Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI); }
+      case 'NORM.DIST': case 'NORMDIST': { const x = nm(0), m = nm(1), sd = nm(2); for (const q of [x, m, sd]) if (isErr(q)) return q; if (sd <= 0) return E.NUM; const z = (x - m) / sd, kum = bool(es(3)); return kum ? normCdf(z) : Math.exp(-z * z / 2) / (sd * Math.sqrt(2 * Math.PI)); }
+      case 'NORM.S.INV': case 'NORMSINV': { const p = nm(0); if (isErr(p)) return p; return p <= 0 || p >= 1 ? E.NUM : normInv(p); }
+      case 'NORM.INV': case 'NORMINV': { const p = nm(0), m = nm(1), sd = nm(2); for (const q of [p, m, sd]) if (isErr(q)) return q; return p <= 0 || p >= 1 || sd <= 0 ? E.NUM : m + sd * normInv(p); }
     }
     throw new Error('Desteklenmeyen Excel işlevi: ' + n.n);
   }
+  function normCdf(z) { const t = 1 / (1 + 0.2316419 * Math.abs(z)), d = 0.3989422804014327 * Math.exp(-z * z / 2), p = d * t * (0.31938153 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))); return z >= 0 ? 1 - p : p; }
+  function normInv(p) { const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239], b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572], c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783], d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416], pl = 0.02425;
+    if (p < pl) { const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    if (p > 1 - pl) { const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    const q = p - 0.5, r = q * q; return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1); }
   function ikiliF(a, b, f) { const A = a instanceof Arr ? a : null, B = b instanceof Arr ? b : null, R = Math.max(A ? A.r : 1, B ? B.r : 1), C = Math.max(A ? A.c : 1, B ? B.c : 1), v = new Array(R * C);
     for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) { const x = num(A ? A.at(A.r === 1 ? 0 : i, A.c === 1 ? 0 : j) : a), y = num(B ? B.at(B.r === 1 ? 0 : i, B.c === 1 ? 0 : j) : b); v[i * C + j] = isErr(x) ? x : isErr(y) ? y : f(x, y); } return new Arr(R, C, v); }
 
