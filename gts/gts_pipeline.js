@@ -236,6 +236,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   // kambiyonun karşılığı kur hedge (kullanıcı 03.11.2026 22:31): net kâr TL defter mantığıyla – panelde hesaplanır, model yeniden hesaplanmaz
   { const k = O.tic.findIndex((r) => /^Forward maliyeti/.test(r[0])), v = girdi['GTS!KambiyoHedge'] || 'Açık';
     O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Kur hedge – beyanname → fatura vadesi', v, 'Beyanname günü fatura vadesine forward USD alınır; kambiyo kârı/zararının karşılığı. Ödeme beyannameden önceyse (COD) korunacak borç yok, sonuç 0.', 'Açık', 'GTS!KambiyoHedge', 'sec', { tip: 'list', liste: ['Açık', 'Kapalı'] }]); }
+  // kargo yaşam döngüsü (kullanıcı 03.11.2026 16:50)
+  try { O.kargo = require(path.join(resDir, 'kargo_omur.js')).omur((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kargo = null; log('Kargo yaşam döngüsü: ' + e.message); }
   // yasal defter görünümü – kambiyo (kullanıcı 02.11.2026 20:04)
   try { O.kambiyo = require(path.join(resDir, 'kambiyo.js')).kambiyo((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kambiyo = null; log('Kambiyo hesabı: ' + e.message); }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);

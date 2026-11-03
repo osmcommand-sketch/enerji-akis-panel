@@ -578,6 +578,16 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 .tf-ozet{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px;padding:9px 12px;margin-bottom:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font:400 13px var(--f-body);color:var(--ink-2,var(--ink))}
 .tf-ozet b{font:600 14px var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink)}
 .tf-oz-b{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.kg-sec{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:12px}
+.kg-sec select{min-width:min(420px,100%);flex:1 1 280px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font:500 13px var(--f-body);color:var(--ink)}
+.kg-lab{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.kg-ok{min-width:34px;font-size:16px;line-height:1}
+.kg-cizgi svg{display:block;width:100%;height:auto}
+.kg-kpi{margin-top:12px}
+.kg-iki{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px}.kg-scr td,.kg-scr th{white-space:nowrap}
+@media (max-width:900px){.kg-iki{grid-template-columns:minmax(0,1fr)}}
+.kg-scr{max-height:360px}
+.kg-tum tr[data-k]{cursor:pointer}.kg-tum tr[aria-selected="true"] td{background:var(--surface-2,#F1F4F6)}.kg-tum tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--gts,#B8860B)}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -601,6 +611,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="genel" aria-selected="true">Genel bakış</button>
     <button type="button" role="tab" data-v="akis" aria-selected="false">Pazar ve akış</button>
     <button type="button" role="tab" data-v="operasyon" aria-selected="false">Operasyon</button>
+    <button type="button" role="tab" data-v="kargo" aria-selected="false">Kargolar</button>
     <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
     <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
     <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
@@ -678,6 +689,39 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
   </div>
 
   <!-- EKONOMİ -->
+  <div class="v" data-v="kargo" hidden>
+    <section>
+      <div class="head"><h2 id="kg-h">Kargo yaşam döngüsü</h2><span class="sub" id="kg-sub"></span></div>
+      <div class="kg-sec">
+        <div class="ctl" id="kg-urun-k" hidden><span>Ürün</span><div class="seg" id="kg-urun"><button type="button" data-u="Motorin" aria-pressed="true">Motorin</button><button type="button" data-u="Benzin" aria-pressed="false">Benzin</button></div></div>
+        <label class="kg-lab" for="kg-sel">Kargo</label>
+        <button type="button" class="btn kg-ok" id="kg-onc" aria-label="Önceki kargo">‹</button>
+        <select id="kg-sel"></select>
+        <button type="button" class="btn kg-ok" id="kg-son" aria-label="Sonraki kargo">›</button>
+      </div>
+      <div class="kg-cizgi" id="kg-cizgi"></div>
+      <div class="kpi4 kg-kpi" id="kg-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Günlük satış ve kalan stok</h2><span class="sub" id="kg-gsub">ton · bu kargodan satılan (ilk giren ilk çıkar) · kalan = kargo tonu − kümülatif satış</span></div>
+      <div class="grf" id="kg-gunluk"></div>
+    </section>
+    <div class="kg-iki">
+      <section>
+        <div class="head"><h2>İthalat beyannameleri</h2><span class="sub" id="kg-bsub"></span></div>
+        <div class="scroll kg-scr"><table class="t" id="kg-bey"></table></div>
+      </section>
+      <section>
+        <div class="head"><h2>Günlük satış</h2><span class="sub" id="kg-ssub"></span></div>
+        <div class="scroll kg-scr"><table class="t" id="kg-sat"></table></div>
+      </section>
+    </div>
+    <section>
+      <div class="head"><h2>Tüm kargolar</h2><span class="sub">satıra tıklayınca kargo seçilir</span></div>
+      <div class="scroll" style="max-height:420px"><table class="t kg-tum" id="kg-tum"></table></div>
+      <p class="not">Kaynak: GTS Excel modeli Kargolar ve Günlük sayfaları. NOR = varış (NOR verildiği gün varsayılır); antrepo beyannamesi tahliye başlangıcında, B/L miktarıyla açılır; COD = tahliye bitişi; ödeme = COD + alım ödeme vadesi. İthalat beyannameleri modelin günlük beyanname partileridir; kargoya düşen miktar kümülatif tonla ilk giren ilk çıkar (½ = parti iki kargoya bölünüyor), kambiyo partinin tonuyla orantılı; günlük satış kargolara kümülatif satış ile ilk giren ilk çıkar mantığıyla dağıtılır.</p>
+    </section>
+  </div>
   <div class="v" data-v="ekonomi" hidden>
     <section>
       <div class="head"><h2>Yıllara göre sonuç</h2><span class="sub">M $ · Özet "Yıllara göre" bloğu · kargo marjı satılan tona göre yıllara bölünür</span></div>

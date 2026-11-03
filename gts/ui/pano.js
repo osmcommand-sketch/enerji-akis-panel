@@ -116,18 +116,76 @@ function aralik(el,R,o={}){
 }
 
 /* ---------- sekmeler (hash) ---------- */
-const SEK=["genel","akis","operasyon","ekonomi","hedge","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","kargo","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,ekonomi,hedge,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
 for(const b of document.querySelectorAll(".tabs [data-v]")) b.addEventListener("click",()=>{ if(location.hash!=="#"+b.dataset.v) location.hash=b.dataset.v; else goster(b.dataset.v); });
 addEventListener("hashchange",()=>goster(location.hash.slice(1)));
+
+/* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
+function kargolar(){
+  const KD=V.kargo; if(!KD){ $("kg-cizgi").innerHTML=`<p class="not">Bu paketteki modelde kargo yaşam döngüsü verisi yok.</p>`; return; }
+  const ur=Object.keys(KD); if(!S.kgU||!KD[S.kgU]) S.kgU=ur[0]; $("kg-urun-k").hidden=ur.length<2;
+  for(const b of $("kg-urun").querySelectorAll("button")){ b.disabled=!KD[b.dataset.u]; b.onclick=()=>{ S.kgU=b.dataset.u; S.kgN=null; kargolar(); }; b.setAttribute("aria-pressed",String(b.dataset.u===S.kgU)); }
+  const D=KD[S.kgU], K=D.k, g0=Date.parse(D.g0+"T00:00:00Z"), gi=s=>s?Math.round((Date.parse(s+"T00:00:00Z")-g0)/864e5):null, tS=i=>{ const d=new Date(g0+i*864e5); return d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear(); };
+  const tk=s=>s?(d=>d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear())(new Date(s+"T00:00:00Z")):"–", gem=k=>k[0]===0?"Açılış stoğu":esc(k[1]||"");
+  if(S.kgN==null||!K.some(k=>k[0]===S.kgN)) S.kgN=(K.find(k=>k[0]>0)||K[0])[0];
+  const sel=$("kg-sel"); sel.innerHTML=K.map(k=>`<option value="${k[0]}">${k[0]===0?"Açılış stoğu · 1 Oca 2027":"Kargo "+k[0]+" · "+esc(k[1]||"")+" · "+nf.format(k[2])+" t · varış "+tk(k[5])}</option>`).join(""); sel.value=String(S.kgN);
+  sel.onchange=()=>{ S.kgN=+sel.value; kargolar(); };
+  const ki=K.findIndex(k=>k[0]===S.kgN), k=K[ki];
+  $("kg-onc").disabled=ki<=0; $("kg-son").disabled=ki>=K.length-1;
+  $("kg-onc").onclick=()=>{ if(ki>0){ S.kgN=K[ki-1][0]; kargolar(); } }; $("kg-son").onclick=()=>{ if(ki<K.length-1){ S.kgN=K[ki+1][0]; kargolar(); } };
+  // satışın FIFO dağılımı: kümülatif satış ∈ (L, M]
+  const L=k[21], M=k[22], gun=[]; let cum=0; for(let i=0;i<D.sat.length;i++){ const a=cum, b=cum+D.sat[i]; cum=b; const o=Math.max(0,Math.min(b,M)-Math.max(a,L)); if(o>0.05) gun.push([i,o]); }
+  let cb=0; const BY=[]; for(const b of D.bey){ const a0=cb, a1=cb+b[1]; cb=a1; const o=Math.max(0,Math.min(a1,M)-Math.max(a0,L)); if(o>0.05) BY.push([b[0],o,b[2],b[3]!=null?b[3]*o/b[1]:null,b[4],b[5],o<b[1]-0.05]); }
+  const byT=BY.reduce((a,b)=>a+b[1],0), stT=gun.reduce((a,g)=>a+g[1],0), kmb=BY.reduce((a,b)=>a+(b[3]||0),0);
+  $("kg-h").textContent=k[0]===0?"Açılış stoğu · yaşam döngüsü":`Kargo ${k[0]} · ${k[1]||""} · yaşam döngüsü`;
+  $("kg-sub").textContent=`${S.kgU} · ${nf.format(k[2])} t net${k[3]?` · B/L ${nf.format(k[3])} t`:""} · ${K.filter(x=>x[0]>0).length} kargo`;
+  // zaman çizelgesi
+  const OL=[["Fiyatlama",k[4],C.ink3],["NOR / varış",k[5],C.gts],["Antrepo beyannamesi",k[6],"#7B4FA0"],["COD",k[7],C.mot],["Ödeme",k[8],"#C0504D"],["Satışa hazır",k[9],C.pos],["İlk satış",k[10],C.mot],["Tükenme",k[11],C.neg]].filter(x=>x[1]).reduce((a,x)=>{ const o=a.find(y=>y[1]===x[1]); if(o) o[0]+=" · "+x[0]; else a.push([...x]); return a; },[]);
+  gw($("kg-cizgi")); const xs=OL.map(x=>gi(x[1])), lo=Math.min(...xs,gun.length?gun[0][0]:Infinity), hi=Math.max(...xs,gun.length?gun[gun.length-1][0]:-Infinity), Wd=W||900, H=214, pl=16, pr=16, sx=i=>pl+(hi>lo?(i-lo)/(hi-lo):0.5)*(Wd-pl-pr);
+  let g=`<line x1="${pl}" y1="92" x2="${Wd-pr}" y2="92" stroke="var(--line)" stroke-width="2"/>`;
+  if(gun.length) g+=`<rect x="${sx(gun[0][0])}" y="86" width="${Math.max(2,sx(gun[gun.length-1][0])-sx(gun[0][0]))}" height="12" rx="3" fill="${C.mot}" opacity=".22"><title>Satış dönemi: ${tS(gun[0][0])} – ${tS(gun[gun.length-1][0])}</title></rect>`;
+  for(const b of BY) g+=`<line x1="${sx(b[0]).toFixed(1)}" y1="100" x2="${sx(b[0]).toFixed(1)}" y2="108" stroke="#7B4FA0" stroke-width="1.5"><title>İthalat beyannamesi ${tS(b[0])}: ${nf.format(b[1])} t</title></line>`;
+  const yer=[], cx=x=>Math.min(Math.max(x,pl+58),Wd-pr-58); OL.forEach(([ad,d,c],j)=>{ const x=sx(gi(d)); let sira=0; while(sira<5&&yer.some(p=>p[1]===sira&&Math.abs(p[0]-cx(x))<124)) sira++; yer.push([cx(x),sira]); const ust=sira%2===0, kat=Math.floor(sira/2), yy=ust?92-28-kat*30:92+30+kat*30;
+    g+=`<line x1="${x.toFixed(1)}" y1="${ust?yy+5:98}" x2="${x.toFixed(1)}" y2="${ust?86:yy-13}" stroke="${c}" stroke-width="1" opacity=".55"/><circle cx="${x.toFixed(1)}" cy="92" r="5.5" fill="${c}" stroke="var(--surface,#fff)" stroke-width="2"><title>${ad}: ${tk(d)}</title></circle>`
+      +`<text x="${cx(x).toFixed(1)}" y="${ust?yy-8:yy}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${ad}</text><text x="${cx(x).toFixed(1)}" y="${ust?yy+4:yy+12}" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">${tk(d)}</text>`; });
+  $("kg-cizgi").innerHTML=`<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Kargo yaşam döngüsü zaman çizelgesi">${g}</svg>`;
+  const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  $("kg-kpi").innerHTML=kt("Antrepo beyannamesi",k[0]===0?"–":tk(k[6]),k[0]===0?"açılış stoğu":`B/L ${nf.format(k[3]||k[2])} t · ÖTV teminatı ${nf1.format((k[20]||0)/1e6)} M TL`)
+    +kt("İthalat beyannameleri",`${BY.length} adet`,`${nf.format(byT)} t · kambiyo ${kmb>=0?"+":"−"}${nf1.format(Math.abs(kmb)/1e6)} M TL`)
+    +kt("Satış",gun.length?`${gun.length} gün`:"–",gun.length?`${nf.format(stT)} t · ${tS(gun[0][0])} – ${tS(gun[gun.length-1][0])}`:"")
+    +kt("Alış ve marj",`${nf1.format(k[15]||0)} $/t`,`CIF ${nf1.format(k[14]||0)} · değer ${nf1.format((k[16]||0)/1e6)} M $ · brüt ${(k[17]||0)<0?"−":""}${nf1.format(Math.abs(k[17]||0))} $/t · net ${(k[19]||0)<0?"−":""}${nf1.format(Math.abs(k[19]||0)/1e6)} M $`,(k[19]||0)<0?"neg":"pos");
+  // günlük satış + kalan stok grafiği
+  { const el=$("kg-gunluk"); if(!gun.length){ el.innerHTML=`<p class="not">Bu kargodan dönem içinde satış yok.</p>`; } else {
+    gw(el); const a=gun[0][0], b=gun[gun.length-1][0], n=b-a+1, Hh=200, pL=52, pR=52, pT=10, y0=Hh-24, Wg=W||900, bw=Math.max(1,(Wg-pL-pR)/n*0.8), mx=Math.max(...gun.map(x=>x[1])), sxg=i=>pL+(i-a+0.5)/n*(Wg-pL-pR);
+    const sy=v=>y0-(v/mx)*(y0-pT), sy2=v=>y0-(v/(M-L))*(y0-pT); let gg="", kal=M-L, path="", byG=new Map(BY.map(x=>[x[0],x]));
+    for(let t=0;t<=4;t++){ const v=mx*t/4, y=sy(v); gg+=`<line x1="${pL}" y1="${y}" x2="${Wg-pR}" y2="${y}" stroke="var(--line)" stroke-width="${t?0.5:1}"/><text x="${pL-6}" y="${y+3.5}" text-anchor="end" font-size="10" fill="var(--ink-3)">${nf.format(v)}</text><text x="${Wg-pR+6}" y="${sy2((M-L)*t/4)+3.5}" font-size="10" fill="var(--ink-3)">${nf.format((M-L)*t/4/1000)} kt</text>`; }
+    const gm=new Map(gun); for(let i=a;i<=b;i++){ const v=gm.get(i)||0; kal-=v; if(v) gg+=`<rect x="${(sxg(i)-bw/2).toFixed(1)}" y="${sy(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(y0-sy(v)).toFixed(1)}" fill="${C.mot}"><title>${tS(i)}: ${nf.format(v)} t satış${byG.has(i)?` · ithalat beyannamesi ${nf.format(byG.get(i)[1])} t`:""}</title></rect>`; path+=(path?"L":"M")+sxg(i).toFixed(1)+","+sy2(Math.max(0,kal)).toFixed(1); }
+    for(const x of BY) if(x[0]>=a&&x[0]<=b) gg+=`<circle cx="${sxg(x[0]).toFixed(1)}" cy="${y0+6}" r="2.6" fill="#7B4FA0"><title>İthalat beyannamesi ${tS(x[0])}: ${nf.format(x[1])} t</title></circle>`;
+    gg+=`<path d="${path}" fill="none" stroke="${C.gts}" stroke-width="2"/>`;
+    const et=[a,a+Math.round(n/3),a+Math.round(2*n/3),b]; for(const i of et) gg+=`<text x="${sxg(i)}" y="${Hh-4}" text-anchor="middle" font-size="10" fill="var(--ink-3)">${tS(i)}</text>`;
+    el.innerHTML=`<svg viewBox="0 0 ${Wg} ${Hh}" role="img" aria-label="Günlük satış ve kalan stok">${gg}</svg><div class="lg"><span><i class="k" style="background:${C.mot}"></i>günlük satış (t, sol eksen)</span><span><i class="k" style="background:${C.gts}"></i>kalan stok (sağ eksen)</span><span><i class="k" style="background:#7B4FA0;border-radius:50%"></i>ithalat beyannamesi</span></div>`; } }
+  // ithalat beyannameleri tablosu
+  $("kg-bsub").textContent=BY.length?`${BY.length} beyanname · ${nf.format(byT)} t · ${nf.format(byT/D.yog)} m³`:"bu kargoya beyanname yok (açılış stoğu ya da dönem dışı)";
+  let kb=0; $("kg-bey").innerHTML=`<thead><tr><th class="l">Tarih</th><th>Miktar (t)</th><th>m³</th><th>Kümülatif (t)</th><th>Beyanname kuru</th><th>Ödeme kuru</th><th>Kambiyo (TL)</th></tr></thead><tbody>`
+    +BY.map(b=>{ kb+=b[1]; return `<tr><td class="l">${tS(b[0])}${b[6]?' <span class="muted" title="Parti iki kargoya bölünüyor">½</span>':''}</td><td>${nf.format(b[1])}</td><td>${nf.format(b[1]/D.yog)}</td><td>${nf.format(kb)}</td><td>${b[4]!=null?nf2.format(b[4]):"–"}</td><td>${b[5]?nf2.format(b[5]):"–"}</td><td class="${(b[3]||0)<0?"n":"p"}">${b[3]==null?"–":((b[3]<0?"−":"+")+nf.format(Math.abs(b[3])))}</td></tr>`; }).join("")
+    +(BY.length?`<tr class="top"><td class="l"><b>Toplam</b></td><td><b>${nf.format(byT)}</b></td><td>${nf.format(byT/D.yog)}</td><td></td><td></td><td></td><td class="${kmb<0?"n":"p"}"><b>${(kmb<0?"−":"+")+nf.format(Math.abs(kmb))}</b></td></tr>`:"")+`</tbody>`;
+  // günlük satış tablosu
+  $("kg-ssub").textContent=gun.length?`${gun.length} gün · ${nf.format(stT)} t`:"";
+  let kl=M-L; $("kg-sat").innerHTML=`<thead><tr><th class="l">Tarih</th><th>Satış (t)</th><th>Kalan (t)</th><th>Kalan %</th></tr></thead><tbody>`+gun.map(([i,v])=>{ kl-=v; return `<tr><td class="l">${tS(i)}</td><td>${nf.format(v)}</td><td>${nf.format(Math.max(0,kl))}</td><td>${pct(Math.max(0,kl)/(M-L))}</td></tr>`; }).join("")+`</tbody>`;
+  // tüm kargolar
+  const tb=$("kg-tum"); tb.innerHTML=`<thead><tr><th>No</th><th class="l">Gemi</th><th>Ton</th><th class="l">NOR / varış</th><th class="l">Antrepo beyannamesi</th><th class="l">COD</th><th class="l">Ödeme</th><th class="l">İlk satış</th><th class="l">Tükenme</th><th>Gün</th><th>Beyanname</th><th>Alış $/t</th><th>Net marj M $</th></tr></thead><tbody>`
+    +K.map(x=>{ let c2=0, nb=0; for(const b of D.bey){ const a0=c2, a1=c2+b[1]; c2=a1; if(Math.min(a1,x[22])-Math.max(a0,x[21])>0.05) nb++; } return `<tr data-k="${x[0]}" tabindex="0" aria-selected="${x[0]===S.kgN}"><td>${x[0]}</td><td class="l">${gem(x)}</td><td>${nf.format(x[2])}</td><td class="l">${tk(x[5])}</td><td class="l">${x[0]===0?"–":tk(x[6])}</td><td class="l">${tk(x[7])}</td><td class="l">${tk(x[8])}</td><td class="l">${tk(x[10])}</td><td class="l">${tk(x[11])}</td><td>${x[12]??"–"}</td><td>${nb}</td><td>${nf1.format(x[15]||0)}</td><td class="${(x[19]||0)<0?"n":"p"}">${(x[19]||0)<0?"−":""}${nf1.format(Math.abs(x[19]||0)/1e6)}</td></tr>`; }).join("")+`</tbody>`;
+  for(const tr of tb.querySelectorAll("tr[data-k]")){ const f=()=>{ S.kgN=+tr.dataset.k; kargolar(); $("kg-h").scrollIntoView({behavior:"smooth",block:"start"}); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+}
 
 /* ---------- GENEL ---------- */
 function wfKart(baslik,K,toplam,alt){
