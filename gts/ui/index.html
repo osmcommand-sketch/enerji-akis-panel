@@ -578,6 +578,20 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 .tf-ozet{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px;padding:9px 12px;margin-bottom:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font:400 13px var(--f-body);color:var(--ink-2,var(--ink))}
 .tf-ozet b{font:600 14px var(--f-body);font-variant-numeric:tabular-nums;color:var(--ink)}
 .tf-oz-b{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.st-ctl{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 14px;margin-bottom:12px}
+.st-f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.st-f select{min-width:200px;max-width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font:500 13px var(--f-body);color:var(--ink)}
+.st-dar select{min-width:130px}.st-csv{margin-left:auto}
+.st-scr{max-height:620px}.st-t td,.st-t th{white-space:nowrap;font-variant-numeric:tabular-nums}
+.st-t thead th{position:sticky;top:0;z-index:2;background:var(--surface)}.st-t thead tr.st-gr th{top:0;font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);border-bottom:0}
+.st-t thead tr:nth-child(2) th{top:24px}
+.st-t th.st-so{cursor:pointer}.st-t th.st-so:hover{color:var(--ink)}
+.st-t th.g1,.st-t td.g1{background:rgba(42,85,145,.035)}.st-t th.g3,.st-t td.g3{background:rgba(122,62,157,.04)}.st-t td.son{font-weight:600}
+.st-t tr.top td{position:sticky;top:50px;z-index:1;background:var(--surface-2,#F1F4F6);font-weight:600}
+.st-t td:first-child,.st-t th:first-child{position:sticky;left:0;background:var(--surface);z-index:1}.st-t thead th:first-child{z-index:3}.st-t tr.top td:first-child{z-index:2;background:var(--surface-2,#F1F4F6)}
+.st-lk{all:unset;cursor:pointer;color:var(--ink);border-bottom:1px dotted var(--ink-3)}.st-lk:hover{color:var(--gts)}.st-lk:focus-visible{outline:2px solid var(--gts);outline-offset:2px}
+.st-sayfa{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px}.st-sayfa:empty{display:none}
+@media (max-width:700px){.st-f,.st-f select{width:100%}.st-csv{margin-left:0}}
 .kg-sec{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-bottom:12px}
 .kg-sec select{min-width:min(420px,100%);flex:1 1 280px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font:500 13px var(--f-body);color:var(--ink)}
 .kg-lab{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
@@ -612,6 +626,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="akis" aria-selected="false">Pazar ve akış</button>
     <button type="button" role="tab" data-v="operasyon" aria-selected="false">Operasyon</button>
     <button type="button" role="tab" data-v="kargo" aria-selected="false">Kargolar</button>
+    <button type="button" role="tab" data-v="satis" aria-selected="false">Satışlar</button>
     <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
     <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
     <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
@@ -732,6 +747,37 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
       <div class="scroll" style="max-height:420px"><table class="t kg-tum" id="kg-tum"></table></div>
       <p class="not">Kaynak: GTS Excel modeli Kargolar ve Günlük sayfaları. NOR = varış (NOR verildiği gün varsayılır); antrepo beyannamesi tahliye başlangıcında, B/L miktarıyla açılır; COD = tahliye bitişi; ödeme = COD + alım ödeme vadesi. İthalat beyannameleri modelin günlük beyanname partileridir; kargoya düşen miktar kümülatif tonla ilk giren ilk çıkar (½ = parti iki kargoya bölünüyor), kambiyo partinin tonuyla orantılı; günlük satış kargolara kümülatif satış ile ilk giren ilk çıkar mantığıyla dağıtılır.</p>
     </section>
+  </div>
+  <div class="v" data-v="satis" hidden>
+    <section>
+      <div class="head"><h2>Satışlar</h2><span class="sub" id="st-sub"></span></div>
+      <div class="st-ctl">
+        <div class="ctl" id="st-urun-k" hidden><span>Ürün</span><div class="seg" id="st-urun"><button type="button" data-u="Motorin" aria-pressed="true">Motorin</button><button type="button" data-u="Benzin" aria-pressed="false">Benzin</button></div></div>
+        <label class="st-f"><span class="kg-lab">Müşteri</span><select id="st-mus"></select></label>
+        <label class="st-f"><span class="kg-lab">Lot (gemi)</span><select id="st-lot"></select></label>
+        <label class="st-f st-dar"><span class="kg-lab">Ay</span><select id="st-ay"></select></label>
+        <div class="st-f"><span class="kg-lab">Görünüm</span><div class="seg" id="st-gor" role="group" aria-label="Görünüm"><button type="button" data-g="gun" aria-pressed="true">Günlük</button><button type="button" data-g="musteri" aria-pressed="false">Müşteri</button><button type="button" data-g="lot" aria-pressed="false">Lot</button><button type="button" data-g="alt" aria-pressed="false">Alt lot</button><button type="button" data-g="ay" aria-pressed="false">Ay</button></div></div>
+        <button type="button" class="btn st-csv" id="st-csv">CSV indir</button>
+      </div>
+      <div class="kpi4" id="st-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2 id="st-th">Günlük satırlar</h2><span class="sub" id="st-tsub"></span></div>
+      <div class="scroll st-scr"><table class="t st-t" id="st-tab"></table></div>
+      <div class="st-sayfa" id="st-sayfa"></div>
+      <p class="not" id="st-not"></p>
+    </section>
+    <div class="kg-iki">
+      <section>
+        <div class="head"><h2>Lot ve alt lotlar</h2><span class="sub" id="st-lsub"></span></div>
+        <div class="scroll kg-scr kg-tum"><table class="t" id="st-lotlar"></table></div>
+      </section>
+      <section>
+        <div class="head"><h2>Model ile mutabakat</h2><span class="sub">M $ · tüm müşteriler, filtresiz</span></div>
+        <table class="t kar" id="st-mut"></table>
+        <p class="not" id="st-mnot"></p>
+      </section>
+    </div>
   </div>
   <div class="v" data-v="ekonomi" hidden>
     <section>

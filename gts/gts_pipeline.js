@@ -241,6 +241,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   if (GB.KH) { O.tic = O.tic.filter((r) => !(r[4] === GB.KH.b || r[4] === 'GTS!KambiyoHedge' || /^Kambiyo kur hedge|^Kur hedge – beyanname/.test(r[0])));
     const r = O.tic.find((x) => x[4] === GB.KH.a); if (r) r[2] = 'Tek anahtar: satış tahsilatı (fatura → tahsilat) ve alış (beyanname → fatura vadesi forward) kur hedge\'i birlikte açılır / kapanır.'; }
   // kargo yaşam döngüsü (kullanıcı 03.11.2026 16:50)
+  try { O.satis = require(path.join(resDir, 'satis.js')).satislar((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.satis = null; log('Satışlar raporu: ' + e.message); }
   try { O.kargo = require(path.join(resDir, 'kargo_omur.js')).omur((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kargo = null; log('Kargo yaşam döngüsü: ' + e.message); }
   // yasal defter görünümü – kambiyo (kullanıcı 02.11.2026 20:04)
   try { O.kambiyo = require(path.join(resDir, 'kambiyo.js')).kambiyo((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kambiyo = null; log('Kambiyo hesabı: ' + e.message); }

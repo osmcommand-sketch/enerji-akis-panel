@@ -120,19 +120,113 @@ function aralik(el,R,o={}){
 }
 
 /* ---------- sekmeler (hash) ---------- */
-const SEK=["genel","akis","operasyon","kargo","ekonomi","hedge","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","kargo","satis","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,ekonomi,hedge,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
 for(const b of document.querySelectorAll(".tabs [data-v]")) b.addEventListener("click",()=>{ if(location.hash!=="#"+b.dataset.v) location.hash=b.dataset.v; else goster(b.dataset.v); });
 addEventListener("hashchange",()=>goster(location.hash.slice(1)));
 
+/* ---------- SATIŞLAR (kullanıcı 03.11.2026 19:59): müşteri bazında günlük satış ve kârlılık; lot = gemi (antrepo beyannamesi),
+   alt lot = o geminin ithalat beyannameleri, satış ↔ alt lot FIFO (res/satis.js). Müşteri payı ve kaynak bazlı prim akış tablosundan. ---------- */
+function satislar(){
+  const SD=V.satis; if(!SD||!(SD.Motorin||SD.Benzin)){ $("st-tab").innerHTML=`<tbody><tr><td class="l">Bu paketteki modelde satış / beyanname ayrıntısı yok.</td></tr></tbody>`; return; }
+  const ur=["Motorin","Benzin"].filter(u=>SD[u]); if(!S.stU||!SD[S.stU]) S.stU=ur[0]; $("st-urun-k").hidden=ur.length<2;
+  for(const b of $("st-urun").querySelectorAll("button")){ b.disabled=!SD[b.dataset.u]; b.onclick=()=>{ S.stU=b.dataset.u; S.stLot=""; S.stSf=0; satislar(); }; b.setAttribute("aria-pressed",String(b.dataset.u===S.stU)); }
+  const D=SD[S.stU], mot=S.stU==="Motorin", g0=Date.parse(D.g0+"T00:00:00Z"), gd=i=>new Date(g0+i*864e5), yl=i=>gd(i).getUTCFullYear();
+  const tS=i=>{ const d=gd(i); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear(); }, tI=s=>s?s.slice(8,10)+"."+s.slice(5,7)+"."+s.slice(0,4):"–";
+  const ayK=i=>{ const d=gd(i); return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0"); }, ayA=k=>AY[+k.slice(5)-1]+" "+k.slice(0,4);
+  // müşteriler: akış tablosundaki dağıtıcı payı (asgari alım eşiğinin altındakiler hariç) ve kaynak bazlı satış primi
+  const Mu=(()=>{ const A=V.akis, P=SD.prim||{}; if(!A||!A.ky) return [{s:-1,ad:"Tüm müşteriler",w:1,prim:P.ort||0}];
+    const HT=hedefTon(), sen=(V.minAlim&&V.minAlim.sen)||(HT.yil&&HT.yil<=1125000?"BAZ_075":"HEDEF_150"); let oi=A.oz.findIndex(r=>r[0]===sen&&r[1]==="GERCEKCI_200"); if(oi<0) oi=A.oz.findIndex(r=>r[0]===sen&&r[1]==="REF");
+    const EX=new Set((V.minAlim&&V.minAlim.sir)||[]), m=new Map(), uk=mot?1:0;
+    for(const r of A.ky){ if(r[0]!==oi||r[3]!==uk||r[1]<0||EX.has(r[1])) continue; const o=m.get(r[1])||m.set(r[1],[0,0]).get(r[1]), p=P[kayKod(r)]; o[0]+=r[6]; o[1]+=r[6]*(typeof p==="number"?p:(P.ort||0)); }
+    const top=[...m.values()].reduce((a,o)=>a+o[0],0); if(!top) return [{s:-1,ad:"Tüm müşteriler",w:1,prim:P.ort||0}];
+    const L=[...m.entries()].map(([s,o])=>({s,ad:V.sir[s]||("Dağıtıcı "+s),w:o[0]/top,prim:o[1]/o[0]})).sort((a,b)=>b.w-a.w);
+    const po=L.reduce((a,x)=>a+x.w*x.prim,0); for(const x of L) x.dp=(x.prim-po)/D.yog; return L; })();
+  for(const x of Mu) if(x.dp==null) x.dp=0;
+  const LM=new Map(D.lot.map(l=>[l[0],l])), lotAd=n=>n===0?"Açılış stoğu":"K"+n+" · "+(LM.get(n)?LM.get(n)[1]||"":""), altAd=a=>"İB-"+String(a[3]).padStart(3,"0")+(a[6]?" (2. parça)":"");
+  // alt lot başına satılan ton, ilk / son satış günü
+  const AS=D.alt.map(()=>[0,null,null]); for(const [i,j,q] of D.sat){ const o=AS[j]; o[0]+=q; if(o[1]==null) o[1]=i; o[2]=i; }
+  // seçenekler
+  const yOk=i=>!YIL||String(yl(i))===YIL, ayl=[...new Set(D.sat.filter(s=>yOk(s[0])).map(s=>ayK(s[0])))];
+  if(S.stMu==null) S.stMu=""; if(S.stLot==null) S.stLot=""; if(S.stAy==null||(S.stAy&&!ayl.includes(S.stAy))) S.stAy=""; if(!S.stGor) S.stGor="gun"; if(S.stSf==null) S.stSf=0;
+  const lotlar=[...new Set(D.sat.filter(s=>yOk(s[0])).map(s=>D.alt[s[1]][0]))];
+  $("st-mus").innerHTML=`<option value="">Tüm müşteriler (${Mu.length})</option>`+Mu.map(x=>`<option value="${x.s}">${esc(x.ad)} · %${nf1.format(x.w*100)}</option>`).join(""); $("st-mus").value=S.stMu;
+  $("st-lot").innerHTML=`<option value="">Tüm lotlar (${lotlar.length})</option>`+lotlar.map(n=>{ const l=LM.get(n)||[]; return `<option value="${n}">${n===0?"Açılış stoğu":"Kargo "+n+" · "+esc(l[1]||"")+" · antrepo "+tI(l[4])}</option>`; }).join(""); if(S.stLot!==""&&!lotlar.includes(+S.stLot)) S.stLot=""; $("st-lot").value=S.stLot;
+  $("st-ay").innerHTML=`<option value="">Tüm aylar</option>`+ayl.map(k=>`<option value="${k}">${ayA(k)}</option>`).join(""); $("st-ay").value=S.stAy;
+  $("st-mus").onchange=e=>{ S.stMu=e.target.value; S.stSf=0; satislar(); }; $("st-lot").onchange=e=>{ S.stLot=e.target.value; S.stSf=0; satislar(); }; $("st-ay").onchange=e=>{ S.stAy=e.target.value; S.stSf=0; satislar(); };
+  for(const b of $("st-gor").querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset.g===S.stGor)); b.onclick=()=>{ S.stGor=b.dataset.g; S.stSf=0; S.stSr=null; satislar(); }; }
+  // satır üretimi: satış parçası × müşteri; kalemler USD
+  const MS=S.stMu===""?Mu:Mu.filter(x=>String(x.s)===S.stMu), satir=[];
+  const kal=(i,a,l,q,m)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, p=(D.gTL[i]+m.dp)/D.kur[i], o={q,gel:q*p,mal:-q*l[6],hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,kmb:q*a[4],fwd:q*a[5]}; o.br=o.gel+o.mal+o.hn; o.nk=o.br+o.fin+o.faal+o.kmb+o.fwd; return o; };
+  for(const [i,j,q] of D.sat){ if(!yOk(i)) continue; const a=D.alt[j]; if(S.stLot!==""&&a[0]!==+S.stLot) continue; if(S.stAy&&ayK(i)!==S.stAy) continue; const l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue;
+    for(const m of MS){ const o=kal(i,a,l,q*m.w,m); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } }
+  const K=["q","gel","mal","hn","br","fin","faal","kmb","fwd","nk"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
+  const T=top(); for(const o of satir) ek(T,o);
+  // özet kutuları
+  const ut=(v,t)=>t?(v<0?"−":"")+nf2.format(Math.abs(v/t)):"–", md=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6);
+  const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  $("st-kpi").innerHTML=kt("Satış",nf.format(T.q)+" t",`${new Set(satir.map(o=>o.i)).size} gün · ${new Set(satir.map(o=>o.j)).size} ithalat beyannamesi · ${new Set(satir.map(o=>o.lot)).size} lot`)
+    +kt("Satış geliri",md(T.gel)+" M $",`ortalama ${ut(T.gel,T.q)} $/t · fatura günü kuruyla`)
+    +kt("Brüt kâr",md(T.br)+" M $",`${ut(T.br,T.q)} $/t · ürün hedge dahil`,T.br<0?"neg":"pos")
+    +kt("Net kâr",md(T.nk)+" M $",`${ut(T.nk,T.q)} $/t · kambiyo ve forward dahil`,T.nk<0?"neg":"pos");
+  $("st-sub").textContent=`${S.stU} · ${YIL||"2027–2028"} · müşteri payları ${V.minAlim&&V.minAlim.n?`asgari alım eşiğini geçen ${Mu.length} dağıtıcı`:`${Mu.length} dağıtıcı`} · satışlar ithalat beyannamelerinden FIFO`;
+  // gruplama
+  const GOR={gun:{ad:"Günlük satırlar",anah:o=>o.i+"|"+o.m.s+"|"+o.j},musteri:{ad:"Müşteri özeti",anah:o=>o.m.s},lot:{ad:"Lot özeti",anah:o=>o.lot},alt:{ad:"Alt lot (ithalat beyannamesi) özeti",anah:o=>o.j},ay:{ad:"Aylık özet",anah:o=>ayK(o.i)}}[S.stGor];
+  let R; if(S.stGor==="gun") R=satir; else { const M=new Map(); for(const o of satir){ const k=GOR.anah(o); let t=M.get(k); if(!t){ t=Object.assign(top(),{i:o.i,i2:o.i,j:o.j,lot:o.lot,m:o.m,n:0,gn:new Set()}); M.set(k,t); } ek(t,o); t.i2=o.i; t.n++; t.gn.add(o.i); } R=[...M.values()]; }
+  const sr=S.stSr; if(sr) R=[...R].sort((a,b)=>sr.y*((a[sr.k]||0)-(b[sr.k]||0)));
+  const kolB={gun:[["Tarih",o=>tS(o.i)],["Müşteri",o=>esc(o.m.ad)],["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`],["Alt lot",o=>`<span title="Beyanname ${tS(D.alt[o.j][1])} · ${nf.format(D.alt[o.j][2])} t">${altAd(D.alt[o.j])}</span>`]],
+    musteri:[["Müşteri",o=>esc(o.m.ad)],["Pay",o=>"%"+nf1.format(o.m.w*100)],["Prim TL/m³",o=>nf.format(o.m.prim)]],
+    lot:[["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`],["Antrepo beyannamesi",o=>tI((LM.get(o.lot)||[])[4])],["Satış dönemi",o=>tS(o.i)+" – "+tS(o.i2)]],
+    alt:[["Alt lot",o=>altAd(D.alt[o.j])],["Beyanname tarihi",o=>tS(D.alt[o.j][1])],["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`]],
+    ay:[["Ay",o=>ayA(ayK(o.i))],["Gün",o=>nf.format(o.gn.size)]]}[S.stGor];
+  const kolS=[["q","Ton","",v=>nf.format(v)],["fy","Fiyat $/t","",(v,o)=>ut(o.gel,o.q)],["gel","Satış geliri","g1"],["mal","Ürün maliyeti","g1"],["hn","Ürün hedge","g1"],["br","Brüt kâr","g1 ara"],["fin","Finansman","g2"],["faal","Faaliyet gid.","g2"],["kmb","Kambiyo","g3"],["fwd","Forward","g3"],["nk","Net kâr","son"],["nt","Net $/t","son",(v,o)=>ut(o.nk,o.q)]];
+  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), hc=(k,v)=>k==="br"||k==="nk"||k==="nt"?(v<0?" n":" p"):"";
+  const PS=150, sf=Math.max(0,Math.min(S.stSf,Math.ceil(R.length/PS)-1)); S.stSf=sf; const RP=R.slice(sf*PS,sf*PS+PS);
+  const th=`<thead><tr class="st-gr"><th class="l" colspan="${kolB.length}"></th><th colspan="2"></th><th colspan="4" class="g1">Satış ve ürün</th><th colspan="2" class="g2">Gider</th><th colspan="2" class="g3">Kur farkı</th><th colspan="2" class="son">Sonuç</th></tr>`
+    +`<tr>${kolB.map(([l])=>`<th class="l">${l}</th>`).join("")}${kolS.map(([k,l,c])=>`<th class="${c}${["fy","nt"].includes(k)?"":" st-so"}" data-k="${k}"${sr&&sr.k===k?` aria-sort="${sr.y<0?"descending":"ascending"}"`:""}>${l}${sr&&sr.k===k?(sr.y<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead>`;
+  const tr=(o,cls)=>`<tr${cls?` class="${cls}"`:""}>${kolB.map(([,f],x)=>`<td class="l">${cls==="top"?(x?"":"<b>Toplam</b>"):f(o)}</td>`).join("")}${kolS.map(([k,,c,f])=>{ const v=k==="nt"?(o.q?o.nk/o.q:0):o[k]; return `<td class="${(c||"").replace("ara","").trim()}${hc(k,v)}">${f?f(v,o):dl(v)}</td>`; }).join("")}</tr>`;
+  $("st-th").textContent=GOR.ad; $("st-tsub").textContent=`${nf.format(R.length)} satır · $ (USD)${S.stGor==="gun"&&S.stMu===""?" · her gün × müşteri × alt lot":""}`;
+  $("st-tab").innerHTML=th+`<tbody>${R.length?tr(T,"top"):""}${RP.map(o=>tr(o)).join("")||`<tr><td class="l" colspan="${kolB.length+kolS.length}">Seçime uyan satış yok.</td></tr>`}</tbody>`;
+  for(const h of $("st-tab").querySelectorAll("th.st-so")) h.onclick=()=>{ const k=h.dataset.k; S.stSr=S.stSr&&S.stSr.k===k?(S.stSr.y<0?{k,y:1}:null):{k,y:-1}; S.stSf=0; satislar(); };
+  for(const b of $("st-tab").querySelectorAll("button.st-lk")) b.onclick=()=>{ S.stLot=b.dataset.lot; S.stSf=0; satislar(); };
+  const ns=Math.ceil(R.length/PS); $("st-sayfa").innerHTML=ns>1?`<button type="button" class="btn kg-ok" id="st-p0" aria-label="Önceki sayfa"${sf?"":" disabled"}>‹</button><span>${sf+1} / ${ns}</span><button type="button" class="btn kg-ok" id="st-p1" aria-label="Sonraki sayfa"${sf<ns-1?"":" disabled"}>›</button><span class="muted">${PS} satır / sayfa</span>`:"";
+  if(ns>1){ $("st-p0").onclick=()=>{ S.stSf--; satislar(); }; $("st-p1").onclick=()=>{ S.stSf++; satislar(); }; }
+  $("st-not").innerHTML=`Satış geliri: Tüpraş vergisiz fiyatı ± müşterinin kaynak bazlı primi (Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³; dağıtıcının bayileri hangi kaynaktan alıyorsa o ağırlıkla), satış günü kuruyla. Ürün maliyeti ve ürün hedge lottan (geminin alış maliyeti, hedge sonucu ton başına), kambiyo ve forward alt lottan (ithalat beyannamesinin kur farkı ton başına), finansman lottan, faaliyet giderleri yıl ortalaması ton başına. Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür.`;
+  // CSV (filtredeki tüm satırlar)
+  $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
+    const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
+    const sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(([k])=>n2(k==="fy"?(o.q?o.gel/o.q:0):k==="nt"?(o.q?o.nk/o.q:0):o[k]))].join(";"));
+    const b=new Blob(["﻿"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
+    a.href=URL.createObjectURL(b); a.download=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
+  // lot → alt lot ağacı
+  { const sec=S.stLot!==""?+S.stLot:null; let h;
+    if(sec==null){ const NK=new Map(); for(const o of satir) NK.set(o.lot,(NK.get(o.lot)||0)+o.nk);
+      h=`<thead><tr><th class="l">Lot (gemi)</th><th class="l">Antrepo beyannamesi</th><th>Ton</th><th>İthalat beyannamesi</th><th>Satılan t</th><th>Net kâr $</th></tr></thead><tbody>`+lotlar.map(n=>{ const l=LM.get(n)||[], A=D.alt.map((a,j)=>[a,j]).filter(([a])=>a[0]===n), st=A.reduce((s,[,j])=>s+AS[j][0],0), v=NK.get(n)||0;
+        return `<tr data-lot="${n}" tabindex="0"><td class="l">${esc(lotAd(n))}</td><td class="l">${tI(l[4])}</td><td>${nf.format(l[2]||0)}</td><td>${A.length} adet · ${nf.format(A.reduce((s,[a])=>s+a[2],0))} t</td><td>${nf.format(st)}</td><td class="${v<0?"n":"p"}">${dl(v)}</td></tr>`; }).join("")+`</tbody>`;
+      $("st-lsub").textContent=`${lotlar.length} lot · satıra tıklayınca lot seçilir`; }
+    else { const l=LM.get(sec)||[], A=D.alt.map((a,j)=>[a,j]).filter(([a])=>a[0]===sec);
+      h=`<thead><tr><th class="l">Alt lot</th><th class="l">Beyanname</th><th>Ton</th><th>Satılan t</th><th>Kalan t</th><th class="l">Satış dönemi</th><th>Kambiyo $/t</th><th>Forward $/t</th></tr></thead><tbody>`
+        +`<tr class="top"><td class="l"><b>${esc(lotAd(sec))}</b></td><td class="l">antrepo ${tI(l[4])}</td><td><b>${nf.format(l[2]||0)}</b></td><td colspan="5" class="l muted">B/L ${nf.format(l[3]||0)} t · varış ${tI(l[5])} · COD ${tI(l[10])} · alış ${nf2.format(l[6]||0)} $/t</td></tr>`
+        +A.map(([a,j])=>{ const s=AS[j]; return `<tr><td class="l">${altAd(a)}</td><td class="l">${tS(a[1])}</td><td>${nf.format(a[2])}</td><td>${nf.format(s[0])}</td><td>${nf.format(Math.max(0,a[2]-s[0]))}</td><td class="l">${s[1]!=null?tS(s[1])+(s[2]!==s[1]?" – "+tS(s[2]):""):"–"}</td><td class="${a[4]<0?"n":a[4]>0?"p":""}">${ut(a[4],1)}</td><td class="${a[5]<0?"n":a[5]>0?"p":""}">${ut(a[5],1)}</td></tr>`; }).join("")+`</tbody>`;
+      $("st-lsub").innerHTML=`${A.length} ithalat beyannamesi · <button type="button" class="st-lk" id="st-lot0">tüm lotlar</button>`; }
+    $("st-lotlar").innerHTML=h; for(const r of $("st-lotlar").querySelectorAll("tr[data-lot]")){ const f=()=>{ S.stLot=r.dataset.lot; S.stSf=0; satislar(); }; r.onclick=f; r.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; }
+    if($("st-lot0")) $("st-lot0").onclick=()=>{ S.stLot=""; S.stSf=0; satislar(); }; }
+  // model ile mutabakat (yıl, filtresiz, tüm müşteriler)
+  { const MT=SD.mut||{}, ys=YIL?[+YIL]:[2027,2028], t={}; for(const y of ys) t[y]=top();
+    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,{dp:0})); }
+    const mv=(k,y)=>(MT[k]||[0,0])[y===2027?0:1], sm=f=>ys.reduce((a,y)=>a+f(y),0);
+    const sat=[["Net satışlar",y=>t[y].gel,y=>mv("net",y)],["Satılan malın maliyeti (ürün hedge dahil)",y=>t[y].mal+t[y].hn,y=>-mv("smm",y)],["Brüt kâr",y=>t[y].br,y=>mv("brut",y),1],["Faaliyet giderleri (finansman dahil)",y=>t[y].fin+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr",y=>t[y].nk,y=>mv("nk",y),1]];
+    $("st-mut").innerHTML=`<thead><tr><th class="l">${ys.join(" + ")}</th><th>Rapor</th><th>Model</th><th>Fark</th></tr></thead><tbody>`+sat.map(([l,r,m,b])=>{ const a=sm(r), c=sm(m), d=a-c; return `<tr${b?' class="top"':""}><td class="l">${b?"<b>"+l+"</b>":l}</td><td>${md(a)}</td><td>${md(c)}</td><td class="${Math.abs(d)<5e4?"muted":d<0?"n":"p"}">${md(d)}</td></tr>`; }).join("")+`</tbody>`;
+    $("st-mnot").textContent="Fark kaynakları: rapor her satışı kendi gününün Tüpraş fiyatı ve kuruyla fiyatlar, model kargo bazında satış penceresi ortalamasını kullanır; rapor satışı ithalat beyannamesi üzerinden FIFO eşler, model kargoya doğrudan bağlar (lot geçişlerinde maliyet kayar); dönem sonunda satılmamış beyannamelerin kur farkı modelde yer alır, raporda satış olmadığı için görünmez."; }
+}
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 function kargolar(){
   const KD=V.kargo; if(!KD){ $("kg-cizgi").innerHTML=`<p class="not">Bu paketteki modelde kargo yaşam döngüsü verisi yok.</p>`; return; }
