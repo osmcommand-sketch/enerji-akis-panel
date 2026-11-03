@@ -228,6 +228,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const G = X.sayfa('Girdiler'), i = G.findIndex((x) => x && x[0] === 'Finansman faizi (yıllık, USD)');
     if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { let k = O.tic.findIndex((r) => r[4] === 'GTS!ForwardBilgi'); if (k < 0) k = O.tic.findIndex((r) => /^USD faizi|^TL faizi/.test(r[0])); const v = G[i][1], o = X.orijinal('Girdiler', 'B' + i);
       O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['USD borçlanma faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'Hedge teminatının (initial margin) finansmanı; stok ve alacak finansmanı "Ayrıca hesapla" seçiliyse kargo finansmanı da bu faizle. Girdiler B' + i + '.', typeof o === 'number' ? R2(o, 4) : o, 'Girdiler!B' + i, 'yuzde', X.dogrulama('Girdiler', 'B' + i) || { tip: 'decimal', min: 0, max: 1, hata: '%0 ile %100 arası' }]); } }
+  // kambiyonun karşılığı kur hedge (kullanıcı 03.11.2026 22:31): net kâr TL defter mantığıyla – panelde hesaplanır, model yeniden hesaplanmaz
+  { const k = O.tic.findIndex((r) => /^Forward maliyeti/.test(r[0])), v = girdi['GTS!KambiyoHedge'] || 'Açık';
+    O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Kur hedge – beyanname → fatura vadesi', v, 'Beyanname günü fatura vadesine forward USD alınır; kambiyo kârı/zararının karşılığı. Ödeme beyannameden önceyse (COD) korunacak borç yok, sonuç 0.', 'Açık', 'GTS!KambiyoHedge', 'sec', { tip: 'list', liste: ['Açık', 'Kapalı'] }]); }
   // yasal defter görünümü – kambiyo (kullanıcı 02.11.2026 20:04)
   try { O.kambiyo = require(path.join(resDir, 'kambiyo.js')).kambiyo((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kambiyo = null; log('Kambiyo hesabı: ' + e.message); }
   O.gir = satir('Girdiler', 1, Math.min(220, X.sayfa('Girdiler').length - 1), 3).filter((x) => x[0] != null).map((x) => [x[0], x[1], x[2]]);
