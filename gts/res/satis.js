@@ -6,7 +6,9 @@
    Fiyatlar (USD/TRY = fatura günü kuru), Karlilik (faaliyet giderleri, kur farkı USD karşılığı kuru, mutabakat), Ozet (kaynak bazlı satış primi).
    FIFO: lot sırası = modelin kümülatif alım sırası (Kargolar 'Kümülatif alım önce/sonra'); alt lot = o lota düşen ithalat beyannamesi parçası
    (Gunluk 'Kümülatif ithalat beyannamesi (t)'); satış = kümülatif satış aralığının düştüğü alt lot(lar).
-   Müşteri dağılımı panelde yapılır (model günlük satışı müşteri bazında vermez): payı akış tablosundan, fiyat farkı kaynak bazlı primden.
+   Müşteri: paket 80+ modelin Musteri_Gunluk sayfası (gün × dağıtıcı satış t ve vergisiz gelir TL; pano sdt-gts-musteri-gunluk-satis) →
+   mus: [[Şirket ID, Şirket, prim TL/m³, vade]] (yalnız Durum = 'Satış'), mg: [gün → [[mus indeksi, t, gelir TL], ...]].
+   Sayfa yoksa (eski paket) müşteri dağılımı panelde akış payıyla yapılır.
    Çıktı (ürün başına):
      lot: [no, gemi, ton, B/L t, antrepo beyannamesi (iso), varış (iso), alış $/t, finansman $/t, ürün hedge net $/t, dönemde satılan t, COD (iso)]
      alt: [lot no, gün, ton, beyanname sıra no (ürün içinde), kambiyo $/t, forward $/t, parça (aynı beyannamenin ikinci lotu = 1)]
@@ -66,7 +68,15 @@
         while (ai < AC.length && AC[ai][1] <= a + 1e-6) ai++;
         for (let j = ai; j < AC.length && AC[j][0] < b - 1e-6; j++) { const o = Math.min(b, AC[j][1]) - Math.max(a, AC[j][0]); if (o > 0.01) sat.push([i, j, r2(o, 2)]); } }
       for (let i = 0; i < gTL.length; i++) { if (gTL[i] === undefined) gTL[i] = null; if (kr[i] === undefined) kr[i] = null; }
-      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u] };
+      // müşteri (dağıtıcı) bazında günlük satış – modelin Musteri_Gunluk sayfası
+      let mus = null, mg = null; const MG = sayfa('Musteri_Gunluk');
+      if (MG) { const m = (re) => bas(MG, re), mT = m(/^Tarih/), mI = m(/^Şirket ID/), mA = m(/^Şirket$/), mU = m(/^Ürün/), mD = m(/^Durum/), mS = m(/^Satış \(t\)/), mP = m(/^Uygulanan satış primi/), mR = m(/^Satış geliri/), mV = m(/^Vade/);
+        if ([mT, mI, mS, mR].every((x) => x >= 0)) { const ix = new Map(); mus = []; mg = [];
+          for (let k = 5; k < MG.length; k++) { const r = MG[k]; if (!r || typeof r[mT] !== 'number') continue; if (mU >= 0 && r[mU] && r[mU] !== u) continue; if (mD >= 0 && r[mD] !== 'Satış') continue;
+            const t = r[mS]; if (!(t > 0)) continue; let j = ix.get(r[mI]); if (j == null) { j = mus.length; ix.set(r[mI], j); mus.push([r[mI], mA >= 0 ? r[mA] : r[mI], mP >= 0 ? r2(r[mP], 2) : null, mV >= 0 ? r[mV] : null]); }
+            const i = Math.round(r[mT] - d0); (mg[i] || (mg[i] = [])).push([j, r2(t, 3), r2(r[mR] || 0)]); }
+          for (let i = 0; i < gTL.length; i++) if (!mg[i]) mg[i] = null; if (!mus.length) { mus = null; mg = null; } } }
+      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg };
     }
     return out.Motorin || out.Benzin ? out : null;
   }

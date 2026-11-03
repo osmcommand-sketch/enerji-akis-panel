@@ -145,7 +145,10 @@ function satislar(){
   const tS=i=>{ const d=gd(i); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear(); }, tI=s=>s?s.slice(8,10)+"."+s.slice(5,7)+"."+s.slice(0,4):"–";
   const ayK=i=>{ const d=gd(i); return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0"); }, ayA=k=>AY[+k.slice(5)-1]+" "+k.slice(0,4);
   // müşteriler: akış tablosundaki dağıtıcı payı (asgari alım eşiğinin altındakiler hariç) ve kaynak bazlı satış primi
-  const Mu=(()=>{ const A=V.akis, P=SD.prim||{}; if(!A||!A.ky) return [{s:-1,ad:"Tüm müşteriler",w:1,prim:P.ort||0}];
+  // paket 80+: modelin Musteri_Gunluk sayfası (gün × dağıtıcı) → gerçek günlük dağılım; yoksa akış payı + kaynak primi
+  const MG=D.mus&&D.mg?D.mg:null;
+  const Mu=MG?(()=>{ const T=D.mus.map(()=>0); let tt=0; for(const a of MG) if(a) for(const [j,t] of a){ T[j]+=t; tt+=t; }
+    return D.mus.map((x,j)=>({s:j,ad:x[1],w:tt?T[j]/tt:0,prim:x[2]||0,dp:0})).sort((a,b)=>b.w-a.w); })():(()=>{ const A=V.akis, P=SD.prim||{}; if(!A||!A.ky) return [{s:-1,ad:"Tüm müşteriler",w:1,prim:P.ort||0}];
     const HT=hedefTon(), sen=(V.minAlim&&V.minAlim.sen)||(HT.yil&&HT.yil<=1125000?"BAZ_075":"HEDEF_150"); let oi=A.oz.findIndex(r=>r[0]===sen&&r[1]==="GERCEKCI_200"); if(oi<0) oi=A.oz.findIndex(r=>r[0]===sen&&r[1]==="REF");
     const EX=new Set((V.minAlim&&V.minAlim.sir)||[]), m=new Map(), uk=mot?1:0;
     for(const r of A.ky){ if(r[0]!==oi||r[3]!==uk||r[1]<0||EX.has(r[1])) continue; const o=m.get(r[1])||m.set(r[1],[0,0]).get(r[1]), p=P[kayKod(r)]; o[0]+=r[6]; o[1]+=r[6]*(typeof p==="number"?p:(P.ort||0)); }
@@ -166,10 +169,12 @@ function satislar(){
   $("st-mus").onchange=e=>{ S.stMu=e.target.value; S.stSf=0; satislar(); }; $("st-lot").onchange=e=>{ S.stLot=e.target.value; S.stSf=0; satislar(); }; $("st-ay").onchange=e=>{ S.stAy=e.target.value; S.stSf=0; satislar(); };
   for(const b of $("st-gor").querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset.g===S.stGor)); b.onclick=()=>{ S.stGor=b.dataset.g; S.stSf=0; S.stSr=null; satislar(); }; }
   // satır üretimi: satış parçası × müşteri; kalemler USD
-  const MS=S.stMu===""?Mu:Mu.filter(x=>String(x.s)===S.stMu), satir=[];
-  const kal=(i,a,l,q,m)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, p=(D.gTL[i]+m.dp)/D.kur[i], o={q,gel:q*p,mal:-q*l[6],hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,kmb:q*a[4],fwd:q*a[5]}; o.br=o.gel+o.mal+o.hn; o.nk=o.br+o.fin+o.faal+o.kmb+o.fwd; return o; };
+  const MS=S.stMu===""?Mu:Mu.filter(x=>String(x.s)===S.stMu), MuI=new Map(Mu.map(x=>[x.s,x])), satir=[];
+  const kal=(i,a,l,q,pTL)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, p=pTL/D.kur[i], o={q,gel:q*p,mal:-q*l[6],hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,kmb:q*a[4],fwd:q*a[5]}; o.br=o.gel+o.mal+o.hn; o.nk=o.br+o.fin+o.faal+o.kmb+o.fwd; return o; };
   for(const [i,j,q] of D.sat){ if(!yOk(i)) continue; const a=D.alt[j]; if(S.stLot!==""&&a[0]!==+S.stLot) continue; if(S.stAy&&ayK(i)!==S.stAy) continue; const l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue;
-    for(const m of MS){ const o=kal(i,a,l,q*m.w,m); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } }
+    if(MG){ const g=MG[i]; if(!g) continue; const tt=g.reduce((s,x)=>s+x[1],0); if(!tt) continue;
+      for(const [c,t,tl] of g){ const m=MuI.get(c); if(!m||(S.stMu!==""&&String(c)!==S.stMu)) continue; const o=kal(i,a,l,q*t/tt,tl/t); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } continue; }
+    for(const m of MS){ const o=kal(i,a,l,q*m.w,D.gTL[i]+m.dp); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } }
   const K=["q","gel","mal","hn","br","fin","faal","kmb","fwd","nk"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
   const T=top(); for(const o of satir) ek(T,o);
   // özet kutuları
@@ -179,7 +184,7 @@ function satislar(){
     +kt("Satış geliri",md(T.gel)+" M $",`ortalama ${ut(T.gel,T.q)} $/t · fatura günü kuruyla`)
     +kt("Brüt kâr",md(T.br)+" M $",`${ut(T.br,T.q)} $/t · ürün hedge dahil`,T.br<0?"neg":"pos")
     +kt("Net kâr",md(T.nk)+" M $",`${ut(T.nk,T.q)} $/t · kambiyo ve forward dahil`,T.nk<0?"neg":"pos");
-  $("st-sub").textContent=`${S.stU} · ${YIL||"2027–2028"} · müşteri payları ${V.minAlim&&V.minAlim.n?`asgari alım eşiğini geçen ${Mu.length} dağıtıcı`:`${Mu.length} dağıtıcı`} · satışlar ithalat beyannamelerinden FIFO`;
+  $("st-sub").textContent=`${S.stU} · ${YIL||"2027–2028"} · ${MG?`müşteri satışları modelden (Musteri_Gunluk) · ${Mu.length} dağıtıcı`:"müşteri payları "+(V.minAlim&&V.minAlim.n?`asgari alım eşiğini geçen ${Mu.length} dağıtıcı`:`${Mu.length} dağıtıcı`)} · satışlar ithalat beyannamelerinden FIFO`;
   // gruplama
   const GOR={gun:{ad:"Günlük satırlar",anah:o=>o.i+"|"+o.m.s+"|"+o.j},musteri:{ad:"Müşteri özeti",anah:o=>o.m.s},lot:{ad:"Lot özeti",anah:o=>o.lot},alt:{ad:"Alt lot (ithalat beyannamesi) özeti",anah:o=>o.j},ay:{ad:"Aylık özet",anah:o=>ayK(o.i)}}[S.stGor];
   let R; if(S.stGor==="gun") R=satir; else { const M=new Map(); for(const o of satir){ const k=GOR.anah(o); let t=M.get(k); if(!t){ t=Object.assign(top(),{i:o.i,i2:o.i,j:o.j,lot:o.lot,m:o.m,n:0,gn:new Set()}); M.set(k,t); } ek(t,o); t.i2=o.i; t.n++; t.gn.add(o.i); } R=[...M.values()]; }
@@ -201,7 +206,7 @@ function satislar(){
   for(const b of $("st-tab").querySelectorAll("button.st-lk")) b.onclick=()=>{ S.stLot=b.dataset.lot; S.stSf=0; satislar(); };
   const ns=Math.ceil(R.length/PS); $("st-sayfa").innerHTML=ns>1?`<button type="button" class="btn kg-ok" id="st-p0" aria-label="Önceki sayfa"${sf?"":" disabled"}>‹</button><span>${sf+1} / ${ns}</span><button type="button" class="btn kg-ok" id="st-p1" aria-label="Sonraki sayfa"${sf<ns-1?"":" disabled"}>›</button><span class="muted">${PS} satır / sayfa</span>`:"";
   if(ns>1){ $("st-p0").onclick=()=>{ S.stSf--; satislar(); }; $("st-p1").onclick=()=>{ S.stSf++; satislar(); }; }
-  $("st-not").innerHTML=`Satış geliri: Tüpraş vergisiz fiyatı ± müşterinin kaynak bazlı primi (Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³; dağıtıcının bayileri hangi kaynaktan alıyorsa o ağırlıkla), satış günü kuruyla. Ürün maliyeti ve ürün hedge lottan (geminin alış maliyeti, hedge sonucu ton başına), kambiyo ve forward alt lottan (ithalat beyannamesinin kur farkı ton başına), finansman lottan, faaliyet giderleri yıl ortalaması ton başına. Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür.`;
+  $("st-not").innerHTML=`Satış geliri: Tüpraş vergisiz fiyatı ± müşterinin kaynak bazlı primi (Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³; dağıtıcının bayileri hangi kaynaktan alıyorsa o ağırlıkla), satış günü kuruyla. Ürün maliyeti ve ürün hedge lottan (geminin alış maliyeti, hedge sonucu ton başına), kambiyo ve forward alt lottan (ithalat beyannamesinin kur farkı ton başına), finansman lottan, faaliyet giderleri yıl ortalaması ton başına. ${MG?"Müşteri bazında günlük satış ve gelir modelin Musteri_Gunluk sayfasından (dağıtıcının alım ritmi: günlük / 2 günde bir / haftalık – Dagiticilar H–I); o günün satışı ithalat beyannamelerine FIFO ile dağıldıktan sonra müşterilere günlük alımları oranında bölünür.":"Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür."}`;
   // CSV (filtredeki tüm satırlar)
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
@@ -225,7 +230,7 @@ function satislar(){
     if($("st-lot0")) $("st-lot0").onclick=()=>{ S.stLot=""; S.stSf=0; satislar(); }; }
   // model ile mutabakat (yıl, filtresiz, tüm müşteriler)
   { const MT=SD.mut||{}, ys=YIL?[+YIL]:[2027,2028], t={}; for(const y of ys) t[y]=top();
-    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,{dp:0})); }
+    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,D.gTL[i])); }
     const mv=(k,y)=>(MT[k]||[0,0])[y===2027?0:1], sm=f=>ys.reduce((a,y)=>a+f(y),0);
     const sat=[["Net satışlar",y=>t[y].gel,y=>mv("net",y)],["Satılan malın maliyeti (ürün hedge dahil)",y=>t[y].mal+t[y].hn,y=>-mv("smm",y)],["Brüt kâr",y=>t[y].br,y=>mv("brut",y),1],["Faaliyet giderleri (finansman dahil)",y=>t[y].fin+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr",y=>t[y].nk,y=>mv("nk",y),1]];
     $("st-mut").innerHTML=`<thead><tr><th class="l">${ys.join(" + ")}</th><th>Rapor</th><th>Model</th><th>Fark</th></tr></thead><tbody>`+sat.map(([l,r,m,b])=>{ const a=sm(r), c=sm(m), d=a-c; return `<tr${b?' class="top"':""}><td class="l">${b?"<b>"+l+"</b>":l}</td><td>${md(a)}</td><td>${md(c)}</td><td class="${Math.abs(d)<5e4?"muted":d<0?"n":"p"}">${md(d)}</td></tr>`; }).join("")+`</tbody>`;
