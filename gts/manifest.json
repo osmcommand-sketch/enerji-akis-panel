@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.56",
+ "surum": "1.0.57",
  "kabuk": 1,
- "tarih": "2026-11-03T10:41:09+03:00",
- "notlar": "Net kâr TL defter mantığıyla: kambiyo kârı/zararı ve karşılığındaki kur hedge (beyanname → fatura vadesi) net kâra girer, tahsilat kur farkı çıkar; Hedge ve parti'de açma/kapama",
+ "tarih": "2026-11-03T10:49:52+03:00",
+ "notlar": "Ekonomi yıllara göre: kambiyo, kur hedge (forward) ve tahsilat kur farkı ayrı satırlarda",
  "dosyalar": {
   "ui/index.html": "2f91f6f05f451b59c3f011a514448622105abd6d6a9feb17667473e27d25fab9",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "c0f2c9504d597b6b58f5b3f9c8851a182b8d5b8faabc33389b1f3e4516e555bc",
+  "ui/pano.js": "8a241114e2e08a9e1190c1b4a0956dd793d0c06f4446831280d2ea3fa2088a22",
   "gts_pipeline.js": "bf25996fd997dba82489c32adaac5255743f7d356a064ae08acdedcd675b389d",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "dd58d31843ad4b14f04cc035dc258b09bb4e7aeb13b94fbbb3f7dc4229b268e0",
