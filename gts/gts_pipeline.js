@@ -149,7 +149,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   // Satış hedefi (hedef tonajın %'si; kullanıcı 02.11.2026 12:37): seçili senaryonun yıllık hedefi (Girdiler B9) bu oranla ölçeklenir
   // paket 75+: panelin geçici anahtarları modele taşındı (asgari alım Ozet H15, finansman H41)
   { const R = X.sayfa('Ozet'), oz = (re) => { const i = R.findIndex((x) => x && typeof x[6] === 'string' && re.test(x[6])); return i > 0 ? 'Ozet!H' + i : null; };
-    const tas = [['GTS!MinAylik', oz(/^Asgari aylık alım/)], ['GTS!FinansmanPrimde', oz(/^Stok ve alacak finansmanı/)]]; let d = false;
+    const tas = [['GTS!MinAylik', oz(/^Asgari aylık alım/)], ['GTS!FinansmanPrimde', oz(/^Stok ve alacak finansmanı/)], ['GTS!KambiyoHedge', oz(/^Kambiyo kur hedge/)]]; let d = false;
     for (const [a, b] of tas) if (b && a in girdi) { if (!(b in girdi)) girdi[b] = girdi[a]; delete girdi[a]; d = true; }
     if (d) { try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} log('Girdiler modeldeki yeni hücrelere taşındı'); X = HSh(girdi); } }
   const SY = 'GTS!SatisYuzde', sy = typeof girdi[SY] === 'number' ? girdi[SY] : 1; O.hedef = null;
@@ -181,9 +181,10 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       const bulB = (re) => { const i = G0.findIndex((x) => x && typeof x[0] === 'string' && re.test(x[0])); return i > 0 ? 'Girdiler!B' + i : null; };
       const LIM = bulB(/^İkinci liman uğrak maliyeti/), SEN = bulB(/^Fiyat senaryosu$/);
       // net kâr TL defter tanımıyla (kullanıcı 03.11.2026 22:31; pano.js V.tld ile aynı): + tahsilat kur farkı + kambiyo + kur hedge (beyanname → vade)
+      const modelTLD = (Y) => { try { return Y.sayfa('Karlilik').some((x) => x && typeof x[0] === 'string' && /^KUR FARKI – YASAL DEFTER/.test(x[0].trim())); } catch { return false; } };
       const KBm = require(path.join(resDir, 'kambiyo.js')), hAc = (taban['GTS!KambiyoHedge'] || girdi['GTS!KambiyoHedge'] || 'Açık') === 'Açık';
       const nk = (Y) => { const R = Y.sayfa('Ozet'), r = R.find((x) => x && typeof x[0] === 'string' && /^Toplam: (net kâr|şirket sonucu) \(USD\)$/.test(x[0])); if (!r) return [null, null];
-        const v = [r[1], r[2]]; try { const KL = Y.sayfa('Karlilik'), t = KL.find((x) => x && typeof x[0] === 'string' && /^Tahsilat kur farkı/.test(x[0].trim())), K = KBm.kambiyo((n) => { try { return Y.sayfa(n); } catch { return null; } });
+        const v = [r[1], r[2]]; if (modelTLD(Y)) return v; try { const KL = Y.sayfa('Karlilik'), t = KL.find((x) => x && typeof x[0] === 'string' && /^Tahsilat kur farkı/.test(x[0].trim())), K = KBm.kambiyo((n) => { try { return Y.sayfa(n); } catch { return null; } });
           if (t && K && K.yil) [2027, 2028].forEach((y, j) => { const k = K.yil[y] || {}; v[j] += (typeof t[j + 1] === 'number' ? t[j + 1] : 0) + (k.kusd || 0) + (hAc ? k.husd || 0 : 0); }); } catch {}
         return v; };
       const kos = []; for (const v of [0, 17]) for (const pk of [25, 30, 35, 40]) for (const l of [0, 60000]) kos.push(['Açık', pk, l, v]);
@@ -234,7 +235,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (i > 0 && !X.formulMu('Girdiler', 'B' + i)) { let k = O.tic.findIndex((r) => r[4] === 'GTS!ForwardBilgi'); if (k < 0) k = O.tic.findIndex((r) => /^USD faizi|^TL faizi/.test(r[0])); const v = G[i][1], o = X.orijinal('Girdiler', 'B' + i);
       O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['USD borçlanma faizi – yıllık (%)', typeof v === 'number' ? R2(v, 4) : v, 'Hedge teminatının (initial margin) finansmanı; stok ve alacak finansmanı "Ayrıca hesapla" seçiliyse kargo finansmanı da bu faizle. Girdiler B' + i + '.', typeof o === 'number' ? R2(o, 4) : o, 'Girdiler!B' + i, 'yuzde', X.dogrulama('Girdiler', 'B' + i) || { tip: 'decimal', min: 0, max: 1, hata: '%0 ile %100 arası' }]); } }
   // kambiyonun karşılığı kur hedge (kullanıcı 03.11.2026 22:31): net kâr TL defter mantığıyla – panelde hesaplanır, model yeniden hesaplanmaz
-  { const k = O.tic.findIndex((r) => /^Forward maliyeti/.test(r[0])), v = girdi['GTS!KambiyoHedge'] || 'Açık';
+  if (!O.tic.some((r) => /^Kambiyo kur hedge/.test(r[0]))) { const k = O.tic.findIndex((r) => /^Forward maliyeti/.test(r[0])), v = girdi['GTS!KambiyoHedge'] || 'Açık';
     O.tic.splice(k >= 0 ? k + 1 : O.tic.length, 0, ['Kur hedge – beyanname → fatura vadesi', v, 'Beyanname günü fatura vadesine forward USD alınır; kambiyo kârı/zararının karşılığı. Ödeme beyannameden önceyse (COD) korunacak borç yok, sonuç 0.', 'Açık', 'GTS!KambiyoHedge', 'sec', { tip: 'list', liste: ['Açık', 'Kapalı'] }]); }
   // kargo yaşam döngüsü (kullanıcı 03.11.2026 16:50)
   try { O.kargo = require(path.join(resDir, 'kargo_omur.js')).omur((n) => { try { return X.sayfa(n); } catch { return null; } }); } catch (e) { O.kargo = null; log('Kargo yaşam döngüsü: ' + e.message); }
@@ -273,7 +274,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   // İki yıllık ızgara ve Monte Carlo (net kâr = net marj − vergi, USD)
   const csvBul = (f) => { const x = Z.bul(new RegExp('(^|/)' + f.replace(/\./g, '\\.') + '$'))[0]; return x ? csvOku(Z.oku(x).toString('utf8')).filter((r) => !r.err || r.err === '0') : []; };
   O.izg = csvBul('gts_makul_izgara_2yil.csv').map((r) => [r.sen, r.hedge, Number(r.parti_kt), Number(r.ikinci_liman), Number(r.vade), pr(Number(r.netv_2027)), pr(Number(r.netv_2028)), pr(Number(r.toplam_2y))]);
-  { const gg = new Map(); for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
+  { const gg = new Map(), tld = csvBul('gts_mc_2yil_tld.csv'); O.mc2Tanim = tld.length ? 'tld' : 'eski';   // paket 78+: MC TL defter net kâr tanımıyla (PDM)
+    if (tld.length) for (const r of tld) { const k = r.sen + '|varsayılan girdiler · TL defter'; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.net_2027), Number(r.net_2028)]); }
+    else for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
     const oz = (v) => { v = [...v].sort((p, q) => p - q); const n = v.length, q = (p) => v[Math.min(n - 1, Math.max(0, pr(p * (n - 1))))]; return [pr(v.reduce((p, c) => p + c, 0) / n), pr(q(0.1)), pr(q(0.5)), pr(q(0.9)), pr(v.filter((z) => z < 0).length / n, 3)]; };
     O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; }); }
   // Karlılık tablosu (Excel Karlilik sayfası)

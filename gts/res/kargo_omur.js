@@ -33,11 +33,11 @@
           iso(v(r, 'ilk')), iso(v(r, 'son')), r2(v(r, 'yas')), r2(v(r, 'stk'), 1), r2(v(r, 'cif'), 1), r2(v(r, 'al'), 1), r2(v(r, 'dg')), r2(v(r, 'bmt'), 1), r2(v(r, 'bm')), r2(v(r, 'nm')), r2(v(r, 'otv')),
           r2(v(r, 'L'), 1), r2(v(r, 'M'), 1), r2(v(r, 'kv'), 3), r2(v(r, 'sus'), 2), r2(v(r, 'at'), 1), r2(v(r, 'fin')), r2(v(r, 'hn')), r2(v(r, 'kh')), r2(v(r, 'tk'))]); }
       if (!k.length) continue;
-      const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gB = g(/^İthalat beyannamesi/), gC = g(/^Beyanname kargosu/), gF = g(/^Ödeme günü kuru/), gK = g(/^Yasal defter kambiyo/);
+      const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gB = g(/^İthalat beyannamesi/), gC = g(/^Beyanname kargosu/), gF = g(/^Ödeme günü kuru/), gK = g(/^Yasal defter kambiyo/), gH = g(/^Kur hedge sonucu \(TL/);
       const rows = GN.slice(5).filter((r) => r && typeof r[gT] === 'number'); if (!rows.length) continue;
       const d0 = rows[0][gT], sat = [], bey = [];
       for (const r of rows) { const i = Math.round(r[gT] - d0); sat[i] = r2(r[gS] || 0, 1);
-        if (r[gB] > 0) { const t = r[gB] * yog[u]; bey.push([i, r2(t, 1), gC >= 0 ? r[gC] : null, gK >= 0 ? r2(r[gK] || 0) : null, r2(K(r[gT]), 4), gF >= 0 ? r2(r[gF], 4) : null]); } }
+        if (r[gB] > 0) { const t = r[gB] * yog[u]; bey.push([i, r2(t, 1), gC >= 0 ? r[gC] : null, gK >= 0 ? r2(r[gK] || 0) : null, r2(K(r[gT]), 4), gF >= 0 ? r2(r[gF], 4) : null, gH >= 0 ? r2(r[gH] || 0) : null]); } }
       for (let i = 0; i < sat.length; i++) if (sat[i] == null) sat[i] = 0;
       out[u] = { k, g0: iso(d0), sat, bey, yog: yog[u], odv };
     }

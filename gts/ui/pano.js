@@ -28,8 +28,12 @@ const yilOk=s=>!YIL||String(s).slice(0,4)===YIL;
    kur hedge sonucu gösterilir; aynı kur hareketini temsil eden "tahsilat kur farkı" (TL alacağın USD karşılığı) net kârdan çıkar.
    Model çıktısı (Ozet / Karlilik) burada düzeltilir; V.tld = yıl → {tah, kmb, hdg, d} (USD; d = net kâra eklenen). */
 V.tld=(()=>{ const K=V.kambiyo&&V.kambiyo.yil, KT=V.kartab; if(!K||!Object.keys(K).length||!KT) return null;
+  // paket 78+: model net kârı TL defter tanımıyla veriyor (Karlilik KUR FARKI bloğu) → yalnız kalemler okunur, düzeltme yapılmaz
+  { const L=KT.rows, bul=re=>L.find(r=>re.test(String(r[0]).trim())), kf=bul(/^KUR FARKI – YASAL DEFTER/);
+    if(kf){ const t=bul(/^Bilgi: tahsilat kur farkı/)||bul(/^Tahsilat kur farkı/), km=bul(/^Kambiyo kârı \/ zararı/), hg=bul(/^Kur hedge sonucu/), v=r=>[0,1,2,3].map(j=>j&&r&&typeof r[j]==="number"?r[j]:0);
+      const tah=v(t), kmb=v(km), hdg=v(hg); return {tah,kmb,hdg,d:[0,1,2,3].map(j=>tah[j]+kmb[j]+hdg[j]),model:true}; } }
   const L=KT.rows, bul=re=>L.findIndex(r=>re.test(String(r[0]).trim())), it=bul(/^Tahsilat kur farkı/); if(it<0) return null;
-  const hAc=(((V.girdi||{})['GTS!KambiyoHedge'])||((V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge')||[])[1]||'Açık')==='Açık';
+  const hAc=(((V.girdi||{})['GTS!KambiyoHedge'])||((V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';
   const tah=[0,1,2,3].map(j=>j&&typeof L[it][j]==="number"?L[it][j]:0), kmb=[0,(K[2027]||{}).kusd||0,(K[2028]||{}).kusd||0], hdg=hAc?[0,(K[2027]||{}).husd||0,(K[2028]||{}).husd||0]:[0,0,0];
   kmb[3]=kmb[1]+kmb[2]; hdg[3]=hdg[1]+hdg[2]; const d=[0,1,2,3].map(j=>tah[j]+kmb[j]+hdg[j]);
   const ekle=(i,dv,isaret)=>{ if(i<0) return; for(const j of [1,2,3]) if(typeof L[i][j]==="number") L[i][j]+=isaret*dv[j]; };
@@ -138,9 +142,10 @@ function kargolar(){
   const tk=s=>s?(d=>d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear())(new Date(s+"T00:00:00Z")):"–", gem=k=>k[0]===0?"Açılış stoğu":esc(k[1]||"");
   if(S.kgN==null||!K.some(k=>k[0]===S.kgN)) S.kgN=(K.find(k=>k[0]>0)||K[0])[0];
   // kargo kâr/zarar (kullanıcı 03.11.2026 17:09): model kalemleri + TL defter düzeltmesi (kambiyo, kur hedge, tahsilat kur farkı)
-  const FZ=(V.kambiyo&&V.kambiyo.faiz)||{tl:.33,usd:.0394,marj:.001}, hAc=(((V.girdi||{})['GTS!KambiyoHedge'])||((V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge')||[])[1]||'Açık')==='Açık';
-  const beyK=x=>{ let c=0; const o=[]; for(const b of D.bey){ const a0=c, a1=c+b[1]; c=a1; const t=Math.max(0,Math.min(a1,x[22])-Math.max(a0,x[21])); if(t>0.05) o.push([b[0],t,b[2],b[3]!=null?b[3]*t/b[1]:null,b[4],b[5],t<b[1]-0.05]); } return o; };
+  const FZ=(V.kambiyo&&V.kambiyo.faiz)||{tl:.33,usd:.0394,marj:.001}, hAc=(((V.girdi||{})['GTS!KambiyoHedge'])||((V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';
+  const beyK=x=>{ let c=0; const o=[]; for(const b of D.bey){ const a0=c, a1=c+b[1]; c=a1; const t=Math.max(0,Math.min(a1,x[22])-Math.max(a0,x[21])); if(t>0.05) o.push([b[0],t,b[2],b[3]!=null?b[3]*t/b[1]:null,b[4],b[5],t<b[1]-0.05,b[6]!=null?b[6]*t/b[1]:null]); } return o; };
   const kzH=x=>{ const B=beyK(x), od=gi(x[8]); let kmb=0, hdg=0; for(const b of B){ const kb=b[4]||0; if(!kb) continue; kmb+=(b[3]||0)/kb; const dd=od!=null?od-b[0]:0, kv=b[5]||kb;
+      if(b[7]!=null){ hdg+=b[7]/kb; continue; }   // paket 78+: modelin günlük kur hedge sütunu
       if(hAc&&dd>0){ const fw=kb*(1+FZ.tl*dd/365)/(1+FZ.usd*dd/360)*(1+(FZ.marj||0)); hdg+=b[1]*(x[15]||0)*(kv-fw)/kb; } }
     const t=x[25]||0, sat=(x[24]||0)*t, al=-(x[15]||0)*t, bm=x[18]||0, fin=-(x[26]||0), hn=x[27]||0, nm=x[19]||0, tk=-(x[29]||0);
     return {t,sat,al,bm,fin,hn,nm,tk,kmb,hdg,son:nm+tk+kmb+hdg,kh:x[28]||0}; };
@@ -317,7 +322,7 @@ function karTablo(){
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), s1=v=>(v<0?"−":"")+nf1.format(Math.abs(v)), yz=v=>(v<0?"−":"")+nf1.format(Math.abs(v)*100);
   let h=`<thead><tr><th class="l">Kalem</th>${kol.map(([y])=>`<th class="yb">${y}<br><span>M $</span></th><th>$/t</th><th>%</th>`).join("")}</tr></thead><tbody>`;
   for(const r of L){ const ham=r[0], ad=ham.trim(), gir=Math.floor((ham.length-ham.trimStart().length)/2);
-    if(/^Kontrol|Ozet'e eklenen|^Bilgi: bölgesel navlun/i.test(ad)||(V.tld&&/^Yasal defter: kambiyo|^USD eşdeğeri/.test(ad))) continue;   // kullanıcı 02.11.2026 22:08: bölgesel avantaj gösterilmez
+    if(/^Kontrol|Ozet'e eklenen|^Bilgi: bölgesel navlun/i.test(ad)||(V.tld&&/^Yasal defter: (kambiyo|kur hedge)|^USD eşdeğeri|^Bilgi: USD bazlı net kâr/.test(ad)&&!(V.tld.model&&/^Bilgi: USD bazlı net kâr/.test(ad)))) continue;   // kullanıcı 02.11.2026 22:08: bölgesel avantaj gösterilmez
     const ad0=ad.replace(/\s*\([^)]*\)\s*/g,""), ana=ad0===ad0.toLocaleUpperCase("tr-TR")&&/[A-ZÇĞİÖŞÜ]/.test(ad0), son=/^NET KÂR/.test(ad), bilgi=/^Bilgi/.test(ad);
     const miktar=/\((t|m³)\)$/.test(ad), oran=/oranı$|marjı$/.test(ad), birim=/\(USD\/t/.test(ad);
     const tur=son?"son":ana?(/BRÜT KÂR/.test(ad)?"ara":"ana"):bilgi?"b":"alt", cls=`k-${tur}${gir>1?" k-g2":""}`;
@@ -356,7 +361,7 @@ function ticari(){
       ["Satış tarafı",[/^Satış fiyatı – motorin/,/^Satış fiyatı – benzin/,/^Satış vadesi/,/^Satış hedefi/,/^Asgari (müşteri|aylık) alım/]],
       ["Müşteri davranışı",[/^Bayi kotası/]],[/^Kaynak bazlı/,null],
       ["Faiz ve finansman",[/^TL (finansman )?faizi/,/^USD borçlanma/,/^USD faizi/]],
-      ["Hedge ve parti",[/^Ürün hedge/,/^Motorin hedge oranı/,/^Benzin.*hedge/i,/^Hedge kilit/,/^Kur hedge \(/,/^Kur hedge oranı/,/^Forward maliyeti/,/^Kur hedge – beyanname/,/partisi/,/^Uygulanan parti/]],[/^Faaliyet giderleri/,null]];
+      ["Hedge ve parti",[/^Ürün hedge/,/^Motorin hedge oranı/,/^Benzin.*hedge/i,/^Hedge kilit/,/^Kur hedge \(/,/^Kur hedge oranı/,/^Forward maliyeti/,/^Kur hedge – beyanname/,/^Kambiyo kur hedge/,/^Ürün hedge enstrümanı/,/partisi/,/^Uygulanan parti/]],[/^Faaliyet giderleri/,null]];
     for(const [ad,L] of DUZEN){
       if(L===null){ const g=G.find(g=>ad.test(g[0][0])); if(g){ const x=g.slice(1).filter(r=>!kul.has(r)); x.forEach(r=>kul.add(r)); if(x.some(r=>r[5]!=="not")) out.push(g[0],...x); } continue; }
       const x=L.flatMap(al); if(x.length) out.push([ad,null,null],...x); }
@@ -684,6 +689,8 @@ function iki(){
   const SO={Baz:0,"Ayı":1,"Boğa":2}, M=[...M2].sort((a,b)=>(SO[a[0]]??9)-(SO[b[0]]??9)||b[2]-a[2]);
   const cfg=c=>{ const m=/^(\d+)kt_L(\d+)k_V(\d+)/.exec(c); return m?`${m[1]} kt · ikinci liman ${+m[2]?m[2]+" bin $":"yok"} · ${+m[3]?"vade "+m[3]+" gün":"peşin"}`:c; };
   const hc=o=>`<td class="${cl(o[2])}">${mm(o[2])}</td><td class="muted">${mm(o[1])} … ${mm(o[3])}</td><td class="${o[4]>=.5?"n":""}"><b>%${nf.format(o[4]*100)}</b></td>`;
+  if(V.mc2Tanim==="tld"){ const h=$("r-mc2h"), n=$("r-mc2not"); if(h) h.innerHTML=`Monte Carlo · TL defter net kâr <span class="chip ok">PDM çalıştırması · Baz / Ayı / Boğa × 100 yol</span>`;
+    if(n) n.textContent="PDM, 03.11.2026: her yol Excel modelinin varsayılan girdileriyle (ürün hedge açık %100, ICE LSGO, satış vadesi 17 gün, parti 40 kt, ikinci liman 60.000 $, kambiyo kur hedge açık, alım COD, finansman alım priminde) yeniden hesaplandı; kur stokastik, kambiyo ve kur hedge her yolda. Uygulama içinde sizin girdilerinizle yeniden hesaplanamaz. Zarar olasılığı = net kârın sıfırın altında kaldığı yolların oranı."; }
   $("r-mc2").innerHTML=`<thead><tr><th class="l">Senaryo</th><th class="l">Koşul</th><th>Yol</th>${(YIL?[YIL]:["2027","2028","İki yıl"]).map((y,k)=>`<th>${y} medyan${k?"":"<br><span>M $</span>"}</th><th>P10 … P90</th><th>Zarar olas.</th>`).join("")}<th></tr></thead><tbody>`
     +M.map(r=>`<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${esc(cfg(r[1]))}</td><td>${r[2]}</td>${K7?hc(r[3]):K8?hc(r[4]):hc(r[3])+hc(r[4])+hc(r[5])}</tr>`).join("")+`</tbody>`;
   $("r-izsub").textContent=`${V.riskHesap&&V.riskHesap.izg&&V.riskHesap.izg.length?"sizin girdileriniz":"Makul fiyat yolu, PDM"} · net kâr${YIL?" "+YIL:""} · ${IZ.length} çalıştırma`; const h2=$("r-iki").querySelector("h2"); if(h2) h2.textContent=YIL?`${YIL} sonuçları · parti, liman, vade ve hedge`:"İki yıllık sonuçlar · parti, liman, vade ve hedge";

@@ -266,6 +266,7 @@ function motor(S) {
       case 'ROUNDDOWN': { const x = nm(0), d = A.length > 1 ? nm(1) : 0; if (isErr(x)) return x; if (isErr(d)) return d; const m = Math.pow(10, d); return Math.sign(x) * Math.floor(Math.abs(x) * m + 1e-9) / m; }
       case 'CEILING': case 'CEILING.MATH': case 'FLOOR': case 'FLOOR.MATH': case 'MROUND': { const x = nm(0); if (isErr(x)) return x; let k = A.length > 1 ? nm(1) : (x < 0 && /MATH/.test(n.n) ? -1 : 1); if (isErr(k)) return k; if (/MATH/.test(n.n)) k = Math.abs(k) || 1; if (k === 0) return 0;
         if (n.n === 'MROUND') return Math.sign(x) !== Math.sign(k) && x !== 0 ? E.NUM : yuvarla(x / k, 0) * k; const up = /^CEILING/.test(n.n); const q = x / k; return (up ? Math.ceil(q - 1e-12) : Math.floor(q + 1e-12)) * k; }
+      case 'SUMSQ': { let t = 0; for (const x of duz(A.map((_, i) => e(i)))) { if (isErr(x)) return x; if (typeof x === 'number') t += x * x; } return t; }   // paket 78: baz riski 1σ
       case 'PRODUCT': { let p = 1, k = 0; for (const x of duz(A.map((_, i) => e(i)))) { const v = num(x); if (isErr(v)) return v; p *= v; k++; } return k ? p : 0; }
       case 'COUNT': { let k = 0; for (let i = 0; i < A.length; i++) { const v = e(i); if (v instanceof Arr) { for (const x of v.v) if (typeof x === 'number') k++; } else if (typeof v === 'number') k++; } return k; }
       case 'COUNTA': { let k = 0; for (let i = 0; i < A.length; i++) { const v = e(i); if (v instanceof Arr) { for (const x of v.v) if (x !== BOS) k++; } else if (v !== BOS) k++; } return k; }

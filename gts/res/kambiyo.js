@@ -26,21 +26,23 @@
     const yo = (y) => ort[y] ? ort[y][0] / ort[y][1] : null;
     const out = {};
     // paket 75+: model kambiyoyu kendisi hesaplıyor (Gunluk AB–AG, Karlilik 'Yasal defter: kambiyo'); tablo bu sütunlardan okunur → tek rakam
-    let model = false;
+    let model = false, modelH = false;
     for (const u of ['Motorin', 'Benzin']) { const GN = sayfa(u + '_Gunluk'); if (!GN) continue;
-      const gT = bas(GN, /^Tarih/), gB = bas(GN, /^İthalat beyannamesi/), gC = bas(GN, /^Beyanname kargosu/), gJ = bas(GN, /^Kargo alış \(USD\/t\)/), gV = bas(GN, /^Kargo ödeme tarihi/), gF = bas(GN, /^Ödeme günü kuru/), gK = bas(GN, /^Yasal defter kambiyo/);
-      if ([gT, gB, gC, gJ, gV, gF, gK].some((x) => x < 0)) continue; model = true;
+      const gT = bas(GN, /^Tarih/), gB = bas(GN, /^İthalat beyannamesi/), gC = bas(GN, /^Beyanname kargosu/), gJ = bas(GN, /^Kargo alış \(USD\/t\)/), gV = bas(GN, /^Kargo ödeme tarihi/), gF = bas(GN, /^Ödeme günü kuru/), gK = bas(GN, /^Yasal defter kambiyo/), gH = bas(GN, /^Kur hedge sonucu \(TL/);
+      if ([gT, gB, gC, gJ, gV, gF, gK].some((x) => x < 0)) continue; model = true; if (gH >= 0) modelH = true;
       for (let i = 5; i < GN.length; i++) { const r = GN[i]; if (!r || typeof r[gT] !== 'number' || !(r[gC] > 0) || !(r[gB] > 0) || typeof r[gV] !== 'number') continue;
         const usd = r[gB] * yog[u] * r[gJ]; if (!usd) continue; const kv = r[gF], ktl = r[gK] || 0, kb = kv + ktl / usd, y = yil(r[gT]);
         const Y = out[y] || (out[y] = { usd: 0, tlOdeme: 0, tlBeyan: 0, ktl: 0, kusd: 0, gun: 0, htl: 0, husd: 0, husdHam: 0 });
-        const dd = r[gV] - r[gT], htl = dd > 0 ? usd * (kv - fwd(kb, dd)) : 0;   // ödeme beyannameden sonraysa forward; önceyse korunacak borç yok
+        const dd = r[gV] - r[gT], htl = gH >= 0 ? (r[gH] || 0) : dd > 0 ? usd * (kv - fwd(kb, dd)) : 0;   // paket 78+: modelin sütunu   // ödeme beyannameden sonraysa forward; önceyse korunacak borç yok
         Y.usd += usd; Y.tlOdeme += usd * kv; Y.tlBeyan += usd * kb; Y.ktl += ktl; Y.kusd += ktl / kb; Y.gun += usd * (r[gT] - r[gV]); Y.htl += htl; Y.husdHam += htl / kb; } }
     if (model) { const KL = sayfa('Karlilik') || [], ki = KL.findIndex((r) => r && typeof r[0] === 'string' && /^Yasal defter: kambiyo/.test(r[0].trim()));
       const ue = ki >= 0 ? KL.slice(ki + 1, ki + 3).find((r) => r && typeof r[0] === 'string' && /USD eşdeğeri/.test(r[0])) : null;
       if (ue) { if (out[2027] && typeof ue[1] === 'number') out[2027].kusd = ue[1]; if (out[2028] && typeof ue[2] === 'number') out[2028].kusd = ue[2]; }
       for (const [y, Y] of Object.entries(out)) { Y.gun = Y.usd ? Y.gun / Y.usd : 0; Y.kurOdeme = Y.usd ? Y.tlOdeme / Y.usd : 0; Y.kurBeyan = Y.usd ? Y.tlBeyan / Y.usd : 0;
         const k = Y.ktl && Y.kusd ? Y.ktl / Y.kusd : yo(+y); Y.husd = k ? Y.htl / k : Y.husdHam; }   // hedge, kambiyo ile aynı kurla USD'ye
-      return { yil: out, odv, faiz: { tl: fTL, usd: fUS, marj: fM }, model: true, usdKur: ue ? 'yıl ortalama kuru' : 'beyanname günü kuru' }; }
+      const uh = ki >= 0 ? KL.findIndex((r) => r && typeof r[0] === 'string' && /^Yasal defter: kur hedge/.test(r[0].trim())) : -1, uhe = uh >= 0 ? KL.slice(uh + 1, uh + 3).find((r) => r && typeof r[0] === 'string' && /USD eşdeğeri/.test(r[0])) : null;
+      if (uhe) { if (out[2027] && typeof uhe[1] === 'number') out[2027].husd = uhe[1]; if (out[2028] && typeof uhe[2] === 'number') out[2028].husd = uhe[2]; }
+      return { yil: out, odv, faiz: { tl: fTL, usd: fUS, marj: fM }, model: true, modelH, usdKur: ue ? 'yıl ortalama kuru' : 'beyanname günü kuru' }; }
     for (const u of ['Motorin', 'Benzin']) {
       const GN = sayfa(u + '_Gunluk'), KG = sayfa(u + '_Kargolar'); if (!GN || !KG) continue;
       const gT = bas(GN, /^Tarih/), gB = bas(GN, /^İthalat beyannamesi/), cV = bas(KG, /^Var mı/), cL = bas(KG, /^Kümülatif alım önce/), cM = bas(KG, /^Kümülatif alım sonra/), cJ = bas(KG, /^Alış maliyeti \(USD\/t/), cP = bas(KG, /^Tahliye bitişi/);
