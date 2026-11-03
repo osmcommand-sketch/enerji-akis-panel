@@ -135,6 +135,8 @@ addEventListener("hashchange",()=>goster(location.hash.slice(1)));
 
 /* ---------- SATIŞLAR (kullanıcı 03.11.2026 19:59): müşteri bazında günlük satış ve kârlılık; lot = gemi (antrepo beyannamesi),
    alt lot = o geminin ithalat beyannameleri, satış ↔ alt lot FIFO (res/satis.js). Müşteri payı ve kaynak bazlı prim akış tablosundan. ---------- */
+// CSV: claude.ai yayınında downloads yeteneği (yoksa düğme gizlenir); masaüstünde doğrudan dosya
+let ST_DL=null; try{ if(window.claude&&typeof window.claude.use==="function") window.claude.use("downloads").then(d=>{ ST_DL=d||false; const b=$("st-csv"); if(b) b.hidden=!d; }).catch(()=>{ ST_DL=false; const b=$("st-csv"); if(b) b.hidden=true; }); }catch{}
 function satislar(){
   const SD=V.satis; if(!SD||!(SD.Motorin||SD.Benzin)){ $("st-tab").innerHTML=`<tbody><tr><td class="l">Bu paketteki modelde satış / beyanname ayrıntısı yok.</td></tr></tbody>`; return; }
   const ur=["Motorin","Benzin"].filter(u=>SD[u]); if(!S.stU||!SD[S.stU]) S.stU=ur[0]; $("st-urun-k").hidden=ur.length<2;
@@ -204,8 +206,10 @@ function satislar(){
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
     const sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(([k])=>n2(k==="fy"?(o.q?o.gel/o.q:0):k==="nt"?(o.q?o.nk/o.q:0):o[k]))].join(";"));
-    const b=new Blob(["﻿"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), a=document.createElement("a");
-    a.href=URL.createObjectURL(b); a.download=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
+    const b=new Blob(["\ufeff"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), ad=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`;
+    if(ST_DL){ ST_DL.save({filename:ad,data:b}).catch(e=>{ if(e&&e.code!=="declined") $("st-tsub").textContent="CSV kaydedilemedi ("+(e.code||"hata")+")"; }); return; }   // claude.ai yayınında: indirme izni
+    const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=ad; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
+  $("st-csv").hidden=ST_DL===false;
   // lot → alt lot ağacı
   { const sec=S.stLot!==""?+S.stLot:null; let h;
     if(sec==null){ const NK=new Map(); for(const o of satir) NK.set(o.lot,(NK.get(o.lot)||0)+o.nk);

@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.64",
+ "surum": "1.0.65",
  "kabuk": 1,
- "tarih": "2026-11-03T20:10:47+03:00",
- "notlar": "Yeni Satışlar sayfası: müşteri bazında günlük satış ve kârlılık; lot (gemi / antrepo beyannamesi) → alt lot (ithalat beyannamesi) → satış FIFO eşlemesi, model mutabakatı, CSV.",
+ "tarih": "2026-11-03T20:14:06+03:00",
+ "notlar": "Satışlar: CSV indirme web yayınıyla uyumlu hâle getirildi.",
  "dosyalar": {
   "ui/index.html": "9ba164042fce9f85b4df3d99896f6d42030533269bc738d9dda4667c918d57ef",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "5636a5e1ffa5aeee499fdd57b068e82a7a3b7733cc6bcefec42f390c667b9e7f",
+  "ui/pano.js": "bc553c09bb80236cb7ecdeda61a23da50cd7b622f3e8a7f82444bf9ed43a3d59",
   "gts_pipeline.js": "d4f16fc775685ba79e6db882164823c4685a6933bb609f114af36606226531f3",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "2df124a748f17d2c231e1932ad15dc8e1f07f42f5eb5a3306f0c966f932a2b6a",
