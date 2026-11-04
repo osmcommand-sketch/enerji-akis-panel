@@ -175,8 +175,9 @@ function satislar(){
      Miktar m³ = ton / 0,835 · Alım fiyatı TL/m³ = (CIF Med + alım primi) × beyanname kuru × 0,845 / 0,835 · Satış fiyatı TL/m³ = satış günü Tüpraş + satış primi
      Satış geliri TL = m³ × satış fiyatı · SMM TL = m³ × alım fiyatı · Brüt kâr TL = gelir − SMM · Brüt kâr $ = Brüt TL / beyanname kuru
      Net kâr $ = Brüt $ + ürün hedge + stok ve alacak finansmanı + faiz geliri + faaliyet giderleri + kambiyo + forward (bu kalemler modelden, $) */
-  const kal=(i,a,l,q,pTL,sP)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, kb=a[7]||D.kur[a[1]]||D.kur[i]||0, m3=q/ST_KES, cif=l.length>16?l[11]:l[6], apr=l.length>16?l[12]:0;
-    const afy=(cif+apr)*kb*ST_BOL/ST_KES, stp=D.tupM3&&D.tupM3[i]!=null?D.tupM3[i]:(pTL||0)*D.yog, sfy=stp+(sP||0);
+  const kal=(i,a,l,q,pTL,sP)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, kb=a[7]||D.kur[a[1]]||D.kur[i]||0, m3=q/ST_KES, y2=v=>Math.round(v*100)/100, cif=y2(l.length>16?l[11]:l[6]), apr=l.length>16?l[12]:0;
+    const afy=(cif+apr)*kb*ST_BOL/ST_KES, stp=y2(D.tupM3&&D.tupM3[i]!=null?D.tupM3[i]:(pTL||0)*D.yog),   // kullanıcı 04.11.2026 12:50: CIF ve Tüpraş 2 ondalığa yuvarlanır
+    sfy=stp+(sP||0);
     const o={q,m3,cifq:m3*cif,aprq:m3*apr,kbq:m3*kb,afyq:m3*afy,stpq:m3*stp,sprq:m3*(sP||0),sfyq:m3*sfy,gtl:m3*sfy,stl:m3*afy,hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,faiz:q*(YY.faiz||0),kmb:q*a[4],fwd:q*a[5],
       gel:q*(pTL||0)/(D.kur[i]||1),mal:-q*l[6]};   // gel / mal: modelin $ tanımı (mutabakat için)
     o.btl=o.gtl-o.stl; o.bus=kb?o.btl/kb:0; o.nk=o.bus+o.hn+o.fin+o.faiz+o.faal+o.kmb+o.fwd; o.mbr=o.gel+o.mal+o.hn; o.mnk=o.mbr+o.fin+o.faiz+o.faal+o.kmb+o.fwd; return o; };
@@ -228,7 +229,7 @@ function satislar(){
   // CSV (filtredeki tüm satırlar)
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
-    const n4=v=>(Math.round(v*1e4)/1e4).toString().replace(".",","), sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>(["kes","kb","cif","apr"].includes(c[0])?n4:n2)(c[4](o)))].join(";"));
+    const n4=v=>(Math.round(v*1e4)/1e4).toString().replace(".",","), sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>(["kes","kb"].includes(c[0])?n4:n2)(c[4](o)))].join(";"));
     const b=new Blob(["\ufeff"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), ad=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`;
     if(ST_DL){ ST_DL.save({filename:ad,data:b}).catch(e=>{ if(e&&e.code!=="declined") $("st-tsub").textContent="CSV kaydedilemedi ("+(e.code||"hata")+")"; }); return; }   // claude.ai yayınında: indirme izni
     const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=ad; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
