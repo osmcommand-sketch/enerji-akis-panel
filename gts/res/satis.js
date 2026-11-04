@@ -32,9 +32,10 @@
     const yil = (d) => new Date(Date.UTC(1899, 11, 30) + d * 864e5).getUTCFullYear();
     // Karlilik: faaliyet giderleri (stok ve alacak finansmanı hariç – lotta), satılan ton, kur farkı USD kuru, mutabakat kalemleri
     const KL = sayfa('Karlilik') || [], bul = (re) => KL.find((r) => r && typeof r[0] === 'string' && re.test(r[0].trim())), v = (r, j) => (r && typeof r[j] === 'number' ? r[j] : 0);
-    const kFa = bul(/^FAALİYET GİDERLERİ/), kSf = bul(/^Stok ve alacak finansmanı/), kSt = bul(/^Gerçekleşen satış – bayi alımı/) || bul(/^PLANLANAN SATIŞ/);
+    const kFa = bul(/^FAALİYET GİDERLERİ/), kSf = bul(/^Stok ve alacak finansmanı/), kVf = bul(/^ÖTV ve KDV finansmanı/), kSt = bul(/^Gerçekleşen satış – bayi alımı/) || bul(/^PLANLANAN SATIŞ/);
     const kKt = bul(/^Yasal defter: kambiyo/), kKi = kKt ? KL.indexOf(kKt) : -1, kKu = kKi >= 0 ? KL.slice(kKi + 1, kKi + 3).find((r) => r && typeof r[0] === 'string' && /USD eşdeğeri/.test(r[0])) : null;
-    const yil0 = {}; for (const [y, j] of [[2027, 1], [2028, 2]]) { const st = v(kSt, j); yil0[y] = { satT: st, faal: st ? (v(kFa, j) - v(kSf, j)) / st : 0, kk: kKt && kKu && v(kKu, j) ? v(kKt, j) / v(kKu, j) : null }; }
+    const yil0 = {}; for (const [y, j] of [[2027, 1], [2028, 2]]) { const st = v(kSt, j); yil0[y] = { satT: st, faal: st ? (v(kFa, j) - v(kSf, j) - v(kVf, j)) / st : 0, faiz: st ? -v(kVf, j) / st : 0,   // kullanıcı 04.11.2026 12:23: faaliyet giderleri ile faiz (ÖTV/KDV nakdi, + gelir) ayrı
+       kk: kKt && kKu && v(kKu, j) ? v(kKt, j) / v(kKu, j) : null }; }
     const ort = {}; for (const [d, k] of kur) { const y = yil(d), o = ort[y] || (ort[y] = [0, 0]); o[0] += k; o[1]++; }
     const yk = (y) => (yil0[y] && yil0[y].kk) || (ort[y] ? ort[y][0] / ort[y][1] : null);
     const mut = {}; for (const [ad, re] of [['net', /^NET SATIŞLAR/], ['smm', /^SATILAN MALIN MALİYETİ/], ['hedge', /^Ürün hedge sonucu/], ['brut', /^BRÜT KÂR/], ['faal', /^FAALİYET GİDERLERİ/], ['kur', /^KUR FARKI/], ['kmb', /^Kambiyo kârı/], ['hdg', /^Kur hedge sonucu/], ['nk', /^NET KÂR/]]) { const r = bul(re); if (r) mut[ad] = [v(r, 1), v(r, 2)]; }
