@@ -170,12 +170,15 @@ function satislar(){
   for(const b of $("st-gor").querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset.g===S.stGor)); b.onclick=()=>{ S.stGor=b.dataset.g; S.stSf=0; S.stSr=null; satislar(); }; }
   // satır üretimi: satış parçası × müşteri; kalemler USD
   const MS=S.stMu===""?Mu:Mu.filter(x=>String(x.s)===S.stMu), MuI=new Map(Mu.map(x=>[x.s,x])), satir=[];
-  const kal=(i,a,l,q,pTL)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, p=pTL/D.kur[i], o={q,gel:q*p,mal:-q*l[6],hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,kmb:q*a[4],fwd:q*a[5]}; o.br=o.gel+o.mal+o.hn; o.nk=o.br+o.fin+o.faal+o.kmb+o.fwd; return o; };
+  const kal=(i,a,l,q,pTL)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, p=pTL/D.kur[i], o={q,gel:q*p,mal:-q*l[6],hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,kmb:q*a[4],fwd:q*a[5]};
+    // fiyat kırılımları (kullanıcı 04.11.2026 10:52): alış = CIF Med + alım primi + navlun farkı + ikinci liman + elleçleme/seyir + fire; satış = Tüpraş + kaynak bazlı prim
+    if(l.length>16){ o.cif=-q*l[11]; o.apr=-q*l[12]; o.nav=-q*(l[13]+l[14]); o.ell=-q*l[15]; o.fire=-q*l[16]; } else { o.cif=o.mal; o.apr=o.nav=o.ell=o.fire=0; }
+    o.tup=D.tup&&D.tup[i]!=null?q*D.tup[i]/D.kur[i]:o.gel; o.spr=o.gel-o.tup; o.br=o.gel+o.mal+o.hn; o.nk=o.br+o.fin+o.faal+o.kmb+o.fwd; return o; };
   for(const [i,j,q] of D.sat){ if(!yOk(i)) continue; const a=D.alt[j]; if(S.stLot!==""&&a[0]!==+S.stLot) continue; if(S.stAy&&ayK(i)!==S.stAy) continue; const l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue;
     if(MG){ const g=MG[i]; if(!g) continue; const tt=g.reduce((s,x)=>s+x[1],0); if(!tt) continue;
       for(const [c,t,tl] of g){ const m=MuI.get(c); if(!m||(S.stMu!==""&&String(c)!==S.stMu)) continue; const o=kal(i,a,l,q*t/tt,tl/t); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } continue; }
     for(const m of MS){ const o=kal(i,a,l,q*m.w,D.gTL[i]+m.dp); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } }
-  const K=["q","gel","mal","hn","br","fin","faal","kmb","fwd","nk"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
+  const K=["q","gel","mal","hn","br","fin","faal","kmb","fwd","nk","cif","apr","nav","ell","fire","tup","spr"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
   const T=top(); for(const o of satir) ek(T,o);
   // özet kutuları
   const ut=(v,t)=>t?(v<0?"−":"")+nf2.format(Math.abs(v/t)):"–", md=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6);
@@ -188,20 +191,26 @@ function satislar(){
   // gruplama
   const GOR={gun:{ad:"Günlük satırlar",anah:o=>o.i+"|"+o.m.s+"|"+o.j},musteri:{ad:"Müşteri özeti",anah:o=>o.m.s},lot:{ad:"Lot özeti",anah:o=>o.lot},alt:{ad:"Alt lot (ithalat beyannamesi) özeti",anah:o=>o.j},ay:{ad:"Aylık özet",anah:o=>ayK(o.i)}}[S.stGor];
   let R; if(S.stGor==="gun") R=satir; else { const M=new Map(); for(const o of satir){ const k=GOR.anah(o); let t=M.get(k); if(!t){ t=Object.assign(top(),{i:o.i,i2:o.i,j:o.j,lot:o.lot,m:o.m,n:0,gn:new Set()}); M.set(k,t); } ek(t,o); t.i2=o.i; t.n++; t.gn.add(o.i); } R=[...M.values()]; }
-  const sr=S.stSr; if(sr) R=[...R].sort((a,b)=>sr.y*((a[sr.k]||0)-(b[sr.k]||0)));
+  const sr=S.stSr;
   const kolB={gun:[["Tarih",o=>tS(o.i)],["Müşteri",o=>esc(o.m.ad)],["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`],["Alt lot",o=>`<span title="Beyanname ${tS(D.alt[o.j][1])} · ${nf.format(D.alt[o.j][2])} t">${altAd(D.alt[o.j])}</span>`]],
     musteri:[["Müşteri",o=>esc(o.m.ad)],["Pay",o=>"%"+nf1.format(o.m.w*100)],["Prim TL/m³",o=>nf.format(o.m.prim)]],
     lot:[["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`],["Antrepo beyannamesi",o=>tI((LM.get(o.lot)||[])[4])],["Satış dönemi",o=>tS(o.i)+" – "+tS(o.i2)]],
     alt:[["Alt lot",o=>altAd(D.alt[o.j])],["Beyanname tarihi",o=>tS(D.alt[o.j][1])],["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`]],
     ay:[["Ay",o=>ayA(ayK(o.i))],["Gün",o=>nf.format(o.gn.size)]]}[S.stGor];
-  const kolS=[["q","Ton","",v=>nf.format(v)],["fy","Fiyat $/t","",(v,o)=>ut(o.gel,o.q)],["gel","Satış geliri","g1"],["mal","Ürün maliyeti","g1"],["hn","Ürün hedge","g1"],["br","Brüt kâr","g1 ara"],["fin","Finansman","g2"],["faal","Faaliyet gid.","g2"],["kmb","Kambiyo","g3"],["fwd","Forward","g3"],["nk","Net kâr","son"],["nt","Net $/t","son",(v,o)=>ut(o.nk,o.q)]];
-  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), hc=(k,v)=>k==="br"||k==="nk"||k==="nt"?(v<0?" n":" p"):"";
+  // sütunlar: [anahtar, başlık, sınıf, biçim, değer]; $/t sütunları ton ağırlıklı (toplam / ton)
+  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), pt=v=>(v<0?"−":"")+nf2.format(Math.abs(v)), tt=(k,s=1)=>o=>o.q?s*o[k]/o.q:0;
+  const kolS=[["q","Ton","",v=>nf.format(v),o=>o.q],
+    ["a_cif","CIF Med","ga",pt,tt("cif",-1)],["a_pr","Alım primi","ga",pt,tt("apr",-1)],["a_nv","Navlun + 2. liman","ga",pt,tt("nav",-1)],["a_el","Elleçleme + seyir","ga",pt,tt("ell",-1)],["a_fi","Fire","ga",pt,tt("fire",-1)],["a_t","Alış fiyatı","ga ara",pt,tt("mal",-1)],
+    ["s_tp","Tüpraş vergisiz","gs",pt,tt("tup")],["s_pr","Satış primi","gs",pt,tt("spr")],["s_t","Satış fiyatı","gs ara",pt,tt("gel")],
+    ["gel","Satış geliri","g1",dl,o=>o.gel],["mal","Ürün maliyeti","g1",dl,o=>o.mal],["hn","Ürün hedge","g1",dl,o=>o.hn],["br","Brüt kâr","g1 ara",dl,o=>o.br],["fin","Finansman","g2",dl,o=>o.fin],["faal","Faaliyet gid.","g2",dl,o=>o.faal],["kmb","Kambiyo","g3",dl,o=>o.kmb],["fwd","Forward","g3",dl,o=>o.fwd],["nk","Net kâr","son",dl,o=>o.nk],["nt","Net $/t","son",pt,tt("nk")]];
+  const KV=Object.fromEntries(kolS.map(c=>[c[0],c[4]])), hc=(k,v)=>k==="br"||k==="nk"||k==="nt"?(v<0?" n":" p"):"";
+  if(sr&&KV[sr.k]) R=[...R].sort((a,b)=>sr.y*(KV[sr.k](a)-KV[sr.k](b)));
   const PS=150, sf=Math.max(0,Math.min(S.stSf,Math.ceil(R.length/PS)-1)); S.stSf=sf; const RP=R.slice(sf*PS,sf*PS+PS);
-  const th=`<thead><tr class="st-gr"><th class="l" colspan="${kolB.length}"></th><th colspan="2"></th><th colspan="4" class="g1">Satış ve ürün</th><th colspan="2" class="g2">Gider</th><th colspan="2" class="g3">Kur farkı</th><th colspan="2" class="son">Sonuç</th></tr>`
-    +`<tr>${kolB.map(([l])=>`<th class="l">${l}</th>`).join("")}${kolS.map(([k,l,c])=>`<th class="${c}${["fy","nt"].includes(k)?"":" st-so"}" data-k="${k}"${sr&&sr.k===k?` aria-sort="${sr.y<0?"descending":"ascending"}"`:""}>${l}${sr&&sr.k===k?(sr.y<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead>`;
-  const tr=(o,cls)=>`<tr${cls?` class="${cls}"`:""}>${kolB.map(([,f],x)=>`<td class="l">${cls==="top"?(x?"":"<b>Toplam</b>"):f(o)}</td>`).join("")}${kolS.map(([k,,c,f])=>{ const v=k==="nt"?(o.q?o.nk/o.q:0):o[k]; return `<td class="${(c||"").replace("ara","").trim()}${hc(k,v)}">${f?f(v,o):dl(v)}</td>`; }).join("")}</tr>`;
+  const th=`<thead><tr class="st-gr"><th class="l" colspan="${kolB.length}"></th><th></th><th colspan="6" class="ga">Alış fiyatı $/t</th><th colspan="3" class="gs">Satış fiyatı $/t</th><th colspan="4" class="g1">Satış ve ürün $</th><th colspan="2" class="g2">Gider</th><th colspan="2" class="g3">Kur farkı</th><th colspan="2" class="son">Sonuç</th></tr>`
+    +`<tr>${kolB.map(([l])=>`<th class="l">${l}</th>`).join("")}${kolS.map(([k,l,c])=>`<th class="${c} st-so" data-k="${k}"${sr&&sr.k===k?` aria-sort="${sr.y<0?"descending":"ascending"}"`:""}>${l}${sr&&sr.k===k?(sr.y<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead>`;
+  const tr=(o,cls)=>`<tr${cls?` class="${cls}"`:""}>${kolB.map(([,f],x)=>`<td class="l">${cls==="top"?(x?"":"<b>Toplam</b>"):f(o)}</td>`).join("")}${kolS.map(([k,,c,f,vf])=>{ const v=vf(o); return `<td class="${(c||"").replace("ara","").trim()}${/ara/.test(c||"")?" st-ara":""}${hc(k,v)}">${f(v)}</td>`; }).join("")}</tr>`;
   $("st-th").textContent=GOR.ad; $("st-tsub").textContent=`${nf.format(R.length)} satır · $ (USD)${S.stGor==="gun"&&S.stMu===""?" · her gün × müşteri × alt lot":""}`;
-  $("st-tab").innerHTML=th+`<tbody>${R.length?tr(T,"top"):""}${RP.map(o=>tr(o)).join("")||`<tr><td class="l" colspan="${kolB.length+kolS.length}">Seçime uyan satış yok.</td></tr>`}</tbody>`;
+  $("st-tab").innerHTML=th+`<tbody>${RP.map(o=>tr(o)).join("")||`<tr><td class="l" colspan="${kolB.length+kolS.length}">Seçime uyan satış yok.</td></tr>`}</tbody>${R.length?`<tfoot>${tr(T,"top")}</tfoot>`:""}`;   // kullanıcı 04.11.2026 10:52: toplam altta
   for(const h of $("st-tab").querySelectorAll("th.st-so")) h.onclick=()=>{ const k=h.dataset.k; S.stSr=S.stSr&&S.stSr.k===k?(S.stSr.y<0?{k,y:1}:null):{k,y:-1}; S.stSf=0; satislar(); };
   for(const b of $("st-tab").querySelectorAll("button.st-lk")) b.onclick=()=>{ S.stLot=b.dataset.lot; S.stSf=0; satislar(); };
   const ns=Math.ceil(R.length/PS); $("st-sayfa").innerHTML=ns>1?`<button type="button" class="btn kg-ok" id="st-p0" aria-label="Önceki sayfa"${sf?"":" disabled"}>‹</button><span>${sf+1} / ${ns}</span><button type="button" class="btn kg-ok" id="st-p1" aria-label="Sonraki sayfa"${sf<ns-1?"":" disabled"}>›</button><span class="muted">${PS} satır / sayfa</span>`:"";
@@ -210,7 +219,7 @@ function satislar(){
   // CSV (filtredeki tüm satırlar)
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
-    const sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(([k])=>n2(k==="fy"?(o.q?o.gel/o.q:0):k==="nt"?(o.q?o.nk/o.q:0):o[k]))].join(";"));
+    const sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>n2(c[4](o)))].join(";"));
     const b=new Blob(["\ufeff"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), ad=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`;
     if(ST_DL){ ST_DL.save({filename:ad,data:b}).catch(e=>{ if(e&&e.code!=="declined") $("st-tsub").textContent="CSV kaydedilemedi ("+(e.code||"hata")+")"; }); return; }   // claude.ai yayınında: indirme izni
     const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=ad; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };

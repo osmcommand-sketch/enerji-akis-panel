@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.68",
+ "surum": "1.0.69",
  "kabuk": 1,
- "tarih": "2026-11-04T10:43:26+03:00",
- "notlar": "Paket 81: dağıtıcı alım ritmi modelde Günlük; panel bağlantısı yalnız açık girdiyle çalışır.",
+ "tarih": "2026-11-04T10:57:48+03:00",
+ "notlar": "Satışlar: alış ve satış fiyatı kırılımları (CIF Med, alım primi, navlun + ikinci liman, elleçleme + seyir, fire; Tüpraş + satış primi); toplam satırı altta.",
  "dosyalar": {
-  "ui/index.html": "9ba164042fce9f85b4df3d99896f6d42030533269bc738d9dda4667c918d57ef",
+  "ui/index.html": "71e64e27bae3ea0416ccca464f67fc9583e5b47a43632a257ad60a95327e9f00",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "35e1e2778bc6318ea4232c7a66b7429c28bf9d0cc2fe327a6233717803b3a074",
+  "ui/pano.js": "943b89927b46cead8c5e3274e55215e2455c3c9c13a33ca6d47173a6d6a1d8c4",
   "gts_pipeline.js": "dc0ee583e3131a2dd7efc2a359e5ad5aa7d4ec2b40e8b2178e55a840b23799e2",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "2df124a748f17d2c231e1932ad15dc8e1f07f42f5eb5a3306f0c966f932a2b6a",
@@ -15,7 +15,7 @@
   "res/girdi_bag.js": "625a235b35d764433b1d9184033716dea5b24ba6b759818b2e946d8d1864a240",
   "res/kambiyo.js": "3bc101874a4f249d896db23c3b3df6a8e79926bcc8fa759433c886e84dadb1db",
   "res/kargo_omur.js": "f992f2eee94c1e537b0de9bb246dcfa1dbbdcde3323fdb3e543d0936c0bd98d4",
-  "res/satis.js": "4dda1f877930c611bd146313e26bac09bd433ede7961ba9be656e010555a1b12",
+  "res/satis.js": "b486c6508277383ab196be89c3230c0be3ad0ec6767e25106daa8bf0714c274f",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"

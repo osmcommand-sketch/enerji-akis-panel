@@ -10,7 +10,10 @@
    mus: [[Şirket ID, Şirket, prim TL/m³, vade]] (yalnız Durum = 'Satış'), mg: [gün → [[mus indeksi, t, gelir TL], ...]].
    Sayfa yoksa (eski paket) müşteri dağılımı panelde akış payıyla yapılır.
    Çıktı (ürün başına):
-     lot: [no, gemi, ton, B/L t, antrepo beyannamesi (iso), varış (iso), alış $/t, finansman $/t, ürün hedge net $/t, dönemde satılan t, COD (iso)]
+     lot: [no, gemi, ton, B/L t, antrepo beyannamesi (iso), varış (iso), alış $/t, finansman $/t, ürün hedge net $/t, dönemde satılan t, COD (iso),
+           alış kırılımı $/t (kullanıcı 04.11.2026 10:52): 11 CIF Med (fiyatlama günü), 12 alım primi / iskontosu, 13 navlun farkı, 14 ikinci liman,
+           15 GTS elleçleme + ek seyir, 16 tahliye farkı (fire; alış − diğerleri)]
+     tup: [gün → Tüpraş vergisiz TL/t] (satış fiyatı kırılımı: satış = Tüpraş + kaynak bazlı prim)
      alt: [lot no, gün, ton, beyanname sıra no (ürün içinde), kambiyo $/t, forward $/t, parça (aynı beyannamenin ikinci lotu = 1)]
      sat: [gün, alt indeksi, ton]
      g0 (iso), gTL: [gün → satış geliri TL/t, model ağırlıklı primle], kur: [gün → USD/TRY], yog
@@ -39,24 +42,28 @@
     const Oz = sayfa('Ozet') || [], oz = (re) => { const r = Oz.find((x) => x && typeof x[6] === 'string' && re.test(x[6])); return r && typeof r[7] === 'number' ? r[7] : null; };
     const prim = { M: oz(/^Mersin üçüncü taraf/), D: oz(/^Tüpraş Mersin/), B: oz(/^Tüpraş Batman/), K: oz(/^Tüpraş Kırıkkale/), ort: oz(/^Satış fiyatı – motorin/) };
     const out = { yil: yil0, prim, mut, odv };
+    const gb = (re) => { const i = gi(re); return i > 0 && typeof G[i][1] === 'number' ? G[i][1] : 0; }, ELS = gb(/^GTS elleçleme tarifesi/) + gb(/^İthal kargo ek seyir/);
+    const FI = F ? F[4] || [] : [], tupK = { Motorin: FI.findIndex((h) => typeof h === 'string' && /^Tüpraş motorin vergisiz \(TL\/m³\)/.test(h)), Benzin: FI.findIndex((h) => typeof h === 'string' && /^Tüpraş benzin vergisiz \(TL\/m³\)/.test(h)) };
     for (const u of ['Motorin', 'Benzin']) {
       const KG = sayfa(u + '_Kargolar'), GN = sayfa(u + '_Gunluk'); if (!KG || !GN) continue;
       const c = (re) => bas(KG, re), g = (re) => bas(GN, re);
       const ix = { no: c(/^Kargo no/), var: c(/^Var mı/), gemi: c(/^Gemi sınıfı/), ton: c(/^Ton$/), vr: c(/^Varış$/), al: c(/^Alış maliyeti/), L: c(/^Kümülatif alım önce/), M: c(/^Kümülatif alım sonra/),
-        ab: c(/^Tahliye başlangıcı/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/) };
+        ab: c(/^Tahliye başlangıcı/), cif: c(/^CIF Med/), nf: c(/^Navlun farkı \(USD\/t\)/), il: c(/^İkinci liman \(USD\/t\)/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/) };
       if ([ix.no, ix.L, ix.M, ix.al].some((x) => x < 0)) continue;
-      const kv = (r, k) => (ix[k] >= 0 ? r[ix[k]] : null), L = [];
+      const kv = (r, k) => (ix[k] >= 0 ? r[ix[k]] : null), L = [], APR = gb(u === 'Motorin' ? /^Alım primi \/ iskontosu – motorin/ : /^Alım primi \/ iskontosu – benzin/);
       for (let i = 5; i < KG.length; i++) { const r = KG[i]; if (!r || typeof kv(r, 'no') !== 'number' || (ix.var >= 0 && !kv(r, 'var'))) continue; if (!(kv(r, 'M') > kv(r, 'L'))) continue;
         const at = kv(r, 'at') || 0; L.push({ r: [kv(r, 'no'), kv(r, 'gemi'), r2(kv(r, 'ton'), 1), r2(kv(r, 'bl'), 1), iso(kv(r, 'ab')), iso(kv(r, 'vr')), r2(kv(r, 'al'), 4),
-          at ? r2((kv(r, 'fin') || 0) / at, 4) : 0, at ? r2((kv(r, 'hn') || 0) / at, 4) : 0, r2(at, 1), iso(kv(r, 'cod'))], a: kv(r, 'L'), b: kv(r, 'M') }); }
+          at ? r2((kv(r, 'fin') || 0) / at, 4) : 0, at ? r2((kv(r, 'hn') || 0) / at, 4) : 0, r2(at, 1), iso(kv(r, 'cod'))].concat((() => {
+            const al = kv(r, 'al') || 0, cf = kv(r, 'cif') || 0, nv = kv(r, 'nf') || 0, ik = kv(r, 'il') || 0; return [r2(cf, 4), r2(APR, 4), r2(nv, 4), r2(ik, 4), r2(ELS, 4), r2(al - cf - APR - nv - ik - ELS, 4)]; })()), a: kv(r, 'L'), b: kv(r, 'M') }); }
       if (!L.length) continue;
       const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gKS = g(/^Kümülatif satış/), gKB = g(/^Kümülatif ithalat beyannamesi/), gR = g(/^Satış geliri, vergisiz/), gK = g(/^Yasal defter kambiyo/), gH = g(/^Kur hedge sonucu \(TL/);
       if ([gT, gS, gKS, gKB].some((x) => x < 0)) continue;
       const rows = GN.slice(5).filter((r) => r && typeof r[gT] === 'number'); if (!rows.length) continue;
-      const d0 = rows[0][gT], gTL = [], kr = [], alt = [], sat = [];
+      const d0 = rows[0][gT], gTL = [], kr = [], alt = [], sat = [], tup = [], fT = F ? Math.max(0, bas(F, /^Tarih/)) : 0, tupM = new Map();
+      if (F && tupK[u] >= 0) for (const r of F) if (r && typeof r[fT] === 'number' && typeof r[tupK[u]] === 'number') tupM.set(Math.floor(r[fT]), r[tupK[u]] / yog[u]);
       // alt lotlar: kümülatif ithalat beyannamesi artışları (ilk gün = açılış stoğundaki beyanname edilmiş milli ürün)
       let onc = 0, li = 0, sira = 0;
-      for (const r of rows) { const i = Math.round(r[gT] - d0), cb = r[gKB] || 0, t = cb - onc; gTL[i] = r[gS] > 0 && gR >= 0 ? r2(r[gR] / r[gS], 2) : null; kr[i] = r2(K(r[gT]), 4);
+      for (const r of rows) { const i = Math.round(r[gT] - d0), cb = r[gKB] || 0, t = cb - onc; gTL[i] = r[gS] > 0 && gR >= 0 ? r2(r[gR] / r[gS], 2) : null; kr[i] = r2(K(r[gT]), 4); tup[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])), 2) : null;
         if (t > 0.01) { sira++; const y = yil(r[gT]), k = yk(y), kmb = gK >= 0 && k ? (r[gK] || 0) / t / k : 0, fwd = gH >= 0 && k ? (r[gH] || 0) / t / k : 0;
           let a = onc, p = 0; while (li < L.length && L[li].b <= a + 1e-6) li++;
           for (let j = li; j < L.length && L[j].a < cb - 1e-6; j++) { const o = Math.min(cb, L[j].b) - Math.max(a, L[j].a); if (o <= 0.01) continue; alt.push([L[j].r[0], i, r2(o, 2), sira, r2(kmb, 4), r2(fwd, 4), p++]); a = Math.max(a, L[j].a) + o; }
@@ -67,7 +74,7 @@
       for (const r of rows) { const s = r[gS] || 0; if (!(s > 0)) continue; const i = Math.round(r[gT] - d0), a = s0, b = s0 + s; s0 = b;
         while (ai < AC.length && AC[ai][1] <= a + 1e-6) ai++;
         for (let j = ai; j < AC.length && AC[j][0] < b - 1e-6; j++) { const o = Math.min(b, AC[j][1]) - Math.max(a, AC[j][0]); if (o > 0.01) sat.push([i, j, r2(o, 2)]); } }
-      for (let i = 0; i < gTL.length; i++) { if (gTL[i] === undefined) gTL[i] = null; if (kr[i] === undefined) kr[i] = null; }
+      for (let i = 0; i < gTL.length; i++) { if (gTL[i] === undefined) gTL[i] = null; if (kr[i] === undefined) kr[i] = null; if (tup[i] === undefined) tup[i] = null; }
       // müşteri (dağıtıcı) bazında günlük satış – modelin Musteri_Gunluk sayfası
       let mus = null, mg = null; const MG = sayfa('Musteri_Gunluk');
       if (MG) { const m = (re) => bas(MG, re), mT = m(/^Tarih/), mI = m(/^Şirket ID/), mA = m(/^Şirket$/), mU = m(/^Ürün/), mD = m(/^Durum/), mS = m(/^Satış \(t\)/), mP = m(/^Uygulanan satış primi/), mR = m(/^Satış geliri/), mV = m(/^Vade/);
@@ -76,7 +83,7 @@
             const t = r[mS]; if (!(t > 0)) continue; let j = ix.get(r[mI]); if (j == null) { j = mus.length; ix.set(r[mI], j); mus.push([r[mI], mA >= 0 ? r[mA] : r[mI], mP >= 0 ? r2(r[mP], 2) : null, mV >= 0 ? r[mV] : null]); }
             const i = Math.round(r[mT] - d0); (mg[i] || (mg[i] = [])).push([j, r2(t, 3), r2(r[mR] || 0)]); }
           for (let i = 0; i < gTL.length; i++) if (!mg[i]) mg[i] = null; if (!mus.length) { mus = null; mg = null; } } }
-      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg };
+      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg, tup };
     }
     return out.Motorin || out.Benzin ? out : null;
   }
