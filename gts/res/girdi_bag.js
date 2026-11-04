@@ -25,11 +25,11 @@
       for (const [k, x] of O.cells) { if (k % 16384 !== 6 || typeof x.v !== 'string') continue; const r = Math.floor(k / 16384) + 1;
         if (/^Kur hedge \(Açık/.test(x.v)) { a = 'Ozet!H' + r; const h = O.cells.get(k + 1); a0 = h ? h.v : null; } else if (/^Kambiyo kur hedge/.test(x.v)) b = 'Ozet!H' + r; }
       if (a && b) KH = { a, b, a0 }; } }
-    // dağıtıcı alım ritmi (kullanıcı 04.11.2026 10:27 "alımlar günlük"): Dagiticilar H sütunu → 'Günlük' (GTS!AlimRitmi = 'Model' ile modelin değeri)
+    // dağıtıcı alım ritmi (kullanıcı 04.11.2026 10:27 "alımlar günlük"): paket 81'den itibaren modelin varsayılanı Günlük; GTS!AlimRitmi girilirse Dagiticilar H sütunu ona çekilir
     const RT = []; { const D = W.Dagiticilar; if (D) for (const [k, x] of D.cells) if (k % 16384 === 7 && typeof x.v === 'string' && /^(Günlük|2 günde bir|Haftalık)$/.test(x.v)) RT.push('Dagiticilar!H' + (Math.floor(k / 16384) + 1)); }
     const bag = (g) => { const o = { ...g };
       if (KH) o[KH.b] = KH.a in g ? g[KH.a] : KH.a0;
-      { const rt = g['GTS!AlimRitmi'] || 'Günlük'; if (rt !== 'Model') for (const a of RT) if (!(a in g)) o[a] = rt; }
+      { const rt = g['GTS!AlimRitmi']; if (rt && rt !== 'Model') for (const a of RT) if (!(a in g)) o[a] = rt; }   // paket 81+: model varsayılanı Günlük → panel yalnız açık girdiyle değiştirir
       if (FW) o['Girdiler!B' + FW.ft] = ('Girdiler!B' + FW.tl) in g ? g['Girdiler!B' + FW.tl] : FW.tl0;
       if ((g['GTS!FinansmanPrimde'] || 'Alım priminde') === 'Alım priminde') for (const a of FR) o[a] = 0;
       return o; };
