@@ -261,7 +261,7 @@ function kargolar(){
     $("kg-ksub").textContent=`${nf.format(z.t)} t satıldı · M $ ve $/t`;
     $("kg-kz").innerHTML=`<thead><tr><th class="l">Kalem</th><th class="yb">M $</th><th>$/t</th></tr></thead><tbody>`
       +sat("Satış geliri",z.sat,"k-ana","Tüpraş ± fiyatı, tahsilat kuruyla")+sat("Alış maliyeti",z.al,"k-alt","CIF + prim, navlun farkı, ikinci liman, fire")+sat("Brüt marj",z.bm,"k-ara")
-      +sat("Finansman",z.fin,"k-alt",z.fin?"stok ve alacak (USD faiz)":"alım primi içinde")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")
+      +sat("Finansman",z.fin,"k-alt",z.fin?"stok ve alacak (USD faiz)":"alım primi içinde")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
       +sat("Net marj (model)",z.nm,"k-ara")+sat("Tahsilat kur farkı geri eklenir",z.tk,"k-alt","TL defterde kambiyoya taşınır")
       +sat("Kambiyo kârı / zararı",z.kmb,"k-alt","beyanname kuru − fatura vadesi kuru")+sat("Kur hedge (forward)",z.hdg,"k-alt",hAc?"beyanname → fatura vadesi":"kapalı")
       +sat("Kargo sonucu",z.son,"k-son","TL defter; vergi avantajı ve faaliyet giderleri hariç")+`</tbody>`;
@@ -743,10 +743,11 @@ function hedge(){
   const vm=new Map((V.vad||[]).map(r=>[r[0].slice(0,7),r])), gk=i=>gun(i).toISOString().slice(0,7);
   zaman($("h-egri"),{aria:"Vadeli eğri ve temsili yol",seri:[{ad:"CIF Med motorin – temsili fiyat yolu",renk:C.ink3,v:V.fiy.map(r=>r[0])},{ad:"Motorin vadeli eğrisi (ICE LSGO + fark, aylık)",renk:C.gts,v:V.gm.map((_,i)=>{ const r=vm.get(gk(i)); return r?r[2]:null; }),kalin:2.2}],fmt:nf.format,h:180});
   // kargo tablosu (emtia)
+  const BZK=A.some(([,k])=>k.length>34&&k[34]!=null);   // kullanıcı 04.11.2026 10:27: kargo tablosunda baz etkisi (model Kargolar 'Baz etkisi – ürün hedge içinde')
   const et=()=>{ const L=A.filter(([u])=>S.hu==="b"?u==="Benzin":u==="Motorin"), N=S.hhep?L.length:20;
-    $("h-etab").innerHTML=`<thead><tr><th>No</th><th class="l">Fiyatlama</th><th class="l">Satışa hazır</th><th>Ton</th><th>Oran</th><th>CIF fiyatlama $/t</th><th>Kilit $/t</th><th>Satış dönemi CIF $/t</th><th>Fark $/t</th><th>Brüt</th><th>Maliyet</th><th>Net</th></tr></thead><tbody>`
-      +L.slice(0,N).map(([u,k])=>{ const f=k[24]-k[25]; return `<tr><td>${k[0]}</td><td class="l">${tk(k[23])}</td><td class="l">${tk(k[4])}</td><td>${ton(k[2])}</td><td>%${nf.format((k[26]||0)*100)}</td><td>${nf1.format(k[9])}</td><td>${nf1.format(k[24])}</td><td>${nf1.format(k[25])}</td><td class="${f>=0?"p":"n"}">${(f<0?"−":"+")+nf1.format(Math.abs(f))}</td><td class="${k[19]>=0?"p":"n"}">${usd(k[19])}</td><td class="n">${usd(-(k[20]+k[21]))}</td><td class="${k[14]>=0?"p":"n"}"><b>${usd(k[14])}</b></td></tr>`; }).join("")
-      +(L.length>20?`<tr><td colspan="12" class="empty"><button type="button" class="btn" id="h-hep">${S.hhep?"İlk 20 kargo":`Tümü (${L.length})`}</button></td></tr>`:"")+`</tbody>`;
+    $("h-etab").innerHTML=`<thead><tr><th>No</th><th class="l">Fiyatlama</th><th class="l">Satışa hazır</th><th>Ton</th><th>Oran</th><th>CIF fiyatlama $/t</th><th>Kilit $/t</th><th>Satış dönemi CIF $/t</th><th>Fark $/t</th><th>Brüt</th>${BZK?`<th title="CIF Med − ICE LSGO baz sapması; brüt hedge sonucunun içinde, + = kazanç">içinde baz etkisi</th><th>Baz $/t</th>`:""}<th>Maliyet</th><th>Net</th></tr></thead><tbody>`
+      +L.slice(0,N).map(([u,k])=>{ const f=k[24]-k[25]; return `<tr><td>${k[0]}</td><td class="l">${tk(k[23])}</td><td class="l">${tk(k[4])}</td><td>${ton(k[2])}</td><td>%${nf.format((k[26]||0)*100)}</td><td>${nf1.format(k[9])}</td><td>${nf1.format(k[24])}</td><td>${nf1.format(k[25])}</td><td class="${f>=0?"p":"n"}">${(f<0?"−":"+")+nf1.format(Math.abs(f))}</td><td class="${k[19]>=0?"p":"n"}">${usd(k[19])}</td>${BZK?(b=>{ const ht=k[2]*(k[26]||0); return `<td class="${b==null||!b?"muted":b>0?"p":"n"}">${b==null?"–":usd(b)}</td><td class="${!b?"muted":b>0?"p":"n"}">${b&&ht?(b<0?"−":"+")+nf1.format(Math.abs(b/ht)):"–"}</td>`; })(k[34]):""}<td class="n">${usd(-(k[20]+k[21]))}</td><td class="${k[14]>=0?"p":"n"}"><b>${usd(k[14])}</b></td></tr>`; }).join("")
+      +(L.length>20?`<tr><td colspan="${BZK?14:12}" class="empty"><button type="button" class="btn" id="h-hep">${S.hhep?"İlk 20 kargo":`Tümü (${L.length})`}</button></td></tr>`:"")+`</tbody>`;
     const b=$("h-hep"); if(b) b.onclick=()=>{ S.hhep=!S.hhep; et(); }; };
   for(const b of $("h-eu").querySelectorAll("button")) b.onclick=()=>{ S.hu=b.dataset.u; for(const x of $("h-eu").querySelectorAll("button")) x.setAttribute("aria-pressed",String(x===b)); et(); };
   et();

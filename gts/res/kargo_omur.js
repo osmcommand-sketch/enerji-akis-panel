@@ -25,13 +25,13 @@
       const ix = { no: c(/^Kargo no/), var: c(/^Var mı/), gemi: c(/^Gemi sınıfı/), ton: c(/^Ton$/), vr: c(/^Varış$/), fy: c(/^Fiyatlama günü/), cif: c(/^CIF Med/), al: c(/^Alış maliyeti/), dg: c(/^Değer \(USD\)/),
         L: c(/^Kümülatif alım önce/), M: c(/^Kümülatif alım sonra/), ilk: c(/^İlk satış/), son: c(/^Tükenme/), yas: c(/^Yaşam süresi/), stk: c(/^Ort\. stokta kalma/), bmt: c(/^Brüt marj \(USD\/t\)/),
         bm: c(/^Brüt marj \(USD\)$/), nm: c(/^Net marj \(USD\)$/), kv: c(/^Kur – varış/), hz: c(/^Satışa hazır/), ab: c(/^Tahliye başlangıcı/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), otv: c(/^ÖTV teminatı – antrepo/),
-        sus: c(/^Satış – Tüpraş ort\. \(USD\/t\)/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/), kh: c(/^Kur hedge etkisi/), tk: c(/^Tahsilat kur kaybı/) };
+        sus: c(/^Satış – Tüpraş ort\. \(USD\/t\)/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/), kh: c(/^Kur hedge etkisi/), tk: c(/^Tahsilat kur kaybı/), bz: c(/^Baz etkisi/) };
       const v = (r, k) => (ix[k] >= 0 ? r[ix[k]] : null);
       const k = []; for (let i = 5; i < KG.length; i++) { const r = KG[i]; if (!r || typeof v(r, 'no') !== 'number' || (ix.var >= 0 && !v(r, 'var'))) continue; if (!(v(r, 'M') > v(r, 'L'))) continue;
         const cod = v(r, 'cod');
         k.push([v(r, 'no'), v(r, 'gemi'), r2(v(r, 'ton')), r2(v(r, 'bl')), iso(v(r, 'fy')), iso(v(r, 'vr')), iso(v(r, 'ab')), iso(cod), typeof cod === 'number' ? iso(cod + odv) : null, iso(v(r, 'hz')),
           iso(v(r, 'ilk')), iso(v(r, 'son')), r2(v(r, 'yas')), r2(v(r, 'stk'), 1), r2(v(r, 'cif'), 1), r2(v(r, 'al'), 1), r2(v(r, 'dg')), r2(v(r, 'bmt'), 1), r2(v(r, 'bm')), r2(v(r, 'nm')), r2(v(r, 'otv')),
-          r2(v(r, 'L'), 1), r2(v(r, 'M'), 1), r2(v(r, 'kv'), 3), r2(v(r, 'sus'), 2), r2(v(r, 'at'), 1), r2(v(r, 'fin')), r2(v(r, 'hn')), r2(v(r, 'kh')), r2(v(r, 'tk'))]); }
+          r2(v(r, 'L'), 1), r2(v(r, 'M'), 1), r2(v(r, 'kv'), 3), r2(v(r, 'sus'), 2), r2(v(r, 'at'), 1), r2(v(r, 'fin')), r2(v(r, 'hn')), r2(v(r, 'kh')), r2(v(r, 'tk')), ix.bz >= 0 ? r2(v(r, 'bz')) : null]); }
       if (!k.length) continue;
       const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gB = g(/^İthalat beyannamesi/), gC = g(/^Beyanname kargosu/), gF = g(/^Ödeme günü kuru/), gK = g(/^Yasal defter kambiyo/), gH = g(/^Kur hedge sonucu \(TL/);
       const rows = GN.slice(5).filter((r) => r && typeof r[gT] === 'number'); if (!rows.length) continue;
