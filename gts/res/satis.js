@@ -13,8 +13,8 @@
      lot: [no, gemi, ton, B/L t, antrepo beyannamesi (iso), varış (iso), alış $/t, finansman $/t, ürün hedge net $/t, dönemde satılan t, COD (iso),
            alış kırılımı $/t (kullanıcı 04.11.2026 10:52): 11 CIF Med (fiyatlama günü), 12 alım primi / iskontosu, 13 navlun farkı, 14 ikinci liman,
            15 GTS elleçleme + ek seyir, 16 tahliye farkı (fire; alış − diğerleri)]
-     tup: [gün → Tüpraş vergisiz TL/t] (satış fiyatı kırılımı: satış = Tüpraş + kaynak bazlı prim)
-     alt: [lot no, gün, ton, beyanname sıra no (ürün içinde), kambiyo $/t, forward $/t, parça (aynı beyannamenin ikinci lotu = 1)]
+     tup: [gün → Tüpraş vergisiz TL/t], tupM3: [gün → Tüpraş vergisiz TL/m³] (satış fiyatı = satış günü Tüpraş + satış primi, TL/m³)
+     alt: [lot no, gün, ton, beyanname sıra no (ürün içinde), kambiyo $/t, forward $/t, parça (aynı beyannamenin ikinci lotu = 1), ithalat beyannamesi günü kuru]
      sat: [gün, alt indeksi, ton]
      g0 (iso), gTL: [gün → satış geliri TL/t, model ağırlıklı primle], kur: [gün → USD/TRY], yog
    Ortak: yil {2027: {faal $/t, satT}}, prim {M, D, B, K, ort} (TL/m³), mut (Karlilik kalemleri, mutabakat için). */
@@ -59,14 +59,14 @@
       const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gKS = g(/^Kümülatif satış/), gKB = g(/^Kümülatif ithalat beyannamesi/), gR = g(/^Satış geliri, vergisiz/), gK = g(/^Yasal defter kambiyo/), gH = g(/^Kur hedge sonucu \(TL/);
       if ([gT, gS, gKS, gKB].some((x) => x < 0)) continue;
       const rows = GN.slice(5).filter((r) => r && typeof r[gT] === 'number'); if (!rows.length) continue;
-      const d0 = rows[0][gT], gTL = [], kr = [], alt = [], sat = [], tup = [], fT = F ? Math.max(0, bas(F, /^Tarih/)) : 0, tupM = new Map();
+      const d0 = rows[0][gT], gTL = [], kr = [], alt = [], sat = [], tup = [], tupM3 = [], fT = F ? Math.max(0, bas(F, /^Tarih/)) : 0, tupM = new Map();
       if (F && tupK[u] >= 0) for (const r of F) if (r && typeof r[fT] === 'number' && typeof r[tupK[u]] === 'number') tupM.set(Math.floor(r[fT]), r[tupK[u]] / yog[u]);
       // alt lotlar: kümülatif ithalat beyannamesi artışları (ilk gün = açılış stoğundaki beyanname edilmiş milli ürün)
       let onc = 0, li = 0, sira = 0;
-      for (const r of rows) { const i = Math.round(r[gT] - d0), cb = r[gKB] || 0, t = cb - onc; gTL[i] = r[gS] > 0 && gR >= 0 ? r2(r[gR] / r[gS], 2) : null; kr[i] = r2(K(r[gT]), 4); tup[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])), 2) : null;
+      for (const r of rows) { const i = Math.round(r[gT] - d0), cb = r[gKB] || 0, t = cb - onc; gTL[i] = r[gS] > 0 && gR >= 0 ? r2(r[gR] / r[gS], 2) : null; kr[i] = r2(K(r[gT]), 4); tup[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])), 2) : null; tupM3[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])) * yog[u], 2) : null;
         if (t > 0.01) { sira++; const y = yil(r[gT]), k = yk(y), kmb = gK >= 0 && k ? (r[gK] || 0) / t / k : 0, fwd = gH >= 0 && k ? (r[gH] || 0) / t / k : 0;
           let a = onc, p = 0; while (li < L.length && L[li].b <= a + 1e-6) li++;
-          for (let j = li; j < L.length && L[j].a < cb - 1e-6; j++) { const o = Math.min(cb, L[j].b) - Math.max(a, L[j].a); if (o <= 0.01) continue; alt.push([L[j].r[0], i, r2(o, 2), sira, r2(kmb, 4), r2(fwd, 4), p++]); a = Math.max(a, L[j].a) + o; }
+          for (let j = li; j < L.length && L[j].a < cb - 1e-6; j++) { const o = Math.min(cb, L[j].b) - Math.max(a, L[j].a); if (o <= 0.01) continue; alt.push([L[j].r[0], i, r2(o, 2), sira, r2(kmb, 4), r2(fwd, 4), p++, r2(K(r[gT]), 4)]); a = Math.max(a, L[j].a) + o; }
           onc = cb; } }
       // satışlar: kümülatif satış aralığı → alt lotlar (FIFO)
       const AC = []; { let c0 = 0; for (const x of alt) { AC.push([c0, c0 + x[2]]); c0 += x[2]; } }
@@ -74,7 +74,7 @@
       for (const r of rows) { const s = r[gS] || 0; if (!(s > 0)) continue; const i = Math.round(r[gT] - d0), a = s0, b = s0 + s; s0 = b;
         while (ai < AC.length && AC[ai][1] <= a + 1e-6) ai++;
         for (let j = ai; j < AC.length && AC[j][0] < b - 1e-6; j++) { const o = Math.min(b, AC[j][1]) - Math.max(a, AC[j][0]); if (o > 0.01) sat.push([i, j, r2(o, 2)]); } }
-      for (let i = 0; i < gTL.length; i++) { if (gTL[i] === undefined) gTL[i] = null; if (kr[i] === undefined) kr[i] = null; if (tup[i] === undefined) tup[i] = null; }
+      for (let i = 0; i < gTL.length; i++) { if (gTL[i] === undefined) gTL[i] = null; if (kr[i] === undefined) kr[i] = null; if (tup[i] === undefined) tup[i] = null; if (tupM3[i] === undefined) tupM3[i] = null; }
       // müşteri (dağıtıcı) bazında günlük satış – modelin Musteri_Gunluk sayfası
       let mus = null, mg = null; const MG = sayfa('Musteri_Gunluk');
       if (MG) { const m = (re) => bas(MG, re), mT = m(/^Tarih/), mI = m(/^Şirket ID/), mA = m(/^Şirket$/), mU = m(/^Ürün/), mD = m(/^Durum/), mS = m(/^Satış \(t\)/), mP = m(/^Uygulanan satış primi/), mR = m(/^Satış geliri/), mV = m(/^Vade/);
@@ -83,7 +83,7 @@
             const t = r[mS]; if (!(t > 0)) continue; let j = ix.get(r[mI]); if (j == null) { j = mus.length; ix.set(r[mI], j); mus.push([r[mI], mA >= 0 ? r[mA] : r[mI], mP >= 0 ? r2(r[mP], 2) : null, mV >= 0 ? r[mV] : null]); }
             const i = Math.round(r[mT] - d0); (mg[i] || (mg[i] = [])).push([j, r2(t, 3), r2(r[mR] || 0)]); }
           for (let i = 0; i < gTL.length; i++) if (!mg[i]) mg[i] = null; if (!mus.length) { mus = null; mg = null; } } }
-      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg, tup };
+      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg, tup, tupM3 };
     }
     return out.Motorin || out.Benzin ? out : null;
   }
