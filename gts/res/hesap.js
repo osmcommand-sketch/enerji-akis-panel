@@ -24,6 +24,9 @@ function tokenize(f) {
     const ch = f[i];
     if (ch === ' ' || ch === '\n') { i++; continue; }
     if (ch === '"') { let j = i + 1, s = ''; for (;;) { if (f[j] === '"') { if (f[j + 1] === '"') { s += '"'; j += 2; continue; } break; } s += f[j++]; if (j > f.length) throw new Error('kapanmayan metin'); } T.push({ t: 'str', v: s }); i = j + 1; continue; }
+    // tam sütun aralığı (paket 85: SUMIFS(Musteri_Gunluk!$H:$H; …)) – r2 = −1: sayfanın kullanılan son satırı
+    const mk = /^(?:([A-Za-z_][\w.]*)!)?\$?([A-Z]{1,3}):\$?([A-Z]{1,3})(?![\w(])/.exec(f.slice(i));
+    if (mk && !/^[A-Za-z_][\w.]*\(/.test(f.slice(i))) { T.push({ t: 'ref', sh: mk[1] || null, r1: 0, c1: kolNo(mk[2]), r2: -1, c2: kolNo(mk[3]) }); i += mk[0].length; continue; }
     const m3 = /^(?:([A-Za-z_][\w.]*)!)?(\$?)([A-Z]{1,3})(\$?)(\d+)(?::(\$?)([A-Z]{1,3})(\$?)(\d+))?/.exec(f.slice(i));
     if (m3 && !/^[A-Za-z_][\w.]*\(/.test(f.slice(i))) {
       // hücre ya da aralık (önünde işlev adı olmayan)
@@ -137,6 +140,7 @@ function motor(S) {
   const HESAPLANIYOR = {};
   const adres = (r, c) => { let s = '', n = c + 1; while (n) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s + (r + 1); };
   function aralik(sh, r1, c1, r2, c2) {
+    if (r2 === -1) r2 = S[sh] ? S[sh].maxR : 0;   // tam sütun
     const k = sh + '|' + r1 + ',' + c1 + ',' + r2 + ',' + c2; let a = aralikOnb.get(k); if (a) return a;
     const R = r2 - r1 + 1, C = c2 - c1 + 1, v = new Array(R * C);
     for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) v[i * C + j] = hucre(sh, r1 + i, c1 + j);
@@ -207,7 +211,7 @@ function motor(S) {
     switch (n.k) {
       case 'num': return n.v; case 'str': return n.v; case 'bool': return n.v; case 'bosarg': return BOS;
       case 'neg': { const a = ev(n.a, ctx); if (a instanceof Arr) return ikili('*', a, -1); const x = num(a); return isErr(x) ? x : -x; }
-      case 'ref': { const sh = n.sh || ctx.sh; if (n.r1 === n.r2 && n.c1 === n.c2) return hucre(sh, n.r1, n.c1); return aralik(sh, n.r1, n.c1, n.r2, n.c2); }
+      case 'ref': { const sh = n.sh || ctx.sh; if (n.r1 === n.r2 && n.c1 === n.c2 && n.r2 !== -1) return hucre(sh, n.r1, n.c1); return aralik(sh, n.r1, n.c1, n.r2, n.c2); }
       case 'bin': return ikili(n.o, ev(n.a, ctx), ev(n.b, ctx));
       case 'fn': return fn(n, ctx);
     }

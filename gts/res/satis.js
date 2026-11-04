@@ -12,7 +12,7 @@
    Çıktı (ürün başına):
      lot: [no, gemi, ton, B/L t, antrepo beyannamesi (iso), varış (iso), alış $/t, finansman $/t, ürün hedge net $/t, dönemde satılan t, COD (iso),
            alış kırılımı $/t (kullanıcı 04.11.2026 10:52): 11 CIF Med (fiyatlama günü), 12 alım primi / iskontosu, 13 navlun farkı, 14 ikinci liman,
-           15 GTS elleçleme + ek seyir, 16 tahliye farkı (fire; alış − diğerleri)]
+           15 GTS elleçleme + ek seyir, 16 tahliye farkı (fire; alış − diğerleri), 17 gerçek yoğunluk t/m³ (paket 85: Kargolar 'Gerçek yoğunluk', yoksa 0,835)]
      tup: [gün → Tüpraş vergisiz TL/t], tupM3: [gün → Tüpraş vergisiz TL/m³] (satış fiyatı = satış günü Tüpraş + satış primi, TL/m³)
      alt: [lot no, gün, ton, beyanname sıra no (ürün içinde), kambiyo $/t, forward $/t, parça (aynı beyannamenin ikinci lotu = 1), ithalat beyannamesi günü kuru]
      sat: [gün, alt indeksi, ton]
@@ -38,7 +38,10 @@
        kk: kKt && kKu && v(kKu, j) ? v(kKt, j) / v(kKu, j) : null }; }
     const ort = {}; for (const [d, k] of kur) { const y = yil(d), o = ort[y] || (ort[y] = [0, 0]); o[0] += k; o[1]++; }
     const yk = (y) => (yil0[y] && yil0[y].kk) || (ort[y] ? ort[y][0] / ort[y][1] : null);
-    const mut = {}; for (const [ad, re] of [['net', /^NET SATIŞLAR/], ['smm', /^SATILAN MALIN MALİYETİ/], ['hedge', /^Ürün hedge sonucu/], ['brut', /^BRÜT KÂR/], ['faal', /^FAALİYET GİDERLERİ/], ['kur', /^KUR FARKI/], ['kmb', /^Kambiyo kârı/], ['hdg', /^Kur hedge sonucu/], ['nk', /^NET KÂR/]]) { const r = bul(re); if (r) mut[ad] = [v(r, 1), v(r, 2)]; }
+    const mut = {}; for (const [ad, re] of [['net', /^NET SATIŞLAR/], ['smm', /^SATILAN MALIN MALİYETİ/], ['hedge', /^Ürün hedge sonucu/i], ['brut', /^BRÜT KÂR/], ['faal', /^FAALİYET GİDERLERİ/], ['kur', /^KUR FARKI/], ['kmb', /^Kambiyo kârı/], ['hdg', /^Kur hedge sonucu/], ['nk', /^NET KÂR/],
+      ['gtl', /^NET SATIŞLAR \(TL\)/], ['stl', /^SATILAN MALIN MALİYETİ \(TL\)/], ['btl', /^BRÜT KÂR \(TL\)/], ['bus', /^BRÜT KÂR \(USD\)/]]) { const r = bul(re); if (r) mut[ad] = [v(r, 1), v(r, 2)]; }
+    mut.tl = !!mut.btl;   // paket 85+: model kullanıcı hesap şablonunda (TL); ürün hedge satırı + = kazanç
+    if (mut.tl) { const h = bul(/^ÜRÜN HEDGE SONUCU/); if (h) mut.hedge = [-v(h, 1), -v(h, 2)]; }   // eski işaretle (− = kazanç) tutarlı tut
     // kaynak bazlı satış primi (Ozet G/H): M Mersin üçüncü taraf, D Tüpraş Mersin, B Batman, K Kırıkkale; ort = ağırlıklı (H13)
     const Oz = sayfa('Ozet') || [], oz = (re) => { const r = Oz.find((x) => x && typeof x[6] === 'string' && re.test(x[6])); return r && typeof r[7] === 'number' ? r[7] : null; };
     const prim = { M: oz(/^Mersin üçüncü taraf/), D: oz(/^Tüpraş Mersin/), B: oz(/^Tüpraş Batman/), K: oz(/^Tüpraş Kırıkkale/), ort: oz(/^Satış fiyatı – motorin/) };
@@ -49,13 +52,13 @@
       const KG = sayfa(u + '_Kargolar'), GN = sayfa(u + '_Gunluk'); if (!KG || !GN) continue;
       const c = (re) => bas(KG, re), g = (re) => bas(GN, re);
       const ix = { no: c(/^Kargo no/), var: c(/^Var mı/), gemi: c(/^Gemi sınıfı/), ton: c(/^Ton$/), vr: c(/^Varış$/), al: c(/^Alış maliyeti/), L: c(/^Kümülatif alım önce/), M: c(/^Kümülatif alım sonra/),
-        ab: c(/^Tahliye başlangıcı/), cif: c(/^CIF Med/), nf: c(/^Navlun farkı \(USD\/t\)/), il: c(/^İkinci liman \(USD\/t\)/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/) };
+        ab: c(/^Tahliye başlangıcı/), cif: c(/^CIF Med/), yg: c(/^Gerçek yoğunluk/), nf: c(/^Navlun farkı \(USD\/t\)/), il: c(/^İkinci liman \(USD\/t\)/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/) };
       if ([ix.no, ix.L, ix.M, ix.al].some((x) => x < 0)) continue;
       const kv = (r, k) => (ix[k] >= 0 ? r[ix[k]] : null), L = [], APR = gb(u === 'Motorin' ? /^Alım primi \/ iskontosu – motorin/ : /^Alım primi \/ iskontosu – benzin/);
       for (let i = 5; i < KG.length; i++) { const r = KG[i]; if (!r || typeof kv(r, 'no') !== 'number' || (ix.var >= 0 && !kv(r, 'var'))) continue; if (!(kv(r, 'M') > kv(r, 'L'))) continue;
         const at = kv(r, 'at') || 0; L.push({ r: [kv(r, 'no'), kv(r, 'gemi'), r2(kv(r, 'ton'), 1), r2(kv(r, 'bl'), 1), iso(kv(r, 'ab')), iso(kv(r, 'vr')), r2(kv(r, 'al'), 4),
           at ? r2((kv(r, 'fin') || 0) / at, 4) : 0, at ? r2((kv(r, 'hn') || 0) / at, 4) : 0, r2(at, 1), iso(kv(r, 'cod'))].concat((() => {
-            const al = kv(r, 'al') || 0, cf = kv(r, 'cif') || 0, nv = kv(r, 'nf') || 0, ik = kv(r, 'il') || 0; return [r2(cf, 4), r2(APR, 4), r2(nv, 4), r2(ik, 4), r2(ELS, 4), r2(al - cf - APR - nv - ik - ELS, 4)]; })()), a: kv(r, 'L'), b: kv(r, 'M') }); }
+            const al = kv(r, 'al') || 0, cf = kv(r, 'cif') || 0, nv = kv(r, 'nf') || 0, ik = kv(r, 'il') || 0; return [r2(cf, 4), r2(APR, 4), r2(nv, 4), r2(ik, 4), r2(ELS, 4), r2(al - cf - APR - nv - ik - ELS, 4), typeof kv(r, 'yg') === 'number' ? kv(r, 'yg') : 0.835]; })()), a: kv(r, 'L'), b: kv(r, 'M') }); }
       if (!L.length) continue;
       const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gKS = g(/^Kümülatif satış/), gKB = g(/^Kümülatif ithalat beyannamesi/), gR = g(/^Satış geliri, vergisiz/), gK = g(/^Yasal defter kambiyo/), gH = g(/^Kur hedge sonucu \(TL/);
       if ([gT, gS, gKS, gKB].some((x) => x < 0)) continue;

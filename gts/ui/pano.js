@@ -30,8 +30,8 @@ const yilOk=s=>!YIL||String(s).slice(0,4)===YIL;
 V.tld=(()=>{ const K=V.kambiyo&&V.kambiyo.yil, KT=V.kartab; if(!K||!Object.keys(K).length||!KT) return null;
   // paket 78+: model net kârı TL defter tanımıyla veriyor (Karlilik KUR FARKI bloğu) → yalnız kalemler okunur, düzeltme yapılmaz
   { const L=KT.rows, bul=re=>L.find(r=>re.test(String(r[0]).trim())), kf=bul(/^KUR FARKI – YASAL DEFTER/);
-    if(kf){ const t=bul(/^Bilgi: tahsilat kur farkı/)||bul(/^Tahsilat kur farkı/), km=bul(/^Kambiyo kârı \/ zararı/), hg=bul(/^Kur hedge sonucu/), v=r=>[0,1,2,3].map(j=>j&&r&&typeof r[j]==="number"?r[j]:0);
-      const tah=v(t), kmb=v(km), hdg=v(hg); return {tah,kmb,hdg,d:[0,1,2,3].map(j=>tah[j]+kmb[j]+hdg[j]),model:true}; } }
+    if(kf){ const tl=!!bul(/^BRÜT KÂR \(TL\)/), t=tl?null:(bul(/^Bilgi: tahsilat kur farkı/)||bul(/^Tahsilat kur farkı/)), km=bul(/^Kambiyo kârı \/ zararı/), hg=bul(/^Kur hedge sonucu/)||bul(/^Kur hedge – forward/), /* paket 85: TL şablonunda tahsilat kur farkı net kâra girmez */ v=r=>[0,1,2,3].map(j=>j&&r&&typeof r[j]==="number"?r[j]:0);
+      const tah=v(t), kmb=v(km), hdg=v(hg); return {tah,kmb,hdg,d:[0,1,2,3].map(j=>tah[j]+kmb[j]+hdg[j]),model:true,tl}; } }
   const L=KT.rows, bul=re=>L.findIndex(r=>re.test(String(r[0]).trim())), it=bul(/^Tahsilat kur farkı/); if(it<0) return null;
   const hAc=(((V.tic||[]).find(r=>/^Kur hedge \(Açık/.test(r[0]))||(V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';   // tek kur hedge anahtarı (03.11.2026 19:29)
   const tah=[0,1,2,3].map(j=>j&&typeof L[it][j]==="number"?L[it][j]:0), kmb=[0,(K[2027]||{}).kusd||0,(K[2028]||{}).kusd||0], hdg=hAc?[0,(K[2027]||{}).husd||0,(K[2028]||{}).husd||0]:[0,0,0];
@@ -171,28 +171,26 @@ function satislar(){
   for(const b of $("st-gor").querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset.g===S.stGor)); b.onclick=()=>{ S.stGor=b.dataset.g; S.stSf=0; S.stSr=null; satislar(); }; }
   // satır üretimi: satış parçası × müşteri; kalemler USD
   const MS=S.stMu===""?Mu:Mu.filter(x=>String(x.s)===S.stMu), MuI=new Map(Mu.map(x=>[x.s,x])), satir=[];
-  /* Hesap şablonu (kullanıcı 04.11.2026 12:29, gts_satislar_motorin_gun_2027.csv):
-     Miktar m³ = ton / 0,835 · Alım fiyatı TL/m³ = (CIF Med + alım primi) × beyanname kuru × 0,845 / 0,835 · Satış fiyatı TL/m³ = satış günü Tüpraş + satış primi
-     Satış geliri TL = m³ × satış fiyatı · SMM TL = m³ × alım fiyatı · Brüt kâr TL = gelir − SMM · Brüt kâr $ = Brüt TL / beyanname kuru
-     Net kâr $ = Brüt $ + ürün hedge + stok ve alacak finansmanı + faiz geliri + faaliyet giderleri + kambiyo + forward (bu kalemler modelden, $) */
-  const kal=(i,a,l,q,pTL,sP)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, kb=a[7]||D.kur[a[1]]||D.kur[i]||0, m3=q/ST_KES, y2=v=>Math.round(v*100)/100, cif=y2(l.length>16?l[11]:l[6]), apr=l.length>16?l[12]:0;
-    const afy=(cif+apr)*kb*ST_BOL/ST_KES, stp=y2(D.tupM3&&D.tupM3[i]!=null?D.tupM3[i]:(pTL||0)*D.yog),   // kullanıcı 04.11.2026 12:50: CIF ve Tüpraş 2 ondalığa yuvarlanır
-    sfy=stp+(sP||0);
-    const o={q,m3,cifq:m3*cif,aprq:m3*apr,kbq:m3*kb,afyq:m3*afy,stpq:m3*stp,sprq:m3*(sP||0),sfyq:m3*sfy,gtl:m3*sfy,stl:m3*afy,hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,faiz:q*(YY.faiz||0),kmb:q*a[4],fwd:q*a[5],
-      gel:q*(pTL||0)/(D.kur[i]||1),mal:-q*l[6]};   // gel / mal: modelin $ tanımı (mutabakat için)
-    o.btl=o.gtl-o.stl; o.bus=kb?o.btl/kb:0; o.nk=o.bus+o.hn+o.fin+o.faiz+o.faal+o.kmb+o.fwd; o.mbr=o.gel+o.mal+o.hn; o.mnk=o.mbr+o.fin+o.faiz+o.faal+o.kmb+o.fwd; return o; };
+  /* Hesap şablonu (kullanıcı 04.11.2026 12:29 CSV; 18:07 düzeltme – paket 85 modeliyle aynı):
+     Alım fiyatı TL/t = (CIF Med fiyatlama ort. [2 ondalık] + alım primi) × ithalat beyannamesi kuru × 0,845 / gerçek yoğunluk (Platts referansı 0,845; eskalasyon)
+     SMM TL = satılan ton × alım fiyatı · Satış: m³ = ton / 0,835, satış fiyatı TL/m³ = satış günü Tüpraş [2 ondalık] + müşteri primi, gelir TL = m³ × satış fiyatı
+     Brüt kâr TL = gelir − SMM · Brüt kâr $ = Brüt TL / beyanname kuru · Net kâr $ = Brüt $ + ürün hedge + finansman + faiz + faaliyet giderleri (elleçleme, fire dahil) + kambiyo + forward */
+  const kal=(i,a,l,q,pTL,sP)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, kb=a[7]||D.kur[a[1]]||D.kur[i]||0, m3=q/ST_KES, y2=v=>Math.round(v*100)/100, cif=y2(l.length>16?l[11]:l[6]), apr=l.length>16?l[12]:0, yg=l.length>17&&l[17]?l[17]:ST_KES;
+    const afy=(cif+apr)*kb*ST_BOL/yg, stp=y2(D.tupM3&&D.tupM3[i]!=null?D.tupM3[i]:(pTL||0)*D.yog), sfy=stp+(sP||0);
+    const o={q,m3,cifq:q*cif,aprq:q*apr,ygq:q*yg,kbq:q*kb,afyq:q*afy,stpq:m3*stp,sprq:m3*(sP||0),sfyq:m3*sfy,gtl:m3*sfy,stl:q*afy,hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,faiz:q*(YY.faiz||0),kmb:q*a[4],fwd:q*a[5]};
+    o.btl=o.gtl-o.stl; o.bus=kb?o.btl/kb:0; o.nk=o.bus+o.hn+o.fin+o.faiz+o.faal+o.kmb+o.fwd; return o; };
   for(const [i,j,q] of D.sat){ if(!yOk(i)) continue; const a=D.alt[j]; if(S.stLot!==""&&a[0]!==+S.stLot) continue; if(S.stAy&&ayK(i)!==S.stAy) continue; const l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue;
     if(MG){ const g=MG[i]; if(!g) continue; const tt=g.reduce((s,x)=>s+x[1],0); if(!tt) continue;
       for(const [c,t,tl] of g){ const m=MuI.get(c); if(!m||(S.stMu!==""&&String(c)!==S.stMu)) continue; const o=kal(i,a,l,q*t/tt,tl/t,D.mus[c][2]); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } continue; }
     for(const m of MS){ const o=kal(i,a,l,q*m.w,D.gTL[i]+m.dp,m.prim); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } }
-  const K=["q","m3","cifq","aprq","kbq","afyq","stpq","sprq","sfyq","gtl","stl","btl","bus","hn","fin","faiz","faal","kmb","fwd","nk","gel","mal","mbr","mnk"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
+  const K=["q","m3","cifq","aprq","ygq","kbq","afyq","stpq","sprq","sfyq","gtl","stl","btl","bus","hn","fin","faiz","faal","kmb","fwd","nk"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
   const T=top(); for(const o of satir) ek(T,o);
   // özet kutuları
   const ut=(v,t)=>t?(v<0?"−":"")+nf2.format(Math.abs(v/t)):"–", md=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6);
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
   const mtl=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), pm=(v,m)=>m?(v<0?"−":"")+nf.format(Math.abs(v/m)):"–";
   $("st-kpi").innerHTML=kt("Satış",nf.format(T.m3)+" m³",`${nf.format(T.q)} t · ${new Set(satir.map(o=>o.i)).size} gün · ${new Set(satir.map(o=>o.j)).size} ithalat beyannamesi · ${new Set(satir.map(o=>o.lot)).size} lot`)
-    +kt("Satış geliri",mtl(T.gtl)+" M TL",`ortalama ${pm(T.sfyq,T.m3)} TL/m³ · alım ${pm(T.afyq,T.m3)} TL/m³`)
+    +kt("Satış geliri",mtl(T.gtl)+" M TL",`ortalama satış ${pm(T.sfyq,T.m3)} TL/m³ · alım ${pm(T.afyq,T.q)} TL/t`)
     +kt("Brüt kâr",mtl(T.btl)+" M TL",`${md(T.bus)} M $ · beyanname kuruyla`,T.btl<0?"neg":"pos")
     +kt("Net kâr",md(T.nk)+" M $",`${ut(T.nk,T.q)} $/t · hedge, finansman, gider, kur farkı dahil`,T.nk<0?"neg":"pos");
   $("st-sub").textContent=`${S.stU} · ${YIL||"2027–2028"} · ${MG?`müşteri satışları modelden (Musteri_Gunluk) · ${Mu.length} dağıtıcı`:"müşteri payları "+(V.minAlim&&V.minAlim.n?`asgari alım eşiğini geçen ${Mu.length} dağıtıcı`:`${Mu.length} dağıtıcı`)} · satışlar ithalat beyannamelerinden FIFO`;
@@ -206,9 +204,9 @@ function satislar(){
     alt:[["Alt lot",o=>altAd(D.alt[o.j])],["Beyanname tarihi",o=>tS(D.alt[o.j][1])],["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`]],
     ay:[["Ay",o=>ayA(ayK(o.i))],["Gün",o=>nf.format(o.gn.size)]]}[S.stGor];
   // sütunlar: [anahtar, başlık, sınıf, biçim, değer]; $/t sütunları ton ağırlıklı (toplam / ton)
-  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), pt=v=>(v<0?"−":"")+nf2.format(Math.abs(v)), wm=k=>o=>o.m3?o[k]/o.m3:0;   // birim fiyatlar m³ ağırlıklı
+  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), pt=v=>(v<0?"−":"")+nf2.format(Math.abs(v)), wm=k=>o=>o.m3?o[k]/o.m3:0, wt=k=>o=>o.q?o[k]/o.q:0;   // satış birim fiyatları m³, alım birim fiyatları ton ağırlıklı
   const kolS=[["q","Miktar (ton)","",pt,o=>o.q],["m3","Miktar (m³)","",pt,o=>o.m3],
-    ["cif","CIF Med ($/t)","ga",pt,wm("cifq")],["apr","Alım primi ($/t)","ga",pt,wm("aprq")],["kes","Kesafet","ga",v=>nf3.format(v),()=>ST_KES],["kb","Beyanname kuru","ga",pt,wm("kbq")],["afy","Alım fiyatı (TL/m³)","ga ara",pt,wm("afyq")],
+    ["cif","CIF Med ($/t)","ga",pt,wt("cifq")],["apr","Alım primi ($/t)","ga",pt,wt("aprq")],["kes","Yoğunluk (t/m³)","ga",v=>nf3.format(v),wt("ygq")],["kb","Beyanname kuru","ga",v=>nf4.format(v),wt("kbq")],["afy","Alım fiyatı (TL/t)","ga ara",pt,wt("afyq")],
     ["stp","Tüpraş (TL/m³)","gs",pt,wm("stpq")],["spr","Satış primi (TL/m³)","gs",pt,wm("sprq")],["sfy","Satış fiyatı (TL/m³)","gs ara",pt,wm("sfyq")],
     ["gtl","Satış geliri (TL)","g1",pt,o=>o.gtl],["stl","Satılan malın maliyeti (TL)","g1",pt,o=>o.stl],["btl","Brüt kâr (TL)","g1 ara",pt,o=>o.btl],["bus","Brüt kâr ($)","g1 ara",pt,o=>o.bus],
     ["hn","Ürün hedge","g2",pt,o=>o.hn],["fin","Stok ve alacak finansmanı","g2",pt,o=>o.fin],["faiz","Faiz geliri (ÖTV/KDV nakdi)","g2",pt,o=>o.faiz],["faal","Faaliyet giderleri","g2",pt,o=>o.faal],
@@ -225,7 +223,7 @@ function satislar(){
   for(const b of $("st-tab").querySelectorAll("button.st-lk")) b.onclick=()=>{ S.stLot=b.dataset.lot; S.stSf=0; satislar(); };
   const ns=Math.ceil(R.length/PS); $("st-sayfa").innerHTML=ns>1?`<button type="button" class="btn kg-ok" id="st-p0" aria-label="Önceki sayfa"${sf?"":" disabled"}>‹</button><span>${sf+1} / ${ns}</span><button type="button" class="btn kg-ok" id="st-p1" aria-label="Sonraki sayfa"${sf<ns-1?"":" disabled"}>›</button><span class="muted">${PS} satır / sayfa</span>`:"";
   if(ns>1){ $("st-p0").onclick=()=>{ S.stSf--; satislar(); }; $("st-p1").onclick=()=>{ S.stSf++; satislar(); }; }
-  $("st-not").innerHTML=`<b>Hesap:</b> Miktar m³ = ton / 0,835 (tüm kargolar). Alım fiyatı TL/m³ = (CIF Med fiyatlama ortalaması + alım primi, $/t) × ithalat beyannamesi kuru × 0,845 / 0,835. Satış fiyatı TL/m³ = satış günü Tüpraş vergisiz + müşterinin satış primi (kaynak bazlı: Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³). Satış geliri = m³ × satış fiyatı; satılan malın maliyeti = m³ × alım fiyatı; brüt kâr $ = brüt kâr TL / beyanname kuru. Net kâr $ = brüt kâr $ + ürün hedge (lottan) + stok ve alacak finansmanı (lottan) + faiz geliri ve faaliyet giderleri (yıl ortalaması) + kambiyo ve forward (alt lottan). Navlun farkı, ikinci liman, elleçleme ve fire alım fiyatına girmez. Tutarlar kâra katkıdır: + kazanç, − gider. ${MG?"Müşteri bazında günlük satış ve gelir modelin Musteri_Gunluk sayfasından (dağıtıcının alım ritmi: günlük / 2 günde bir / haftalık – Dagiticilar H–I); o günün satışı ithalat beyannamelerine FIFO ile dağıldıktan sonra müşterilere günlük alımları oranında bölünür.":"Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür."}`;
+  $("st-not").innerHTML=`<b>Hesap (model ile aynı tanım):</b> Alım fiyatı TL/t = (CIF Med fiyatlama ortalaması, 2 ondalık + alım primi) × ithalat beyannamesi kuru × 0,845 / gerçek yoğunluk (0,845 Platts CIF Med referans yoğunluğu; kargo yoğunluğu modelde girdi, varsayılan 0,835). Satılan malın maliyeti = satılan ton × alım fiyatı. Satış: m³ = ton / 0,835; satış fiyatı TL/m³ = satış günü Tüpraş vergisiz (2 ondalık) + müşterinin satış primi (Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³); gelir = m³ × satış fiyatı. Brüt kâr $ = brüt kâr TL / beyanname kuru. Net kâr $ = brüt kâr $ + ürün hedge (lottan) + stok ve alacak finansmanı (lottan) + faiz geliri ve faaliyet giderleri (elleçleme, fire dahil; yıl ortalaması) + kambiyo ve forward (alt lottan). Tutarlar kâra katkıdır: + kazanç, − gider. ${MG?"Müşteri bazında günlük satış ve gelir modelin Musteri_Gunluk sayfasından (dağıtıcının alım ritmi: günlük / 2 günde bir / haftalık – Dagiticilar H–I); o günün satışı ithalat beyannamelerine FIFO ile dağıldıktan sonra müşterilere günlük alımları oranında bölünür.":"Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür."}`;
   // CSV (filtredeki tüm satırlar)
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
@@ -251,9 +249,10 @@ function satislar(){
   { const MT=SD.mut||{}, ys=YIL?[+YIL]:[2027,2028], t={}; for(const y of ys) t[y]=top();
     for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,D.gTL[i],(SD.prim||{}).ort)); }
     const mv=(k,y)=>(MT[k]||[0,0])[y===2027?0:1], sm=f=>ys.reduce((a,y)=>a+f(y),0);
-    const sat=[["Brüt kâr – bu rapor (TL / beyanname kuru)",y=>t[y].bus,null,1],["Brüt kâr – model ($, ürün hedge hariç)",y=>t[y].mbr-t[y].hn,y=>mv("brut",y)+mv("hedge",y)],["Ürün hedge",y=>t[y].hn,y=>-mv("hedge",y)],["Faaliyet giderleri, finansman, faiz",y=>t[y].fin+t[y].faiz+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr – bu rapor",y=>t[y].nk,null,1],["Net kâr – model",y=>t[y].mnk,y=>mv("nk",y),1]];
+    const sat=MT.tl?[["Satış geliri (M TL)",y=>t[y].gtl,y=>mv("gtl",y)],["Satılan malın maliyeti (M TL)",y=>-t[y].stl,y=>-mv("stl",y)],["Brüt kâr (M TL)",y=>t[y].btl,y=>mv("btl",y),1],["Brüt kâr ($)",y=>t[y].bus,y=>mv("bus",y),1],["Ürün hedge",y=>t[y].hn,y=>-mv("hedge",y)],["Faaliyet giderleri, finansman, faiz",y=>t[y].fin+t[y].faiz+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr ($)",y=>t[y].nk,y=>mv("nk",y),1]]
+      :[["Brüt kâr ($)",y=>t[y].bus,null,1],["Net kâr ($)",y=>t[y].nk,y=>mv("nk",y),1]];
     $("st-mut").innerHTML=`<thead><tr><th class="l">${ys.join(" + ")}</th><th>Rapor</th><th>Model</th><th>Fark</th></tr></thead><tbody>`+sat.map(([l,r,m,b])=>{ const a=sm(r), c=m?sm(m):null, d=c==null?null:a-c; return `<tr${b?' class="top"':""}><td class="l">${b?"<b>"+l+"</b>":l}</td><td>${md(a)}</td><td>${c==null?"–":md(c)}</td><td class="${d==null||Math.abs(d)<5e4?"muted":d<0?"n":"p"}">${d==null?"":md(d)}</td></tr>`; }).join("")+`</tbody>`;
-    $("st-mnot").textContent="Bu raporun brüt kârı kullanıcı hesap şablonuyla (TL/m³ fiyatlar, alımda CIF + prim × kur × 0,845/0,835, m³ = ton/0,835) hesaplanır; modelin brüt kârı satış penceresi ortalama fiyatı ve alış maliyetinin tamamıyla (navlun farkı, ikinci liman, elleçleme, fire dahil) $ cinsindendir. Model satırları karşılaştırma içindir; ürün hedge, giderler ve kur farkı iki hesapta aynı kaynaktan gelir."; }
+    $("st-mnot").textContent=MT.tl?"Model aynı tanımı kullanıyor (paket 85). Kalan fark: model her satış gününü tek bir ithalat beyannamesine (satışın orta noktası) bağlar, rapor satışı beyanname parçalarına FIFO ile böler; lot geçiş günlerinde alım fiyatı ve kur biraz farklı düşer. Yıllık giderler ton başına ortalamayla dağıtılır.":"Bu raporun brüt kârı kullanıcı hesap şablonuyla (TL/m³ fiyatlar, alımda CIF + prim × kur × 0,845/0,835, m³ = ton/0,835) hesaplanır; modelin brüt kârı satış penceresi ortalama fiyatı ve alış maliyetinin tamamıyla (navlun farkı, ikinci liman, elleçleme, fire dahil) $ cinsindendir. Model satırları karşılaştırma içindir; ürün hedge, giderler ve kur farkı iki hesapta aynı kaynaktan gelir."; }
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 function kargolar(){
@@ -270,6 +269,7 @@ function kargolar(){
       if(b[7]!=null){ hdg+=b[7]/kb; continue; }   // paket 78+: modelin günlük kur hedge sütunu
       if(hAc&&dd>0){ const fw=kb*(1+FZ.tl*dd/365)/(1+FZ.usd*dd/360)*(1+(FZ.marj||0)); hdg+=b[1]*(x[15]||0)*(kv-fw)/kb; } }
     const t=x[25]||0, sat=(x[24]||0)*t, al=-(x[15]||0)*t, bm=x[18]||0, fin=-(x[26]||0), hn=x[27]||0, nm=x[19]||0, tk=-(x[29]||0);
+    if(x.length>36){ const bus=x[36]||0; return {t,tl:true,m3:x[32]||0,gtl:x[33]||0,stl:-(x[34]||0),btl:x[35]||0,bus,fin,hn,kmb,hdg,son:bus+fin+hn+kmb+hdg,kh:x[28]||0}; }   // paket 85: kullanıcı hesap şablonu (TL)
     return {t,sat,al,bm,fin,hn,nm,tk,kmb,hdg,son:nm+tk+kmb+hdg,kh:x[28]||0}; };
   const sel=$("kg-sel"); sel.innerHTML=K.map(k=>`<option value="${k[0]}">${k[0]===0?"Açılış stoğu · 1 Oca 2027":"Kargo "+k[0]+" · "+esc(k[1]||"")+" · "+nf.format(k[2])+" t · varış "+tk(k[5])}</option>`).join(""); sel.value=String(S.kgN);
   sel.onchange=()=>{ S.kgN=+sel.value; kargolar(); };
@@ -278,6 +278,14 @@ function kargolar(){
   $("kg-onc").onclick=()=>{ if(ki>0){ S.kgN=K[ki-1][0]; kargolar(); } }; $("kg-son").onclick=()=>{ if(ki<K.length-1){ S.kgN=K[ki+1][0]; kargolar(); } };
   { const z=kzH(k), t=z.t||1, sat=(l,v,c,n)=>`<tr class="${c||"k-alt"}"><td class="l"><span class="kl">${l}</span>${n?`<span class="kn">${n}</span>`:""}</td><td class="yb${c==="k-son"||c==="k-ara"?(v<0?" n":" p"):""}">${(v<0?"−":"")+nf1.format(Math.abs(v)/1e6)}</td><td class="muted">${(v<0?"−":"")+nf1.format(Math.abs(v)/t)}</td></tr>`;
     $("kg-ksub").textContent=`${nf.format(z.t)} t satıldı · M $ ve $/t`;
+    if(z.tl){ const tlr=(l,v,c,n)=>`<tr class="${c||"k-alt"}"><td class="l"><span class="kl">${l}</span>${n?`<span class="kn">${n}</span>`:""}</td><td class="yb${c==="k-ara"?(v<0?" n":" p"):""}">${(v<0?"−":"")+nf1.format(Math.abs(v)/1e6)} <span class="muted">M TL</span></td><td class="muted">${z.m3?(v<0?"−":"")+nf.format(Math.abs(v)/z.m3)+" /m³":""}</td></tr>`;
+      $("kg-ksub").textContent=`${nf.format(z.t)} t · ${nf.format(z.m3)} m³ satıldı · TL ve $ (kullanıcı hesap şablonu)`;
+      { const n=$("kg-knot"); if(n) n.textContent="Kargo sonucu modelin kargo bazında hesabından (Kargolar BU–BZ): satış m³, gelir ve SMM TL, brüt kâr $ = TL / beyanname kuru; + finansman + ürün hedge + kambiyo + forward. Faaliyet giderleri (elleçleme, fire, teminat, ÖTV/KDV faizi, beyanname) dönem bazlıdır, kargolara dağıtılmaz."; }
+      $("kg-kz").innerHTML=`<thead><tr><th class="l">Kalem</th><th class="yb">Tutar</th><th>Birim</th></tr></thead><tbody>`
+        +tlr("Satış geliri",z.gtl,"k-ana","m³ × (satış günü Tüpraş + müşteri primi)")+tlr("Satılan malın maliyeti",z.stl,"k-alt","ton × (CIF fiyatlama ort. + prim) × beyanname kuru × 0,845 / yoğunluk "+(k[37]?nf3.format(k[37]):""))+tlr("Brüt kâr",z.btl,"k-ara")
+        +sat("Brüt kâr ($)",z.bus,"k-ara","brüt kâr TL / ithalat beyannamesi kuru")+sat("Finansman",z.fin,"k-alt",z.fin?"stok ve alacak (USD faiz)":"alım primi içinde")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
+        +sat("Kambiyo kârı / zararı",z.kmb,"k-alt","beyanname kuru − fatura vadesi kuru")+sat("Kur hedge (forward)",z.hdg,"k-alt",hAc?"beyanname → fatura vadesi":"kapalı")
+        +sat("Kargo sonucu",z.son,"k-son","faaliyet giderleri (elleçleme, fire, teminat, faiz, beyanname) dönem bazlı, dahil değil")+`</tbody>`; } else
     $("kg-kz").innerHTML=`<thead><tr><th class="l">Kalem</th><th class="yb">M $</th><th>$/t</th></tr></thead><tbody>`
       +sat("Satış geliri",z.sat,"k-ana","Tüpraş ± fiyatı, tahsilat kuruyla")+sat("Alış maliyeti",z.al,"k-alt","CIF + prim, navlun farkı, ikinci liman, fire")+sat("Brüt marj",z.bm,"k-ara")
       +sat("Finansman",z.fin,"k-alt",z.fin?"stok ve alacak (USD faiz)":"alım primi içinde")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
@@ -377,10 +385,10 @@ function karlilik(KI,SI){
       o.t+=tn; o.al+=k[16]*q; o.nav+=k[17]*q; o.ik+=k[18]*q; o.br+=k[12]*w; o.fin+=k[15]*w; o.hb+=k[19]*w; o.hi+=k[20]*w; o.ht+=k[21]*w; o.net+=k[13]*w; o.kur+=k[22]*q; o.n++;
       if(k.length>=26){ o.fd+=(k[25]-k[9])*tn; o.ap+=(k[9]*k[2]-(k[16]-k[17]-k[18]))*q; o.pr+=PR[li]*tn; o.el+=EL*tn; o.sy+=SY*tn; } }
     o.sat=o.al+o.br; return o; };
-  const T=kol.map(([y,j])=>{ const o=top(y); o.ver=Y("Vergi + beyanname maliyeti (USD)")[j]||0; o.bol=Y("Bölgesel navlun avantajı (USD)")[j]||0; o.nk=o.net-o.ver; o.mt=o.nk+o.bol; o.ad=y; if(V.tld){ const jj=y==="2027"?1:y==="2028"?2:3; o.kmb=V.tld.kmb[jj]; o.hdg=V.tld.hdg[jj]; o.nk=o.nk-o.kur+o.kmb+o.hdg; } return o; });
+  let T=kol.map(([y,j])=>{ const o=top(y); o.ver=Y("Vergi + beyanname maliyeti (USD)")[j]||0; o.bol=Y("Bölgesel navlun avantajı (USD)")[j]||0; o.nk=o.net-o.ver; o.mt=o.nk+o.bol; o.ad=y; if(V.tld){ const jj=y==="2027"?1:y==="2028"?2:3; o.kmb=V.tld.kmb[jj]; o.hdg=V.tld.hdg[jj]; o.nk=o.nk-o.kur+o.kmb+o.hdg; } return o; });
   if(!T[0].n){ $(KI).innerHTML=`<tbody><tr><td class="l">Bu paketteki model kalem ayrıntısı vermiyor.</td></tr></tbody>`; return; }
   // tür: h=hacim, ana=ana kalem (kalın), alt=bileşen (girintili), ara=ara toplam (kalın), son=net kâr, b=bilgi
-  const R=[
+  let R=[
     ["Satış hacmi",o=>o.t,"h","kargo tonu"],
     ["Satış geliri",o=>o.sat,"ana","Tüpraş vergisiz fiyatı ± satış farkı"],
     ["Ürün alışı",o=>-(o.al-o.nav-o.ik),"alt","CIF Med ± alım primi, elleçleme, ek seyir ve fire dahil"],
@@ -405,7 +413,16 @@ function karlilik(KI,SI){
     ...(V.tld?[["Tahsilat kur farkı geri eklenir",o=>-o.kur,"alt","TL alacağın USD karşılığı; TL defterde kur farkı kambiyoda"],["Kambiyo kârı / zararı",o=>o.kmb,"alt","beyanname kuru − fatura vadesi kuru"],["Kur hedge sonucu",o=>o.hdg,"alt","beyanname → fatura vadesi forward"]]:[]),
     ["Net kâr",o=>o.nk,"son"],
     ...(V.tld?[]:[["TL tahsilatın USD karşılığı (vade etkisi)",o=>o.kur,"b","net marjın içinde · TL defterde kambiyo değil"]])];
-  const son=T[T.length-1], mx=Math.max(1,...R.filter(r=>r[2]!=="h"&&r[0]!=="Satış geliri"&&r[0]!=="Ürün alışı").map(r=>Math.abs(r[1](son))));
+  // paket 85: model kullanıcı hesap şablonunda (TL) → köprü Karlilik satırlarından (kargo ayrıştırması eski tanımda kalır)
+  if(V.tld&&V.tld.tl){ const L=V.kartab.rows, b=re=>L.find(r=>re.test(String(r[0]).trim()))||[null,0,0,0];
+    const rG=b(/^NET SATIŞLAR \(USD/), rS=b(/^SATILAN MALIN MALİYETİ \(USD/), rB=b(/^BRÜT KÂR \(USD/), rH=b(/^ÜRÜN HEDGE SONUCU/), rF=b(/^FAALİYET GİDERLERİ/), rK=b(/^Kambiyo kârı/), rW=b(/^Kur hedge – forward|^Kur hedge sonucu/), rN=b(/^NET KÂR/), rT=b(/^Gerçekleşen satış – bayi alımı/);
+    const fk=re=>b(re), kal2=[["Stok ve alacak finansmanı",/^Stok ve alacak finansmanı/],["ÖTV ve KDV finansmanı (TL faiz)",/^ÖTV ve KDV finansmanı/],["ÖTV teminat mektubu komisyonu",/^ÖTV teminat mektubu/],["GTS elleçleme + ek seyir",/^GTS elleçleme/],["Fire (tahliye / ölçüm farkı)",/^Tahliye \/ ölçüm farkı/],["İthalat beyannamesi (gümrük)",/^İthalat beyannamesi \(gümrük/],["Sörvey, gözetim, sigorta",/^Sörvey/],["Satış ve pazarlama",/^Satış ve pazarlama/],["Genel yönetim",/^Genel yönetim/]];
+    T=kol.map(([y,j])=>({ad:y,n:1,t:rT[j]||0,sat:rG[j]||0,smm:-(rS[j]||0),br:rB[j]||0,hn:rH[j]||0,fa:-(rF[j]||0),kmb:rK[j]||0,fwd:rW[j]||0,nk:rN[j]||0,fk:Object.fromEntries(kal2.map(([l,re])=>[l,-(fk(re)[j]||0)]))}));
+    R=[["Satış hacmi",o=>o.t,"h","satılan ton"],["Satış geliri",o=>o.sat,"ana","m³ = t / 0,835 × (satış günü Tüpraş + müşteri primi), TL → beyanname kuruyla $"],["Satılan malın maliyeti",o=>o.smm,"alt","ton × (CIF Med fiyatlama ort. + alım primi) × beyanname kuru × 0,845 / gerçek yoğunluk"],["Brüt kâr",o=>o.br,"ara","brüt kâr TL / ithalat beyannamesi kuru"],
+      ["Ürün hedge",o=>o.hn,"alt","ICE swap sonucu (baz etkisi dahil) − işlem maliyeti − teminat finansmanı"],["Faaliyet giderleri",o=>o.fa,"alt","finansman, faiz, teminat komisyonu, elleçleme, fire, beyanname, sörvey, satış, yönetim"],
+      ...kal2.filter(([l])=>T.some(o=>Math.abs(o.fk[l])>1)).map(([l])=>[l,o=>o.fk[l],"acl"]),
+      ["Kambiyo kârı / zararı",o=>o.kmb,"alt","beyanname kuru − fatura vadesi kuru"],["Kur hedge (forward)",o=>o.fwd,"alt","beyanname → fatura vadesi"],["Net kâr",o=>o.nk,"son"]]; }
+  const son=T[T.length-1], mx=Math.max(1,...R.filter(r=>r[2]!=="h"&&r[0]!=="Satış geliri"&&r[0]!=="Ürün alışı"&&r[0]!=="Satılan malın maliyeti").map(r=>Math.abs(r[1](son))));
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), sg=(v,t)=>(t==="alt"&&v>0?"+":"");
   let h=`<thead><tr><th class="l">Kalem</th>${T.map((o,k)=>`<th class="yb">${o.ad}<br><span>M $</span></th><th>$/t</th><th>%</th>`).join("")}<th class="l bar-h">${son.ad} · etki</th></tr></thead><tbody>`;
   for(const [l,f,t,not] of R){
@@ -416,10 +433,10 @@ function karlilik(KI,SI){
       const pt=o.t?v/o.t:0, ps=o.sat?v/o.sat:0, c=t==="ana"||t==="b"||Math.abs(v)<5e4?"":(v<0?"n":"p");
       if(t==="acl"||t==="acl2"){ h+=`<td class="yb ${c}">${v>0?"+":""}${m(v)}</td><td class="${c}">${(pt<0?"−":pt>0?"+":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; continue; }
       h+=`<td class="yb ${c}">${sg(v,t)}${m(v)}</td><td class="muted">${(pt<0?"−":"")+nf1.format(Math.abs(pt))}</td><td class="muted">${t==="ana"?"100":(ps<0?"−":"")+nf1.format(Math.abs(ps)*100)}</td>`; }
-    const v=f(son), w=t==="h"||l==="Satış geliri"||l==="Ürün alışı"?0:Math.min(100,Math.abs(v)/mx*100);
+    const v=f(son), w=t==="h"||l==="Satış geliri"||l==="Ürün alışı"||l==="Satılan malın maliyeti"?0:Math.min(100,Math.abs(v)/mx*100);
     h+=`<td class="l bar">${w?`<i class="${v<0?"n":"p"}${t==="ara"||t==="son"?" kal":""}" style="width:${w.toFixed(1)}%"></i>`:""}</td></tr>`; }
   $(KI).innerHTML=h+`</tbody>`;
-  $(SI).textContent=`kargo bazında, ${V.km.some(k=>typeof k[33]==="number")?"satılan tona göre yıllara bölünmüş":"kargonun satışa hazır olduğu yıla"} · $/t satılan ton başına · % satış gelirine oran${Object.keys(V.girdi||{}).length?" · sizin girdilerinizle":""}`;
+  if(V.tld&&V.tld.tl) $(SI).textContent=`modelin Kârlılık tablosu (kullanıcı hesap şablonu, TL → $ beyanname kuruyla) · $/t satılan ton başına · % satış gelirine oran`; else $(SI).textContent=`kargo bazında, ${V.km.some(k=>typeof k[33]==="number")?"satılan tona göre yıllara bölünmüş":"kargonun satışa hazır olduğu yıla"} · $/t satılan ton başına · % satış gelirine oran${Object.keys(V.girdi||{}).length?" · sizin girdilerinizle":""}`;
 }
 
 /* Kârlılık tablosu: Excel modelinin Karlilik sayfası (kullanıcı 02.11.2026 10:43) */
@@ -439,14 +456,14 @@ function yasalDefter(){ const el=$("g-yasal"), sec=$("g-yasalsec"); if(!el||!sec
 }
 function karTablo(){
   const K=V.kartab, L=K.rows, bul=re=>L.find(r=>re.test(r[0].trim()));
-  const TN=bul(/^Gerçekleşen satış – bayi alımı/)||bul(/^PLANLANAN SATIŞ/), ns=bul(/^NET SATIŞLAR/);
+  const TN=bul(/^Gerçekleşen satış – bayi alımı/)||bul(/^PLANLANAN SATIŞ/), ns=bul(/^NET SATIŞLAR \(USD/)||bul(/^NET SATIŞLAR/), nsTL=bul(/^NET SATIŞLAR \(TL\)/);
   const kol=YIL?[[YIL,YIL==="2027"?1:2]]:[["2027",1],["2028",2],["Toplam",3]];
   const m=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), s1=v=>(v<0?"−":"")+nf1.format(Math.abs(v)), yz=v=>(v<0?"−":"")+nf1.format(Math.abs(v)*100);
   let h=`<thead><tr><th class="l">Kalem</th>${kol.map(([y])=>`<th class="yb">${y}<br><span>M $</span></th><th>$/t</th><th>%</th>`).join("")}</tr></thead><tbody>`;
   for(const r of L){ const ham=r[0], ad=ham.trim(), gir=Math.floor((ham.length-ham.trimStart().length)/2);
     if(/^Kontrol|Ozet'e eklenen|^Bilgi: bölgesel navlun/i.test(ad)||(V.tld&&/^Yasal defter: (kambiyo|kur hedge)|^USD eşdeğeri|^Bilgi: USD bazlı net kâr/.test(ad)&&!(V.tld.model&&/^Bilgi: USD bazlı net kâr/.test(ad)))) continue;   // kullanıcı 02.11.2026 22:08: bölgesel avantaj gösterilmez
     const ad0=ad.replace(/\s*\([^)]*\)\s*/g,""), ana=ad0===ad0.toLocaleUpperCase("tr-TR")&&/[A-ZÇĞİÖŞÜ]/.test(ad0), son=/^NET KÂR/.test(ad), bilgi=/^Bilgi/.test(ad);
-    const miktar=/\((t|m³)\)$/.test(ad), oran=/oranı$|marjı$/.test(ad), birim=/\(USD\/t/.test(ad);
+    const miktar=/\((t|m³)( = [^)]*)?\)$/.test(ad), oran=/oranı$|marjı$/.test(ad), birim=/\(USD\/t/.test(ad), tlb=/\(TL\/m³\)$/.test(ad), tlt=/\(TL\)$/.test(ad);   // paket 85: TL tutarlar ve TL/m³ fiyatlar
     const tur=son?"son":ana?(/BRÜT KÂR/.test(ad)?"ara":"ana"):bilgi?"b":"alt", cls=`k-${tur}${gir>1?" k-g2":""}`;
     h+=`<tr class="${cls}"><td class="l"><span class="kl">${esc(ad.replace(/^Bilgi: (.)/,(_,c)=>c.toLocaleUpperCase("tr-TR")).replace(/^Tahliye \/ ölçüm farkı$/,"Fire").replace(/^Tahsilat kur farkı \(vade boyunca TL değer kaybı\)$/,"TL tahsilatın USD karşılığı (vade etkisi)"))}</span>${r[6]?`<span class="kn">${esc(r[6])}</span>`:""}</td>`;
     for(const [,j] of kol){ const v=r[j];
@@ -454,6 +471,8 @@ function karTablo(){
       if(miktar){ h+=`<td class="yb">${/m³/.test(ad)?nf.format(v)+" m³":ton(v)}</td><td></td><td></td>`; continue; }
       if(oran){ h+=`<td class="yb muted">${v<0?"−":""}%${nf1.format(Math.abs(v)*100)}</td><td></td><td></td>`; continue; }
       if(birim){ h+=`<td class="yb"></td><td class="muted">${s1(v)}</td><td></td>`; continue; }
+      if(tlb){ h+=`<td class="yb muted">${nf.format(v)} TL/m³</td><td></td><td></td>`; continue; }
+      if(tlt){ const p=nsTL&&nsTL[j]?v/nsTL[j]:0, c=tur==="ara"?(v<0?"n":"p"):""; h+=`<td class="yb ${c}">${m(v)} <span class="muted">M TL</span></td><td></td><td class="muted">${/^NET SATIŞ/.test(ad)?"100":yz(p)}</td>`; continue; }
       const t=TN&&TN[j]?v/TN[j]:0, p=ns&&ns[j]?v/ns[j]:0, c=son||tur==="ara"?(v<0?"n":"p"):"";
       h+=`<td class="yb ${c}">${m(v)}</td><td class="muted">${s1(t)}</td><td class="muted">${tur==="ana"&&/NET SATIŞ/.test(ad)?"100":yz(p)}</td>`; }
     h+=`</tr>`; }
@@ -699,8 +718,16 @@ function operasyon(){
 function ekonomi(){
   yasalDefter();   // kullanıcı 02.11.2026 22:11: kambiyo Ekonomi sayfasında
   const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],...(V.kartab?[["Diğer faaliyet giderleri (USD)",x=>musd(-x),1]]:[]),...(V.tld?[["Kambiyo kârı / zararı",musd,1],["Kur hedge (forward) sonucu",musd,1],["Tahsilat kur farkı geri eklenir",musd,1]]:[]),["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
+  if(V.tld&&V.tld.tl){ const L=V.kartab.rows, b=re=>L.find(r=>re.test(String(r[0]).trim()))||[null,0,0,0], ng=r=>[r[0],-r[1],-r[2],-r[3]], mTL=x=>(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)+" M TL";
+    const S2=[["Motorin satışı",b(/^Gerçekleşen satış – bayi alımı/),ton],["Satış (m³)",b(/^Gerçekleşen satış \(m³/),x=>nf.format(x/1e3)+" bin m³"],["Satış / hedef tonaj",oz("Satış / hedef tonaj",1),pct],["Gemi varışı (adet, varış tarihine göre)",oz("Gemi varışı (adet, varış tarihine göre)",1),nf.format],
+      ["Net satışlar",b(/^NET SATIŞLAR \(TL/),mTL],["Satılan malın maliyeti (−)",ng(b(/^SATILAN MALIN MALİYETİ \(TL/)),mTL],["Brüt kâr",b(/^BRÜT KÂR \(TL/),mTL,2],["Brüt kâr ($, beyanname kuru)",b(/^BRÜT KÂR \(USD/),musd,2],
+      ["Ürün hedge",b(/^ÜRÜN HEDGE SONUCU/),musd,1],["Faaliyet giderleri (−) – finansman, faiz, elleçleme, fire dahil",ng(b(/^FAALİYET GİDERLERİ/)),musd,1],["Kambiyo kârı / zararı",b(/^Kambiyo kârı/),musd,1],["Kur hedge (forward) sonucu",b(/^Kur hedge – forward|^Kur hedge sonucu/),musd,1],
+      ["Net kâr",b(/^NET KÂR/),musd,2],["Net kâr (USD/t)",b(/^Net kâr \(USD\/t/),nf2.format],["Tepe teminat bakiyesi (TL)",oz("Tepe teminat bakiyesi (TL)",1),x=>nf1.format(x/1e9)+" mlr TL"]];
+    $("e-yil").classList.toggle("kilit",!!KILIT); { const z=$("e-ozsec"); if(z) z.hidden=!!KILIT; } $("e-yil").classList.toggle("y27",YIL==="2027"&&!KILIT); $("e-yil").classList.toggle("y28",YIL==="2028");
+    $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+S2.map(([l,r,f,t])=>{ const cl=v=>t&&typeof v==="number"?(v>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc(l)}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${typeof r[j]==="number"?f(r[j]):"–"}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
+  } else {
   $("e-yil").classList.toggle("kilit",!!KILIT); { const z=$("e-ozsec"); if(z) z.hidden=!!KILIT; } $("e-yil").classList.toggle("y27",YIL==="2027"&&!KILIT); $("e-yil").classList.toggle("y28",YIL==="2028");
-  $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const fg=l.startsWith("Diğer faaliyet")?(V.kartab.rows.find(x=>/Ozet'e eklenen/.test(x[0]))||[l,0,0,0]):null, kb=V.tld&&(x=>x?[l,x[1],x[2],x[3]]:null)(l==="Kambiyo kârı / zararı"?V.tld.kmb:l==="Kur hedge (forward) sonucu"?V.tld.hdg:l==="Tahsilat kur farkı geri eklenir"?V.tld.tah:null), r=kb||fg||oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi")||!!fg; const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc((SIRKET&&l==="Toplam (USD)"?(V.kartab?"Net kâr (USD)":"Şirket sonucu (USD)"):SIRKET&&l==="Toplam (USD/t)"?(V.kartab?"Net kâr (USD/t)":"Şirket sonucu (USD/t)"):SIRKET&&l.startsWith("Bölgesel")?"Bölgesel navlun avantajı – bayiye kalır, bilgi (USD)":l).replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","İthalat vergi avantajı"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
+  $("e-yil").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>Toplam</th></tr></thead><tbody>`+sat.map(([l,f,t])=>{ const fg=l.startsWith("Diğer faaliyet")?(V.kartab.rows.find(x=>/Ozet'e eklenen/.test(x[0]))||[l,0,0,0]):null, kb=V.tld&&(x=>x?[l,x[1],x[2],x[3]]:null)(l==="Kambiyo kârı / zararı"?V.tld.kmb:l==="Kur hedge (forward) sonucu"?V.tld.hdg:l==="Tahsilat kur farkı geri eklenir"?V.tld.tah:null), r=kb||fg||oz(l,1), neg=l.startsWith("Finansman")||l.startsWith("Vergi")||!!fg; const cl=v=>t?((neg?-v:v)>=0?"p":"n"):""; return `<tr${t===2?' class="top"':""}><td class="l">${esc((SIRKET&&l==="Toplam (USD)"?(V.kartab?"Net kâr (USD)":"Şirket sonucu (USD)"):SIRKET&&l==="Toplam (USD/t)"?(V.kartab?"Net kâr (USD/t)":"Şirket sonucu (USD/t)"):SIRKET&&l.startsWith("Bölgesel")?"Bölgesel navlun avantajı – bayiye kalır, bilgi (USD)":l).replace(" (USD)","").replace("Finansman","Finansman (−)").replace("Vergi + beyanname maliyeti","İthalat vergi avantajı"))}</td>${[1,2,3].map(j=>`<td class="${cl(r[j])}">${t===2?"<b>":""}${f(r[j])}${t===2?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`; }
   // aylık net marj
   const ay=new Map(); const ek=(L,u)=>{ for(const k of L){ const d=new Date(k[4]+"T00:00:00Z"), key=d.getUTCFullYear()*100+d.getUTCMonth(); const o=ay.get(key)||ay.set(key,{ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),m:0,b:0,n:0}).get(key); o[u]+=k[13]; o.n++; } };
   ek(V.km,"m"); ek(V.kb,"b"); const AL=[...ay].filter(([k])=>!YIL||String(Math.floor(k/100))===YIL).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
