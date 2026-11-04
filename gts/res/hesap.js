@@ -219,14 +219,17 @@ function motor(S) {
     switch (n.n) {
       case 'IF': { const c = bool(es(0)); if (isErr(c)) return c; return c ? (A.length > 1 ? e(1) : true) : (A.length > 2 ? e(2) : false); }
       case 'IFERROR': { let v; try { v = es(0); } catch (x) { throw x; } return isErr(v) ? e(1) : v; }
-      case 'ISNUMBER': { const v = es(0); return typeof v === 'number'; }
+      case 'ISNUMBER': { if (A[0].k === 'fn') { const a0 = e(0); if (a0 instanceof Arr) return new Arr(a0.r, a0.c, a0.v.map((x) => typeof x === 'number')); return typeof a0 === 'number'; } const v = es(0); return typeof v === 'number'; }   // paket 83: ISNUMBER(MATCH(dizi; …)) dizi döner
       case 'NOT': { const b = bool(es(0)); return isErr(b) ? b : !b; }
       case 'AND': case 'OR': { let r = n.n === 'AND'; for (let i = 0; i < A.length; i++) { const v = e(i); const L = v instanceof Arr ? v.v.filter((x) => x !== BOS && typeof x !== 'string') : [v]; for (const x of L) { const b = bool(x); if (isErr(b)) return b; if (n.n === 'AND') r = r && b; else r = r || b; } } return r; }
       case 'CHOOSE': { const i = nm(0); if (isErr(i)) return i; const k = Math.floor(i); if (k < 1 || k >= A.length) return E.VAL; return e(k); }
       case 'INDEX': { const a = rg(0); if (!(a instanceof Arr)) return a; let r = A.length > 1 && A[1].k !== 'bosarg' ? nm(1) : 0, c = A.length > 2 && A[2].k !== 'bosarg' ? nm(2) : 0; if (isErr(r)) return r; if (isErr(c)) return c;
         r = Math.floor(r); c = Math.floor(c); if (A.length === 2 && a.r === 1) { c = r; r = 1; } if (r === 0 && c === 0) return a; if (a.c === 1 && c === 0) c = 1; if (a.r === 1 && r === 0) r = 1;
         if (r < 1 || r > a.r || c < 1 || c > a.c) return E.REF; return a.at(r - 1, c - 1); }
-      case 'MATCH': { const v = es(0), a = rg(1); if (isErr(v)) return v; const t = A.length > 2 ? nm(2) : 1; if (!(a instanceof Arr)) return E.NA; const L = a.v;
+      case 'MATCH': { if (A[0].k !== 'fn' && A[0].k !== 'sayi' && A[0].k !== 'metin') { const v0 = e(0); if (v0 instanceof Arr && (v0.r > 1 || v0.c > 1)) { const a = rg(1); if (!(a instanceof Arr)) return E.NA; const t = A.length > 2 ? nm(2) : 1; if (t !== 0) return E.VAL;   // paket 83: MATCH(aralık; aralık; 0) SUMPRODUCT içinde dizi
+          const L = a.v, m = new Map(); for (let i = L.length - 1; i >= 0; i--) { const x = L[i]; if (typeof x === 'number') m.set(x, i + 1); else if (typeof x === 'string') m.set('s' + x.toLowerCase(), i + 1); }
+          return new Arr(v0.r, v0.c, v0.v.map((x) => { const k = typeof x === 'string' ? 's' + x.toLowerCase() : x; const r = m.get(k); return r === undefined ? E.NA : r; })); } }
+        const v = es(0), a = rg(1); if (isErr(v)) return v; const t = A.length > 2 ? nm(2) : 1; if (!(a instanceof Arr)) return E.NA; const L = a.v;
         if (t === 0) { if (a.k && (typeof v === 'number' || typeof v === 'string')) { let m = matchOnb.get(a.k); if (!m) { m = new Map(); for (let i = L.length - 1; i >= 0; i--) { const x = L[i]; m.set(typeof x === 'string' ? 's' + x.toLowerCase() : typeof x === 'number' ? 'n' + x : 'o' + String(x), i); } matchOnb.set(a.k, m); } const i = m.get(typeof v === 'string' ? 's' + v.toLowerCase() : 'n' + v); return i === undefined ? E.NA : i + 1; }
           for (let i = 0; i < L.length; i++) if (cmp(L[i], v) === 0 && L[i] !== BOS) return i + 1; return E.NA; }
         if (t > 0) { let lo = 0, hi = L.length - 1, res = -1; while (lo <= hi) { const mid = (lo + hi) >> 1; const x = L[mid]; if (x === BOS || cmp(x, v) <= 0) { if (x !== BOS) res = mid; lo = mid + 1; } else hi = mid - 1; } return res < 0 ? E.NA : res + 1; }
@@ -234,7 +237,8 @@ function motor(S) {
       case 'DATE': { const y = nm(0), m = nm(1), d = nm(2); for (const x of [y, m, d]) if (isErr(x)) return x; return serial(Math.floor(y), Math.floor(m), Math.floor(d)); }
       case 'YEAR': case 'MONTH': case 'DAY': { const tf = (x) => { const d = tarihOf(x); return n.n === 'YEAR' ? d.getUTCFullYear() : n.n === 'MONTH' ? d.getUTCMonth() + 1 : d.getUTCDate(); };
         const a0 = e(0); if (a0 instanceof Arr) return ikiliF(a0, 0, (x) => tf(x)); const x = nm(0); if (isErr(x)) return x; return tf(x); }
-      case 'WEEKDAY': { const x = nm(0); if (isErr(x)) return x; const t = A.length > 1 ? nm(1) : 1, w = tarihOf(x).getUTCDay(); return t === 2 ? (w === 0 ? 7 : w) : t === 3 ? (w === 0 ? 6 : w - 1) : w + 1; }
+      case 'WEEKDAY': { const t = A.length > 1 ? nm(1) : 1, wd = (x) => { if (isErr(x)) return x; const w = tarihOf(x).getUTCDay(); return t === 2 ? (w === 0 ? 7 : w) : t === 3 ? (w === 0 ? 6 : w - 1) : w + 1; };
+        const a0 = e(0); if (a0 instanceof Arr && (a0.r > 1 || a0.c > 1)) return new Arr(a0.r, a0.c, a0.v.map((x) => (typeof x === 'number' ? wd(x) : isErr(x) ? x : E.VAL))); const x = nm(0); return wd(x); }   // paket 83: SUMPRODUCT içinde aralık
       case 'EOMONTH': { const x = nm(0), m = nm(1); if (isErr(x)) return x; if (isErr(m)) return m; const d = tarihOf(x); return serial(d.getUTCFullYear(), d.getUTCMonth() + 1 + Math.trunc(m) + 1, 0); }
       case 'ROW': { if (!A.length) return ctx.r + 1; const r = ref(A[0], ctx); return r ? r.r1 + 1 : E.VAL; }
       case 'MAX': case 'MIN': { const L = duz(A.map((_, i) => e(i))); let r = null; for (const x of L) { const v = num(x); if (isErr(v)) return v; r = r === null ? v : n.n === 'MAX' ? Math.max(r, v) : Math.min(r, v); } return r === null ? 0 : r; }
@@ -298,6 +302,11 @@ function motor(S) {
       case 'VALUE': { const v = es(0); if (typeof v === 'number') return v; const x = Number(str(v).trim()); return isFinite(x) ? x : E.VAL; }
       case 'N': { const v = es(0); return typeof v === 'number' ? v : typeof v === 'boolean' ? (v ? 1 : 0) : 0; }
       case 'EDATE': { const x = nm(0), m = nm(1); if (isErr(x)) return x; if (isErr(m)) return m; const d = tarihOf(x), y = d.getUTCFullYear(), mo = d.getUTCMonth() + Math.trunc(m), son = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(); return serial(y, mo + 1, Math.min(d.getUTCDate(), son)); }
+      // WORKDAY / NETWORKDAYS (paket 83: Kargolar fiyatlama dönemi, Tatiller sayfası; Cmt–Paz tatil)
+      case 'WORKDAY': { const x = nm(0), g = nm(1); if (isErr(x)) return x; if (isErr(g)) return g; const T = new Set(); if (A.length > 2) for (const h of duz([e(2)])) { if (isErr(h)) return h; if (typeof h === 'number') T.add(Math.floor(h)); }
+        let d = Math.floor(x), k = Math.trunc(g); const ad = k < 0 ? -1 : 1, is = (v) => { const w = tarihOf(v).getUTCDay(); return w !== 0 && w !== 6 && !T.has(v); }; while (k !== 0) { d += ad; if (is(d)) k -= ad; } return d; }
+      case 'NETWORKDAYS': { const a = nm(0), b = nm(1); if (isErr(a)) return a; if (isErr(b)) return b; const T = new Set(); if (A.length > 2) for (const h of duz([e(2)])) if (typeof h === 'number') T.add(Math.floor(h));
+        let s0 = Math.floor(Math.min(a, b)), s1 = Math.floor(Math.max(a, b)), n = 0; for (let d = s0; d <= s1; d++) { const w = tarihOf(d).getUTCDay(); if (w !== 0 && w !== 6 && !T.has(d)) n++; } return a <= b ? n : -n; }
       case 'DAYS': { const a = nm(0), b = nm(1); if (isErr(a)) return a; if (isErr(b)) return b; return Math.floor(a) - Math.floor(b); }
       case 'YEARFRAC': { const a = nm(0), b = nm(1); if (isErr(a)) return a; if (isErr(b)) return b; const t = A.length > 2 ? nm(2) : 0; return Math.abs(b - a) / (t === 3 ? 365 : t === 2 ? 360 : 365.25); }
       case 'VLOOKUP': case 'HLOOKUP': { const v = es(0), a = rg(1), k = nm(2); if (isErr(v)) return v; if (isErr(k)) return k; const tam = A.length > 3 ? !bool(es(3)) : false, V = n.n === 'VLOOKUP';
