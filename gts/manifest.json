@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.72",
+ "surum": "1.0.73",
  "kabuk": 1,
- "tarih": "2026-11-04T12:27:12+03:00",
- "notlar": "Satışlar: faaliyet giderleri ile faiz geliri (ÖTV/KDV nakdi) ayrı sütunlarda.",
+ "tarih": "2026-11-04T12:40:17+03:00",
+ "notlar": "Satışlar: kullanıcı hesap şablonu (m³ = ton/0,835; alım TL/m³ = (CIF + prim) × beyanname kuru × 0,845/0,835; satış TL/m³ = Tüpraş + prim; TL gelir / SMM / brüt, brüt $ = TL / beyanname kuru).",
  "dosyalar": {
   "ui/index.html": "71e64e27bae3ea0416ccca464f67fc9583e5b47a43632a257ad60a95327e9f00",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "0a05bf6a34aa939a12056146fe7c9b5966fa1e7c1d3f8408816ebce03a377a13",
+  "ui/pano.js": "cbab58987f1f0ab609664070c2d243936510bbb1b382a49a34f6c3c3512bc96e",
   "gts_pipeline.js": "9169ecc686cc4dc2d92c7fa1fb3eab6402ac9c14df8fd0a1f13947de1362ce63",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "995c89bdc311586a836de7c9086ffdbc51524b01ed0e0cce762a16251d241d14",

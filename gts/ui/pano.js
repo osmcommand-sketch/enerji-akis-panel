@@ -135,7 +135,7 @@ addEventListener("hashchange",()=>goster(location.hash.slice(1)));
 
 /* ---------- SATIŞLAR (kullanıcı 03.11.2026 19:59): müşteri bazında günlük satış ve kârlılık; lot = gemi (antrepo beyannamesi),
    alt lot = o geminin ithalat beyannameleri, satış ↔ alt lot FIFO (res/satis.js). Müşteri payı ve kaynak bazlı prim akış tablosundan. ---------- */
-const ST_KES=0.835, ST_BOL=0.845, nf4=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:4,maximumFractionDigits:4});   // kullanıcı 04.11.2026: kargo kesafeti 0,835; alım fiyatı çarpanı 0,845 / 0,835
+const ST_KES=0.835, ST_BOL=0.845, nf3=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:3,maximumFractionDigits:3}), nf4=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:4,maximumFractionDigits:4});   // kullanıcı 04.11.2026: kargo kesafeti 0,835; alım fiyatı çarpanı 0,845 / 0,835
 // CSV: claude.ai yayınında downloads yeteneği (yoksa düğme gizlenir); masaüstünde doğrudan dosya
 let ST_DL=null; try{ if(window.claude&&typeof window.claude.use==="function") window.claude.use("downloads").then(d=>{ ST_DL=d||false; const b=$("st-csv"); if(b) b.hidden=!d; }).catch(()=>{ ST_DL=false; const b=$("st-csv"); if(b) b.hidden=true; }); }catch{}
 function satislar(){
@@ -171,27 +171,29 @@ function satislar(){
   for(const b of $("st-gor").querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset.g===S.stGor)); b.onclick=()=>{ S.stGor=b.dataset.g; S.stSf=0; S.stSr=null; satislar(); }; }
   // satır üretimi: satış parçası × müşteri; kalemler USD
   const MS=S.stMu===""?Mu:Mu.filter(x=>String(x.s)===S.stMu), MuI=new Map(Mu.map(x=>[x.s,x])), satir=[];
-  const kal=(i,a,l,q,pTL,sP)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, p=pTL/D.kur[i], o={q,gel:q*p,mal:-q*l[6],hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,faiz:q*(YY.faiz||0),kmb:q*a[4],fwd:q*a[5]};
-    // fiyat kırılımları (kullanıcı 04.11.2026 10:52): alış = CIF Med + alım primi + navlun farkı + ikinci liman + elleçleme/seyir + fire; satış = Tüpraş + kaynak bazlı prim
-    if(l.length>16){ o.cif=-q*l[11]; o.apr=-q*l[12]; o.nav=-q*(l[13]+l[14]); o.ell=-q*l[15]; o.fire=-q*l[16]; } else { o.cif=o.mal; o.apr=o.nav=o.ell=o.fire=0; }
-    o.tup=D.tup&&D.tup[i]!=null?q*D.tup[i]/D.kur[i]:o.gel; o.spr=o.gel-o.tup; o.br=o.gel+o.mal+o.hn;
-    // TL/m³ fiyatlar (kullanıcı 04.11.2026 11:07): kesafet tüm kargolar için 0,835
-    //   Alım fiyatı = (CIF Med fiyatlama + alım primi) × 0,845 / 0,835 × ithalat beyannamesi kuru (kullanıcı 11:1x) · Satış fiyatı = satış günü Tüpraş + satış primi
-    const kb=a[7]||D.kur[a[1]]||0, kf=ST_BOL/ST_KES*kb; o.kb=q*kb; o.acif=q*(l.length>16?l[11]:l[6])*kf; o.aprm=q*(l.length>16?l[12]:0)*kf; o.afy=o.acif+o.aprm;
-    o.stp=q*(D.tupM3&&D.tupM3[i]!=null?D.tupM3[i]:0); o.sprm=q*(sP||0); o.sfy=o.stp+o.sprm; o.mrj=o.sfy-o.afy; o.nk=o.br+o.fin+o.faiz+o.faal+o.kmb+o.fwd; return o; };
+  /* Hesap şablonu (kullanıcı 04.11.2026 12:29, gts_satislar_motorin_gun_2027.csv):
+     Miktar m³ = ton / 0,835 · Alım fiyatı TL/m³ = (CIF Med + alım primi) × beyanname kuru × 0,845 / 0,835 · Satış fiyatı TL/m³ = satış günü Tüpraş + satış primi
+     Satış geliri TL = m³ × satış fiyatı · SMM TL = m³ × alım fiyatı · Brüt kâr TL = gelir − SMM · Brüt kâr $ = Brüt TL / beyanname kuru
+     Net kâr $ = Brüt $ + ürün hedge + stok ve alacak finansmanı + faiz geliri + faaliyet giderleri + kambiyo + forward (bu kalemler modelden, $) */
+  const kal=(i,a,l,q,pTL,sP)=>{ const y=yl(i), YY=SD.yil[y]||{faal:0}, kb=a[7]||D.kur[a[1]]||D.kur[i]||0, m3=q/ST_KES, cif=l.length>16?l[11]:l[6], apr=l.length>16?l[12]:0;
+    const afy=(cif+apr)*kb*ST_BOL/ST_KES, stp=D.tupM3&&D.tupM3[i]!=null?D.tupM3[i]:(pTL||0)*D.yog, sfy=stp+(sP||0);
+    const o={q,m3,cifq:m3*cif,aprq:m3*apr,kbq:m3*kb,afyq:m3*afy,stpq:m3*stp,sprq:m3*(sP||0),sfyq:m3*sfy,gtl:m3*sfy,stl:m3*afy,hn:q*l[8],fin:-q*l[7],faal:-q*YY.faal,faiz:q*(YY.faiz||0),kmb:q*a[4],fwd:q*a[5],
+      gel:q*(pTL||0)/(D.kur[i]||1),mal:-q*l[6]};   // gel / mal: modelin $ tanımı (mutabakat için)
+    o.btl=o.gtl-o.stl; o.bus=kb?o.btl/kb:0; o.nk=o.bus+o.hn+o.fin+o.faiz+o.faal+o.kmb+o.fwd; o.mbr=o.gel+o.mal+o.hn; o.mnk=o.mbr+o.fin+o.faiz+o.faal+o.kmb+o.fwd; return o; };
   for(const [i,j,q] of D.sat){ if(!yOk(i)) continue; const a=D.alt[j]; if(S.stLot!==""&&a[0]!==+S.stLot) continue; if(S.stAy&&ayK(i)!==S.stAy) continue; const l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue;
     if(MG){ const g=MG[i]; if(!g) continue; const tt=g.reduce((s,x)=>s+x[1],0); if(!tt) continue;
       for(const [c,t,tl] of g){ const m=MuI.get(c); if(!m||(S.stMu!==""&&String(c)!==S.stMu)) continue; const o=kal(i,a,l,q*t/tt,tl/t,D.mus[c][2]); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } continue; }
     for(const m of MS){ const o=kal(i,a,l,q*m.w,D.gTL[i]+m.dp,m.prim); o.i=i; o.j=j; o.lot=a[0]; o.m=m; satir.push(o); } }
-  const K=["q","gel","mal","hn","br","fin","faiz","faal","kmb","fwd","nk","cif","apr","nav","ell","fire","tup","spr","kb","acif","aprm","afy","stp","sprm","sfy","mrj"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
+  const K=["q","m3","cifq","aprq","kbq","afyq","stpq","sprq","sfyq","gtl","stl","btl","bus","hn","fin","faiz","faal","kmb","fwd","nk","gel","mal","mbr","mnk"], top=()=>Object.fromEntries(K.map(k=>[k,0])), ek=(t,o)=>{ for(const k of K) t[k]+=o[k]; };
   const T=top(); for(const o of satir) ek(T,o);
   // özet kutuları
   const ut=(v,t)=>t?(v<0?"−":"")+nf2.format(Math.abs(v/t)):"–", md=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6);
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
-  $("st-kpi").innerHTML=kt("Satış",nf.format(T.q)+" t",`${new Set(satir.map(o=>o.i)).size} gün · ${new Set(satir.map(o=>o.j)).size} ithalat beyannamesi · ${new Set(satir.map(o=>o.lot)).size} lot`)
-    +kt("Satış geliri",md(T.gel)+" M $",`ortalama ${ut(T.gel,T.q)} $/t · fatura günü kuruyla`)
-    +kt("Brüt kâr",md(T.br)+" M $",`${ut(T.br,T.q)} $/t · ürün hedge dahil`,T.br<0?"neg":"pos")
-    +kt("Net kâr",md(T.nk)+" M $",`${ut(T.nk,T.q)} $/t · kambiyo ve forward dahil`,T.nk<0?"neg":"pos");
+  const mtl=v=>(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), pm=(v,m)=>m?(v<0?"−":"")+nf.format(Math.abs(v/m)):"–";
+  $("st-kpi").innerHTML=kt("Satış",nf.format(T.m3)+" m³",`${nf.format(T.q)} t · ${new Set(satir.map(o=>o.i)).size} gün · ${new Set(satir.map(o=>o.j)).size} ithalat beyannamesi · ${new Set(satir.map(o=>o.lot)).size} lot`)
+    +kt("Satış geliri",mtl(T.gtl)+" M TL",`ortalama ${pm(T.sfyq,T.m3)} TL/m³ · alım ${pm(T.afyq,T.m3)} TL/m³`)
+    +kt("Brüt kâr",mtl(T.btl)+" M TL",`${md(T.bus)} M $ · beyanname kuruyla`,T.btl<0?"neg":"pos")
+    +kt("Net kâr",md(T.nk)+" M $",`${ut(T.nk,T.q)} $/t · hedge, finansman, gider, kur farkı dahil`,T.nk<0?"neg":"pos");
   $("st-sub").textContent=`${S.stU} · ${YIL||"2027–2028"} · ${MG?`müşteri satışları modelden (Musteri_Gunluk) · ${Mu.length} dağıtıcı`:"müşteri payları "+(V.minAlim&&V.minAlim.n?`asgari alım eşiğini geçen ${Mu.length} dağıtıcı`:`${Mu.length} dağıtıcı`)} · satışlar ithalat beyannamelerinden FIFO`;
   // gruplama
   const GOR={gun:{ad:"Günlük satırlar",anah:o=>o.i+"|"+o.m.s+"|"+o.j},musteri:{ad:"Müşteri özeti",anah:o=>o.m.s},lot:{ad:"Lot özeti",anah:o=>o.lot},alt:{ad:"Alt lot (ithalat beyannamesi) özeti",anah:o=>o.j},ay:{ad:"Aylık özet",anah:o=>ayK(o.i)}}[S.stGor];
@@ -203,28 +205,30 @@ function satislar(){
     alt:[["Alt lot",o=>altAd(D.alt[o.j])],["Beyanname tarihi",o=>tS(D.alt[o.j][1])],["Lot",o=>`<button type="button" class="st-lk" data-lot="${o.lot}">${esc(lotAd(o.lot))}</button>`]],
     ay:[["Ay",o=>ayA(ayK(o.i))],["Gün",o=>nf.format(o.gn.size)]]}[S.stGor];
   // sütunlar: [anahtar, başlık, sınıf, biçim, değer]; $/t sütunları ton ağırlıklı (toplam / ton)
-  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), pt=v=>(v<0?"−":"")+nf2.format(Math.abs(v)), tt=(k,s=1)=>o=>o.q?s*o[k]/o.q:0;
-  const kolS=[["q","Ton","",v=>nf.format(v),o=>o.q],
-    ["a_cif","CIF Med","ga",dl,tt("acif")],["a_pr","Alım primi","ga",dl,tt("aprm")],["a_kb","Beyanname kuru","ga",v=>nf4.format(v),tt("kb")],["a_t","Alım fiyatı","ga ara",dl,tt("afy")],
-    ["s_tp","Tüpraş","gs",dl,tt("stp")],["s_pr","Satış primi","gs",dl,tt("sprm")],["s_t","Satış fiyatı","gs ara",dl,tt("sfy")],["s_m","Fark","gs",dl,tt("mrj")],
-    ["gel","Satış geliri","g1",dl,o=>o.gel],["mal","Ürün maliyeti","g1",dl,o=>o.mal],["hn","Ürün hedge","g1",dl,o=>o.hn],["br","Brüt kâr","g1 ara",dl,o=>o.br],["fin","Stok ve alacak finansmanı","g2",dl,o=>o.fin],["faiz","Faiz geliri (ÖTV/KDV nakdi)","g2",dl,o=>o.faiz],["faal","Faaliyet giderleri","g2",dl,o=>o.faal],["kmb","Kambiyo","g3",dl,o=>o.kmb],["fwd","Forward","g3",dl,o=>o.fwd],["nk","Net kâr","son",dl,o=>o.nk],["nt","Net $/t","son",pt,tt("nk")]];
-  const KV=Object.fromEntries(kolS.map(c=>[c[0],c[4]])), hc=(k,v)=>k==="br"||k==="nk"||k==="nt"?(v<0?" n":" p"):"";
+  const dl=v=>(v<0?"−":"")+nf.format(Math.abs(v)), pt=v=>(v<0?"−":"")+nf2.format(Math.abs(v)), wm=k=>o=>o.m3?o[k]/o.m3:0;   // birim fiyatlar m³ ağırlıklı
+  const kolS=[["q","Miktar (ton)","",pt,o=>o.q],["m3","Miktar (m³)","",pt,o=>o.m3],
+    ["cif","CIF Med ($/t)","ga",pt,wm("cifq")],["apr","Alım primi ($/t)","ga",pt,wm("aprq")],["kes","Kesafet","ga",v=>nf3.format(v),()=>ST_KES],["kb","Beyanname kuru","ga",pt,wm("kbq")],["afy","Alım fiyatı (TL/m³)","ga ara",pt,wm("afyq")],
+    ["stp","Tüpraş (TL/m³)","gs",pt,wm("stpq")],["spr","Satış primi (TL/m³)","gs",pt,wm("sprq")],["sfy","Satış fiyatı (TL/m³)","gs ara",pt,wm("sfyq")],
+    ["gtl","Satış geliri (TL)","g1",pt,o=>o.gtl],["stl","Satılan malın maliyeti (TL)","g1",pt,o=>o.stl],["btl","Brüt kâr (TL)","g1 ara",pt,o=>o.btl],["bus","Brüt kâr ($)","g1 ara",pt,o=>o.bus],
+    ["hn","Ürün hedge","g2",pt,o=>o.hn],["fin","Stok ve alacak finansmanı","g2",pt,o=>o.fin],["faiz","Faiz geliri (ÖTV/KDV nakdi)","g2",pt,o=>o.faiz],["faal","Faaliyet giderleri","g2",pt,o=>o.faal],
+    ["kmb","Kambiyo","g3",pt,o=>o.kmb],["fwd","Forward","g3",pt,o=>o.fwd],["nk","Net kâr ($)","son",pt,o=>o.nk],["nt","Net $/t","son",pt,o=>o.q?o.nk/o.q:0]];
+  const KV=Object.fromEntries(kolS.map(c=>[c[0],c[4]])), hc=(k,v)=>k==="btl"||k==="bus"||k==="nk"||k==="nt"?(v<0?" n":" p"):"";
   if(sr&&KV[sr.k]) R=[...R].sort((a,b)=>sr.y*(KV[sr.k](a)-KV[sr.k](b)));
   const PS=150, sf=Math.max(0,Math.min(S.stSf,Math.ceil(R.length/PS)-1)); S.stSf=sf; const RP=R.slice(sf*PS,sf*PS+PS);
-  const th=`<thead><tr class="st-gr"><th class="l" colspan="${kolB.length}"></th><th></th><th colspan="4" class="ga">Alım fiyatı TL/m³</th><th colspan="4" class="gs">Satış fiyatı TL/m³</th><th colspan="4" class="g1">Satış ve ürün $</th><th colspan="3" class="g2">Finansman, faiz, gider</th><th colspan="2" class="g3">Kur farkı</th><th colspan="2" class="son">Sonuç</th></tr>`
+  const th=`<thead><tr class="st-gr"><th class="l" colspan="${kolB.length}"></th><th colspan="2">Miktar</th><th colspan="5" class="ga">Alım fiyatı</th><th colspan="3" class="gs">Satış fiyatı</th><th colspan="4" class="g1">Brüt kâr</th><th colspan="4" class="g2">Hedge, finansman, faiz, gider ($)</th><th colspan="2" class="g3">Kur farkı ($)</th><th colspan="2" class="son">Sonuç</th></tr>`
     +`<tr>${kolB.map(([l])=>`<th class="l">${l}</th>`).join("")}${kolS.map(([k,l,c])=>`<th class="${c} st-so" data-k="${k}"${sr&&sr.k===k?` aria-sort="${sr.y<0?"descending":"ascending"}"`:""}>${l}${sr&&sr.k===k?(sr.y<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead>`;
   const tr=(o,cls)=>`<tr${cls?` class="${cls}"`:""}>${kolB.map(([,f],x)=>`<td class="l">${cls==="top"?(x?"":"<b>Toplam</b>"):f(o)}</td>`).join("")}${kolS.map(([k,,c,f,vf])=>{ const v=vf(o); return `<td class="${(c||"").replace("ara","").trim()}${/ara/.test(c||"")?" st-ara":""}${hc(k,v)}">${f(v)}</td>`; }).join("")}</tr>`;
-  $("st-th").textContent=GOR.ad; $("st-tsub").textContent=`${nf.format(R.length)} satır · $ (USD)${S.stGor==="gun"&&S.stMu===""?" · her gün × müşteri × alt lot":""}`;
+  $("st-th").textContent=GOR.ad; $("st-tsub").textContent=`${nf.format(R.length)} satır · TL ve $${S.stGor==="gun"&&S.stMu===""?" · her gün × müşteri × alt lot":""}`;
   $("st-tab").innerHTML=th+`<tbody>${RP.map(o=>tr(o)).join("")||`<tr><td class="l" colspan="${kolB.length+kolS.length}">Seçime uyan satış yok.</td></tr>`}</tbody>${R.length?`<tfoot>${tr(T,"top")}</tfoot>`:""}`;   // kullanıcı 04.11.2026 10:52: toplam altta
   for(const h of $("st-tab").querySelectorAll("th.st-so")) h.onclick=()=>{ const k=h.dataset.k; S.stSr=S.stSr&&S.stSr.k===k?(S.stSr.y<0?{k,y:1}:null):{k,y:-1}; S.stSf=0; satislar(); };
   for(const b of $("st-tab").querySelectorAll("button.st-lk")) b.onclick=()=>{ S.stLot=b.dataset.lot; S.stSf=0; satislar(); };
   const ns=Math.ceil(R.length/PS); $("st-sayfa").innerHTML=ns>1?`<button type="button" class="btn kg-ok" id="st-p0" aria-label="Önceki sayfa"${sf?"":" disabled"}>‹</button><span>${sf+1} / ${ns}</span><button type="button" class="btn kg-ok" id="st-p1" aria-label="Sonraki sayfa"${sf<ns-1?"":" disabled"}>›</button><span class="muted">${PS} satır / sayfa</span>`:"";
   if(ns>1){ $("st-p0").onclick=()=>{ S.stSf--; satislar(); }; $("st-p1").onclick=()=>{ S.stSf++; satislar(); }; }
-  $("st-not").innerHTML=`<b>Fiyatlar (TL/m³):</b> Alım fiyatı = (CIF Med fiyatlama günü + alım primi, $/t) × 0,845 / 0,835 × ithalat beyannamesi kuru (kargo kesafeti 0,835); Satış fiyatı = satış günü Tüpraş vergisiz + müşterinin satış primi; Fark = satış − alım. Navlun farkı, ikinci liman, elleçleme ve fire alım fiyatında yok, ürün maliyeti tutarında. Tutarlar ($): Satış geliri: Tüpraş vergisiz fiyatı ± müşterinin kaynak bazlı primi (Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³; dağıtıcının bayileri hangi kaynaktan alıyorsa o ağırlıkla), satış günü kuruyla. Ürün maliyeti ve ürün hedge lottan (geminin alış maliyeti, hedge sonucu ton başına), kambiyo ve forward alt lottan (ithalat beyannamesinin kur farkı ton başına), stok ve alacak finansmanı lottan; faiz geliri (müşteriden tahsil edilen ÖTV/KDV'nin devlete ödenene kadar TL faizi, − ise maliyet) ve faaliyet giderleri (teminat komisyonu, beyanname, sörvey, satış, yönetim) yıl ortalaması ton başına. Tutarlar kâra katkıdır: + kazanç, − gider. ${MG?"Müşteri bazında günlük satış ve gelir modelin Musteri_Gunluk sayfasından (dağıtıcının alım ritmi: günlük / 2 günde bir / haftalık – Dagiticilar H–I); o günün satışı ithalat beyannamelerine FIFO ile dağıldıktan sonra müşterilere günlük alımları oranında bölünür.":"Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür."}`;
+  $("st-not").innerHTML=`<b>Hesap:</b> Miktar m³ = ton / 0,835 (tüm kargolar). Alım fiyatı TL/m³ = (CIF Med fiyatlama ortalaması + alım primi, $/t) × ithalat beyannamesi kuru × 0,845 / 0,835. Satış fiyatı TL/m³ = satış günü Tüpraş vergisiz + müşterinin satış primi (kaynak bazlı: Mersin üçüncü taraf ${nf.format((SD.prim||{}).M||0)}, Tüpraş Mersin / Batman / Kırıkkale ${nf.format((SD.prim||{}).D||0)} TL/m³). Satış geliri = m³ × satış fiyatı; satılan malın maliyeti = m³ × alım fiyatı; brüt kâr $ = brüt kâr TL / beyanname kuru. Net kâr $ = brüt kâr $ + ürün hedge (lottan) + stok ve alacak finansmanı (lottan) + faiz geliri ve faaliyet giderleri (yıl ortalaması) + kambiyo ve forward (alt lottan). Navlun farkı, ikinci liman, elleçleme ve fire alım fiyatına girmez. Tutarlar kâra katkıdır: + kazanç, − gider. ${MG?"Müşteri bazında günlük satış ve gelir modelin Musteri_Gunluk sayfasından (dağıtıcının alım ritmi: günlük / 2 günde bir / haftalık – Dagiticilar H–I); o günün satışı ithalat beyannamelerine FIFO ile dağıldıktan sonra müşterilere günlük alımları oranında bölünür.":"Model günlük satışı müşteri bazında vermez; her günün satışı dağıtıcıların akış tablosundaki payıyla bölünür."}`;
   // CSV (filtredeki tüm satırlar)
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
-    const sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>n2(c[4](o)))].join(";"));
+    const n4=v=>(Math.round(v*1e4)/1e4).toString().replace(".",","), sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>(c[0]==="kes"||c[0]==="kb"?n4:n2)(c[4](o)))].join(";"));
     const b=new Blob(["\ufeff"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), ad=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`;
     if(ST_DL){ ST_DL.save({filename:ad,data:b}).catch(e=>{ if(e&&e.code!=="declined") $("st-tsub").textContent="CSV kaydedilemedi ("+(e.code||"hata")+")"; }); return; }   // claude.ai yayınında: indirme izni
     const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=ad; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
@@ -244,11 +248,11 @@ function satislar(){
     if($("st-lot0")) $("st-lot0").onclick=()=>{ S.stLot=""; S.stSf=0; satislar(); }; }
   // model ile mutabakat (yıl, filtresiz, tüm müşteriler)
   { const MT=SD.mut||{}, ys=YIL?[+YIL]:[2027,2028], t={}; for(const y of ys) t[y]=top();
-    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,D.gTL[i])); }
+    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,D.gTL[i],(SD.prim||{}).ort)); }
     const mv=(k,y)=>(MT[k]||[0,0])[y===2027?0:1], sm=f=>ys.reduce((a,y)=>a+f(y),0);
-    const sat=[["Net satışlar",y=>t[y].gel,y=>mv("net",y)],["Satılan malın maliyeti (ürün hedge dahil)",y=>t[y].mal+t[y].hn,y=>-mv("smm",y)],["Brüt kâr",y=>t[y].br,y=>mv("brut",y),1],["Faaliyet giderleri (finansman ve faiz dahil)",y=>t[y].fin+t[y].faiz+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr",y=>t[y].nk,y=>mv("nk",y),1]];
-    $("st-mut").innerHTML=`<thead><tr><th class="l">${ys.join(" + ")}</th><th>Rapor</th><th>Model</th><th>Fark</th></tr></thead><tbody>`+sat.map(([l,r,m,b])=>{ const a=sm(r), c=sm(m), d=a-c; return `<tr${b?' class="top"':""}><td class="l">${b?"<b>"+l+"</b>":l}</td><td>${md(a)}</td><td>${md(c)}</td><td class="${Math.abs(d)<5e4?"muted":d<0?"n":"p"}">${md(d)}</td></tr>`; }).join("")+`</tbody>`;
-    $("st-mnot").textContent="Fark kaynakları: rapor her satışı kendi gününün Tüpraş fiyatı ve kuruyla fiyatlar, model kargo bazında satış penceresi ortalamasını kullanır; rapor satışı ithalat beyannamesi üzerinden FIFO eşler, model kargoya doğrudan bağlar (lot geçişlerinde maliyet kayar); dönem sonunda satılmamış beyannamelerin kur farkı modelde yer alır, raporda satış olmadığı için görünmez."; }
+    const sat=[["Brüt kâr – bu rapor (TL / beyanname kuru)",y=>t[y].bus,null,1],["Brüt kâr – model ($, ürün hedge hariç)",y=>t[y].mbr-t[y].hn,y=>mv("brut",y)+mv("hedge",y)],["Ürün hedge",y=>t[y].hn,y=>-mv("hedge",y)],["Faaliyet giderleri, finansman, faiz",y=>t[y].fin+t[y].faiz+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr – bu rapor",y=>t[y].nk,null,1],["Net kâr – model",y=>t[y].mnk,y=>mv("nk",y),1]];
+    $("st-mut").innerHTML=`<thead><tr><th class="l">${ys.join(" + ")}</th><th>Rapor</th><th>Model</th><th>Fark</th></tr></thead><tbody>`+sat.map(([l,r,m,b])=>{ const a=sm(r), c=m?sm(m):null, d=c==null?null:a-c; return `<tr${b?' class="top"':""}><td class="l">${b?"<b>"+l+"</b>":l}</td><td>${md(a)}</td><td>${c==null?"–":md(c)}</td><td class="${d==null||Math.abs(d)<5e4?"muted":d<0?"n":"p"}">${d==null?"":md(d)}</td></tr>`; }).join("")+`</tbody>`;
+    $("st-mnot").textContent="Bu raporun brüt kârı kullanıcı hesap şablonuyla (TL/m³ fiyatlar, alımda CIF + prim × kur × 0,845/0,835, m³ = ton/0,835) hesaplanır; modelin brüt kârı satış penceresi ortalama fiyatı ve alış maliyetinin tamamıyla (navlun farkı, ikinci liman, elleçleme, fire dahil) $ cinsindendir. Model satırları karşılaştırma içindir; ürün hedge, giderler ve kur farkı iki hesapta aynı kaynaktan gelir."; }
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 function kargolar(){
