@@ -228,7 +228,7 @@ function satislar(){
   // CSV (filtredeki tüm satırlar)
   $("st-csv").onclick=()=>{ const n2=v=>(Math.round(v*100)/100).toString().replace(".",","), bs=kolB.map(([l])=>l), ks=kolS.map(([,l])=>l);
     const tx=h=>String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/;/g,",");
-    const n4=v=>(Math.round(v*1e4)/1e4).toString().replace(".",","), sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>(c[0]==="kes"||c[0]==="kb"?n4:n2)(c[4](o)))].join(";"));
+    const n4=v=>(Math.round(v*1e4)/1e4).toString().replace(".",","), sat=R.map(o=>[...kolB.map(([,f])=>tx(f(o))),...kolS.map(c=>(["kes","kb","cif","apr"].includes(c[0])?n4:n2)(c[4](o)))].join(";"));
     const b=new Blob(["\ufeff"+[[...bs,...ks].join(";"),...sat].join("\r\n")],{type:"text/csv;charset=utf-8"}), ad=`gts_satislar_${S.stU.toLowerCase()}_${S.stGor}${YIL?"_"+YIL:""}.csv`;
     if(ST_DL){ ST_DL.save({filename:ad,data:b}).catch(e=>{ if(e&&e.code!=="declined") $("st-tsub").textContent="CSV kaydedilemedi ("+(e.code||"hata")+")"; }); return; }   // claude.ai yayınında: indirme izni
     const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=ad; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500); };
