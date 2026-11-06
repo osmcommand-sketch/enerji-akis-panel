@@ -247,7 +247,7 @@ function satislar(){
     if($("st-lot0")) $("st-lot0").onclick=()=>{ S.stLot=""; S.stSf=0; satislar(); }; }
   // model ile mutabakat (yıl, filtresiz, tüm müşteriler)
   { const MT=SD.mut||{}, ys=YIL?[+YIL]:[2027,2028], t={}; for(const y of ys) t[y]=top();
-    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; ek(t[y],kal(i,a,l,q,D.gTL[i],(SD.prim||{}).ort)); }
+    for(const [i,j,q] of D.sat){ const y=yl(i); if(!t[y]) continue; const a=D.alt[j], l=LM.get(a[0]); if(!l||D.gTL[i]==null||!D.kur[i]) continue; const g=MG&&MG[i]; let sp=(SD.prim||{}).ort; if(g){ let tt=0,tp=0; for(const [c,tq] of g){ tt+=tq; tp+=tq*(D.mus[c][2]||0); } if(tt) sp=tp/tt; } ek(t[y],kal(i,a,l,q,D.gTL[i],sp)); }   // paket 88: müşteri primi günlük ağırlıklı (Musteri_Gunluk) – KPI ile aynı
     const mv=(k,y)=>(MT[k]||[0,0])[y===2027?0:1], sm=f=>ys.reduce((a,y)=>a+f(y),0);
     const sat=MT.tl?[["Satış geliri (M TL)",y=>t[y].gtl,y=>mv("gtl",y)],["Satılan malın maliyeti (M TL)",y=>-t[y].stl,y=>-mv("stl",y)],["Brüt kâr (M TL)",y=>t[y].btl,y=>mv("btl",y),1],["Brüt kâr ($)",y=>t[y].bus,y=>mv("bus",y),1],["Ürün hedge",y=>t[y].hn,y=>-mv("hedge",y)],["Faaliyet giderleri, finansman, faiz",y=>t[y].fin+t[y].faiz+t[y].faal,y=>-mv("faal",y)],["Kur farkı (kambiyo + forward)",y=>t[y].kmb+t[y].fwd,y=>mv("kur",y)],["Net kâr ($)",y=>t[y].nk,y=>mv("nk",y),1]]
       :[["Brüt kâr ($)",y=>t[y].bus,null,1],["Net kâr ($)",y=>t[y].nk,y=>mv("nk",y),1]];

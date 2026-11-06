@@ -1,8 +1,8 @@
 {
- "surum": "1.0.80",
- "kabuk": 1,
- "tarih": "2026-11-02T21:58:18+03:00",
- "notlar": "Paket 75: Tahsis incelemesi önce/sonra aynı Leg2 tabanında, resmî ilçe bazlı mesafe ayrıca; kapasite kontrolü tahsis sonrası tablodan",
+ "surum": "1.0.81",
+ "kabuk": 2,
+ "tarih": "2026-11-06T15:15:12+03:00",
+ "notlar": "Kabuk 2 (yeni imza anahtarı); arayüz değişmedi.",
  "dosyalar": {
   "ui/index.html": "4d3cae6004dbeaa159fc26fd650e1ebde6d318c8b83bcf2ecffcd0c09e2ba4fc",
   "ui/app.css": "e98fc0b4ab415ed65a27ddc7b14e2125053c2f40630becdbf9b094d0f2e61653",

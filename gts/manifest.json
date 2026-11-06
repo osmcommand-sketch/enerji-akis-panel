@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.77",
- "kabuk": 1,
- "tarih": "2026-11-04T20:46:49+03:00",
- "notlar": "Paket 86: Satışlar'da alım fiyatı TL/m³ (= TL/t × gerçek yoğunluk) sütunu.",
+ "surum": "1.0.78",
+ "kabuk": 2,
+ "tarih": "2026-11-06T15:15:12+03:00",
+ "notlar": "Kabuk 2 (yeni imza anahtarı). Paket 88: Satışlar mutabakatında müşteri primi günlük ağırlıklı (Musteri_Gunluk).",
  "dosyalar": {
   "ui/index.html": "4bd2f5cad1bdafa7d43e15a24458386e145e3d85cb8e5ccdbb839e9648bc4a1e",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "11d9b8333c99fd61f373f4256bfe49cba914af6f5fd6dda32a65e9c4e71c0f41",
+  "ui/pano.js": "dc38b5936ee9ea68bb72c9a7df39ae614caa94542ad678e2f0041d67a47c461f",
   "gts_pipeline.js": "9169ecc686cc4dc2d92c7fa1fb3eab6402ac9c14df8fd0a1f13947de1362ce63",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "331b5c5ee2d2fe08b89958c377a8c1ede1752185e623dfa54f49b5c1c0cc5209",
