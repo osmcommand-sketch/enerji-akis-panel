@@ -259,7 +259,9 @@ function satislar(){
    Kaynak: SCN_GTS_RAKIP_MALIYET_V2 (PDM analizi – resmî değil). Maliyet TL/m³, vergisiz; yükleme noktasında ve bölgeye teslim (+ Leg2 navlun). ---------- */
 function rakip(){
   const RK=V.rakip; if(!RK||!RK.satir||!RK.satir.length){ $("rk-tab").innerHTML=`<tbody><tr><td class="l">Bu pakette rakip maliyet analizi (SCN_GTS_RAKIP_MALIYET_V2) yok.</td></tr></tbody>`; return; }
-  const I=Object.fromEntries(RK.kol.map((k,i)=>[k,i])), g=(r,k)=>r[I[k]];
+  const I=Object.fromEntries(RK.kol.map((k,i)=>[k,i])), g0=(r,k)=>r[I[k]],
+    // kullanıcı 09.11.2026 21:31 ("2"): ithalatçısı belirsiz "İthalat (genel)" akışı dağıtıcının kendi ithalatıyla birleştirilir (maliyet kuralı aynı)
+    g=(r,k)=>k==="Kaynak"&&r[I.Tip]==="İthal"&&r[I.Kaynak]==="İthalat"&&!/^GTS/.test(r[I.Sirket])?r[I.Sirket]:r[I[k]];
   const yillar=[...new Set(RK.satir.map(r=>g(r,"Yil")))].sort(); if(!S.rkY||!yillar.includes(S.rkY)) S.rkY=yillar.includes(+YIL)?+YIL:yillar[0];
   if(!S.rkT) S.rkT="tum"; if(!S.rkO) S.rkO="yuk"; if(S.rkS==null) S.rkS=""; if(!S.rkG) S.rkG="kaynak";
   const tes=S.rkO==="tes", mk=r=>tes?g(r,"Bolgeye_teslim_TL_m3"):g(r,"Alim_maliyeti_TL_m3"), fk=r=>tes?g(r,"GTS_farki_teslim_TL_m3"):g(r,"GTS_farki_TL_m3");

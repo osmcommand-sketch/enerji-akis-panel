@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.85",
+ "surum": "1.0.86",
  "kabuk": 2,
- "tarih": "2026-11-09T21:10:07+03:00",
- "notlar": "Paket 108: rakip ithalatçıların alım primi (H44) bilgi olarak gösterilir – değişikliği PDM rakip zinciriyle hesaplar",
+ "tarih": "2026-11-09T21:32:00+03:00",
+ "notlar": "Rakip analizi: ithalatçısı belirsiz 'İthalat' akışı dağıtıcının kendi ithalatıyla birleştirildi",
  "dosyalar": {
   "ui/index.html": "0b8ae5b0bc5caf24f3cadea05e380949272449a586e158c95018b2efb9086840",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "92b3fc4889ba269d2cc5d3515d749f26684b155e140678fe6abe971c0325df04",
+  "ui/pano.js": "cf09ebbbd82d88c43a5ca58050fd3ec4d2945e0de95f50305d3f4077e37c248e",
   "gts_pipeline.js": "d98f9354071a65300a0e42623c0360cb773f377d2187a03d2193fa6917e06d13",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "1c5beca034b1e2b10a4d2d1e610dda86b9a7da7fd6e125a3c3dc0271e465acf0",
