@@ -184,7 +184,8 @@ function motor(S) {
     if (typeof cr === 'boolean') return (v) => v === cr;
     const s = str(cr); const m = /^(<>|<=|>=|=|<|>)?(.*)$/s.exec(s); const op = m[1] || '=', rest = m[2];
     const n = rest.trim() !== '' && isFinite(Number(rest)) ? Number(rest) : null;
-    if (n !== null) return (v) => { if (typeof v !== 'number') return op === '<>' ? true : false; switch (op) { case '=': return v === n; case '<>': return v !== n; case '<': return v < n; case '>': return v > n; case '<=': return v <= n; case '>=': return v >= n; } };
+    // Excel ölçütte sayıyı 15 anlamlı basamakla karşılaştırır ("<="&AX: kargo sınırına tam denk gelen kümülatif ton; paket 104)
+    if (n !== null) return (v) => { if (typeof v !== 'number') return op === '<>' ? true : false; v = +v.toPrecision(15); switch (op) { case '=': return v === n; case '<>': return v !== n; case '<': return v < n; case '>': return v > n; case '<=': return v <= n; case '>=': return v >= n; } };
     const t = rest.toLowerCase(), wild = /[*?]/.test(t), re = wild ? new RegExp('^' + t.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$', 's') : null;
     const eq = (v) => { if (v === BOS) return t === ''; if (typeof v !== 'string') return false; const x = v.toLowerCase(); return re ? re.test(x) : x === t; };
     if (op === '=') return eq; if (op === '<>') return (v) => !eq(v);
