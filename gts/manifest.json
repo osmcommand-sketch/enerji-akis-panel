@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.80",
+ "surum": "1.0.81",
  "kabuk": 2,
- "tarih": "2026-11-09T11:44:58+03:00",
- "notlar": "Paket 101: Satışlar raporunda finansman, USD kredi kur farkı ve TL tahsilat getirisi satış günü nakit akışından (model ile aynı)",
+ "tarih": "2026-11-09T12:10:52+03:00",
+ "notlar": "Ticari koşullar: satış primi yöntemi Rakip maliyeti iken kaynak bazlı satış primi tablosu pasif (Sabit segment iken prim alt sınırı pasif); seçim listeleri model değerini gösterir",
  "dosyalar": {
-  "ui/index.html": "05173eb5900019c8d86c68d117c6c5a674ddd742ed7b550927b34fa025fd069b",
+  "ui/index.html": "6629048beba5aaab55b08fcba62d4dad79b41f4fff64b949381ec0e693bfd868",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "530bb73100539ae3d371edf528e70aa34a62da5dd077018e2fc220210abf3c08",
+  "ui/pano.js": "a600ce861e36faf1da2dd87dfe35ad2209f57bebf41112482973cfc4e1b2be4e",
   "gts_pipeline.js": "d97263ea5957d120398f06726976cb69506f45426fcb5dcbfcfe126aca530fc8",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "331b5c5ee2d2fe08b89958c377a8c1ede1752185e623dfa54f49b5c1c0cc5209",
