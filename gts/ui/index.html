@@ -603,6 +603,19 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 @media (max-width:900px){.kg-iki{grid-template-columns:minmax(0,1fr)}}
 .kg-scr{max-height:360px}
 .kg-tum tr[data-k]{cursor:pointer}.kg-tum tr[aria-selected="true"] td{background:var(--surface-2,#F1F4F6)}.kg-tum tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--gts,#B8860B)}
+
+/* Rakip analizi */
+.rk-graf svg{width:100%;height:auto;display:block}
+.rk-graf text{font-size:11px;fill:var(--ink2,#3D4A54);font-variant-numeric:tabular-nums}
+.rk-graf .rk-ad{font-weight:600;fill:var(--ink,#1B2730)} .rk-graf .rk-al{font-size:9.5px;font-weight:400;fill:#6F7E89}
+.rk-graf .rk-v,.rk-graf .rk-gl{paint-order:stroke;stroke:var(--card,#fff);stroke-width:3px;stroke-linejoin:round}
+.rk-graf .rk-gl{fill:#8A6508;font-weight:700} .rk-graf .rk-p{fill:#1D7A4A;font-weight:600} .rk-graf .rk-n{fill:#B3412E;font-weight:600}
+.head .rk-gseg{margin-left:auto}
+.rk-t td small{display:block;font-size:10px;color:#6F7E89;font-weight:400;white-space:nowrap}
+.rk-t th.ga,.rk-t td.ga{background:rgba(42,85,145,.035)} .rk-t th.gs,.rk-t td.gs{background:rgba(184,134,11,.06)}
+.rk-oz tr[data-s]{cursor:pointer} .rk-oz tr[data-s]:hover td{background:rgba(42,85,145,.06)}
+.rk-oz tr[aria-selected="true"] td{background:rgba(42,85,145,.12);font-weight:600}
+.rk-oz tr[data-s]:focus-visible{outline:2px solid #2A5591;outline-offset:-2px}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -628,6 +641,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="operasyon" aria-selected="false">Operasyon</button>
     <button type="button" role="tab" data-v="kargo" aria-selected="false">Kargolar</button>
     <button type="button" role="tab" data-v="satis" aria-selected="false">Satışlar</button>
+    <button type="button" role="tab" data-v="rakip" aria-selected="false">Rakip analizi</button>
     <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
     <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
     <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
@@ -779,6 +793,37 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
         <p class="not" id="st-mnot"></p>
       </section>
     </div>
+  </div>
+  <div class="v" data-v="rakip" hidden>
+    <section>
+      <div class="head"><h2>Rakip analizi</h2><span class="sub" id="rk-sub"></span></div>
+      <div class="st-ctl">
+        <div class="st-f"><span class="kg-lab">Yıl</span><div class="seg" id="rk-yil" role="group" aria-label="Yıl"></div></div>
+        <label class="st-f"><span class="kg-lab">Dağıtıcı</span><select id="rk-sir"></select></label>
+        <div class="st-f"><span class="kg-lab">Tedarik</span><div class="seg" id="rk-tip" role="group" aria-label="Tedarik tipi"><button type="button" data-t="tum" aria-pressed="true">Tümü</button><button type="button" data-t="ith" aria-pressed="false">İthal</button><button type="button" data-t="yer" aria-pressed="false">Yerli</button></div></div>
+        <div class="st-f"><span class="kg-lab">Maliyet noktası</span><div class="seg" id="rk-olc" role="group" aria-label="Maliyet noktası"><button type="button" data-o="yuk" aria-pressed="true">Yükleme noktasında</button><button type="button" data-o="tes" aria-pressed="false">Bölgeye teslim</button></div></div>
+      </div>
+      <div class="kpi4" id="rk-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Tedarikçi bazında alım maliyeti</h2><span class="sub" id="rk-gsub"></span>
+        <div class="seg rk-gseg" id="rk-gor" role="group" aria-label="Gruplama"><button type="button" data-g="kaynak" aria-pressed="true">Tedarikçi</button><button type="button" data-g="nokta" aria-pressed="false">Yükleme noktası</button></div></div>
+      <div class="rk-graf" id="rk-graf"></div>
+    </section>
+    <div class="kg-iki rk-iki">
+      <section>
+        <div class="head"><h2>Dağıtıcı özeti</h2><span class="sub">seçili yıl · tüm tedarik · satıra tıklayınca filtreler</span></div>
+        <div class="scroll kg-scr kg-tum"><table class="t rk-oz" id="rk-oz"></table></div>
+      </section>
+      <section>
+        <div class="head"><h2>Nasıl hesaplandı</h2></div>
+        <p class="not" id="rk-not"></p>
+      </section>
+    </div>
+    <section>
+      <div class="head"><h2>Maliyet kırılımı</h2><span class="sub" id="rk-tsub"></span></div>
+      <div class="scroll st-scr"><table class="t st-t rk-t" id="rk-tab"></table></div>
+    </section>
   </div>
   <div class="v" data-v="ekonomi" hidden>
     <section>

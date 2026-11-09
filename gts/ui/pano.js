@@ -120,13 +120,13 @@ function aralik(el,R,o={}){
 }
 
 /* ---------- sekmeler (hash) ---------- */
-const SEK=["genel","akis","operasyon","kargo","satis","ekonomi","hedge","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","kargo","satis","rakip","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,ekonomi,hedge,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,rakip,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
@@ -253,6 +253,65 @@ function satislar(){
       :[["Brüt kâr ($)",y=>t[y].bus,null,1],["Net kâr ($)",y=>t[y].nk,y=>mv("nk",y),1]];
     $("st-mut").innerHTML=`<thead><tr><th class="l">${ys.join(" + ")}</th><th>Rapor</th><th>Model</th><th>Fark</th></tr></thead><tbody>`+sat.map(([l,r,m,b])=>{ const a=sm(r), c=m?sm(m):null, d=c==null?null:a-c; return `<tr${b?' class="top"':""}><td class="l">${b?"<b>"+l+"</b>":l}</td><td>${md(a)}</td><td>${c==null?"–":md(c)}</td><td class="${d==null||Math.abs(d)<5e4?"muted":d<0?"n":"p"}">${d==null?"":md(d)}</td></tr>`; }).join("")+`</tbody>`;
     $("st-mnot").textContent=MT.tl?"Model aynı tanımı kullanıyor (paket 85). Kalan fark: model her satış gününü tek bir ithalat beyannamesine (satışın orta noktası) bağlar, rapor satışı beyanname parçalarına FIFO ile böler; lot geçiş günlerinde alım fiyatı ve kur biraz farklı düşer. Yıllık giderler ton başına ortalamayla dağıtılır.":"Bu raporun brüt kârı kullanıcı hesap şablonuyla (TL/m³ fiyatlar, alımda CIF + prim × kur × 0,845/0,835, m³ = ton/0,835) hesaplanır; modelin brüt kârı satış penceresi ortalama fiyatı ve alış maliyetinin tamamıyla (navlun farkı, ikinci liman, elleçleme, fire dahil) $ cinsindendir. Model satırları karşılaştırma içindir; ürün hedge, giderler ve kur farkı iki hesapta aynı kaynaktan gelir."; }
+}
+/* ---------- RAKİP ANALİZİ (kullanıcı 09.11.2026 10:04): GTS etki alanında hangi dağıtıcı, hangi tedarikçiden (ithalatçı / rafineri), hangi maliyetle motorin alıyor.
+   Kaynak: SCN_GTS_RAKIP_MALIYET_V2 (PDM analizi – resmî değil). Maliyet TL/m³, vergisiz; yükleme noktasında ve bölgeye teslim (+ Leg2 navlun). ---------- */
+function rakip(){
+  const RK=V.rakip; if(!RK||!RK.satir||!RK.satir.length){ $("rk-tab").innerHTML=`<tbody><tr><td class="l">Bu pakette rakip maliyet analizi (SCN_GTS_RAKIP_MALIYET_V2) yok.</td></tr></tbody>`; return; }
+  const I=Object.fromEntries(RK.kol.map((k,i)=>[k,i])), g=(r,k)=>r[I[k]];
+  const yillar=[...new Set(RK.satir.map(r=>g(r,"Yil")))].sort(); if(!S.rkY||!yillar.includes(S.rkY)) S.rkY=yillar.includes(+YIL)?+YIL:yillar[0];
+  if(!S.rkT) S.rkT="tum"; if(!S.rkO) S.rkO="yuk"; if(S.rkS==null) S.rkS=""; if(!S.rkG) S.rkG="kaynak";
+  const tes=S.rkO==="tes", mk=r=>tes?g(r,"Bolgeye_teslim_TL_m3"):g(r,"Alim_maliyeti_TL_m3"), fk=r=>tes?g(r,"GTS_farki_teslim_TL_m3"):g(r,"GTS_farki_TL_m3");
+  const Y=RK.satir.filter(r=>g(r,"Yil")===S.rkY), GR=Y.filter(r=>/^GTS/.test(g(r,"Sirket"))), R0=Y.filter(r=>!/^GTS/.test(g(r,"Sirket")));
+  const gts=Y.length?mk(Y[0])-fk(Y[0]):null;   // GTS referansı: maliyet − GTS farkı (tüm satırlarda aynı)
+  // dağıtıcı listesi
+  const SH=new Map(); for(const r of R0){ const s=g(r,"Sirket"), o=SH.get(s)||SH.set(s,{t:0,ti:0}).get(s); o.t+=g(r,"Hacim_t"); if(g(r,"Tip")==="İthal") o.ti+=g(r,"Hacim_t"); }
+  const sirk=[...SH.entries()].sort((a,b)=>b[1].t-a[1].t); if(S.rkS&&!SH.has(S.rkS)) S.rkS="";
+  $("rk-sir").innerHTML=`<option value="">Tüm dağıtıcılar (${sirk.length})</option>`+sirk.map(([s,o])=>`<option value="${esc(s)}">${esc(s)} · ${nf.format(o.t/1e3)} kt</option>`).join(""); $("rk-sir").value=S.rkS;
+  $("rk-sir").onchange=e=>{ S.rkS=e.target.value; rakip(); };
+  const seg=(id,k,f)=>{ for(const b of $(id).querySelectorAll("button")){ b.setAttribute("aria-pressed",String(String(b.dataset[k])===String(S[f]))); b.onclick=()=>{ S[f]=k==="y"?+b.dataset.y:b.dataset[k]; rakip(); }; } };
+  $("rk-yil").innerHTML=yillar.map(y=>`<button type="button" data-y="${y}">${y}</button>`).join(""); seg("rk-yil","y","rkY"); seg("rk-tip","t","rkT"); seg("rk-olc","o","rkO"); seg("rk-gor","g","rkG");
+  const R=R0.filter(r=>(!S.rkS||g(r,"Sirket")===S.rkS)&&(S.rkT==="tum"||(S.rkT==="ith")===(g(r,"Tip")==="İthal")));
+  const top=(L)=>{ let t=0,m=0,f=0; for(const r of L){ const h=g(r,"Hacim_t"); t+=h; m+=h*mk(r); f+=h*fk(r); } return {t,m:t?m/t:null,f:t?f/t:null}; };
+  const A=top(R), Ri=top(R.filter(r=>g(r,"Tip")==="İthal")), Ry=top(R.filter(r=>g(r,"Tip")==="Yerli"));
+  const tl=v=>v==null?"–":nf.format(Math.round(v)), fr=v=>v==null?"–":(v>0?"+":v<0?"−":"")+nf.format(Math.abs(Math.round(v))), fc=v=>v==null||Math.abs(v)<0.5?"":v>0?"p":"n";
+  const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  $("rk-kpi").innerHTML=kt("GTS alım maliyeti",tl(gts)+" TL/m³",`ithal, GTS koşulları · ${tes?"bölgeye teslim":"Dörtyol terminalinde"}`)
+    +kt(S.rkS?esc(S.rkS)+" ortalaması":"Rakip ortalaması",tl(A.m)+" TL/m³",`${nf.format(A.t/1e3)} kt · GTS'e göre ${fr(A.f)} TL/m³`,A.f>0?"pos":A.f<0?"neg":"")
+    +kt("İthal",Ri.t?tl(Ri.m)+" TL/m³":"–",`hacmin %${nf1.format(A.t?Ri.t/A.t*100:0)} · GTS'e göre ${fr(Ri.f)}`)
+    +kt("Yerli (rafineri)",Ry.t?tl(Ry.m)+" TL/m³":"–",`hacmin %${nf1.format(A.t?Ry.t/A.t*100:0)} · GTS'e göre ${fr(Ry.f)}`);
+  $("rk-sub").textContent=`GTS etki alanındaki iller · motorin · ${S.rkY} Makul yol · TL/m³, vergisiz · + = rakip GTS'den pahalı (GTS avantajı)`;
+  // tedarikçi grafiği: kaynak (ithalatçı / rafineri) ya da yükleme noktası bazında, hacim ağırlıklı
+  { const anah=r=>S.rkG==="kaynak"?g(r,"Kaynak")+"|"+g(r,"Tip"):g(r,"Yukleme_noktasi")+"|"+g(r,"Tip"), M=new Map();
+    for(const r of R){ const k=anah(r); (M.get(k)||M.set(k,[]).get(k)).push(r); }
+    const L=[...M.entries()].map(([k,rs])=>{ const [ad,tip]=k.split("|"), o=top(rs); return {ad,tip,...o,alt:S.rkG==="kaynak"?[...new Set(rs.map(r=>g(r,"Yukleme_noktasi")))].length+" yükleme noktası":[...new Set(rs.map(r=>g(r,"Kaynak")))].join(", ")}; }).sort((a,b)=>a.m-b.m);
+    const vs=[gts,...L.map(x=>x.m)].filter(v=>v!=null), lo=Math.floor((Math.min(...vs)-300)/500)*500, hi=Math.ceil((Math.max(...vs)+150)/500)*500, W=920, sol=250, sag=150, sh=30, H=L.length*sh+44, x=v=>sol+(v-lo)/(hi-lo)*(W-sol-sag), mx=Math.max(...L.map(o=>o.t),1);
+    let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tedarikçi bazında alım maliyeti"><g class="rk-ax">`;
+    for(let v=lo;v<=hi;v+=500) s+=`<line x1="${x(v)}" x2="${x(v)}" y1="18" y2="${H-20}" stroke="#E3E8EB"/><text x="${x(v)}" y="${H-6}" text-anchor="middle">${nf.format(v)}</text>`;
+    s+=`</g><line x1="${x(gts)}" x2="${x(gts)}" y1="12" y2="${H-20}" stroke="${C.gts}" stroke-width="2"/><text x="${x(gts)+4}" y="12" class="rk-gl">GTS ${tl(gts)}</text>`;
+    L.forEach((o,i)=>{ const y=24+i*sh, ren=o.tip==="İthal"?C.mot:"#C8641C", w=Math.max(2,x(o.m)-x(lo));
+      s+=`<g><text x="${sol-10}" y="${y+12}" text-anchor="end" class="rk-ad">${esc(o.ad)}<tspan class="rk-al" x="${sol-10}" dy="12">${o.tip} · ${esc(o.alt).slice(0,44)}</tspan></text>
+        <rect x="${x(lo)}" y="${y}" width="${w}" height="16" rx="2" fill="${ren}" fill-opacity="${0.35+0.65*Math.sqrt(o.t/mx)}"><title>${esc(o.ad)} (${o.tip}): ${tl(o.m)} TL/m³ · ${nf.format(o.t/1e3)} kt · GTS'e göre ${fr(o.f)}</title></rect>
+        <text x="${x(o.m)+6}" y="${y+12}" class="rk-v">${tl(o.m)} <tspan class="${o.f>0?"rk-p":o.f<0?"rk-n":""}">${fr(o.f)}</tspan> · ${nf.format(o.t/1e3)} kt</text></g>`; });
+    $("rk-graf").innerHTML=s+`</svg>`; $("rk-gsub").textContent=`${L.length} ${S.rkG==="kaynak"?"tedarikçi":"yükleme noktası"} · çubuk koyuluğu hacme göre · mavi ithal, turuncu yerli · sarı çizgi GTS`; }
+  // ayrıntı tablosu: dağıtıcı × yükleme noktası × tedarikçi (aynı anahtarlı satırlar birleştirilir)
+  { const M=new Map(); for(const r of R){ const k=[g(r,"Sirket"),g(r,"Yukleme_noktasi"),g(r,"Kaynak"),g(r,"Tip")].join("|"); const o=M.get(k); if(o){ o.h+=g(r,"Hacim_t"); } else M.set(k,{r,h:g(r,"Hacim_t")}); }
+    let L=[...M.values()]; const sk=S.rkSr; const KOL=[["Dağıtıcı",o=>esc(g(o.r,"Sirket")),"l"],["Yükleme noktası",o=>esc(g(o.r,"Yukleme_noktasi"))+`<small>${esc(g(o.r,"Il")||"")}</small>`,"l"],["Tedarikçi",o=>esc(g(o.r,"Kaynak"))+`<small>${esc(g(o.r,"Fiyat_bazi")||"")}</small>`,"l"],["Tip",o=>`<span class="pill ${g(o.r,"Tip")==="İthal"?"i":"d"}">${g(o.r,"Tip")}</span>`,"l"],
+      ["Hacim (kt)",o=>nf1.format(o.h/1e3),"",o=>o.h],["Liste / ürün",o=>tl(g(o.r,"Tip")==="İthal"?g(o.r,"Urun_TL_m3"):g(o.r,"Liste_TL_m3")),"ga",o=>g(o.r,"Tip")==="İthal"?g(o.r,"Urun_TL_m3"):g(o.r,"Liste_TL_m3")],["Ciro + perf. primi",o=>fr(g(o.r,"Prim_TL_m3")||0),"ga",o=>g(o.r,"Prim_TL_m3")||0],["Vade",o=>fr(g(o.r,"Vade_degeri_TL_m3")||0),"ga",o=>g(o.r,"Vade_degeri_TL_m3")||0],
+      ["İthalat gideri",o=>fr(g(o.r,"Ic_gider_TL_m3")||0),"ga",o=>g(o.r,"Ic_gider_TL_m3")||0],["Elleçleme",o=>fr(g(o.r,"Ellecleme_TL_m3")||0),"ga",o=>g(o.r,"Ellecleme_TL_m3")||0],["Vergi finansmanı",o=>fr(g(o.r,"Vergi_fin_TL_m3")||0),"ga",o=>g(o.r,"Vergi_fin_TL_m3")||0],["Taşıma (kabotaj / demiryolu)",o=>fr(g(o.r,"Tasima_TL_m3")||0),"ga",o=>g(o.r,"Tasima_TL_m3")||0],
+      ["Alım maliyeti",o=>`<b>${tl(g(o.r,"Alim_maliyeti_TL_m3"))}</b>`,"ga",o=>g(o.r,"Alim_maliyeti_TL_m3")],["GTS farkı",o=>`<span class="${fc(g(o.r,"GTS_farki_TL_m3"))}">${fr(g(o.r,"GTS_farki_TL_m3"))}</span>`,"",o=>g(o.r,"GTS_farki_TL_m3")],
+      ["Leg2 navlun",o=>fr(g(o.r,"Bolgeye_teslim_TL_m3")-g(o.r,"Alim_maliyeti_TL_m3")),"gs",o=>g(o.r,"Bolgeye_teslim_TL_m3")-g(o.r,"Alim_maliyeti_TL_m3")],["Bölgeye teslim",o=>`<b>${tl(g(o.r,"Bolgeye_teslim_TL_m3"))}</b>`,"gs",o=>g(o.r,"Bolgeye_teslim_TL_m3")],["GTS farkı (teslim)",o=>`<span class="${fc(g(o.r,"GTS_farki_teslim_TL_m3"))}">${fr(g(o.r,"GTS_farki_teslim_TL_m3"))}</span>`,"gs",o=>g(o.r,"GTS_farki_teslim_TL_m3")]];
+    if(sk!=null&&KOL[sk]&&KOL[sk][3]) L.sort((a,b)=>S.rkSy*(KOL[sk][3](a)-KOL[sk][3](b))); else L.sort((a,b)=>b.h-a.h);
+    $("rk-tab").innerHTML=`<thead><tr>${KOL.map(([l,,c,v],i)=>`<th class="${c||""}${v?" st-so":""}" data-i="${i}"${sk===i?` aria-sort="${S.rkSy<0?"descending":"ascending"}"`:""}>${l}${sk===i?(S.rkSy<0?" ↓":" ↑"):""}</th>`).join("")}</tr></thead><tbody>`
+      +L.map(o=>`<tr>${KOL.map(([,f,c])=>`<td class="${c||""}">${f(o)}</td>`).join("")}</tr>`).join("")+`</tbody>`;
+    for(const h of $("rk-tab").querySelectorAll("th.st-so")) h.onclick=()=>{ const i=+h.dataset.i; if(S.rkSr===i) S.rkSy=-S.rkSy; else { S.rkSr=i; S.rkSy=-1; } rakip(); };
+    $("rk-tsub").textContent=`${L.length} satır · dağıtıcı × yükleme noktası × tedarikçi · TL/m³`; }
+  // dağıtıcı özeti (tıklayınca filtre)
+  { const L=sirk.map(([s,o])=>{ const rs=R0.filter(r=>g(r,"Sirket")===s), a=top(rs); return {s,t:o.t,ti:o.ti,...a}; });
+    $("rk-oz").innerHTML=`<thead><tr><th class="l">Dağıtıcı</th><th>Hacim (kt)</th><th>İthal payı</th><th>Ort. maliyet</th><th>GTS farkı</th></tr></thead><tbody>`
+      +L.map(o=>`<tr data-s="${esc(o.s)}" tabindex="0"${o.s===S.rkS?' aria-selected="true"':""}><td class="l">${esc(o.s)}</td><td>${nf.format(o.t/1e3)}</td><td>%${nf1.format(o.t?o.ti/o.t*100:0)}</td><td>${tl(o.m)}</td><td class="${fc(o.f)}">${fr(o.f)}</td></tr>`).join("")+`</tbody>`;
+    for(const tr of $("rk-oz").querySelectorAll("tr[data-s]")){ const f=()=>{ S.rkS=S.rkS===tr.dataset.s?"":tr.dataset.s; rakip(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; } }
+  $("rk-not").innerHTML=`<b>${esc(RK.durum||"PDM analizi")}.</b> İthal = GTS ile aynı koşullar: (CIF Med + prim) × kur × 0,845 + ithalat iç giderleri + terminal elleçlemesi. Yerli = rafineri vergisiz liste fiyatı (İzmit RSF ve nokta farkı; her satırın fiyat bazı tedarikçi adının altında) − dağıtıcının 2026 rafineri koşullarına göre ciro ve performans primi ± vade değeri + ÖTV/KDV finansmanı + kabotaj / demiryolu taşıması. Bölgeye teslim = + ortalama Leg2 navlunu. Bayi başka dağıtıcıdan alıyorsa koşul sahibi o dağıtıcıdır; toptan marjı dahil değildir. Rafineriden doğrudan almayan küçük dağıtıcıların gerçek maliyeti burada gösterilenden yüksek olabilir.`;
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 function kargolar(){
