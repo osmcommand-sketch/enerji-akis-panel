@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.82",
+ "surum": "1.0.83",
  "kabuk": 2,
- "tarih": "2026-11-09T16:48:28+03:00",
- "notlar": "Paket 104: hesap motoru COUNTIF ölçütünde 15 basamak karşılaştırma (kargo sınırı), Monte Carlo açıklaması güncel varsayımlarla",
+ "tarih": "2026-11-09T17:14:45+03:00",
+ "notlar": "Ticari koşullar: ortalama fiyatlar satırına ortalama USD/TRY kuru",
  "dosyalar": {
   "ui/index.html": "6629048beba5aaab55b08fcba62d4dad79b41f4fff64b949381ec0e693bfd868",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "aef071362f171946ccfabebff1d76703ff6031fdca52439fadcc69d0800e065a",
+  "ui/pano.js": "73df76639ada441369b6f5ab656b9e80239ab0b3c2b0fabfbee4d00dd42a162f",
   "gts_pipeline.js": "d97263ea5957d120398f06726976cb69506f45426fcb5dcbfcfe126aca530fc8",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "1c5beca034b1e2b10a4d2d1e610dda86b9a7da7fd6e125a3c3dc0271e465acf0",
