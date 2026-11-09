@@ -647,6 +647,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="kargo" aria-selected="false">Kargolar</button>
     <button type="button" role="tab" data-v="satis" aria-selected="false">Satışlar</button>
     <button type="button" role="tab" data-v="rakip" aria-selected="false">Rakip analizi</button>
+    <button type="button" role="tab" data-v="nakit" aria-selected="false">Nakit akışı</button>
     <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
     <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
     <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
@@ -828,6 +829,27 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <section>
       <div class="head"><h2>Maliyet kırılımı</h2><span class="sub" id="rk-tsub"></span></div>
       <div class="scroll st-scr"><table class="t st-t rk-t" id="rk-tab"></table></div>
+    </section>
+  </div>
+  <div class="v" data-v="nakit" hidden>
+    <section>
+      <div class="head"><h2>Nakit akışı</h2><span class="sub" id="nk-sub"></span>
+        <div class="seg rk-gseg" id="nk-bir" role="group" aria-label="Para birimi"><button type="button" data-b="tl" aria-pressed="true">TL</button><button type="button" data-b="usd" aria-pressed="false">USD</button></div></div>
+      <div class="kpi4" id="nk-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Günlük kümülatif bakiye</h2><span class="sub">1 Ocak 2027'de sıfırdan · eksi = finansman ihtiyacı</span></div>
+      <div class="grf" id="nk-graf"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Aylık giriş ve çıkışlar</h2><span class="sub">çubuk: kalem toplamı · çizgi: ay sonu bakiye</span></div>
+      <div class="grf" id="nk-ay"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Aylık tablo</h2><span class="sub" id="nk-tsub"></span>
+        <div class="seg rk-gseg" id="nk-ayr" role="group" aria-label="Ayrıntı"><button type="button" data-a="ozet" aria-pressed="true">Gruplu</button><button type="button" data-a="ayr" aria-pressed="false">Tüm kalemler</button></div></div>
+      <div class="scroll st-scr"><table class="t st-t" id="nk-tab"></table></div>
+      <p class="not">Kaynak: modelin Nakit_Akisi sayfası. Satış tahsilatı ile müşteriden ÖTV ve KDV satıştan vade kadar gün sonra; kargo ödemesi tahliye bitişi + COD vadesi günü, o günün kuruyla; açılış stoğu 1.1.2027'de ödenmiş sayılır. ÖTV, ithalat KDV'si, KDV beyanı ve teminat komisyonu vergi takviminden; faaliyet giderleri sabitler güne yayılı, değişkenler satılan tonla; ürün hedge kargonun tükendiği gün, kur hedge fatura vadesi günü. Bakiye finansman öncesidir: faiz ve kredi kur farkı Ekonomi sayfasında. Dönem sonunda vadesi gelmemiş alacak ve borçlar bakiyede yoktur.</p>
     </section>
   </div>
   <div class="v" data-v="ekonomi" hidden>

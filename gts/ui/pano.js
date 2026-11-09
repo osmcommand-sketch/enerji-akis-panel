@@ -120,13 +120,13 @@ function aralik(el,R,o={}){
 }
 
 /* ---------- sekmeler (hash) ---------- */
-const SEK=["genel","akis","operasyon","kargo","satis","rakip","ekonomi","hedge","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","kargo","satis","rakip","nakit","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,rakip,ekonomi,hedge,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,rakip,nakit,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
@@ -313,6 +313,45 @@ function rakip(){
       +L.map(o=>`<tr data-s="${esc(o.s)}" tabindex="0"${o.s===S.rkS?' aria-selected="true"':""}><td class="l">${esc(o.s)}</td><td>${nf.format(o.t/1e3)}</td><td>%${nf1.format(o.t?o.ti/o.t*100:0)}</td><td>${tl(o.m)}</td><td class="${fc(o.f)}">${fr(o.f)}</td></tr>`).join("")+`</tbody>`;
     for(const tr of $("rk-oz").querySelectorAll("tr[data-s]")){ const f=()=>{ S.rkS=S.rkS===tr.dataset.s?"":tr.dataset.s; rakip(); }; tr.onclick=f; tr.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); f(); } }; } }
   $("rk-not").innerHTML=`<b>${esc(RK.durum||"PDM analizi")}.</b> İthal = GTS ile aynı koşullar: (CIF Med + prim) × kur × 0,845 + ithalat iç giderleri + terminal elleçlemesi. Yerli = rafineri vergisiz liste fiyatı (İzmit RSF ve nokta farkı; her satırın fiyat bazı tedarikçi adının altında) − dağıtıcının 2026 rafineri koşullarına göre ciro ve performans primi ± vade değeri + ÖTV/KDV finansmanı + kabotaj / demiryolu taşıması. Bölgeye teslim = + ortalama Leg2 navlunu. Bayi başka dağıtıcıdan alıyorsa koşul sahibi o dağıtıcıdır; toptan marjı dahil değildir. Rafineriden doğrudan almayan küçük dağıtıcıların gerçek maliyeti burada gösterilenden yüksek olabilir.`;
+}
+/* ---------- NAKİT AKIŞI (kullanıcı 09.11.2026 20:11 "ekle"): modelin Nakit_Akisi sayfası (paket 105+). Giriş +, çıkış −; bakiye 1.1.2027'de sıfırdan başlar,
+   finansman öncesidir (faiz ve kredi kur farkı Kârlılık'ta). USD gösterimde her gün o günün kuruyla çevrilir. ---------- */
+function nakit(){
+  const N=V.nakit; if(!N||!N.g||!N.g.length){ $("nk-kpi").innerHTML=`<p class="not">Bu pakette günlük nakit akışı (Nakit_Akisi) yok; paket 105 ve sonrası gerekir.</p>`; for(const id of ["nk-graf","nk-ay"]) $(id).innerHTML=""; $("nk-tab").innerHTML=""; return; }
+  if(!S.nkB) S.nkB="tl"; if(!S.nkA) S.nkA="ozet";
+  for(const [id,k,f] of [["nk-bir","b","nkB"],["nk-ayr","a","nkA"]]) for(const b of $(id).querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset[k]===S[f])); b.onclick=()=>{ S[f]=b.dataset[k]; nakit(); }; }
+  const us=S.nkB==="usd", K=N.kur, cv=(v,i)=>us?v/(K[i]||1):v, B=us?"M $":"M TL", fm=v=>(v<0?"−":"")+(us?nf1:nf).format(Math.abs(v)), fk=v=>(v<0?"−":"")+(Math.abs(v)>=1000&&!us?nf2.format(Math.abs(v)/1e3)+" milyar":(us?nf1:nf).format(Math.abs(v))+(us?"":" milyon"))+(us?" M $":" TL");
+  const i0=PEN.i0, n=Math.min(PEN.n,N.g.length-i0), G=N.g;
+  // grup: giriş = satış + ÖTV + KDV tahsilatı; vergiler = ÖTV devlete + ithalat KDV + KDV beyanı + teminat komisyonu; diğer = beyanname + faaliyet; hedge = ürün + kur
+  const grp=r=>({gir:r[0]+r[1]+r[2],kar:r[3],ver:r[4]+r[5]+r[6]+r[7],dig:r[8]+r[9],hed:r[10]+r[11]});
+  const bak=G.map((r,i)=>cv(r[12],i));
+  let mn=Infinity, mi=i0, ort=0, eksi=0, gir=0, cik=0; for(let i=i0;i<i0+n;i++) if(G[i][12]<G[mi][12]) mi=i; mn=Math.min(0,bak[mi])||bak[mi]; if(G[mi][12]>=0) mn=0;   // azami ihtiyaç günü TL bakiyesinden (USD'de o günün kuruyla)
+  for(let i=i0;i<i0+n;i++){ const b=bak[i]; if(b<0){ ort-=b; eksi++; } const q=grp(G[i]); gir+=cv(q.gir+Math.max(0,q.hed),i); cik+=cv(q.kar+q.ver+q.dig+Math.min(0,q.hed),i); }
+  const son=bak[i0+n-1], once=i0>0?bak[i0-1]:0, kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+  $("nk-kpi").innerHTML=kt("Azami finansman ihtiyacı",mn<0?fk(-mn):"yok",mn<0?`${gunS(mi)} · ${us?nf.format(-G[mi][12])+" M TL":nf1.format(-G[mi][12]/(K[mi]||1))+" M $"}`:"bakiye hep artıda",mn<0?"neg":"")
+    +kt("Ortalama finansman ihtiyacı",fk(ort/n),`eksi bakiyeli ${nf.format(eksi)} gün / ${nf.format(n)}`)
+    +kt("Dönem sonu bakiye",fk(son),`${gunS(i0+n-1)}${i0>0?" · dönem başı "+fk(once):""}`,son<0?"neg":"pos")
+    +kt("Giriş / çıkış",`${fm(gir)} / ${fm(cik)}`,`${B} · hedge net girişe ya da çıkışa`);
+  $("nk-sub").textContent=`${YIL||"2027–2028"} · ${us?"USD, her gün o günün kuruyla":"TL"} · giriş +, çıkış − · finansman (faiz) öncesi`;
+  // günlük bakiye
+  zaman($("nk-graf"),{aria:"Günlük kümülatif nakit bakiyesi",h:240,sifir:true,fmt:v=>nf.format(v),seri:[{ad:"Kümülatif bakiye ("+B+")",renk:C.mot,v:bak,alan:true,kalin:2}],
+    yatay:mn<0?[{v:mn,ad:"Azami ihtiyaç "+fm(mn)+" · "+gunS(mi),renk:C.neg}]:[]});
+  // aylık
+  const AYL=new Map(); for(let i=i0;i<i0+n;i++){ const d=gun(i), k=d.getUTCFullYear()*100+d.getUTCMonth(); let o=AYL.get(k); if(!o){ o={ad:AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2),d:Array(12).fill(0),gir:0,kar:0,ver:0,dig:0,hed:0,mn:Infinity,son:0}; AYL.set(k,o); }
+    const r=G[i], q=grp(r); r.slice(0,12).forEach((v,j)=>o.d[j]+=cv(v,i)); for(const x of ["gir","kar","ver","dig","hed"]) o[x]+=cv(q[x],i); o.mn=Math.min(o.mn,bak[i]); o.son=bak[i]; }
+  const AL=[...AYL.values()]; for(const o of AL) o.net=o.gir+o.kar+o.ver+o.dig+o.hed;
+  cubuk($("nk-ay"),{aria:"Aylık nakit akışı",h:230,kat:AL.map(a=>a.ad),fmt:v=>nf.format(v),etk:i=>i%(AL.length<=12?(W<600?2:1):(W<600?6:3))===0?AL[i].ad:"",
+    seri:[{ad:"Tahsilat (satış + ÖTV + KDV)",renk:C.pos,v:AL.map(a=>a.gir)},{ad:"Kargo ödemesi",renk:C.mot,v:AL.map(a=>a.kar)},{ad:"Vergiler (ÖTV, KDV, teminat)",renk:C.kur,v:AL.map(a=>a.ver)},{ad:"Diğer giderler",renk:C.ink3,v:AL.map(a=>a.dig)},{ad:"Hedge (ürün + kur)",renk:C.gts,v:AL.map(a=>a.hed)}],
+    cizgi:[{ad:"Ay sonu bakiye",renk:C.neg,v:AL.map(a=>a.son)}]});
+  // tablo
+  const KOL=S.nkA==="ayr"?[["Satış tahsilatı",o=>o.d[0]],["ÖTV tahsilatı",o=>o.d[1]],["KDV tahsilatı",o=>o.d[2]],["Kargo ödemesi",o=>o.d[3]],["ÖTV – devlete",o=>o.d[4]],["İthalat KDV",o=>o.d[5]],["KDV beyanı",o=>o.d[6]],["Teminat komisyonu",o=>o.d[7]],["Beyanname gideri",o=>o.d[8]],["Faaliyet giderleri",o=>o.d[9]],["Ürün hedge",o=>o.d[10]],["Kur hedge",o=>o.d[11]]]
+    :[["Tahsilat",o=>o.gir],["Kargo ödemesi",o=>o.kar],["Vergiler",o=>o.ver],["Diğer giderler",o=>o.dig],["Hedge",o=>o.hed]];
+  const T={d:Array(12).fill(0),gir:0,kar:0,ver:0,dig:0,hed:0,net:0}; for(const o of AL){ o.d.forEach((v,j)=>T.d[j]+=v); for(const x of ["gir","kar","ver","dig","hed","net"]) T[x]+=o[x]; }
+  const hc=v=>`<td class="${v<-0.05?"n":""}">${Math.abs(v)<0.05?"–":fm(v)}</td>`;
+  $("nk-tab").innerHTML=`<thead><tr><th class="l">Ay</th>${KOL.map(k=>`<th>${k[0]}</th>`).join("")}<th>Net akış</th><th>Ay sonu bakiye</th><th>Ay içi en düşük</th></tr></thead><tbody>`
+    +AL.map(o=>`<tr><td class="l">${o.ad}</td>${KOL.map(k=>hc(k[1](o))).join("")}<td><b>${fm(o.net)}</b></td><td class="${o.son<0?"n":""}"><b>${fm(o.son)}</b></td><td class="${o.mn<0?"n":""}">${fm(o.mn)}</td></tr>`).join("")
+    +`<tr class="top"><td class="l">Toplam</td>${KOL.map(k=>hc(k[1](T))).join("")}<td><b>${fm(T.net)}</b></td><td class="${son<0?"n":""}"><b>${fm(son)}</b></td><td class="${mn<0?"n":""}">${fm(mn)}</td></tr></tbody>`;
+  $("nk-tsub").textContent=`${B} · ${AL.length} ay · ${S.nkA==="ayr"?"tüm kalemler":"gruplu"}`;
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 function kargolar(){
