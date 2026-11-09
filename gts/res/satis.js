@@ -16,6 +16,7 @@
      tup: [gün → Tüpraş vergisiz TL/t], tupM3: [gün → Tüpraş vergisiz TL/m³] (satış fiyatı = satış günü Tüpraş + satış primi, TL/m³)
      alt: [lot no, gün, ton, beyanname sıra no (ürün içinde), kambiyo $/t, forward $/t, parça (aynı beyannamenin ikinci lotu = 1), ithalat beyannamesi günü kuru]
      sat: [gün, alt indeksi, ton]
+     nak (paket 101+): gün → { fin USD finansman maliyeti ($, + = gider), kmb USD kredi kur farkı ($), tlg TL tahsilat getirisi ($) } – yıl ortalama kuruyla
      g0 (iso), gTL: [gün → satış geliri TL/t, model ağırlıklı primle], kur: [gün → USD/TRY], yog
    Ortak: yil {2027: {faal $/t, satT}}, prim {M, D, B, K, ort} (TL/m³), mut (Karlilik kalemleri, mutabakat için). */
 (function (kok) {
@@ -61,13 +62,15 @@
             const al = kv(r, 'al') || 0, cf = kv(r, 'cif') || 0, nv = kv(r, 'nf') || 0, ik = kv(r, 'il') || 0; return [r2(cf, 4), r2(APR, 4), r2(nv, 4), r2(ik, 4), r2(ELS, 4), r2(al - cf - APR - nv - ik - ELS, 4), typeof kv(r, 'yg') === 'number' ? kv(r, 'yg') : 0.835]; })()), a: kv(r, 'L'), b: kv(r, 'M') }); }
       if (!L.length) continue;
       const gT = g(/^Tarih/), gS = g(/^Günlük satış \(t\)/), gKS = g(/^Kümülatif satış/), gKB = g(/^Kümülatif ithalat beyannamesi/), gR = g(/^Satış geliri, vergisiz/), gK = g(/^Yasal defter kambiyo/), gH = g(/^Kur hedge sonucu \(TL/);
+      // paket 101+: finansman ve kur farkı satış günü nakit akışından (PDM 09.11.2026; kullanıcı 11:28): TL tahsilat getirisi, USD finansman maliyeti, USD kredi kur farkı
+      const gI = g(/^TL tahsilat getirisi/), gL = g(/^USD finansman maliyeti/), gM = g(/^USD kredi kur farkı/), nak = gI >= 0 && gL >= 0 && gM >= 0, dfin = [], dkm = [], dtl = [];
       if ([gT, gS, gKS, gKB].some((x) => x < 0)) continue;
       const rows = GN.slice(5).filter((r) => r && typeof r[gT] === 'number'); if (!rows.length) continue;
       const d0 = rows[0][gT], gTL = [], kr = [], alt = [], sat = [], tup = [], tupM3 = [], fT = F ? Math.max(0, bas(F, /^Tarih/)) : 0, tupM = new Map();
       if (F && tupK[u] >= 0) for (const r of F) if (r && typeof r[fT] === 'number' && typeof r[tupK[u]] === 'number') tupM.set(Math.floor(r[fT]), r[tupK[u]] / yog[u]);
       // alt lotlar: kümülatif ithalat beyannamesi artışları (ilk gün = açılış stoğundaki beyanname edilmiş milli ürün)
       let onc = 0, li = 0, sira = 0;
-      for (const r of rows) { const i = Math.round(r[gT] - d0), cb = r[gKB] || 0, t = cb - onc; gTL[i] = r[gS] > 0 && gR >= 0 ? r2(r[gR] / r[gS], 2) : null; kr[i] = r2(K(r[gT]), 4); tup[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])), 2) : null; tupM3[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])) * yog[u], 2) : null;
+      for (const r of rows) { const i = Math.round(r[gT] - d0), cb = r[gKB] || 0, t = cb - onc; gTL[i] = r[gS] > 0 && gR >= 0 ? r2(r[gR] / r[gS], 2) : null; kr[i] = r2(K(r[gT]), 4); if (nak) { const k = yk(yil(r[gT])); dfin[i] = r2(r[gL] || 0, 2); dkm[i] = k ? r2((r[gM] || 0) / k, 2) : 0; dtl[i] = k ? r2((r[gI] || 0) / k, 2) : 0; } tup[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])), 2) : null; tupM3[i] = tupM.has(Math.floor(r[gT])) ? r2(tupM.get(Math.floor(r[gT])) * yog[u], 2) : null;
         if (t > 0.01) { sira++; const y = yil(r[gT]), k = yk(y), kmb = gK >= 0 && k ? (r[gK] || 0) / t / k : 0, fwd = gH >= 0 && k ? (r[gH] || 0) / t / k : 0;
           let a = onc, p = 0; while (li < L.length && L[li].b <= a + 1e-6) li++;
           for (let j = li; j < L.length && L[j].a < cb - 1e-6; j++) { const o = Math.min(cb, L[j].b) - Math.max(a, L[j].a); if (o <= 0.01) continue; alt.push([L[j].r[0], i, r2(o, 2), sira, r2(kmb, 4), r2(fwd, 4), p++, r2(K(r[gT]), 4)]); a = Math.max(a, L[j].a) + o; }
@@ -87,7 +90,8 @@
             const t = r[mS]; if (!(t > 0)) continue; let j = ix.get(r[mI]); if (j == null) { j = mus.length; ix.set(r[mI], j); mus.push([r[mI], mA >= 0 ? r[mA] : r[mI], mP >= 0 ? r2(r[mP], 2) : null, mV >= 0 ? r[mV] : null]); }
             const i = Math.round(r[mT] - d0); (mg[i] || (mg[i] = [])).push([j, r2(t, 3), r2(r[mR] || 0)]); }
           for (let i = 0; i < gTL.length; i++) if (!mg[i]) mg[i] = null; if (!mus.length) { mus = null; mg = null; } } }
-      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg, tup, tupM3 };
+      if (nak) for (let i = 0; i < gTL.length; i++) { if (dfin[i] == null) dfin[i] = 0; if (dkm[i] == null) dkm[i] = 0; if (dtl[i] == null) dtl[i] = 0; }
+      out[u] = { lot: L.map((x) => x.r), alt, sat, g0: iso(d0), gTL, kur: kr, yog: yog[u], mus, mg, tup, tupM3, nak: nak ? { fin: dfin, kmb: dkm, tlg: dtl } : null };
     }
     return out.Motorin || out.Benzin ? out : null;
   }

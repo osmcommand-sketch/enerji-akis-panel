@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.79",
+ "surum": "1.0.80",
  "kabuk": 2,
- "tarih": "2026-11-09T10:15:30+03:00",
- "notlar": "Rakip analizi sayfası (dağıtıcı × tedarikçi alım maliyeti, ithal/yerli, yükleme noktasında / bölgeye teslim); paket 97 desteği",
+ "tarih": "2026-11-09T11:44:58+03:00",
+ "notlar": "Paket 101: Satışlar raporunda finansman, USD kredi kur farkı ve TL tahsilat getirisi satış günü nakit akışından (model ile aynı)",
  "dosyalar": {
   "ui/index.html": "05173eb5900019c8d86c68d117c6c5a674ddd742ed7b550927b34fa025fd069b",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "65e8ca2a4bd4ee017ce8ba16749360b1fb8eaf8afe12c6b39780b3422b0ddc46",
+  "ui/pano.js": "530bb73100539ae3d371edf528e70aa34a62da5dd077018e2fc220210abf3c08",
   "gts_pipeline.js": "d97263ea5957d120398f06726976cb69506f45426fcb5dcbfcfe126aca530fc8",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "331b5c5ee2d2fe08b89958c377a8c1ede1752185e623dfa54f49b5c1c0cc5209",
@@ -15,7 +15,7 @@
   "res/girdi_bag.js": "625a235b35d764433b1d9184033716dea5b24ba6b759818b2e946d8d1864a240",
   "res/kambiyo.js": "3bc101874a4f249d896db23c3b3df6a8e79926bcc8fa759433c886e84dadb1db",
   "res/kargo_omur.js": "bfcbe3ca1e697a81f7c65588838052a197b9f17277c1a825e7c47f53ce12e452",
-  "res/satis.js": "414365d4f9dac5bbcc4930d47f467fe63003e4719915e8b65f366f7843ed48bd",
+  "res/satis.js": "5fb68a7caeaab478d9ff1ec77ffdddaa6c805e4e0c15dac9b196b44cc375cc8a",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
