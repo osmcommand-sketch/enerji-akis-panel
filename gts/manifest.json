@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.92",
+ "surum": "1.0.93",
  "kabuk": 2,
- "tarih": "2026-11-10T13:52:25+03:00",
- "notlar": "İki bölüm: GTS ve ITT Modeli. ITT Modeli: paket 118 yapısı (GTS ithalatçı + Alpet dağıtıcı, iki kâr/zarar, ITT koşulları paneli) ve Pazar ve akış haritası (Alpet fiyatıyla geçiş)",
+ "tarih": "2026-11-10T14:08:38+03:00",
+ "notlar": "ITT koşulları: ± alanlarda (CIF ±, ITT primi) eksi değer girilebilir",
  "dosyalar": {
   "ui/index.html": "f81ac76a0cd0e9caebb000d608fcbfad2ccf438646777d0851fdc5980a55dcbe",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "7c9a51bd81470a308b53339ffd7867c0e56cbae12f99ddb7404bbe00dc1d1a3f",
+  "ui/pano.js": "ac07a2d6903289d0b38cba23fe485db162f55ec49f0c0deecc704890758ce2c4",
   "gts_pipeline.js": "0fc2b8719ef46d8034acb4a6d8fc123ea6226778c8fc624364b3a5d825070acf",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "539c2b37796b6c2f48b7f50781b82e1273f6068dcdc13ec618750ae54d5e0f99",
