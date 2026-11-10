@@ -394,10 +394,10 @@ function itt(){
   // aylık
   { const A=I.ay.filter(a=>!YIL||a[0].slice(0,4)===YIL), AYK=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"], lab=a=>AYK[+a[0].slice(5,7)-1]+" "+a[0].slice(2,4), etk=i=>i%(A.length<=12?(W<600?2:1):(W<600?6:3))===0?lab(A[i]):"";
     let k1=0, k2=0; const K1=A.map(a=>(k1+=a[5])/1e6), K2=A.map(a=>(k2+=a[6])/1e6);
-    cubuk($("it-ay"),{aria:"GTS aylık net katkı",h:200,kat:A.map(lab),fmt:x=>nf1.format(x),etk,seri:[{ad:"GTS aylık net katkı, M $",renk:C.gts,v:A.map(a=>a[5]/1e6)}],cizgi:[{ad:"Kümülatif, M $",renk:C.mot,v:K1}]});
-    cubuk($("it-aya"),{aria:"Alpet aylık net",h:200,kat:A.map(lab),fmt:x=>nf.format(x),etk,seri:[{ad:"Alpet aylık net, M TL",renk:C.tup,v:A.map(a=>a[6]/1e6)}],cizgi:[{ad:"Kümülatif, M TL",renk:C.neg,v:K2}]});
-    $("it-aysub").textContent=`günlük blok · genel yönetim ve sörvey / ICE işlem hariç · dönem toplamı ${(k1<0?"−":"+")+nf1.format(Math.abs(k1)/1e6)} M $`;
-    $("it-ayasub").textContent=`günlük blok · kur farkı, vade farkı, vergi yükü ve teslim etme dahil · dönem toplamı ${(k2<0?"−":"+")+nf.format(Math.abs(k2)/1e6)} M TL`; }
+    cubuk($("it-ay"),{aria:"GTS aylık net katkı",h:220,kat:A.map(lab),fmt:x=>nf1.format(x),etk,seri:[{ad:"GTS aylık net katkı, M $",renk:C.gts,v:A.map(a=>a[5]/1e6)}],cizgi:[{ad:"Kümülatif, M $",renk:C.mot,v:K1}]});
+    cubuk($("it-aya"),{aria:"Alpet aylık net",h:220,kat:A.map(lab),fmt:x=>nf.format(x),etk,seri:[{ad:"Alpet aylık net, M TL",renk:C.tup,v:A.map(a=>a[6]/1e6)}],cizgi:[{ad:"Kümülatif, M TL",renk:C.neg,v:K2}]});
+    $("it-aysub").textContent=`milyon $ · genel yönetim, sörvey / ICE hariç · toplam ${(k1<0?"−":"+")+nf1.format(Math.abs(k1)/1e6)}`;
+    $("it-ayasub").textContent=`milyon TL · kur ve vade farkı, vergi, teslim etme dahil · toplam ${(k2<0?"−":"+")+nf.format(Math.abs(k2)/1e6)}`; }
   $("it-risk").innerHTML=`<thead><tr><th class="l">Risk / yük</th><th class="l">Kimde</th></tr></thead><tbody>`+I.risk.map(r=>{ const m=String(r[1]||""), w=/^Alpet/.test(m)?"Alpet":/^GTS/.test(m)?"GTS":""; return `<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${w?`<span class="pill ${w==="GTS"?"i":"d"}">${w}</span> `:""}${esc(w?m.replace(/^(Alpet|GTS)\s*–\s*/,""):m)}</td></tr>`; }).join("")+`</tbody>`;
   { const tl=x=>x==null?"–":nf.format(x), us=x=>x==null?"–":(x<0?"−":"")+nf2.format(Math.abs(x)), m$=x=>x==null?"–":(x<0?"−":"")+nf2.format(Math.abs(x)/1e6), gs=x=>typeof x==="string"&&/^\d{4}-/.test(x)?gunS((Date.parse(x)-Date.UTC(2027,0,1))/864e5):esc(x||"–");
     const L=I.kg.filter(g=>!YIL||String(g[4]).slice(0,4)===YIL||String(g[3]).slice(0,4)===YIL);

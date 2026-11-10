@@ -639,6 +639,12 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 .it-oz{table-layout:fixed;width:100%} .it-oz col.it-k{width:40%} .scroll:has(> .it-oz){max-height:none;overflow:visible}
 .it-oz td.l{white-space:normal} .it-oz tr.it-alt td{font-size:12.5px;color:var(--ink-2,#3D4A54)} .it-oz tr.it-alt td.l{padding-left:22px}
 .it-oz tr.it-ana td{font-weight:600} .it-oz tr.it-bas td{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6F7E89;padding-top:12px}
+
+/* ITT: tablo ve grafik çiftleri eşit genişlik / yükseklik (kullanıcı 10.11.2026 18:59) */
+.kg-iki.it-esit{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:900px){.kg-iki.it-esit{grid-template-columns:minmax(0,1fr)}}
+.it-esit > section{display:flex;flex-direction:column}
+.it-esit .head .sub{min-height:2.6em}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -886,7 +892,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
       <div class="head"><h2>ITT koşulları</h2><span class="sub">GTS'nin alımı · Alpet'in GTS'den alımı · Alpet'in dağıtıcılara satışı · masaüstünde değiştirip yeniden hesaplayın</span></div>
       <div id="it-tic"></div>
     </section>
-    <div class="kg-iki">
+    <div class="kg-iki it-esit">
       <section>
         <div class="head"><h2>GTS kâr / zarar</h2><span class="sub">milyon $ · ithalatçı, antrepoda mal sahibi</span></div>
         <div class="scroll"><table class="t it-oz" id="it-gts"></table></div>
@@ -896,7 +902,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
         <div class="scroll"><table class="t it-oz" id="it-alp"></table></div>
       </section>
     </div>
-    <div class="kg-iki">
+    <div class="kg-iki it-esit">
       <section>
         <div class="head"><h2>GTS aylık katkı</h2><span class="sub" id="it-aysub"></span></div>
         <div class="grf" id="it-ay"></div>
