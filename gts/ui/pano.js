@@ -671,7 +671,7 @@ function ticari(elId="g-tic",kap="gts"){
     const t=/^Rakip ithalatçıların alım primi/.test(r[0])?"bilgi":/^Tüpraş Batman \/ Kırıkkale ek kotası/.test(r[0])?"yuzde":tur(r), id=P+(r[4]||r[0]).replace(/[^\w]/g,""), yz=t==="yuzde", gv=v=>typeof v==="number"&&yz?v*100:v, deg=r[3], deg2=r[4]&&deg!=null&&deg!==r[1];
     const not=String(r[2]||"").replace(/\s*Girdiler B\d+(, B\d+)*('?[a-zçğıöşü]*)?\.?/g,"").trim();
     // USD/t alanları: yıllık tutar girilmesin (kullanıcı 02.11.2026 18:44: "usd/ton hesapları şaşıyor")
-    const dv=Object.assign({},r[6]||{}); if(bir(r[0])==="$/t"&&dv.max==null){ dv.min=/^Alım primi|±/.test(r[0])?-200:0;   // ± alanlar (ITT: CIF ± , ICE + makas üzerine prim) eksi olabilir dv.max=200; dv.hata="USD/t olarak girin ("+(dv.min<0?"−200 ile 200":"0 ile 200")+" arası) – yıllık tutar değil"; }
+    const dv=Object.assign({},r[6]||{}); if(bir(r[0])==="$/t"&&dv.max==null){ dv.min=/^Alım primi|±/.test(r[0])?-200:0; /* ± alanlar (ITT: CIF ±, ICE + makas üzerine prim) eksi olabilir */ dv.max=200; dv.hata="USD/t olarak girin ("+(dv.min<0?"−200 ile 200":"0 ile 200")+" arası) – yıllık tutar değil"; }
     let inp;
     if(r[4]==="GTS!ForwardBilgi") inp=`<output id="tg-fw">${fwMetin(r[6],T)}</output>`;
     else if(t==="bilgi") inp=`<output id="${id}">${esc(typeof r[1]==="number"?(Math.abs(r[1])>=100?nf1.format(r[1]):f(r[1])):String(r[1]??"–").replace(/(\d),(?=\d{3}\b)/g,"$1."))}</output>`;
