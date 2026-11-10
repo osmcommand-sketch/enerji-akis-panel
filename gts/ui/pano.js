@@ -863,6 +863,15 @@ function dagPanel(KY,IK,TM){
       const top=[...M.values()].reduce((a,z)=>a+z.t,0);
       $(AP+"il").insertAdjacentHTML("beforeend",`<div class="r gec-bas"><b>${AMOD==="itt"?"Alpet'ten almayan":"GTS'ye geçmeyen"}</b><span class="muted">avantaj eşiğin altında · ${ton(top)} potansiyel</span></div>`
         +[...M].sort((a,b)=>b[1].t-a[1].t).map(([s,z])=>`<div class="r gec-yok" title="Bölgeye teslimde GTS avantajı eşiğin altında: dağıtıcı bugünkü kaynağında kalır"><span>${esc(V.sir[s]||"?")}<br><small class="muted">${[...z.il].slice(0,3).map(esc).join(", ")}${z.il.size>3?" …":""} · avantaj <span class="${z.a>=0?"":"n"}">${z.a>=0?"+":"−"}${nf.format(Math.abs(z.a/z.t))}</span> TL/m³${z.ky.size?`<br>en ucuz alternatif: ${[...z.ky].sort((a,b)=>b[1]-a[1]).map(([k])=>esc(k)).slice(0,2).join(", ")}`:""}</small></span><b>${ton(z.t)}</b></div>`).join("")); } }
+  // seçili dağıtıcının (ya da tümünün) hangi kaynaktan ne kadar kaydığı – ithal / yerli (kullanıcı 10.11.2026 19:07)
+  { const el=$(AP+"dkpi"); if(el){ const R=KY.filter(r=>r[3]===1&&(!secili||secili.has(r[1]))), T=new Map(); let I=0, Y=0;
+      for(const r of R){ const g=kayKod(r), ad=g==="D"?"Tüpraş Mersin deposu":tAd(r[4]), z=T.get(ad)||T.set(ad,{t:0,g}).get(ad); z.t+=r[6]; if(g==="M") I+=r[6]; else Y+=r[6]; }   /* D: Tüpraş ürünü Mersin terminallerinde – kaynak Tüpraş Mersin deposu */
+      const top=I+Y, L=g=>[...T].filter(([,z])=>(g==="M")===(z.g==="M")).sort((a,b)=>b[1].t-a[1].t), lst=g=>{ const X=L(g); return X.length?X.slice(0,4).map(([k,z])=>`<span${z.g!=="M"?` style="color:${KAYG[z.g][1]}"`:""}>${esc(k)} ${ton(z.t)}</span>`).join(" · ")+(X.length>4?` · +${X.length-4} terminal`:""):"yok"; };
+      const kim=S.dsec==null?"Tüm dağıtıcılar":S.dsec==="diger"?"Diğer küçük dağıtıcılar":(V.sir[S.dsec]||"?"), hedef=AMOD==="itt"?"Alpet'e (ITT)":"GTS'ye";
+      const kt2=(l,v,sb,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${sb}</small></div>`;
+      el.innerHTML=kt2(`${esc(kim)} · ${hedef} kayan`,ton(top),`${new Set(R.map(r=>r[2])).size} il · ${T.size} kaynak`)
+        +kt2("İthal ürün · Mersin terminalleri",`${ton(I)} <span class="muted">· ${pct(top?I/top:0)}</span>`,lst("M"))
+        +kt2("Yerli ürün · Tüpraş (Mersin deposu, Batman, Kırıkkale)",`${ton(Y)} <span class="muted">· ${pct(top?Y/top:0)}</span>`,lst("Y")); } }
   for(const b of $(AP+"il").querySelectorAll("button[data-d]")) b.onclick=()=>{ const d=b.dataset.d; S.dsec=d===""?null:d==="diger"?"diger":(S.dsec===+d?null:+d); dagPanel(KY,IK,TM); };
   $(AP+"hsub").textContent=S.dsec==null?"il rengi ve çizgi kalınlığı GTS'den ile giden ton · dağıtıcıya tıklayın":S.dsec==="diger"?`Diğer · ${K.length} küçük dağıtıcı`:`${V.sir[S.dsec]||"?"} · GTS'den illere ve hacim kaybeden terminaller`;
 }

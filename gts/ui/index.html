@@ -645,6 +645,11 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 @media (max-width:900px){.kg-iki.it-esit{grid-template-columns:minmax(0,1fr)}}
 .it-esit > section{display:flex;flex-direction:column}
 .it-esit .head .sub{min-height:2.6em}
+
+/* akış: seçili dağıtıcının kaynak kırılımı (kullanıcı 10.11.2026 19:07) */
+.a-dkpi{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:10px}
+.a-dkpi .kt small{line-height:1.45}
+@media (max-width:700px){.a-dkpi{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -708,6 +713,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
         <label class="sr-only" for="a-vaka">Vaka</label><select id="a-vaka"></select>
       </div>
       <div class="kg" id="a-kart"></div>
+      <div class="kpi4 a-dkpi" id="a-dkpi" aria-live="polite"></div>
     </section>
     <section>
       <div class="head"><h2>Kayan hacim haritası</h2><span class="sub" id="a-hsub"></span></div>
@@ -931,6 +937,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
         <label class="sr-only" for="ia-vaka">Vaka</label><select id="ia-vaka"></select>
       </div>
       <div class="kg" id="ia-kart"></div>
+      <div class="kpi4 a-dkpi" id="ia-dkpi" aria-live="polite"></div>
     </section>
     <section>
       <div class="head"><h2>Kayan hacim haritası</h2><span class="sub" id="ia-hsub"></span></div>

@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.98",
+ "surum": "1.0.99",
  "kabuk": 2,
- "tarih": "2026-11-10T19:00:38+03:00",
- "notlar": "ITT modeli: kâr/zarar tabloları ve aylık grafikler eşit genişlik ve yükseklikte",
+ "tarih": "2026-11-10T19:08:45+03:00",
+ "notlar": "Pazar ve akış: seçili dağıtıcının hangi kaynaktan ne kadar kaydığı – ithal / yerli KPI'ları (GTS ve ITT)",
  "dosyalar": {
-  "ui/index.html": "695b493aef14fbe9d9f454f30a3a3c3a9933d9e313e101f42502c26f422a9ec0",
+  "ui/index.html": "9ca59b77bbc6ceb9ed669025b31072b04967f67a2e71fbd1dd9e70065b14c260",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "dc344c2a29ece2932efb565859946fce62aa621526cafce9eedc9a6d2c7a8966",
+  "ui/pano.js": "09afb41482d74fde1968389a660c8293afa37e796f9f541624830900da328edf",
   "gts_pipeline.js": "0fc2b8719ef46d8034acb4a6d8fc123ea6226778c8fc624364b3a5d825070acf",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "539c2b37796b6c2f48b7f50781b82e1273f6068dcdc13ec618750ae54d5e0f99",
