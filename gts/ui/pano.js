@@ -999,11 +999,11 @@ function akis(mod="gts"){
     const KG={M:0,D:0,B:0,K:0}; for(const r of KY) KG[kayKod(r)]+=r[6]; const KT=KG.M+KG.D+KG.B+KG.K||1;
     const KYT=KY.reduce((a,r)=>a+(r[3]===1?r[6]:0),0);
     if(mod==="itt"){ const R=(V.gecis&&V.gecis.r)||[], pT=R.reduce((a,g)=>a+g[3],0), gT=R.reduce((a,g)=>a+(ittAv(g)>=ESK?g[3]:0),0);
-      $(AP+"kart").innerHTML=kt(`ITT · Alpet'in ulaşabileceği hacim · ${HT.ad.replace(" satış","")}`,ton(KYT),`Alpet fiyatı İzmir RSF ${B14==null?"?":(B14<0?"−":"+")+nf.format(Math.abs(B14))} TL/m³ + kara navlunu · ${R.filter(g=>ittAv(g)>=ESK).length} / ${R.length} akış, potansiyelin ${pct(pT?gT/pT:0)} · eşik ${nf.format(ESK)} TL/m³`)
-        +kt("Modelde ITT tonu (= ana model satışı)",ton(HT.v),`GTS satış primiyle geçen akışlar · Alpet fiyatıyla fark ${KYT>=HT.v?"+":"−"}${ton(Math.abs(KYT-HT.v))}`);
+      $(AP+"kart").innerHTML=ktL(`ITT · Alpet'in ulaşabileceği hacim · ${HT.ad.replace(" satış","")}`,ton(KYT),[["Fiyat",`İzmir RSF ${B14==null?"?":(B14<0?"−":"+")+nf.format(Math.abs(B14))} TL/m³`],["Teslim","+ kara navlunu"],["Geçen akış",`${R.filter(g=>ittAv(g)>=ESK).length} / ${R.length}`],["Potansiyelin",pct(pT?gT/pT:0)],["Geçiş eşiği",`${nf.format(ESK)} TL/m³`]])
+        +ktL("Modelde ITT tonu (= ana model satışı)",ton(HT.v),[["Kapsam","GTS satış primiyle"],["Alpet fiyatıyla fark",`${KYT>=HT.v?"+":"−"}${ton(Math.abs(KYT-HT.v))}`]]);
       dagPanel(KY,IK,TM); }
-    else $(AP+"kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı${V.gecis&&V.gecis.r.length?(()=>{ const R=V.gecis.r, p=R.reduce((a,g)=>a+g[3],0), q=R.reduce((a,g)=>a+(g[9]?g[3]:0),0); return `<br>geçiş kuralı: ${R.filter(g=>g[9]).length} / ${R.length} akış, potansiyelin ${pct(p?q/p:0)}${V.gecis.esik!=null?` · eşik ${nf.format(V.gecis.esik)} TL/m³`:""}`; })():""}`)
-      +(KG.D+KG.B+KG.K>0?kt("Dağıtıcının bugünkü kaynağı · Mersin ithal",pct(KG.M/KT),[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(KG[g])}</span>`).join(" · ")+` · Mersin ithal ${ton(KG.M)}`):"");
+    else $(AP+"kart").innerHTML=ktL(`GTS ${HT.ad}`,ton(HT.v),[["Ürün",BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"],["Dağıtıcı",nf.format(nSir)],...(V.gecis&&V.gecis.r.length?(()=>{ const R=V.gecis.r, p=R.reduce((a,g)=>a+g[3],0), q=R.reduce((a,g)=>a+(g[9]?g[3]:0),0); return [["Geçen akış",`${R.filter(g=>g[9]).length} / ${R.length}`],["Potansiyelin",pct(p?q/p:0)],V.gecis.esik!=null?["Geçiş eşiği",`${nf.format(V.gecis.esik)} TL/m³`]:null]; })():[])])
+      +(KG.D+KG.B+KG.K>0?ktL("Dağıtıcının bugünkü kaynağı · Mersin ithal",pct(KG.M/KT),[["Mersin ithal",ton(KG.M),KAYG.M[1]],...[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>[a,ton(KG[g]),KAYG[g][1]])]):"");
     if(mod!=="itt") dagPanel(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $(AP+"term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
@@ -1020,6 +1020,9 @@ function akis(mod="gts"){
     $(AP+"ssub").textContent=`${SM.size} dağıtıcı · ${HT.ad} ${ton(HT.v)} 2026 akışındaki paylarına göre${MA?` · aylık ${ton(MA.esik)} altında alan ${MA.n} dağıtıcıya satış yok (${ton(MA.tonM)} motorin düşüldü)`:""} · satıra tıklayınca iller açılır`;
   }
 }
+/* KPI açıklama satırları (kullanıcı 10.11.2026 20:25 "daha düzenli"): [etiket, değer, renk?] → hizalı liste */
+const kSat=R=>`<div class="kl">${R.filter(Boolean).map(([a,v,c])=>`<div class="kr"><div class="kn">${c?`<i style="background:${c}"></i>`:""}${a}</div><div class="kv">${v}</div></div>`).join("")}</div>`;
+const ktL=(l,v,R,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b>${kSat(R)}</div>`;
 const KAYG={M:["Mersin terminalinden (ithal ürün)",C.gts],D:["Tüpraş Mersin deposundan","#C0504D"],B:["Tüpraş Batman'dan","#7B4FA0"],K:["Tüpraş Kırıkkale'den","#2A8C8C"]};
 const kayKod=r=>r[10]||(()=>{ const c=V.term[r[4]]&&V.term[r[4]][0]; return c==="T13"?"B":c==="T21"?"K":"M"; })();
 function harita(KY,IK,TM,SF){
@@ -1084,12 +1087,11 @@ function dagPanel(KY,IK,TM){
   // seçili dağıtıcının (ya da tümünün) hangi kaynaktan ne kadar kaydığı – ithal / yerli (kullanıcı 10.11.2026 19:07)
   { const el=$(AP+"dkpi"); if(el){ const R=KY.filter(r=>r[3]===1&&(!secili||secili.has(r[1]))), T=new Map(); let I=0, Y=0;
       for(const r of R){ const g=kayKod(r), ad=g==="D"?"Tüpraş Mersin deposu":tAd(r[4]), z=T.get(ad)||T.set(ad,{t:0,g}).get(ad); z.t+=r[6]; if(g==="M") I+=r[6]; else Y+=r[6]; }   /* D: Tüpraş ürünü Mersin terminallerinde – kaynak Tüpraş Mersin deposu */
-      const top=I+Y, L=g=>[...T].filter(([,z])=>(g==="M")===(z.g==="M")).sort((a,b)=>b[1].t-a[1].t), lst=g=>{ const X=L(g); return X.length?X.slice(0,4).map(([k,z])=>`<span${z.g!=="M"?` style="color:${KAYG[z.g][1]}"`:""}>${esc(k)} ${ton(z.t)}</span>`).join(" · ")+(X.length>4?` · +${X.length-4} terminal`:""):"yok"; };
+      const top=I+Y, L=g=>[...T].filter(([,z])=>(g==="M")===(z.g==="M")).sort((a,b)=>b[1].t-a[1].t), lst=g=>{ const X=L(g); if(!X.length) return [["—","yok"]]; const Rw=X.slice(0,4).map(([k,z])=>[esc(k),ton(z.t),z.g!=="M"?KAYG[z.g][1]:null]); if(X.length>4) Rw.push([`Diğer ${X.length-4} terminal`,ton(X.slice(4).reduce((a,[,z])=>a+z.t,0))]); return Rw; };
       const kim=S.dsec==null?"Tüm dağıtıcılar":S.dsec==="diger"?"Diğer küçük dağıtıcılar":(V.sir[S.dsec]||"?"), hedef=AMOD==="itt"?"Alpet'e (ITT)":"GTS'ye";
-      const kt2=(l,v,sb,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${sb}</small></div>`;
-      el.innerHTML=kt2(`${esc(kim)} · ${hedef} kayan`,ton(top),`${new Set(R.map(r=>r[2])).size} il · ${T.size} kaynak`)
-        +kt2("İthal ürün · Mersin terminalleri",`${ton(I)} <span class="muted">· ${pct(top?I/top:0)}</span>`,lst("M"))
-        +kt2("Yerli ürün · Tüpraş (Mersin deposu, Batman, Kırıkkale)",`${ton(Y)} <span class="muted">· ${pct(top?Y/top:0)}</span>`,lst("Y")); } }
+            el.innerHTML=ktL(`${esc(kim)} · ${hedef} kayan`,ton(top),[["İl",nf.format(new Set(R.map(r=>r[2])).size)],["Kaynak",nf.format(T.size)],["İthal",`${ton(I)} · ${pct(top?I/top:0)}`,KAYG.M[1]],["Yerli",`${ton(Y)} · ${pct(top?Y/top:0)}`,"#8A8F98"]])
+        +ktL("İthal ürün · Mersin terminalleri",`${ton(I)} <em class="kp">${pct(top?I/top:0)}</em>`,lst("M"))
+        +ktL("Yerli ürün · Tüpraş (Mersin deposu, Batman, Kırıkkale)",`${ton(Y)} <em class="kp">${pct(top?Y/top:0)}</em>`,lst("Y")); } }
   for(const b of $(AP+"il").querySelectorAll("button[data-d]")) b.onclick=()=>{ const d=b.dataset.d; S.dsec=d===""?null:d==="diger"?"diger":(S.dsec===+d?null:+d); dagPanel(KY,IK,TM); };
   $(AP+"hsub").textContent=S.dsec==null?"il rengi ve çizgi kalınlığı GTS'den ile giden ton · dağıtıcıya tıklayın":S.dsec==="diger"?`Diğer · ${K.length} küçük dağıtıcı`:`${V.sir[S.dsec]||"?"} · GTS'den illere ve hacim kaybeden terminaller`;
 }

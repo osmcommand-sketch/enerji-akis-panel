@@ -437,6 +437,13 @@ header .scn{display:inline-flex;align-items:center;gap:8px;margin-top:10px;font:
 .kt b{font:600 26px/1.15 var(--f-body);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .kt small{font-size:12.5px;color:var(--ink-2);line-height:1.45}
 .kt.neg b{color:var(--neg)}.kt.pos b{color:var(--pos)}
+/* KPI açıklama satırları (10.11.2026 20:25) */
+.kt .kl{display:flex;flex-direction:column;gap:1px;margin-top:4px;padding-top:6px;border-top:1px solid var(--line);font-size:12.5px;line-height:1.4;color:var(--ink-2)}
+.kt .kr{display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0}
+.kt .kn{display:flex;align-items:center;gap:6px;min-width:0;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kt .kn i{flex:none;width:8px;height:8px;border-radius:2px}
+.kt .kv{flex:none;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kt b .kp{font:500 13px var(--f-body);font-style:normal;color:var(--ink-3);margin-left:6px}
 .yil2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .grf{position:relative;min-width:0}
 .grf svg{display:block;width:100%;height:auto;overflow:visible}
@@ -646,6 +653,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 .ia-satir{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:stretch}
 .ia-satir>.kg,.ia-satir>.a-dkpi{display:contents}
 .ia-satir .kt{grid-column:auto!important;margin:0}
+.ia-satir .kt>span{min-height:2.7em}
 @media (max-width:1100px){.ia-satir{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:600px){.ia-satir{grid-template-columns:1fr}}
 @media (max-width:900px){.kg-iki.it-esit{grid-template-columns:minmax(0,1fr)}}
