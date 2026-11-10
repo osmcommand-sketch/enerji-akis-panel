@@ -291,14 +291,19 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
         const bi = bul(/^BİRLİKTE/); O2.birlikte = bi > 0 ? [R2(ns(IT[bi][1]), 3), R2(ns(IT[bi][2]), 3), R2(ns(IT[bi][3]), 3)] : null;
         const r0 = bul(/^Risk ve yük dağılımı/); if (r0 > 0) for (let i = r0 + 1; i < r0 + 14 && IT[i] && IT[i][0]; i++) O2.risk.push([IT[i][0], IT[i][1]]);
         const k0 = bul(/^Kargo no$/); if (k0 > 0) { const H = IT[k0], c = (re) => H.findIndex((h) => typeof h === 'string' && re.test(h));
-          const K = [c(/^Kargo no/), c(/^Net ton/), c(/^B\/L ton/), c(/^COD/), c(/^Fiyatlama sonu/), c(/^CIF Med fiyatlama/), c(/^GTS alım fiyatı/), c(/^Makas fix/), c(/^ICE kilit/), c(/^Tedarikçi ödeme tarihi/), c(/^Satılan \/ ITT/), c(/^ITT geliri/), c(/^Hedge sonucu/), c(/^Roll/), c(/^Finansman/), c(/^Kargo brüt/)], VM = c(/^Var mı/);
+          const K = [c(/^Kargo no/), c(/^Net ton/), c(/^B\/L ton/), c(/^COD/), c(/^Fiyatlama sonu/), c(/^CIF Med fiyatlama/), c(/^GTS alım fiyatı/), c(/^Makas fix/), c(/^ICE kilit/), c(/^Tedarikçi ödeme tarihi/), c(/^Satılan \/ ITT/), c(/^ITT geliri/), c(/^Hedge sonucu/), c(/^Roll/), c(/^Finansman/), c(/^Kargo brüt/), c(/^Fiyatlama başı/), c(/^Tedarikçi ödemesi \(USD/), c(/^Ürün birim maliyeti/), c(/^GTS teslim alma/)], VM = c(/^Var mı/);
           for (let i = k0 + 1; i < IT.length; i++) { const x = IT[i]; if (!x || ns(x[K[0]]) == null) continue; if (VM >= 0 && !ns(x[VM])) continue; if (!ns(x[K[1]])) continue;
-            O2.kg.push(K.map((j, q) => (j < 0 ? null : q === 3 || q === 4 || q === 9 ? (serial(x[j]) ? tarih(x[j]) : x[j]) : R2(ns(x[j]), q >= 11 ? 0 : 2)))); } }
+            O2.kg.push(K.map((j, q) => (j < 0 ? null : q === 3 || q === 4 || q === 9 || q === 16 ? (serial(x[j]) ? tarih(x[j]) : x[j]) : R2(ns(x[j]), q >= 11 && q !== 18 ? 0 : 2)))); } }
         const hb = IT.findIndex((x) => x && x[33] === 'Tarih'); if (hb > 0) { const H = IT[hb], c = (re) => H.findIndex((h, j) => j >= 33 && typeof h === 'string' && re.test(h));
           const K = { t: c(/^ITT \/ Alpet alımı/), g: c(/^ITT geliri/), h: c(/^GTS hedge sonucu/), f: c(/^GTS finansmanı/), n: c(/^GTS net katkı/), an: c(/^Alpet net/), ak: c(/^Alpet kur farkı/) }, M = new Map();
           for (let i = hb + 1; i < IT.length; i++) { const x = IT[i]; if (!x || !serial(x[33])) continue; const d = tarih(x[33]).slice(0, 7); let o = M.get(d); if (!o) M.set(d, (o = [d, 0, 0, 0, 0, 0, 0, 0]));
             o[1] += ns(x[K.t]) || 0; o[2] += ns(x[K.g]) || 0; o[3] += ns(x[K.h]) || 0; o[4] += ns(x[K.f]) || 0; o[5] += ns(x[K.n]) || 0; o[6] += ns(x[K.an]) || 0; o[7] += ns(x[K.ak]) || 0; }
           O2.ay = [...M.values()].map((o) => o.map((v, j) => (j ? R2(v) : v))); }
+        // günlük blok (ITT sayfaları: satışlar, nakit, hedge, ekonomi – kullanıcı 10.11.2026 19:19)
+        if (hb > 0) { const H = IT[hb], c = (re) => H.findIndex((h, j) => j >= 33 && typeof h === 'string' && re.test(h));
+          const GK = [/^ITT \/ Alpet alımı/, /^Lot kargosu/, /^ICE trigger/, /^Makas fix – lot/, /^Roll maliyeti/, /^ITT fiyatı/, /^ITT geliri/, /^GTS hedge sonucu/, /^USD\/TRY/, /^Alpet ITT maliyeti/, /^İzmir RSF/, /^Alpet satış fiyatı/, /^Alpet satış geliri/, /^Alpet kur farkı/, /^Alpet vade farkı/, /^Alpet ÖTV\/KDV/, /^Alpet GTS teslim etme/, /^Alpet net/, /^Lot ürün birim maliyeti/, /^Lot ICE kilit/, /^GTS finansmanı/, /^GTS net katkı/].map(c), DP = [0, 0, 2, 2, 2, 2, 0, 0, 4, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0], G = [];
+          let g0 = null; for (let i = hb + 1; i < IT.length; i++) { const x = IT[i]; if (!x || !serial(x[33])) continue; if (g0 == null) g0 = tarih(x[33]); G.push(GK.map((j, q) => (j < 0 ? null : R2(ns(x[j]), DP[q])))); }
+          O2.gun = { g0, kol: ['t', 'lot', 'ice', 'makas', 'roll', 'fiyat', 'gelir', 'hedge', 'kur', 'aMal', 'rsf', 'aFiy', 'aGel', 'aKur', 'aVade', 'aVergi', 'aTes', 'aNet', 'lotBirim', 'lotKilit', 'gFin', 'gNet'], g: G }; }
         // girdiler (sarı, B5–B19): grup başlıkları B'si boş satırlar; formül olanlar bilgi
         { const gb = bul(/^GİRDİLER/); let grup = gb > 0 && typeof IT[gb][2] === 'string' ? IT[gb][2] : 'Girdiler';
           if (gb > 0) for (let i = gb + 1; i < gb + 24 && i < IT.length; i++) { const x = IT[i]; if (!x || !x[0]) { if (i > gb + 3) break; continue; } if (/KÂR \/ ZARAR/.test(x[0])) break;

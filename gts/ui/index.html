@@ -687,6 +687,15 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="varsayim" data-m="gts" aria-selected="false">Varsayımlar</button>
     <button type="button" role="tab" data-v="itt" data-m="itt" aria-selected="false" hidden>Genel bakış</button>
     <button type="button" role="tab" data-v="ittakis" data-m="itt" aria-selected="false" hidden>Pazar ve akış</button>
+    <button type="button" role="tab" data-v="ittop" data-m="itt" aria-selected="false" hidden>Operasyon</button>
+    <button type="button" role="tab" data-v="ittkargo" data-m="itt" aria-selected="false" hidden>Kargolar</button>
+    <button type="button" role="tab" data-v="ittsatis" data-m="itt" aria-selected="false" hidden>Satışlar</button>
+    <button type="button" role="tab" data-v="ittrakip" data-m="itt" aria-selected="false" hidden>Rakip analizi</button>
+    <button type="button" role="tab" data-v="ittnakit" data-m="itt" aria-selected="false" hidden>Nakit akışı</button>
+    <button type="button" role="tab" data-v="itteko" data-m="itt" aria-selected="false" hidden>Ekonomi</button>
+    <button type="button" role="tab" data-v="itthedge" data-m="itt" aria-selected="false" hidden>Hedge</button>
+    <button type="button" role="tab" data-v="ittrisk" data-m="itt" aria-selected="false" hidden>Risk</button>
+    <button type="button" role="tab" data-v="ittvars" data-m="itt" aria-selected="false" hidden>Varsayımlar</button>
   </nav>
 
   <!-- GENEL -->
@@ -951,6 +960,168 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
       <div class="head"><h2>Alpet'in hedef müşterileri · dağıtıcılar</h2><span class="sub" id="ia-ssub"></span></div>
       <div class="scroll" style="max-height:none"><table class="t" id="ia-sir"></table></div>
     </section>
+  </div>
+
+  <div class="v" data-v="ittop" hidden>
+    <section>
+      <div class="head"><h2>ITT operasyonu · antrepo stoğu ve tank içi transfer</h2><span class="sub" id="io-sub"></span><div class="seg rk-gseg itt-yil" id="io-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="io-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Antrepo stoğu (GTS mülkiyetinde)</h2><span class="sub" id="io-ssub"></span></div>
+      <div class="grf" id="io-stok"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Aylık ITT hacmi · Alpet'e tank içi transfer</h2><span class="sub" id="io-asub"></span></div>
+      <div class="grf" id="io-ay"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Lot takvimi · her kargonun ITT ile tükenmesi</h2><span class="sub" id="io-lsub"></span></div>
+      <div class="scroll st-scr"><table class="t st-t" id="io-lot"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="ittkargo" hidden>
+    <section>
+      <div class="head"><h2>ITT kargoları · alım, fiyatlama, ödeme</h2><span class="sub" id="ik-sub"></span><div class="seg rk-gseg itt-yil" id="ik-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="ik-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Kargo bazında GTS brüt katkısı</h2><span class="sub" id="ik-gsub"></span></div>
+      <div class="grf" id="ik-graf"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Kargo ayrıntısı</h2><span class="sub" id="ik-tsub"></span></div>
+      <div class="scroll st-scr"><table class="t st-t" id="ik-tab"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="ittsatis" hidden>
+    <section>
+      <div class="head"><h2>ITT satışları · GTS → Alpet → dağıtıcılar</h2><span class="sub" id="is-sub"></span><div class="seg rk-gseg itt-yil" id="is-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="is-kpi"></div>
+    </section>
+    <div class="kg-iki it-esit">
+      <section>
+      <div class="head"><h2>ITT fiyatı (GTS → Alpet)</h2><span class="sub" id="is-fsub"></span></div>
+      <div class="grf" id="is-fiy"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Alpet satış fiyatı ve ITT maliyeti</h2><span class="sub" id="is-asub"></span></div>
+      <div class="grf" id="is-alp"></div>
+    </section>
+    </div>
+    <section>
+      <div class="head"><h2>Aylık satışlar</h2><span class="sub" id="is-tsub"></span></div>
+      <div class="scroll"><table class="t" id="is-tab"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="ittrakip" hidden>
+    <section>
+      <div class="head"><h2>Rakip analizi · Alpet'in ITT maliyeti ve rakipler</h2><span class="sub" id="ir-sub"></span><div class="seg rk-gseg itt-yil" id="ir-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="ir-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Tedarikçi bazında alım maliyeti</h2><span class="sub" id="ir-gsub"></span></div>
+      <div class="grf rk-graf" id="ir-graf"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Dağıtıcılar · Alpet'in ITT maliyetine göre</h2><span class="sub" id="ir-tsub"></span></div>
+      <div class="scroll"><table class="t" id="ir-tab"></table></div>
+    </section>
+    <p class="not" id="ir-not"></p>
+  </div>
+
+  <div class="v" data-v="ittnakit" hidden>
+    <section>
+      <div class="head"><h2>ITT nakit akışı · GTS ve Alpet</h2><span class="sub" id="in-sub"></span><div class="seg rk-gseg itt-yil" id="in-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="in-kpi"></div>
+    </section>
+    <div class="kg-iki it-esit">
+      <section>
+      <div class="head"><h2>GTS kümülatif nakit (M $)</h2><span class="sub" id="in-gsub"></span></div>
+      <div class="grf" id="in-gts"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Alpet kümülatif nakit (M TL)</h2><span class="sub" id="in-asub"></span></div>
+      <div class="grf" id="in-alp"></div>
+    </section>
+    </div>
+    <section>
+      <div class="head"><h2>Aylık nakit akışı</h2><span class="sub" id="in-tsub"></span></div>
+      <div class="scroll"><table class="t" id="in-tab"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="itteko" hidden>
+    <section>
+      <div class="head"><h2>ITT ekonomisi · birim kârlılık</h2><span class="sub" id="ie-sub"></span><div class="seg rk-gseg itt-yil" id="ie-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="ie-kpi"></div>
+    </section>
+    <div class="kg-iki it-esit" id="ie-wf"></div>
+    <section>
+      <div class="head"><h2>Birim ekonomi</h2><span class="sub" id="ie-bsub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t" id="ie-bir"></table></div>
+    </section>
+    <section>
+      <div class="head"><h2>Aylık sonuçlar</h2><span class="sub" id="ie-tsub"></span></div>
+      <div class="scroll"><table class="t" id="ie-tab"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="itthedge" hidden>
+    <section>
+      <div class="head"><h2>ITT hedge · ICE kilit ve Alpet trigger</h2><span class="sub" id="ih-sub"></span><div class="seg rk-gseg itt-yil" id="ih-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="ih-kpi"></div>
+    </section>
+    <div class="kg-iki it-esit">
+      <section>
+      <div class="head"><h2>ICE: kargo kilidi ve Alpet trigger</h2><span class="sub" id="ih-fsub"></span></div>
+      <div class="grf" id="ih-fiy"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Hedge sonucu</h2><span class="sub" id="ih-csub"></span></div>
+      <div class="grf" id="ih-cum"></div>
+    </section>
+    </div>
+    <section>
+      <div class="head"><h2>Kargo bazında hedge</h2><span class="sub" id="ih-tsub"></span></div>
+      <div class="scroll st-scr"><table class="t st-t" id="ih-tab"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="ittrisk" hidden>
+    <section>
+      <div class="head"><h2>ITT riskleri · kimde, ne kadar</h2><span class="sub" id="iz-sub"></span><div class="seg rk-gseg itt-yil" id="iz-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="iz-kpi"></div>
+    </section>
+    <div class="kg-iki it-esit">
+      <section>
+      <div class="head"><h2>GTS'nin Alpet'ten alacağı · Alpet'in USD borcu</h2><span class="sub" id="iz-asub"></span></div>
+      <div class="grf" id="iz-alc"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Alpet'in dağıtıcılardan alacağı</h2><span class="sub" id="iz-bsub"></span></div>
+      <div class="grf" id="iz-borc"></div>
+    </section>
+    </div>
+    <section>
+      <div class="head"><h2>Duyarlılık · doğrusal yaklaşık</h2><span class="sub" id="iz-dsub"></span></div>
+      <div class="scroll"><table class="t" id="iz-duy"></table></div>
+    </section>
+    <section>
+      <div class="head"><h2>Risk ve yük dağılımı</h2><span class="sub"></span></div>
+      <div class="scroll"><table class="t" id="iz-tab"></table></div>
+    </section>
+  </div>
+
+  <div class="v" data-v="ittvars" hidden>
+    <section>
+      <div class="head"><h2>ITT varsayımları</h2><span class="sub" id="iv-sub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t" id="iv-tab"></table></div>
+    </section>
+    <p class="not" id="iv-not"></p>
   </div>
 
   <div class="v" data-v="ekonomi" hidden>
