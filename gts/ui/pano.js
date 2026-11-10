@@ -375,12 +375,22 @@ function itt(){
     +kt("Birlikte (GTS + Alpet)",M(bir)+" M $",`ana model ${M(ana)} M $ · fark ${M(bir-ana)} M $`,sg(bir))
     +kt("Alpet: ITT maliyeti − İzmir RSF",fr==null?"–":(fr<0?"−":"+")+nf.format(Math.abs(fr))+" TL/m³",`brüt marj ${bm==null?"–":(bm<0?"−":"+")+nf.format(Math.abs(bm))} TL/m³ · satış İzmir RSF ${(g=>g?(g[1]<0?"−":"+")+nf.format(Math.abs(g[1])):"")(I.girdi.find(g=>/^Alpet satışı \(dağıtıcılara\)/.test(g[0])))} TL/m³`,sg(bm));
   ticari("it-tic","itt");
-  // kâr / zarar tabloları
-  const kal=l=>esc(l.replace(/\s*\((USD|TL|t|m³)[;,)][^)]*\)?\)?\s*$/,"").replace(/\s*\((USD|TL)[^)]*\)/,"").replace(/ – (GTS|Alpet)$/,""));
-  const tab=(T,birim)=>`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>İki yıl</th></tr></thead><tbody>`+T.map(r=>{ const l=r[0], b=/^(NET KÂR|BRÜT)/.test(l), ay=/^(Karşılaştırma|Roll|Brüt marj|ITT maliyeti −)/.test(l);
-      const fm=x=>x==null?"–":/\(t\)/.test(l)?nf.format(x/1e3)+" kt":/\(m³\)/.test(l)?nf.format(x/1e3)+" bin m³":/\(USD\/t\)|\(TL\/m³/.test(l)||/TL\/m³/.test(l)?(x<0?"−":"")+(/USD\/t/.test(l)?nf2:nf).format(Math.abs(x)):/\(USD/.test(l)?(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)+" M $":/\(TL/.test(l)?(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)+" M TL":nf.format(x);
-      return `<tr class="${b?"top":""}${ay?" it-ay":""}"><td class="l">${b?"<b>":""}${kal(l)}${/\(USD\/t\)/.test(l)?" ($/t)":/\(TL\/m³/.test(l)?" (TL/m³)":""}${b?"</b>":""}</td>${[1,2,3].map(j=>`<td class="${/\((USD|TL)/.test(l)&&!/^ITT maliyeti/.test(l)&&r[j]<0?"n":""}${j===k?" sec":""}">${b?"<b>":""}${fm(r[j])}${b?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
-  $("it-gts").innerHTML=tab(I.gts); $("it-alp").innerHTML=tab(I.alp)+(I.birlikte?`<tbody><tr class="top"><td class="l"><b>BİRLİKTE (GTS + Alpet)</b></td>${I.birlikte.map((x,j)=>`<td class="${x<0?"n":""}${j+1===k?" sec":""}"><b>${(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)} M $</b></td>`).join("")}</tr></tbody>`:"");
+  // kâr / zarar tabloları (kullanıcı 10.11.2026 18:51): iki tablo aynı biçim ve satır sayısı –
+  // Net Satışlar · Net Satış Gelirleri · Satılan Malın Maliyeti · Brüt Kâr · Faaliyet Giderleri · Faaliyet Kârı; altında faaliyet dışı ve net kâr
+  { const sat=(T,re)=>{ const r=T.find(x=>re.test(x[0])); return r?[r[1],r[2],r[3]]:[null,null,null]; }, top=(...L)=>[0,1,2].map(j=>L.some(x=>x[j]!=null)?L.reduce((a,x)=>a+(x[j]||0),0):null), neg=x=>x.map(v=>v==null?null:-v);
+    const yap=(T,P)=>{ const ton=sat(I.gts,/^ITT satışı/), gel=sat(T,P.gel), sm=P.smm.map(([l,re])=>[l,sat(T,re)]), fg=P.fg.map(([l,re])=>[l,re?sat(T,re):[null,null,null]]), fd=P.fd.map(([l,re])=>[l,sat(T,re)]);
+      const smm=top(...sm.map(x=>x[1])), brut=top(gel,smm), fgt=top(...fg.map(x=>x[1])), fk=top(brut,fgt), net=sat(T,P.net);
+      return [["Net Satışlar",ton,"hac"],["Net Satış Gelirleri",gel],["Satılan Malın Maliyeti",smm,"ana"],...sm.map(([l,v])=>[l,v,"alt"]),["Brüt Kâr",brut,"top"],["Faaliyet Giderleri",fgt,"ana"],...fg.map(([l,v])=>[l,v,"alt"]),["Faaliyet Kârı",fk,"top"],
+        ["Faaliyet dışı",null,"bas"],...fd.map(([l,v])=>[l,v,"alt"]),["Net Kâr",net,"top"],...P.bilgi.map(([l,re,f])=>[l,sat(T,re),"bil",f])]; };
+    const G=yap(I.gts,{gel:/^ITT geliri/,smm:[["Ürün maliyeti",/^Ürün maliyeti – satılan/],["Teslim alma + depolama",/^GTS teslim alma/]],fg:[["Sörvey + ICE işlem",/^Sörvey \+ ICE/],["Genel yönetim",/^Genel yönetim/]],
+      fd:[["Ürün hedge (ICE)",/^ICE hedge sonucu/],["Finansman",/^Finansman – tedarikçi/]],net:/^NET KÂR – GTS/,bilgi:[["Net ($/t)",/^Net \(USD\/t\)/,"usdt"],["Ana model net kâr",/^Karşılaştırma: ana model/,"para"]]});
+    const A=yap(I.alp,{gel:/^Satış geliri/,smm:[["ITT alım maliyeti",/^ITT alım maliyeti/],["GTS teslim etme bedeli",/^GTS teslim etme bedeli/]],fg:[["Vergi finansmanı",/^ÖTV \/ KDV finansmanı/],["Genel yönetim",null]],
+      fd:[["Kur farkı",/^Kur farkı/],["Vade farkı",/^Vade farkı/]],net:/^NET KÂR – Alpet/,bilgi:[["Net (TL/m³)",/^Net \(TL\/m³\)/,"m3"],["Net (USD)",/^Net \(USD/,"usd"]]});
+    const ciz=(R,B)=>`<colgroup><col class="it-k"><col><col><col></colgroup><thead><tr><th class="l">${B}</th><th>2027</th><th>2028</th><th>İki yıl</th></tr></thead><tbody>`+R.map(([l,v,t,f])=>{
+        const fm=x=>x==null?"–":t==="hac"?nf.format(x/1e3)+" kt":f==="usdt"?(x<0?"−":"")+nf2.format(Math.abs(x)):f==="m3"?(x<0?"−":"")+nf.format(Math.abs(x)):f==="usd"||((f==null||f==="para")&&B==="M $")?(x<0?"−":"")+nf1.format(Math.abs(x)/1e6):(x<0?"−":"")+nf.format(Math.abs(x)/1e6);   /* TL tablosu milyon TL tam sayı */
+        if(t==="bas") return `<tr class="it-bas"><td class="l" colspan="4">${l}</td></tr>`;
+        return `<tr class="${t==="top"?"top":""}${t==="alt"?" it-alt":""}${t==="bil"?" it-ay":""}${t==="ana"?" it-ana":""}"><td class="l">${t==="top"?"<b>":""}${esc(l)}${t==="top"?"</b>":""}</td>${v.map((x,j)=>`<td class="${t!=="hac"&&f!=="m3"&&f!=="usdt"&&x<0?"n":""}${j+1===k?" sec":""}">${t==="top"?"<b>":""}${fm(x)}${t==="top"?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`;
+    $("it-gts").innerHTML=ciz(G,"M $"); $("it-alp").innerHTML=ciz(A,"M TL"); }
   // aylık
   { const A=I.ay.filter(a=>!YIL||a[0].slice(0,4)===YIL), AYK=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"], lab=a=>AYK[+a[0].slice(5,7)-1]+" "+a[0].slice(2,4), etk=i=>i%(A.length<=12?(W<600?2:1):(W<600?6:3))===0?lab(A[i]):"";
     let k1=0, k2=0; const K1=A.map(a=>(k1+=a[5])/1e6), K2=A.map(a=>(k2+=a[6])/1e6);

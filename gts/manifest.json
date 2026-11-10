@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.96",
+ "surum": "1.0.97",
  "kabuk": 2,
- "tarih": "2026-11-10T14:44:16+03:00",
- "notlar": "Pazar ve akış: akış senaryosunda olmayan geçmeyen Gecis satırları (paket 120 TP Dörtyol kapandı) listede",
+ "tarih": "2026-11-10T18:53:14+03:00",
+ "notlar": "ITT kâr/zarar tabloları aynı biçimde: Net Satışlar, Net Satış Gelirleri, SMM, Brüt Kâr, Faaliyet Giderleri, Faaliyet Kârı; altında faaliyet dışı ve net kâr",
  "dosyalar": {
-  "ui/index.html": "f81ac76a0cd0e9caebb000d608fcbfad2ccf438646777d0851fdc5980a55dcbe",
+  "ui/index.html": "785575f607320d8cb0ff48e18331f84aaa1a11b01c14795c30c56d2844246ac5",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "68f048aea95d80ca35a41a9d272264b8dcd03b3a1304c98a36590b4c3232fdb7",
+  "ui/pano.js": "27ea93b2140473821b025b90fa45d52f4dc482556e963a3dc0e1afe855f35fbe",
   "gts_pipeline.js": "0fc2b8719ef46d8034acb4a6d8fc123ea6226778c8fc624364b3a5d825070acf",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "539c2b37796b6c2f48b7f50781b82e1273f6068dcdc13ec618750ae54d5e0f99",
