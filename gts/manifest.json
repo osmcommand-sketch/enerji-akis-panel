@@ -1,11 +1,11 @@
 {
  "uygulama": "gts",
- "surum": "1.0.101",
+ "surum": "1.0.102",
  "kabuk": 2,
- "tarih": "2026-11-10T20:01:23+03:00",
- "notlar": "ITT Pazar ve akış: beş özet kartı tek satırda",
+ "tarih": "2026-11-10T20:03:58+03:00",
+ "notlar": "GTS Pazar ve akış: beş özet kartı tek satırda",
  "dosyalar": {
-  "ui/index.html": "25e7104442b56bfb1b21f7f48c0b54ba9402a9a5cb38790c5421a5bbabdee9d6",
+  "ui/index.html": "71b2689c635e61355e142fb1346221b3861fc6b4198acc47fb3b236aad651293",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
   "ui/pano.js": "326859c656e68aea8dd2ba4baf5c20674456982a07473c37c5b57e45faec0209",
   "gts_pipeline.js": "354c66d5debd8fbb95a3c44a322ef9f07424870b122c930cf6ba45909e16ecfd",
