@@ -84,7 +84,8 @@ module.exports = function baslat(C) {   // C: { ad, kanal ('' | 'gts/'), api ('e
   }));
 
   app.whenReady().then(() => {
-    win = new BrowserWindow({ width: 1440, height: 920, title: C.ad, autoHideMenuBar: true, webPreferences: { nodeIntegration: true, contextIsolation: false, sandbox: false } });
+    const ik = path.join(__dirname, 'ikon.png');   /* pencere / görev çubuğu simgesi (paketle.sh kopyalar) */
+    win = new BrowserWindow({ width: 1440, height: 920, title: C.ad, autoHideMenuBar: true, ...(require('fs').existsSync(ik) ? { icon: ik } : {}), webPreferences: { nodeIntegration: true, contextIsolation: false, sandbox: false } });
     win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) shell.openExternal(url); return { action: 'deny' }; });
     win.loadFile(path.join(kok(), 'ui', 'index.html'));
     izle(durum().son);

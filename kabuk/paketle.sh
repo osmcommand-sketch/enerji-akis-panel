@@ -9,6 +9,7 @@ D="$OUT/$AD"; rm -rf "$D"; mkdir -p "$D"; (cd "$D" && unzip -q "$EZ")
 if [ "$HED" = win32 ]; then mv "$D/electron.exe" "$D/$AD.exe"; fi
 A="$D/resources/app"; mkdir -p "$A/icerik" "$A/node_modules"
 cp "$R"/kabuk/{ortak.js,zip.js,is_gts.js,is_enerji.js,$MAIN} "$A/"
+[ -f "$R/kabuk/ikon/$PN.png" ] && cp "$R/kabuk/ikon/$PN.png" "$A/ikon.png" && cp "$R/kabuk/ikon/$PN.ico" "$D/$AD.ico"
 cat > "$A/package.json" <<J
 { "name": "$PN", "productName": "$AD", "version": "$SUR", "main": "$MAIN" }
 J
