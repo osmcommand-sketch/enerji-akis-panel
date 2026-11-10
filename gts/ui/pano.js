@@ -755,6 +755,10 @@ function akis(mod="gts"){
     const GX=new Map(); for(const g of (V.gecis&&V.gecis.r)||[]) GX.set(g[0]+"|"+g[1]+"|"+g[2],g); const gx=r=>r[3]===1?GX.get(r[1]+"|"+V.il[r[2]]+"|"+r[4]):null, gecmezG=r=>{ const g=gx(r); return !!g&&!g[9]; }, avf=g=>mod==="itt"&&B14!=null&&NAV?ittAv(g):g[8], gecmez=mod==="itt"&&B14!=null&&NAV?r=>{ const g=gx(r); return !!g&&ittAv(g)<ESK; }:gecmezG;
     const MA=V.minAlim&&V.minAlim.n?V.minAlim:null, EX=new Set(MA?MA.sir:[]), mEx=A.ky.reduce((q,r)=>q+(r[0]===oi&&r[3]===1&&(EX.has(r[1])||gecmezG(r))?r[6]:0),0), f2=o[9]-mEx>0?HT.v/(o[9]-mEx):f, fu2=u=>u?f2:(BZ?f2:0);
     S.GY[AMOD]=A.ky.filter(r=>r[0]===oi&&r[3]===1&&!EX.has(r[1])&&gecmez(r)).map(r=>({s:r[1],il:r[2],k:r[4],t:r[6],g:gx(r),av:avf(gx(r))}));
+    { /* Gecis'te olup akış senaryosunda olmayan geçmeyen satırlar (paket 120: TP Dörtyol kapandı → …; potansiyel t/yıl, 1,5 Mt ölçeği) */
+      const KK=new Set(A.ky.filter(r=>r[0]===oi&&r[3]===1).map(r=>r[1]+"|"+V.il[r[2]]+"|"+r[4])), IID=new Map(Object.entries(V.il).map(([i,a])=>[a,+i]));
+      for(const g of (V.gecis&&V.gecis.r)||[]){ const k=g[0]+"|"+g[1]+"|"+g[2]; if(KK.has(k)||g[0]<0) continue; const av=avf(g); if(mod==="itt"?av>=ESK:g[9]) continue;
+        S.GY[AMOD].push({s:g[0],il:IID.has(g[1])?IID.get(g[1]):-1,k:g[2],t:g[3],g,av}); } }
     $(AP+"sub").textContent="";
     const kt=(l,v,s,c="")=>`<div class="kt ${c}" style="grid-column:span 3"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
     const KY=A.ky.filter(r=>r[0]===oi&&(BZ||r[3])&&!EX.has(r[1])&&!gecmez(r)).map(r=>{ const q=fu2(r[3]); return [r[0],r[1],r[2],r[3],r[4],r[5],r[6]*q,r[7]*q,r[8],r[9],r[10]]; }),
