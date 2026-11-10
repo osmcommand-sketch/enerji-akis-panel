@@ -283,7 +283,15 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
         O.gecis = { r: R, esik: es && typeof es[7] === 'number' ? es[7] : null, navlun: nv }; } } } catch (e) { O.gecis = null; log('Geçiş kuralı: ' + (e && e.message)); }
   /* ITT modeli (paket 118+; kullanıcı 10.11.2026 13:28 / 13:40): GTS ithal eder, Alpet'e tank içi transferle satar; Alpet hedef pazara satar. Girdilerle canlı.
      gts / alp: [kalem, 2027, 2028, iki yıl] · birlikte · risk · kg: kargo · ay: aylık · girdi: [etiket, değer, not, hücre, grup] */
-  try { const IT = X.sayfa('ITT Modeli'); if (IT) { const ns = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)) ? Number(v) : null);
+  /* paket 125+ (kullanıcı 10.11.2026 19:53 "GTS ve ITT modelini ayıralım"): ITT Modeli ayrı dosyada (GTS_ITT_Alpet_Modeli_2027_2028.xlsx, Alpet / TL modlu yapı).
+     Varsa o dosya da hesaplanır: ITT Modeli!… girdileri + ortak Ozet (H ≤ 49) / Girdiler / GTS! girdileri; yoksa eski yapı (ITT sayfası GTS dosyasında). */
+  let XT = X; O.ittModel = null;
+  try { const xlI = Z.bul(/(^|\/)GTS_ITT_Alpet_Modeli_20\d\d_20\d\d\.xlsx$/i)[0];
+    const varMi = (() => { try { return !!X.sayfa('ITT Modeli'); } catch { return false; } })();
+    if (xlI && !varMi) { log('ITT / Alpet modeli hesaplanıyor: ' + path.basename(xlI.ad)); const xbI = Z.oku(xlI), GBI = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xbI), gI = {};
+      for (const [k, v] of Object.entries(girdi)) { const m = /^Ozet!H(\d+)$/.exec(k); if (/^ITT Modeli!/.test(k) || /^(Girdiler|GTS)!/.test(k) || (m && +m[1] <= 49)) gI[k] = v; }
+      XT = HS.hesapla(xbI, GBI.bag(gI)); O.ittModel = path.basename(xlI.ad); } } catch (e) { log('ITT / Alpet modeli: ' + (e && e.message)); }
+  try { const IT = XT.sayfa('ITT Modeli'); if (IT) { const ns = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)) ? Number(v) : null);
       const bul = (re, a = 0) => { for (let i = a; i < IT.length; i++) if (IT[i] && typeof IT[i][0] === 'string' && re.test(IT[i][0])) return i; return -1; };
       const tablo = (bas) => { const L = []; if (bas < 0) return L; for (let i = bas + 1; i < IT.length && IT[i] && IT[i][0]; i++) L.push([IT[i][0], R2(ns(IT[i][1]), 3), R2(ns(IT[i][2]), 3), R2(ns(IT[i][3]), 3)]); return L; };
       const g0 = bul(/^GTS KÂR \/ ZARAR/), a0 = bul(/^ALPET KÂR \/ ZARAR/);
@@ -308,10 +316,15 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
         { const gb = bul(/^GİRDİLER/); let grup = gb > 0 && typeof IT[gb][2] === 'string' ? IT[gb][2] : 'Girdiler';
           if (gb > 0) for (let i = gb + 1; i < gb + 24 && i < IT.length; i++) { const x = IT[i]; if (!x || !x[0]) { if (i > gb + 3) break; continue; } if (/KÂR \/ ZARAR/.test(x[0])) break;
             if (x[1] == null || x[1] === '') { grup = x[0]; continue; } O2.girdi.push([x[0], typeof x[1] === 'string' && !isFinite(Number(x[1])) ? x[1] : ns(x[1]), x[5] || null, 'ITT Modeli!B' + i, grup]); } }   // X.sayfa dizini = Excel satır no
-        const G2 = X.sayfa('Ozet') || []; O2.h7 = ns((G2.find((x) => x && typeof x[6] === 'string' && /^Alım primi \/ iskontosu – motorin/.test(x[6])) || [])[7]);
+        // ITT primi fiyat endeksi (paket 126+): H etiket, I değer (H9 başlık, I10–I12 girdi, I13 bilgi)
+        { const gb = bul(/^GİRDİLER/); if (gb > 0) { let eg = null; for (let i = gb; i < gb + 16 && i < IT.length; i++) { const x = IT[i]; if (!x || typeof x[7] !== 'string' || !x[7].trim()) continue;
+            if (x[8] == null || x[8] === '') { eg = x[7]; continue; } if (!eg) continue; O2.girdi.push([x[7], typeof x[8] === 'string' && !isFinite(Number(x[8])) ? x[8] : ns(x[8]), null, 'ITT Modeli!I' + i, eg]); } } }
+        // B14 yüzde (paket 123+): C14 TL/m³ karşılığı
+        { const i14 = O2.girdi.findIndex((g) => /^Alpet satışı \(dağıtıcılara\)/.test(g[0])); if (i14 >= 0) { const rI = +O2.girdi[i14][3].replace(/\D+/g, ''), c = IT[rI] && ns(IT[rI][2]); O2.b14tl = c != null && Math.abs(O2.girdi[i14][1]) < 1 ? R2(c, 1) : null; if (O2.b14tl != null) O2.girdi[i14][2] = 'TL/m³ karşılığı ≈ ' + Math.round(O2.b14tl).toLocaleString('tr-TR') + ' (ortalama İzmir RSF ile)' + (O2.girdi[i14][2] ? ' · ' + O2.girdi[i14][2] : ''); } }
+        const G2 = XT.sayfa('Ozet') || []; O2.h7 = ns((G2.find((x) => x && typeof x[6] === 'string' && /^Alım primi \/ iskontosu – motorin/.test(x[6])) || [])[7]);
         // ITT girdileri Ticari koşullarda ayrı kapsam ("ITT · " başlıklı gruplar; ITT sayfasındaki girdi panelinde)
         let og = null; for (const [ad, v, not, hc, gr] of O2.girdi) { if (gr !== og) { O.tic.push(['ITT · ' + gr, null, null]); og = gr; }
-          const adr = hc.split('!')[1], fm = X.formulMu('ITT Modeli', adr), orj = X.orijinal('ITT Modeli', adr), dv = X.dogrulama ? X.dogrulama('ITT Modeli', adr) : null;
+          const adr = hc.split('!')[1], fm = XT.formulMu('ITT Modeli', adr), orj = XT.orijinal('ITT Modeli', adr), dv = XT.dogrulama ? XT.dogrulama('ITT Modeli', adr) : null;
           O.tic.push([ad, typeof v === 'number' ? R2(v, 4) : v, not, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : hc, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : '', dv || (typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? { liste: ['Açık', 'Kapalı'] } : typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : null)]); }
         O.itt = O2; } } } catch (e) { O.itt = null; log('ITT modeli: ' + (e && e.message)); }
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);

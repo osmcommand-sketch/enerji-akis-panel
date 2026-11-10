@@ -47,6 +47,8 @@
     const Oz = sayfa('Ozet') || [], oz = (re) => { const r = Oz.find((x) => x && typeof x[6] === 'string' && re.test(x[6])); return r && typeof r[7] === 'number' ? r[7] : null; };
     const prim = { M: oz(/^Mersin üçüncü taraf/), D: oz(/^Tüpraş Mersin/), B: oz(/^Tüpraş Batman/), K: oz(/^Tüpraş Kırıkkale/), ort: oz(/^Satış fiyatı – motorin/) };
     const out = { yil: yil0, prim, mut, odv };
+    // paket 125+: GTS ITT (USD/t) satış modu (Ozet H50); satış fiyatı günlük USD/t × kur (Gunluk geliri), Tüpraş + prim değil
+    { const r = Oz.find((x) => x && typeof x[6] === 'string' && /^Satış şekli/.test(x[6])); out.itt = !!(r && typeof r[7] === 'string' && /^ITT/.test(r[7])); }
     const gb = (re) => { const i = gi(re); return i > 0 && typeof G[i][1] === 'number' ? G[i][1] : 0; }, ELS = gb(/^GTS elleçleme tarifesi/) + gb(/^İthal kargo ek seyir/);
     const FI = F ? F[4] || [] : [], tupK = { Motorin: FI.findIndex((h) => typeof h === 'string' && /^Tüpraş motorin vergisiz \(TL\/m³\)/.test(h)), Benzin: FI.findIndex((h) => typeof h === 'string' && /^Tüpraş benzin vergisiz \(TL\/m³\)/.test(h)) };
     for (const u of ['Motorin', 'Benzin']) {
