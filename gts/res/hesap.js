@@ -306,7 +306,8 @@ function motor(S) {
       case 'UPPER': case 'LOWER': case 'TRIM': { const v = es(0); if (isErr(v)) return v; const t = str(v); return n.n === 'UPPER' ? t.toLocaleUpperCase('tr-TR') : n.n === 'LOWER' ? t.toLocaleLowerCase('tr-TR') : t.trim().replace(/\s+/g, ' '); }
       case 'CONCATENATE': case 'CONCAT': { let t = ''; for (let i = 0; i < A.length; i++) { const v = e(i); if (v instanceof Arr) { for (const x of v.v) { if (isErr(x)) return x; if (x !== BOS) t += str(x); } } else { if (isErr(v)) return v; if (v !== BOS) t += str(v); } } return t; }
       case 'VALUE': { const v = es(0); if (typeof v === 'number') return v; const x = Number(str(v).trim()); return isFinite(x) ? x : E.VAL; }
-      case 'N': { const v = es(0); return typeof v === 'number' ? v : typeof v === 'boolean' ? (v ? 1 : 0) : 0; }
+      // N dizi bağlamında öğe öğe (SUMPRODUCT(... * N(+aralık)); ITT Modeli, paket 113 – LibreOffice recalc ile aynı)
+      case 'N': { const nn = (v) => typeof v === 'number' ? v : typeof v === 'boolean' ? (v ? 1 : 0) : isErr(v) ? v : 0, v = e(0); return v instanceof Arr ? new Arr(v.r, v.c, v.v.map(nn)) : nn(v); }
       case 'EDATE': { const x = nm(0), m = nm(1); if (isErr(x)) return x; if (isErr(m)) return m; const d = tarihOf(x), y = d.getUTCFullYear(), mo = d.getUTCMonth() + Math.trunc(m), son = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(); return serial(y, mo + 1, Math.min(d.getUTCDate(), son)); }
       // WORKDAY / NETWORKDAYS (paket 83: Kargolar fiyatlama dönemi, Tatiller sayfası; Cmt–Paz tatil)
       case 'WORKDAY': { const x = nm(0), g = nm(1); if (isErr(x)) return x; if (isErr(g)) return g; const T = new Set(); if (A.length > 2) for (const h of duz([e(2)])) { if (isErr(h)) return h; if (typeof h === 'number') T.add(Math.floor(h)); }
