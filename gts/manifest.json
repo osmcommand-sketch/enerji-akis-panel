@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.104",
+ "surum": "1.0.105",
  "kabuk": 2,
- "tarih": "2026-11-10T20:27:27+03:00",
- "notlar": "Pazar ve akış: KPI açıklamaları hizalı satırlar",
+ "tarih": "2026-11-10T20:37:42+03:00",
+ "notlar": "Ticari koşullar: rakip maliyeti yönteminde kaynak bazlı prim tablosu gösterilmez",
  "dosyalar": {
   "ui/index.html": "306937b48eba131a4b1c81f2e4327533f3c9060e92a1f8d1fccb76bd1b641f93",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "cd1da94993e1799baf89568cb97c415d440262a24bbb35216b5cf2fd9229331e",
+  "ui/pano.js": "e637469d051efbf955bfa949911e65da6ad892548f3e274e82beb7c2e0c5f819",
   "gts_pipeline.js": "354c66d5debd8fbb95a3c44a322ef9f07424870b122c930cf6ba45909e16ecfd",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "539c2b37796b6c2f48b7f50781b82e1273f6068dcdc13ec618750ae54d5e0f99",

@@ -924,7 +924,7 @@ function ticari(elId="g-tic",kap="gts"){
   el.innerHTML=`${ozet}<div class="tf tf3">${h}</div><div class="tic-a">${yaz?`<button type="button" class="ana" id="${TI}hesap" disabled>Modeli bu koşullarla hesapla</button>${nG?`<button type="button" class="btn" id="${TI}sifir">Model varsayılanına dön</button>`:""}<span class="chip ${nG?"eski":"ok"}">${nG?`Sizin girdileriniz uygulanıyor (${nG})`:"Model varsayılanları"}</span><span class="not" id="${TI}d"></span>`:`<span class="not">Değerleri masaüstü uygulamasında (GTS Dörtyol) girebilirsiniz; model sizin koşullarınızla yeniden hesaplanır.</span>`}</div>`;
   { // dengeli kolonlar (kullanıcı 02.11.2026 19:01): grup → kolon; düzene girmeyen grup en kısa kolona
     const tf=el.querySelector(".tf3"), gs=[...tf.querySelectorAll(":scope>.tf-g")], K=[0,1,2].map(()=>Object.assign(document.createElement("div"),{className:"tf-k"}));
-    const KOL=[[/^Alım tarafı/,0],[/^Satış tarafı/,0],[/^Müşteri davranışı/,0],[/^Faiz ve finansman/,1],[/^Kaynak bazlı/,1],[/^Hedge/,2],[/^Faaliyet giderleri/,2]], boy=k=>K[k].querySelectorAll(".tf-r").length;
+    const KOL=[[/^Alım tarafı/,0],[/^Satış tarafı/,0],[/^Faiz ve finansman/,1],[/^Müşteri davranışı/,1],[/^Faaliyet giderleri/,1],[/^Kaynak bazlı/,1],[/^Hedge/,2]], boy=k=>K[k].querySelectorAll(".tf-r").length;
     const sira=g=>{ const i=KOL.findIndex(([re])=>re.test(g.dataset.g||"")); return i<0?99:i; }; gs.sort((a,b)=>sira(a)-sira(b));
     for(const g of gs){ const m=KOL.find(([re])=>re.test(g.dataset.g||"")); const k=m?m[1]:[0,1,2].sort((a,b)=>boy(a)-boy(b))[0]; K[k].appendChild(g); }
     tf.replaceChildren(...K); }
@@ -933,7 +933,7 @@ function ticari(elId="g-tic",kap="gts"){
   { const ym=T.find(x=>/^Satış primi yöntemi/.test(x[0])), sl=ym&&ym[4]?el.querySelector(`select[data-h="${ym[4]}"]`):null, kg=[...el.querySelectorAll(".tf-g")].find(g=>/^Kaynak bazlı/.test(g.dataset.g||""));
     const altR=T.find(x=>/^Rakip maliyeti yönteminde prim alt sınırı/.test(x[0])), altI=altR&&altR[4]?el.querySelector(`[data-h="${altR[4]}"]`):null;
     const uygula=()=>{ const rk=(sl?sl.value:ym&&ym[1])==="Rakip maliyeti";
-      if(kg){ kg.classList.toggle("pasif",rk); let nt=kg.querySelector(".tf-pasif"); if(!nt){ nt=document.createElement("p"); nt.className="tf-pasif"; kg.querySelector("h4").after(nt); }
+      if(kg){ kg.hidden=rk;   /* kullanıcı 10.11.2026 20:36 "bu kısmı kaldıralım": Rakip maliyeti yönteminde tablo gösterilmez */ kg.classList.toggle("pasif",rk); let nt=kg.querySelector(".tf-pasif"); if(!nt){ nt=document.createElement("p"); nt.className="tf-pasif"; kg.querySelector("h4").after(nt); }
         nt.textContent=rk?"Rakip maliyeti yöntemi seçili: prim her dağıtıcının bugünkü alternatif alım maliyetinden hesaplanır, bu tablo kullanılmaz.":""; nt.hidden=!rk;
         for(const i of kg.querySelectorAll("input,select")){ if(i.dataset.ac==null) i.dataset.ac=i.disabled?"0":"1"; i.disabled=rk||i.dataset.ac==="0"; } kg.setAttribute("aria-disabled",String(rk)); }
       if(altI){ const r=altI.closest(".tf-r"); if(altI.dataset.ac==null) altI.dataset.ac=altI.disabled?"0":"1"; altI.disabled=!rk||altI.dataset.ac==="0"; if(r) r.classList.toggle("pasif",!rk); } };
