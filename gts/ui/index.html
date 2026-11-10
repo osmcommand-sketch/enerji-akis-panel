@@ -626,6 +626,13 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 #a-il .gec-bas{margin-top:10px;border-top:1px solid var(--line,#E3E8EB);padding-top:8px}
 #a-il .gec-yok{opacity:.55}
 #a-il .gec-yok .n,#a-il .dg .n{color:#B3412E} #a-il .dg .p{color:#1D7A4A}
+
+/* ITT modeli */
+.it-izg td.it-h{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+.it-izg td.it-h.ik{background:rgba(29,122,74,.14)} .it-izg td.it-h.bir{background:rgba(29,122,74,.05)}
+.it-izg td.it-h.su{outline:2px solid #B8860B;outline-offset:-2px}
+.it-izg td .p{color:#1D7A4A} .it-izg td .n{color:#B3412E}
+.it-oz tr.it-ay td{color:var(--ink-2,#3D4A54);font-size:12.5px} .it-oz td.sec{background:rgba(184,134,11,.06)}
 </style>
 
 <div class="acilis" id="bos" hidden><div class="kutu">
@@ -653,6 +660,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="satis" aria-selected="false">Satışlar</button>
     <button type="button" role="tab" data-v="rakip" aria-selected="false">Rakip analizi</button>
     <button type="button" role="tab" data-v="nakit" aria-selected="false">Nakit akışı</button>
+    <button type="button" role="tab" data-v="itt" aria-selected="false">ITT modeli</button>
     <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
     <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
     <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
@@ -855,6 +863,37 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
         <div class="seg rk-gseg" id="nk-ayr" role="group" aria-label="Ayrıntı"><button type="button" data-a="ozet" aria-pressed="true">Gruplu</button><button type="button" data-a="ayr" aria-pressed="false">Tüm kalemler</button></div></div>
       <div class="scroll st-scr"><table class="t st-t" id="nk-tab"></table></div>
       <p class="not">Kaynak: modelin Nakit_Akisi sayfası. Satış tahsilatı ile müşteriden ÖTV ve KDV satıştan vade kadar gün sonra; kargo ödemesi tahliye bitişi + COD vadesi günü, o günün kuruyla; açılış stoğu 1.1.2027'de ödenmiş sayılır. ÖTV, ithalat KDV'si, KDV beyanı ve teminat komisyonu vergi takviminden; faaliyet giderleri sabitler güne yayılı, değişkenler satılan tonla; ürün hedge kargonun tükendiği gün, kur hedge fatura vadesi günü. Bakiye finansman öncesidir: faiz ve kredi kur farkı Ekonomi sayfasında. Dönem sonunda vadesi gelmemiş alacak ve borçlar bakiyede yoktur.</p>
+    </section>
+  </div>
+  <div class="v" data-v="itt" hidden>
+    <section>
+      <div class="head"><h2>ITT modeli · konsinye stok, Alpet'e tank içi transfer</h2><span class="sub" id="it-sub"></span>
+        <div class="seg rk-gseg" id="it-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
+      <div class="kpi4" id="it-kpi"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Kim kâra geçer? Alım primi × ITT primi</h2><span class="sub" id="it-izsub"></span></div>
+      <div class="scroll"><table class="t it-izg" id="it-izg"></table></div>
+      <p class="not">Bizim net: alım primi (Ticari koşullar · Alım tarafı) her 1 $/t iyileşince ITT tonu kadar artar; ITT primi her 1 $/t yükselince aynı kadar artar. Alpet brüt yalnız ITT primine bağlıdır (ITT fiyatı CIF eşdeğeri; alım iskontosu bizde kalır). Doğrusal ilişki, PDM paket 114'te dört tam yeniden hesapla doğrulandı. Alpet brüt: ana model satış fiyatıyla, ÖTV teminat maliyeti sonrası; Alpet'in kur, finansman ve genel giderleri hariç. Yeşil: ikisi de kârda; açık yeşil: biri kârda.</p>
+    </section>
+    <section>
+      <div class="head"><h2>Aylık katkı</h2><span class="sub" id="it-aysub"></span></div>
+      <div class="grf" id="it-ay"></div>
+    </section>
+    <div class="kg-iki">
+      <section>
+        <div class="head"><h2>Kâr / zarar</h2><span class="sub">USD bizim P&amp;L; alttaki satırlar ana modelle karşılaştırma ve Alpet etkisi</span></div>
+        <div class="scroll"><table class="t it-oz" id="it-oz"></table></div>
+      </section>
+      <section>
+        <div class="head"><h2>Risk ve yük dağılımı</h2></div>
+        <div class="scroll"><table class="t" id="it-risk"></table></div>
+        <p class="not">Girdiler: Ticari koşullar &gt; ITT modeli (ITT satış primi, Alpet ödeme vadesi). Masaüstünde değiştirince sayfa yeniden hesaplanır. Hacim ve kargo planı ana modelle aynıdır (Alpet alımı = ana modelin satışı).</p>
+      </section>
+    </div>
+    <section>
+      <div class="head"><h2>Kargolar · NOR + 3 fiyatlama, makas fiksleme, ICE kilit</h2><span class="sub" id="it-kgsub"></span></div>
+      <div class="scroll st-scr"><table class="t st-t" id="it-kg"></table></div>
     </section>
   </div>
   <div class="v" data-v="ekonomi" hidden>

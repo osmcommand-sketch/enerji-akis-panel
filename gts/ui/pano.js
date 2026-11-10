@@ -120,13 +120,13 @@ function aralik(el,R,o={}){
 }
 
 /* ---------- sekmeler (hash) ---------- */
-const SEK=["genel","akis","operasyon","kargo","satis","rakip","nakit","ekonomi","hedge","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","kargo","satis","rakip","nakit","itt","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const b of document.querySelectorAll(".tabs [data-v]")) b.setAttribute("aria-selected",String(b.dataset.v===v));
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,rakip,nakit,ekonomi,hedge,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis,operasyon,kargo:kargolar,satis:satislar,rakip,nakit,itt,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
@@ -354,6 +354,52 @@ function nakit(){
     +AL.map(o=>`<tr><td class="l">${o.ad}</td>${KOL.map(k=>hc(k[1](o))).join("")}<td><b>${fm(o.net)}</b></td><td class="${o.son<0?"n":""}"><b>${fm(o.son)}</b></td><td class="${o.mn<0?"n":""}">${fm(o.mn)}</td></tr>`).join("")
     +`<tr class="top"><td class="l">Toplam</td>${KOL.map(k=>hc(k[1](T))).join("")}<td><b>${fm(T.net)}</b></td><td class="${son<0?"n":""}"><b>${fm(son)}</b></td><td class="${mn<0?"n":""}">${fm(mn)}</td></tr></tbody>`;
   $("nk-tsub").textContent=`${B} · ${AL.length} ay · ${S.nkA==="ayr"?"tüm kalemler":"gruplu"}`;
+}
+/* ---------- ITT MODELİ (kullanıcı 10.11.2026 11:25 "ekle"): antrepoda konsinye stok, Alpet'e tank içi transfer (paket 113+ "ITT Modeli" sayfası).
+   Izgara: bizim net ve Alpet brüt alım primi (H7) ve ITT primi (P) ile doğrusal (PDM paket 114 dört tam hesapla doğruladı); eğimler ITT tonundan. ---------- */
+function itt(){
+  if(S.itY==null) S.itY=""; const YIL=S.itY;   // sayfa içi dönem (varsayılan iki yıl: PDM başa baş tablosu iki yıllık)
+  for(const b of $("it-yil").querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); b.onclick=()=>{ S.itY=b.dataset.y; itt(); }; }
+  const I=V.itt; if(!I||!I.oz||!I.oz.length){ $("it-kpi").innerHTML=`<p class="not">Bu pakette ITT modeli yok; paket 113 ve sonrası gerekir.</p>`; for(const id of ["it-izg","it-ay","it-oz","it-risk","it-kg"]) $(id).innerHTML=""; return; }
+  const k=YIL==="2027"?1:YIL==="2028"?2:3, ad=YIL||"İki yıl", R=re=>I.oz.find(r=>re.test(r[0])), v=re=>{ const r=R(re); return r?r[k]:null; };
+  const M=x=>x==null?"–":(x<0?"−":x>0?"+":"")+nf1.format(Math.abs(x)/1e6), cl=x=>x==null?"":x<0?"n":"p", kt=(l,val,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${val}</b><small>${s}</small></div>`;
+  const net=v(/^NET KÂR – ITT/), ana=v(/^Karşılaştırma: ana model/), ton=v(/^ITT satışı/), bb=v(/^Başa baş ITT primi/), af=v(/^Alpet: ITT maliyeti − Tüpraş/), ab=v(/^Alpet: brüt kâr \(TL\/m³\)/), roll=v(/^Roll/);
+  const P0=(I.girdi.find(g=>/^ITT satış primi/.test(g[0]))||[])[1]||0, H0=I.h7==null?-10:I.h7;
+  $("it-sub").textContent=`${ad} · Makul fiyat yolu · ürün GTS antreposunda bizim stoğumuz; Alpet ICE trigger ile fiyatlayıp tank içi transferle alır`;
+  $("it-kpi").innerHTML=kt(`ITT net kâr · ${ad}`,M(net)+" M $",`${nf.format((ton||0)/1e3)} kt · ${net!=null&&ton?(net/ton>=0?"+":"−")+nf2.format(Math.abs(net/ton))+" $/t":""}`,cl(net)==="n"?"neg":"pos")
+    +kt("Ana model net kâr",M(ana)+" M $",`fark ${M(net-ana)} M $ · ITT lehine`,cl(ana)==="n"?"neg":"pos")
+    +kt("Alpet: ITT maliyeti − Tüpraş İzmit",(af<0?"−":"+")+nf.format(Math.abs(af||0))+" TL/m³",`Alpet brüt ${(ab<0?"−":"+")+nf.format(Math.abs(ab||0))} TL/m³ (ana model satış fiyatıyla)`,ab<0?"neg":"pos")
+    +kt("Başa baş ITT primi",(bb<0?"−":"+")+nf2.format(Math.abs(bb||0))+" $/t",`bizim net 0 · roll ${M(roll)} M $ Alpet'e yansır`);
+  // ızgara: alım primi × ITT primi
+  { const tK=I.kg.reduce((a,g)=>a+(g[1]?g[10]*(g[2]/g[1]):0),0), tI=I.kg.reduce((a,g)=>a+g[10],0), oran=tI?tK/tI:1, T=ton||0;
+    const F=V.fiy||[], t0=Date.UTC(2027,0,1), ayk=new Map(); F.forEach((r,i)=>{ if(typeof r[2]!=="number") return; const d=new Date(t0+i*864e5).toISOString().slice(0,7), z=ayk.get(d)||ayk.set(d,[0,0]).get(d); z[0]+=r[2]; z[1]++; });
+    // Alpet brüt TL → $: ITT tonuyla ağırlıklı ortalama kur (PDM ≈ 64)
+    let kw=0, tw=0; for(const a of I.ay){ if(YIL&&a[0].slice(0,4)!==YIL) continue; const z=ayk.get(a[0]); if(z&&z[1]&&a[1]){ kw+=a[1]*z[0]/z[1]; tw+=a[1]; } } const kur=tw?kw/tw:null;
+    const AB0=v(/^Alpet: brüt kâr \(TL;/), A0=kur&&AB0!=null?AB0/kur:null;
+    const biz=(h,p)=>net-oran*T*(h-H0)+T*(p-P0), alp=p=>A0==null?null:A0-T*(p-P0);
+    const HS=[...new Set([H0,-12,-15,-17,-20].map(x=>Math.round(x*10)/10))].sort((a,b)=>b-a), PS=[...new Set([P0,-3,-6,-8,-10])].sort((a,b)=>b-a);
+    const f1=x=>x==null?"–":(x<0?"−":"+")+nf1.format(Math.abs(x)/1e6);
+    $("it-izg").innerHTML=`<thead><tr><th class="l">Alım primi (H7) ↓ · ITT primi →</th>${PS.map(p=>`<th>${p===0?"0":"−"+nf.format(Math.abs(p))} $/t${p===P0?"<br><span>şimdi</span>":""}</th>`).join("")}</tr></thead><tbody>`
+      +HS.map(h=>`<tr><td class="l"><b>${h<0?"−":"+"}${nf1.format(Math.abs(h))} $/t</b>${h===H0?' <span class="chip">şimdi</span>':""}</td>${PS.map(p=>{ const b=biz(h,p), a=alp(p), ik=b>=0&&a!=null&&a>=0, bir=b>=0||(a!=null&&a>=0);
+        return `<td class="it-h${ik?" ik":bir?" bir":""}${h===H0&&p===P0?" su":""}"><span class="${cl(b)}">${f1(b)}</span> / <span class="${cl(a)}">${f1(a)}</span></td>`; }).join("")}</tr>`).join("")+`</tbody>`;
+    const pS=A0!=null&&T?P0+A0/T:null, hS=pS!=null&&T?H0+(net+T*(pS-P0))/(oran*T):null;
+    $("it-izsub").textContent=`hücre: bizim net / Alpet brüt, M $ · ${ad} · Alpet başa baş ITT primi ${pS==null?"–":(pS<0?"−":"+")+nf2.format(Math.abs(pS))} $/t${hS!=null?` · ikisi birden kârda: alım primi ≤ ${(hS<0?"−":"+")+nf1.format(Math.abs(hS))} $/t`:""}`; }
+  // aylık
+  { const A=I.ay.filter(a=>!YIL||a[0].slice(0,4)===YIL), AYK=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"], lab=a=>AYK[+a[0].slice(5,7)-1]+" "+a[0].slice(2,4);
+    let kum=0; const KU=A.map(a=>(kum+=a[5])/1e6);
+    cubuk($("it-ay"),{aria:"ITT aylık katkı",h:220,kat:A.map(lab),fmt:x=>nf1.format(x),etk:i=>i%(A.length<=12?(W<600?2:1):(W<600?6:3))===0?lab(A[i]):"",
+      seri:[{ad:"Aylık net katkı (günlük blok; sabit giderler hariç), M $",renk:C.gts,v:A.map(a=>a[5]/1e6)}],cizgi:[{ad:"Kümülatif, M $",renk:C.mot,v:KU}]}); $("it-aysub").textContent=`ITT Modeli günlük bloğu: kargo brütü, ICE hedge ve finansman dahil · sörvey / ICE işlem ve genel yönetim hariç · dönem toplamı ${(kum<0?"−":"+")+nf1.format(Math.abs(kum)/1e6)} M $ (özet tablodaki NET bu sabit giderlerden sonra)`; }
+  // P&L
+  { const fm=(l,x)=>x==null?"–":/\(t\)/.test(l)?nf.format(x/1e3)+" kt":/\(USD\/t\)/.test(l)?(x<0?"−":"")+nf2.format(Math.abs(x)):/TL\/m³/.test(l)?(x<0?"−":"")+nf.format(Math.abs(x)):/\(TL[;)]/.test(l)?(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)+" M TL":/USD/.test(l)?(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)+" M $":nf.format(x);
+    const kal=l=>esc(/^Net \(USD\/t\)/.test(l)?"Net ($/t)":l.replace(/\s*\((USD|TL|t)[^)]*\)\s*$/,"").replace(/\s*\((USD|TL)[;,][^)]*\)/,""));
+    $("it-oz").innerHTML=`<thead><tr><th class="l">Kalem</th><th>2027</th><th>2028</th><th>İki yıl</th></tr></thead><tbody>`+I.oz.map(r=>{ const b=/^(NET KÂR|Brüt katkı)/.test(r[0]), ay=/^(Karşılaştırma|Fark|Alpet)/.test(r[0]);
+      return `<tr class="${b?"top":""}${ay?" it-ay":""}"><td class="l">${b?"<b>":""}${kal(r[0])}${b?"</b>":""}</td>${[1,2,3].map(j=>`<td class="${(/USD|TL/.test(r[0])&&!/Alpet: ITT/.test(r[0]))&&r[j]<0?"n":""}${j===k?" sec":""}">${b?"<b>":""}${fm(r[0],r[j])}${b?"</b>":""}</td>`).join("")}</tr>`; }).join("")+`</tbody>`; }
+  $("it-risk").innerHTML=`<thead><tr><th class="l">Risk / yük</th><th class="l">Kimde</th></tr></thead><tbody>`+I.risk.map(r=>{ const m=String(r[1]||""), w=/^Alpet/.test(m)?"Alpet":/^Biz/.test(m)?"Biz":""; return `<tr><td class="l"><b>${esc(r[0])}</b></td><td class="l">${w?`<span class="pill ${w==="Biz"?"i":"d"}">${w}</span> `:""}${esc(m.replace(/^(Alpet|Biz)\s*–\s*/,""))}</td></tr>`; }).join("")+`</tbody>`;
+  { const tl=x=>x==null?"–":nf.format(x), us=x=>x==null?"–":(x<0?"−":"")+nf2.format(Math.abs(x)), m$=x=>x==null?"–":(x<0?"−":"")+nf2.format(Math.abs(x)/1e6), gs=x=>typeof x==="string"&&/^\d{4}-/.test(x)?gunS((Date.parse(x)-Date.UTC(2027,0,1))/864e5):esc(x||"–");
+    const L=I.kg.filter(g=>!YIL||String(g[4]).slice(0,4)===YIL||String(g[3]).slice(0,4)===YIL);
+    $("it-kg").innerHTML=`<thead><tr><th class="l">Kargo</th><th>Net t</th><th class="l">NOR</th><th class="l">Fiyatlama sonu</th><th>CIF Med NOR+3<br><span>$/t</span></th><th>Alım<br><span>$/t</span></th><th>Makas fix<br><span>$/t</span></th><th>ICE kilit<br><span>$/t</span></th><th class="l">Tedarikçi ödemesi</th><th>ITT t</th><th>ITT geliri<br><span>M $</span></th><th>Hedge<br><span>M $</span></th><th>Roll<br><span>M $</span></th><th>Finansman<br><span>M $</span></th><th>Kargo brüt<br><span>M $</span></th></tr></thead><tbody>`
+      +L.map(g=>`<tr><td class="l">${g[0]===0?"Açılış":"#"+g[0]}</td><td>${tl(g[1])}</td><td class="l">${gs(g[3])}</td><td class="l">${gs(g[4])}</td><td>${us(g[5])}</td><td>${us(g[6])}</td><td>${us(g[7])}</td><td>${us(g[8])}</td><td class="l">${gs(g[9])}</td><td>${tl(g[10])}</td><td>${m$(g[11])}</td><td class="${g[12]<0?"n":""}">${m$(g[12])}</td><td>${m$(g[13])}</td><td class="${g[14]>0?"n":""}">${m$(-g[14])}</td><td class="${g[15]<0?"n":"p"}"><b>${m$(g[15])}</b></td></tr>`).join("")+`</tbody>`;
+    $("it-kgsub").textContent=`${L.length} kargo · fiyatlama NOR sonrası 3 kotasyon · makas aynı günlerde fikslenir · roll Alpet'in fiyatına eklenir`; }
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 function kargolar(){
@@ -603,7 +649,7 @@ function ticari(){
       ["Satış tarafı",[/^Satış fiyatı – motorin/,/^Satış primi yöntemi/,/^Rakip maliyeti yönteminde prim alt sınırı/,/^Rakip ithalatçıların alım primi/,/^Dağıtıcı geçiş eşiği/,/^Geçen hacim \/ potansiyel/,/^Navlun avantajının/,/^Tüpraş Batman.*kota|[Rr]afineri.*kota/,/^Karadeniz/,/^Satış fiyatı – benzin/,/^Satış vadesi/,/^Satış hedefi/,/^Asgari (müşteri|aylık) alım/]],
       ["Müşteri davranışı",[/^Bayi kotası/]],[/^Kaynak bazlı/,null],
       ["Faiz ve finansman",[/^TL (finansman )?faizi/,/^USD borçlanma/,/^USD faizi/]],
-      ["Hedge ve parti",[/^Ürün hedge/,/^Motorin hedge oranı/,/^Benzin.*hedge/i,/^Hedge kilit/,/^Kur hedge \(/,/^Kur hedge oranı/,/^Forward maliyeti/,/^Kur hedge – beyanname/,/^Kambiyo kur hedge/,/^Ürün hedge enstrümanı/,/partisi/,/^Uygulanan parti/]],[/^Faaliyet giderleri/,null]];
+      ["Hedge ve parti",[/^Ürün hedge/,/^Motorin hedge oranı/,/^Benzin.*hedge/i,/^Hedge kilit/,/^Kur hedge \(/,/^Kur hedge oranı/,/^Forward maliyeti/,/^Kur hedge – beyanname/,/^Kambiyo kur hedge/,/^Ürün hedge enstrümanı/,/partisi/,/^Uygulanan parti/]],[/^Faaliyet giderleri/,null],["ITT modeli (alternatif · Alpet)",[/^ITT satış primi/,/^Alpet ödeme vadesi/,/^Alpet ÖTV teminat süresi/,/^CIF Med − ICE ortalama makas/,/^Ürün maliyetine eklenen/]]];
     for(const [ad,L] of DUZEN){
       if(L===null){ const g=G.find(g=>ad.test(g[0][0])); if(g){ const x=g.slice(1).filter(r=>!kul.has(r)); x.forEach(r=>kul.add(r)); if(x.some(r=>r[5]!=="not")) out.push(g[0],...x); } continue; }
       const x=L.flatMap(al); if(x.length) out.push([ad,null,null],...x); }
