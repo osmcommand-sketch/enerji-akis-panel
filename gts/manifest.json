@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.102",
+ "surum": "1.0.103",
  "kabuk": 2,
- "tarih": "2026-11-10T20:03:58+03:00",
- "notlar": "GTS Pazar ve akış: beş özet kartı tek satırda",
+ "tarih": "2026-11-10T20:25:11+03:00",
+ "notlar": "Akış kartı: Dağıtıcının bugünkü kaynağı",
  "dosyalar": {
   "ui/index.html": "71b2689c635e61355e142fb1346221b3861fc6b4198acc47fb3b236aad651293",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "326859c656e68aea8dd2ba4baf5c20674456982a07473c37c5b57e45faec0209",
+  "ui/pano.js": "9bfaa73e0b921f41f7a753e3836a1c974416fedffed585bfa92c5eb2c71c4574",
   "gts_pipeline.js": "354c66d5debd8fbb95a3c44a322ef9f07424870b122c930cf6ba45909e16ecfd",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "539c2b37796b6c2f48b7f50781b82e1273f6068dcdc13ec618750ae54d5e0f99",

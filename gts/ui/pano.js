@@ -1003,7 +1003,7 @@ function akis(mod="gts"){
         +kt("Modelde ITT tonu (= ana model satışı)",ton(HT.v),`GTS satış primiyle geçen akışlar · Alpet fiyatıyla fark ${KYT>=HT.v?"+":"−"}${ton(Math.abs(KYT-HT.v))}`);
       dagPanel(KY,IK,TM); }
     else $(AP+"kart").innerHTML=kt(`GTS ${HT.ad}`,ton(HT.v),`${BZ?`motorin ${ton(HT.v)} · benzin ${ton(o[10]*fb)}`:"yalnız motorin"} · ${nSir} dağıtıcı${V.gecis&&V.gecis.r.length?(()=>{ const R=V.gecis.r, p=R.reduce((a,g)=>a+g[3],0), q=R.reduce((a,g)=>a+(g[9]?g[3]:0),0); return `<br>geçiş kuralı: ${R.filter(g=>g[9]).length} / ${R.length} akış, potansiyelin ${pct(p?q/p:0)}${V.gecis.esik!=null?` · eşik ${nf.format(V.gecis.esik)} TL/m³`:""}`; })():""}`)
-      +(KG.D+KG.B+KG.K>0?kt("Bayinin bugünkü kaynağı · Mersin ithal",pct(KG.M/KT),[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(KG[g])}</span>`).join(" · ")+` · Mersin ithal ${ton(KG.M)}`):"");
+      +(KG.D+KG.B+KG.K>0?kt("Dağıtıcının bugünkü kaynağı · Mersin ithal",pct(KG.M/KT),[["D","Tüpraş Mersin deposu"],["B","Tüpraş Batman"],["K","Tüpraş Kırıkkale"]].filter(([g])=>KG[g]>0).map(([g,a])=>`<span style="color:${KAYG[g][1]}">${a} ${ton(KG[g])}</span>`).join(" · ")+` · Mersin ithal ${ton(KG.M)}`):"");
     if(mod!=="itt") dagPanel(KY,IK,TM);
     const T=[...TM.filter(r=>r[4]>r[3]).sort((a,b)=>b[4]-a[4]),...TM.filter(r=>r[4]<=r[3]).sort((a,b)=>(a[4]-a[3])-(b[4]-b[3]))];
     $(AP+"term").innerHTML=`<thead><tr><th class="l">Terminal</th><th class="l">Ürün</th><th>Önce</th><th>Sonra</th><th>Değişim</th><th>%</th></tr></thead><tbody>`+T.map(r=>{ const d=r[4]-r[3]; return `<tr><td class="l"><b>${esc(tAd(r[1]))}</b> <span class="muted">· ${esc(V.term[r[1]]?V.term[r[1]][2]:"")}</span></td><td class="l">${r[2]?"Motorin":"Benzin"}</td><td>${ton(r[3])}</td><td>${ton(r[4])}</td><td class="${d>0?"p":"n"}"><b>${d>0?"+":""}${ton(d)}</b></td><td class="muted">${r[3]?pct(d/r[3]):"yeni"}</td></tr>`; }).join("")+`</tbody>`;
@@ -1029,7 +1029,7 @@ function harita(KY,IK,TM,SF){
   let m=""; for(const [n,d] of Object.entries(G.p)){ const x=IV.get(+n)||0; m+=`<path d="${d}" fill="${x>=0.5?`rgba(184,134,11,${(0.10+0.48*Math.sqrt(x/mx)).toFixed(2)})`:"var(--c0)"}" stroke="#fff" stroke-width="${(0.6*u).toFixed(2)}"><title>${esc(V.il[n]||"")}${x>=0.5?": "+ton(x):""}</title></path>`; }
   const gt=Object.keys(V.term).find(k=>V.term[k][0]==="T227"); let e="";
   if(gt!=null){ const [gx,gy]=pj(V.term[gt][3],V.term[gt][4]);
-    // kaynak grubuna göre yay: bayinin bugünkü kaynağı Mersin / Tüpraş Batman / Tüpraş Kırıkkale
+    // kaynak grubuna göre yay: dağıtıcının bugünkü kaynağı Mersin / Tüpraş Batman / Tüpraş Kırıkkale
     const KV=new Map(); for(const r of KY){ const g=kayKod(r), k=r[2]+"|"+g; KV.set(k,(KV.get(k)||0)+r[6]); }
     for(const [k,x] of [...KV].sort((a,b)=>a[1]-b[1])){ const [i0,g]=k.split("|"), i=+i0, c=G.c&&G.c[i]; if(!c||x<0.01*mx) continue; if(Math.hypot(c[0]-gx,c[1]-gy)<4*u) continue; const h=g==="M"?18:g==="D"?26:g==="B"?34:44;
       e+=`<path d="M${gx.toFixed(1)},${gy.toFixed(1)} Q${((gx+c[0])/2).toFixed(1)},${(Math.min(gy,c[1])-h*u).toFixed(1)} ${c[0].toFixed(1)},${c[1].toFixed(1)}" stroke="${KAYG[g][1]}" stroke-opacity=".8" stroke-linecap="round" stroke-width="${(0.6*u+5*u*Math.sqrt(x/mx)).toFixed(2)}" fill="none"><title>GTS → ${esc(V.il[i]||"")} · bugün ${KAYG[g][0]}: ${ton(x)}</title></path>`; } }
