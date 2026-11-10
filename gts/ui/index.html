@@ -106,6 +106,7 @@ tr.kendi td{background:var(--surface-2)}
 .tabs.alt button{font-size:13px;font-weight:500;padding:6px 12px;border:0;border-radius:7px;margin:0}
 .tabs.alt button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(11,79,102,.18);font-weight:600}
 .tabs.alt[hidden]{display:none}
+.tabs.ust{margin-bottom:10px}.tabs.ust button{font-size:15px;padding:10px 18px}.tabs.alt button[hidden]{display:none}
 .tabs.alt.lpg button[aria-selected="true"]{color:#8A4512}.wrap [data-alt][hidden]{display:none!important}
 .wrap[data-sayfa="lpgmus"]>:not(header):not(nav):not(.lpgm-only):not(footer){display:none}.wrap:not([data-sayfa="lpgmus"]) .lpgm-only{display:none}
 .wrap[data-sayfa="lpgith"]>:not(header):not(nav):not(.lpgi-only):not(footer){display:none}
@@ -652,19 +653,24 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <div class="scn">SENARYO · resmî değil</div>
     <div class="seg yilsec" id="yilsec" role="group" aria-label="Dönem"><button type="button" data-y="" aria-pressed="true">2027–2028</button><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button></div> <button type="button" class="degis" id="degistir">Başka paket aç</button>
   </header>
-  <nav class="tabs" role="tablist" aria-label="Bölümler">
-    <button type="button" role="tab" data-v="genel" aria-selected="true">Genel bakış</button>
-    <button type="button" role="tab" data-v="akis" aria-selected="false">Pazar ve akış</button>
-    <button type="button" role="tab" data-v="operasyon" aria-selected="false">Operasyon</button>
-    <button type="button" role="tab" data-v="kargo" aria-selected="false">Kargolar</button>
-    <button type="button" role="tab" data-v="satis" aria-selected="false">Satışlar</button>
-    <button type="button" role="tab" data-v="rakip" aria-selected="false">Rakip analizi</button>
-    <button type="button" role="tab" data-v="nakit" aria-selected="false">Nakit akışı</button>
-    <button type="button" role="tab" data-v="itt" aria-selected="false">ITT modeli</button>
-    <button type="button" role="tab" data-v="ekonomi" aria-selected="false">Ekonomi</button>
-    <button type="button" role="tab" data-v="hedge" aria-selected="false">Hedge</button>
-    <button type="button" role="tab" data-v="risk" aria-selected="false">Risk</button>
-    <button type="button" role="tab" data-v="varsayim" aria-selected="false">Varsayımlar</button>
+  <nav class="tabs ust" role="tablist" aria-label="Model">
+    <button type="button" role="tab" data-mod="gts" aria-selected="true">GTS</button>
+    <button type="button" role="tab" data-mod="itt" aria-selected="false">ITT Modeli</button>
+  </nav>
+  <nav class="tabs alt" role="tablist" aria-label="Bölümler">
+    <button type="button" role="tab" data-v="genel" data-m="gts" aria-selected="true">Genel bakış</button>
+    <button type="button" role="tab" data-v="akis" data-m="gts" aria-selected="false">Pazar ve akış</button>
+    <button type="button" role="tab" data-v="operasyon" data-m="gts" aria-selected="false">Operasyon</button>
+    <button type="button" role="tab" data-v="kargo" data-m="gts" aria-selected="false">Kargolar</button>
+    <button type="button" role="tab" data-v="satis" data-m="gts" aria-selected="false">Satışlar</button>
+    <button type="button" role="tab" data-v="rakip" data-m="gts" aria-selected="false">Rakip analizi</button>
+    <button type="button" role="tab" data-v="nakit" data-m="gts" aria-selected="false">Nakit akışı</button>
+    <button type="button" role="tab" data-v="ekonomi" data-m="gts" aria-selected="false">Ekonomi</button>
+    <button type="button" role="tab" data-v="hedge" data-m="gts" aria-selected="false">Hedge</button>
+    <button type="button" role="tab" data-v="risk" data-m="gts" aria-selected="false">Risk</button>
+    <button type="button" role="tab" data-v="varsayim" data-m="gts" aria-selected="false">Varsayımlar</button>
+    <button type="button" role="tab" data-v="itt" data-m="itt" aria-selected="false" hidden>Genel bakış</button>
+    <button type="button" role="tab" data-v="ittakis" data-m="itt" aria-selected="false" hidden>Pazar ve akış</button>
   </nav>
 
   <!-- GENEL -->
@@ -867,35 +873,68 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
   </div>
   <div class="v" data-v="itt" hidden>
     <section>
-      <div class="head"><h2>ITT modeli · konsinye stok, Alpet'e tank içi transfer</h2><span class="sub" id="it-sub"></span>
+      <div class="head"><h2>ITT modeli · GTS ithal eder, Alpet'e tank içi transfer</h2><span class="sub" id="it-sub"></span>
         <div class="seg rk-gseg" id="it-yil" role="group" aria-label="Dönem"><button type="button" data-y="2027" aria-pressed="false">2027</button><button type="button" data-y="2028" aria-pressed="false">2028</button><button type="button" data-y="" aria-pressed="true">İki yıl</button></div></div>
       <div class="kpi4" id="it-kpi"></div>
     </section>
     <section>
-      <div class="head"><h2>Kim kâra geçer? Alım primi × ITT primi</h2><span class="sub" id="it-izsub"></span></div>
-      <div class="scroll"><table class="t it-izg" id="it-izg"></table></div>
-      <p class="not">Bizim net: alım primi (Ticari koşullar · Alım tarafı) her 1 $/t iyileşince ITT tonu kadar artar; ITT primi her 1 $/t yükselince aynı kadar artar. Alpet brüt yalnız ITT primine bağlıdır (ITT fiyatı CIF eşdeğeri; alım iskontosu bizde kalır). Doğrusal ilişki, PDM paket 114'te dört tam yeniden hesapla doğrulandı. Alpet brüt: ana model satış fiyatıyla, ÖTV teminat maliyeti sonrası; Alpet'in kur, finansman ve genel giderleri hariç. Yeşil: ikisi de kârda; açık yeşil: biri kârda.</p>
-    </section>
-    <section>
-      <div class="head"><h2>Aylık katkı</h2><span class="sub" id="it-aysub"></span></div>
-      <div class="grf" id="it-ay"></div>
+      <div class="head"><h2>ITT koşulları</h2><span class="sub">GTS'nin alımı · Alpet'in GTS'den alımı · Alpet'in dağıtıcılara satışı · masaüstünde değiştirip yeniden hesaplayın</span></div>
+      <div id="it-tic"></div>
     </section>
     <div class="kg-iki">
       <section>
-        <div class="head"><h2>Kâr / zarar</h2><span class="sub">USD bizim P&amp;L; alttaki satırlar ana modelle karşılaştırma ve Alpet etkisi</span></div>
-        <div class="scroll"><table class="t it-oz" id="it-oz"></table></div>
+        <div class="head"><h2>GTS kâr / zarar</h2><span class="sub">USD · ithalatçı, antrepoda mal sahibi</span></div>
+        <div class="scroll"><table class="t it-oz" id="it-gts"></table></div>
       </section>
       <section>
-        <div class="head"><h2>Risk ve yük dağılımı</h2></div>
-        <div class="scroll"><table class="t" id="it-risk"></table></div>
-        <p class="not">Girdiler: Ticari koşullar &gt; ITT modeli (ITT satış primi, Alpet ödeme vadesi). Masaüstünde değiştirince sayfa yeniden hesaplanır. Hacim ve kargo planı ana modelle aynıdır (Alpet alımı = ana modelin satışı).</p>
+        <div class="head"><h2>Alpet kâr / zarar</h2><span class="sub">TL · ITT ile ithalatçı, hedef pazara satar</span></div>
+        <div class="scroll"><table class="t it-oz" id="it-alp"></table></div>
+      </section>
+    </div>
+    <div class="kg-iki">
+      <section>
+        <div class="head"><h2>GTS aylık katkı</h2><span class="sub" id="it-aysub"></span></div>
+        <div class="grf" id="it-ay"></div>
+      </section>
+      <section>
+        <div class="head"><h2>Alpet aylık net</h2><span class="sub" id="it-ayasub"></span></div>
+        <div class="grf" id="it-aya"></div>
       </section>
     </div>
     <section>
-      <div class="head"><h2>Kargolar · NOR + 3 fiyatlama, makas fiksleme, ICE kilit</h2><span class="sub" id="it-kgsub"></span></div>
+      <div class="head"><h2>Risk ve yük dağılımı</h2></div>
+      <div class="scroll"><table class="t" id="it-risk"></table></div>
+    </section>
+    <section>
+      <div class="head"><h2>Kargolar · COD + N kotasyon fiyatlama, makas fiksleme, ICE kilit</h2><span class="sub" id="it-kgsub"></span></div>
       <div class="scroll st-scr"><table class="t st-t" id="it-kg"></table></div>
     </section>
   </div>
+
+  <div class="v" data-v="ittakis" hidden>
+    <section>
+      <div class="head"><h2>Pazar ve akış · ITT: GTS → Alpet → hedef pazar</h2><span class="sub" id="ia-sub"></span></div>
+      
+      <div class="ctl" hidden>
+        <div class="seg" role="group" aria-label="Hacim hedefi" id="ia-sen"><button type="button" data-s="BAZ_075" aria-pressed="false">Baz · 0,75 Mt</button><button type="button" data-s="HEDEF_150" aria-pressed="true">Hedef · 1,5 Mt</button></div>
+        <label class="sr-only" for="ia-vaka">Vaka</label><select id="ia-vaka"></select>
+      </div>
+      <div class="kg" id="ia-kart"></div>
+    </section>
+    <section>
+      <div class="head"><h2>Kayan hacim haritası</h2><span class="sub" id="ia-hsub"></span></div>
+      <div class="hg2"><div id="ia-harita" class="grf"></div><div class="ilp" id="ia-il"></div></div>
+    </section>
+    <section>
+      <div class="head"><h2>Terminaller: önce ve sonra</h2><span class="sub" id="ia-tsub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t" id="ia-term"></table></div>
+    </section>
+    <section>
+      <div class="head"><h2>Alpet'in hedef müşterileri · dağıtıcılar</h2><span class="sub" id="ia-ssub"></span></div>
+      <div class="scroll" style="max-height:none"><table class="t" id="ia-sir"></table></div>
+    </section>
+  </div>
+
   <div class="v" data-v="ekonomi" hidden>
     <section>
       <div class="head"><h2>Yıllara göre sonuç</h2><span class="sub">M $ · Özet "Yıllara göre" bloğu · kargo marjı satılan tona göre yıllara bölünür</span></div>
