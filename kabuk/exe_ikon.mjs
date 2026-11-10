@@ -1,0 +1,14 @@
+import * as ResEdit from 'resedit'; import * as PELibrary from 'pe-library'; import fs from 'fs';
+const [exe, ico, ad, surum] = process.argv.slice(2);
+const exeData = PELibrary.NtExecutable.from(fs.readFileSync(exe), { ignoreCert: true });
+const res = PELibrary.NtExecutableResource.from(exeData);
+const icon = ResEdit.Data.IconFile.from(fs.readFileSync(ico));
+const grp = ResEdit.Resource.IconGroupEntry.fromEntries(res.entries);
+const id = grp.length ? grp[0].id : 1, lang = grp.length ? grp[0].lang : 1033;
+ResEdit.Resource.IconGroupEntry.replaceIconsForResource(res.entries, id, lang, icon.icons.map(i => i.data));
+const vi = ResEdit.Resource.VersionInfo.fromEntries(res.entries)[0];
+const v = surum.split('.').map(Number);
+vi.setFileVersion(v[0], v[1], v[2], 0, 1033); vi.setProductVersion(v[0], v[1], v[2], 0, 1033);
+vi.setStringValues({ lang: 1033, codepage: 1200 }, { FileDescription: ad, ProductName: ad, CompanyName: 'GTS', OriginalFilename: ad + '.exe', InternalName: ad, LegalCopyright: '' });
+vi.outputToResourceEntries(res.entries); res.outputResource(exeData);
+fs.writeFileSync(exe, Buffer.from(exeData.generate())); console.log('ok', exe, 'ikon grubu', id);
