@@ -272,12 +272,12 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       if (K.every((i) => i >= 0)) { const R = satir('Nakit_Akisi', 5).filter((r) => serial(r[0]));
         O.nakit = { g0: tarih(R[0][0]), g: R.map((r) => K.map((i) => R2((r[i] || 0) / 1e6, 2))), kur: R.map((r) => R2(r[ku], 4)), usd: R.map((r) => R2((r[ku$] || 0) / 1e6, 3)) }; } } } catch (e) { O.nakit = null; log('Nakit akışı: ' + (e && e.message)); }
   /* Dağıtıcı geçiş kuralı (paket 109+ Gecis; kullanıcı 09.11.2026 21:25): dağıtıcı × il × bugünkü kaynak terminal → GTS avantajı ve geçiyor (girdilerle canlı).
-     r: [şirket idx, il adı, kaynak terminal idx, potansiyel t, Leg2 bugün km, Leg2 GTS km, alternatif teslim − Tüpraş, GTS teslim − Tüpraş, avantaj TL/m³, geçiyor 0/1] */
+     r: [şirket idx, il adı, kaynak terminal idx, potansiyel t, Leg2 bugün km, Leg2 GTS km, alternatif teslim − Tüpraş, GTS teslim − Tüpraş, avantaj TL/m³, geçiyor 0/1, en ucuz alternatif kaynak (paket 112+)] */
   try { const GS = X.sayfa('Gecis'); if (GS) { const hi = GS.findIndex((x) => x && x[0] === 'Şirket' && x[1] === 'Şirket ID'), H = GS[hi] || [], c = (re) => H.findIndex((h) => typeof h === 'string' && re.test(h));
-      const K = { id: 1, il: 2, tid: c(/^Terminal ID/), pot: c(/^Potansiyel hacim/), kb: c(/^Leg2 bugün/), kg: c(/^Leg2 GTS/), at: c(/^Alternatif bölgeye teslim/), gt: c(/^GTS bölgeye teslim/), av: c(/^GTS avantajı/), ge: c(/^Geçiyor/) };
-      if (hi > 0 && Object.values(K).every((i) => i >= 0)) { const si = new Map(D.sir.map((r, i) => [r[0], i])), ti = new Map(D.term.map((r, i) => [r[0], i])), R = [];
+      const K = { id: 1, il: 2, tid: c(/^Terminal ID/), pot: c(/^Potansiyel hacim/), kb: c(/^Leg2 bugün/), kg: c(/^Leg2 GTS/), at: (() => { const i = c(/^EN UCUZ ALTERNATİF teslim/i); return i >= 0 ? i : c(/^Alternatif bölgeye teslim/); })(), gt: c(/^GTS bölgeye teslim/), av: c(/^GTS avantajı/), ge: c(/^Geçiyor/) };
+      if (hi > 0 && Object.values(K).every((i) => i >= 0)) { const si = new Map(D.sir.map((r, i) => [r[0], i])), ti = new Map(D.term.map((r, i) => [r[0], i])), R = [], kay = c(/^En ucuz alternatif kaynak/);   // paket 112+: [10] en ucuz alternatifin adı
         for (let i = hi + 1; i < GS.length; i++) { const x = GS[i]; if (!x || typeof x[K.id] !== 'string' || typeof x[K.pot] !== 'number') continue;
-          R.push([si.has(x[K.id]) ? si.get(x[K.id]) : -1, x[K.il], ti.has(x[K.tid]) ? ti.get(x[K.tid]) : -1, R2(x[K.pot]), R2(x[K.kb], 1), R2(x[K.kg], 1), R2(x[K.at], 1), R2(x[K.gt], 1), R2(x[K.av], 1), x[K.ge] ? 1 : 0]); }
+          R.push([si.has(x[K.id]) ? si.get(x[K.id]) : -1, x[K.il], ti.has(x[K.tid]) ? ti.get(x[K.tid]) : -1, R2(x[K.pot]), R2(x[K.kb], 1), R2(x[K.kg], 1), R2(x[K.at], 1), R2(x[K.gt], 1), R2(x[K.av], 1), x[K.ge] ? 1 : 0, kay >= 0 && typeof x[kay] === 'string' ? x[kay] : null]); }
         const OZ = X.sayfa('Ozet') || [], es = OZ.find((x) => x && typeof x[6] === 'string' && /geçiş eşiği/i.test(x[6]));
         O.gecis = { r: R, esik: es && typeof es[7] === 'number' ? es[7] : null }; } } } catch (e) { O.gecis = null; log('Geçiş kuralı: ' + (e && e.message)); }
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);
