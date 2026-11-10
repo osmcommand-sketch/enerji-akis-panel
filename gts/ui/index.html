@@ -642,6 +642,12 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 
 /* ITT: tablo ve grafik çiftleri eşit genişlik / yükseklik (kullanıcı 10.11.2026 18:59) */
 .kg-iki.it-esit{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+/* ITT pazar ve akış: beş kart tek satırda (kullanıcı 10.11.2026 20:00) */
+.ia-satir{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:stretch}
+.ia-satir>#ia-kart,.ia-satir>#ia-dkpi{display:contents}
+.ia-satir .kt{grid-column:auto!important;margin:0}
+@media (max-width:1100px){.ia-satir{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.ia-satir{grid-template-columns:1fr}}
 @media (max-width:900px){.kg-iki.it-esit{grid-template-columns:minmax(0,1fr)}}
 .it-esit > section{display:flex;flex-direction:column}
 .it-esit .head .sub{min-height:2.6em}
@@ -945,8 +951,10 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
         <div class="seg" role="group" aria-label="Hacim hedefi" id="ia-sen"><button type="button" data-s="BAZ_075" aria-pressed="false">Baz · 0,75 Mt</button><button type="button" data-s="HEDEF_150" aria-pressed="true">Hedef · 1,5 Mt</button></div>
         <label class="sr-only" for="ia-vaka">Vaka</label><select id="ia-vaka"></select>
       </div>
-      <div class="kg" id="ia-kart"></div>
-      <div class="kpi4 a-dkpi" id="ia-dkpi" aria-live="polite"></div>
+      <div class="ia-satir">
+        <div class="kg" id="ia-kart"></div>
+        <div class="kpi4 a-dkpi" id="ia-dkpi" aria-live="polite"></div>
+      </div>
     </section>
     <section>
       <div class="head"><h2>Kayan hacim haritası</h2><span class="sub" id="ia-hsub"></span></div>

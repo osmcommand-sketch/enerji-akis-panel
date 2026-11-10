@@ -1,11 +1,11 @@
 {
  "uygulama": "gts",
- "surum": "1.0.100",
+ "surum": "1.0.101",
  "kabuk": 2,
- "tarih": "2026-11-10T19:32:01+03:00",
- "notlar": "ITT Modeli: Operasyon, Kargolar, Satışlar, Rakip analizi, Nakit akışı, Ekonomi, Hedge, Risk ve Varsayımlar sayfaları",
+ "tarih": "2026-11-10T20:01:23+03:00",
+ "notlar": "ITT Pazar ve akış: beş özet kartı tek satırda",
  "dosyalar": {
-  "ui/index.html": "1fbb2a8bb9ad4e612296f43a0365927447d810a8e0f8b74a38e3bd2837630df3",
+  "ui/index.html": "25e7104442b56bfb1b21f7f48c0b54ba9402a9a5cb38790c5421a5bbabdee9d6",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
   "ui/pano.js": "326859c656e68aea8dd2ba4baf5c20674456982a07473c37c5b57e45faec0209",
   "gts_pipeline.js": "354c66d5debd8fbb95a3c44a322ef9f07424870b122c930cf6ba45909e16ecfd",
