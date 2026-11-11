@@ -3,6 +3,10 @@
    2) Stok ve alacak finansmanı alım primi içinde (kullanıcı 02.11.2026 17:55: "bunu biz alım primi içinde hesaplıyoruz"):
       Motorin_Kargolar / Benzin_Kargolar R sütunu (kargo bedeli × USD faizi × (stok günü + satış vadesi − ödeme vadesi)) 0'lanır.
       Aynı USD faizi (Girdiler B47) hedge teminat finansmanında da kullanıldığı için B47 değiştirilmez.
+   4) Rakip ithalatçıların alım primi (Ozet H44; kullanıcı 11.11.2026 17:34 "bunu değiştirebilelim"): modelde hiçbir formül H44'ü okumaz, rakip maliyetleri
+      PDM tablosundan sabit değer olarak gelir. H44 değişince fark (USD/t) × TL/m³ karşılığı (Ozet H55; yoksa Gecis G3 × 0,845) şu sabitlere eklenir:
+      Gecis I (bugünkü kaynak ithalat terminaliyse), Gecis T (Karadeniz ithal alımı), Dagiticilar P (× ithal payı K). Tüpraş kaynakları değişmez.
+      Birinci derece yaklaşımdır (ithalat finansmanı ve vade etkisi hariç); kesin değer için PDM rakip zincirini yeniden koşar.
    Girdi anahtarı GTS!FinansmanPrimde: 'Alım priminde' (varsayılan) | 'Ayrıca hesapla'.
    3) Tek kur hedge anahtarı (kullanıcı 03.11.2026 19:29 "birleştir"): Ozet 'Kur hedge (Açık / Kapalı)' (H19, satış tahsilatı) alış tarafındaki
       'Kambiyo kur hedge' (H42, beyanname → fatura vadesi forward) hücresini de belirler; ikisi her zaman aynı değeri alır. */
@@ -25,6 +29,18 @@
       for (const [k, x] of O.cells) { if (k % 16384 !== 6 || typeof x.v !== 'string') continue; const r = Math.floor(k / 16384) + 1;
         if (/^Kur hedge \(Açık/.test(x.v)) { a = 'Ozet!H' + r; const h = O.cells.get(k + 1); a0 = h ? h.v : null; } else if (/^Kambiyo kur hedge/.test(x.v)) b = 'Ozet!H' + r; }
       if (a && b) KH = { a, b, a0 }; } }
+    let RP = null; { const O = W.Ozet, Gc = W.Gecis, D = W.Dagiticilar; if (O && Gc) { let adr = null, v0 = null, f = null;
+      for (const [k, x] of O.cells) { if (k % 16384 !== 6 || typeof x.v !== 'string') continue; const h = O.cells.get(k + 1);
+        if (/^Rakip ithalatçıların alım primi/.test(x.v)) { adr = 'Ozet!H' + (Math.floor(k / 16384) + 1); v0 = h && typeof h.v === 'number' ? h.v : null; }
+        else if (/^TL\/m³ karşılığı – 1 USD\/t/.test(x.v) && h && typeof h.v === 'number') f = h.v; }
+      if (f == null) { const g3 = Gc.cells.get(2 * 16384 + 6); if (g3 && typeof g3.v === 'number') f = g3.v * 0.845; }
+      if (adr && v0 != null && f) { const L = [];
+        for (const [k, x] of Gc.cells) { const c = k % 16384, rw = Math.floor(k / 16384) + 1; if (rw < 6 || typeof x.v !== 'number' || x.f) continue;
+          if (c === 8) { const t = Gc.cells.get(k - 5); if (t && typeof t.v === 'string' && !/Tüpraş/.test(t.v)) L.push(['Gecis!I' + rw, x.v, 1]); }
+          else if (c === 19) L.push(['Gecis!T' + rw, x.v, 1]); }
+        if (D) for (const [k, x] of D.cells) { const c = k % 16384, rw = Math.floor(k / 16384) + 1; if (c !== 15 || rw < 6 || typeof x.v !== 'number' || x.f) continue;
+          const pay = D.cells.get(k - 5); if (pay && typeof pay.v === 'number' && pay.v > 0) L.push(['Dagiticilar!P' + rw, x.v, pay.v]); }
+        RP = { adr, v0, f, L }; } } }
     // dağıtıcı alım ritmi (kullanıcı 04.11.2026 10:27 "alımlar günlük"): paket 81'den itibaren modelin varsayılanı Günlük; GTS!AlimRitmi girilirse Dagiticilar H sütunu ona çekilir
     const RT = []; { const D = W.Dagiticilar; if (D) for (const [k, x] of D.cells) if (k % 16384 === 7 && typeof x.v === 'string' && /^(Günlük|2 günde bir|Haftalık)$/.test(x.v)) RT.push('Dagiticilar!H' + (Math.floor(k / 16384) + 1)); }
     const bag = (g) => { const o = { ...g };
@@ -32,8 +48,9 @@
       { const rt = g['GTS!AlimRitmi']; if (rt && rt !== 'Model') for (const a of RT) if (!(a in g)) o[a] = rt; }   // paket 81+: model varsayılanı Günlük → panel yalnız açık girdiyle değiştirir
       if (FW) o['Girdiler!B' + FW.ft] = ('Girdiler!B' + FW.tl) in g ? g['Girdiler!B' + FW.tl] : FW.tl0;
       if ((g['GTS!FinansmanPrimde'] || 'Alım priminde') === 'Alım priminde') for (const a of FR) o[a] = 0;
+      if (RP && RP.adr in g) { const d = (Number(g[RP.adr]) - RP.v0) * RP.f; if (isFinite(d) && Math.abs(d) > 1e-9) for (const [a, v, w] of RP.L) if (!(a in g)) o[a] = v + d * w; }
       return o; };
-    return { bag, FW, FR, modelFW, modelFin, KH, RT };
+    return { bag, FW, FR, modelFW, modelFin, KH, RT, RP };
   }
   const api = { kur };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else kok.GirdiBag = api;
