@@ -131,6 +131,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   try { if (has('SCN_GTS_RAKIP_MALIYET_V2')) { const K = ['Yil', 'Sirket', 'Rafineri_alicisi', 'Yukleme_noktasi', 'Il', 'Kaynak', 'Tip', 'Hacim_t', 'Leg2_km', 'CIF', 'Kur', 'Tupras_Izmit', 'Fiyat_bazi', 'Liste_TL_m3', 'Prim_orani', 'Prim_TL_m3', 'Vade_gun', 'Vade_degeri_TL_m3', 'Urun_TL_m3', 'Ic_gider_TL_m3', 'Vergi_fin_TL_m3', 'Ellecleme_TL_m3', 'Tasima_TL_m3', 'Alim_maliyeti_TL_m3', 'Alim_maliyeti_vergi_vadeli_TL_m3', 'Bolgeye_teslim_TL_m3', 'GTS_farki_TL_m3', 'GTS_farki_teslim_TL_m3', 'Not'];
       const yv = (v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v);
       O.rakip = { kol: K, satir: Q('select ' + K.map((k) => '"' + k + '"').join(',') + ' from SCN_GTS_RAKIP_MALIYET_V2 order by Yil, Sirket, Yukleme_noktasi').map((r) => K.map((k) => yv(r[k]))), durum: (Q('select Durum from SCN_GTS_RAKIP_MALIYET_V2 limit 1')[0] || {}).Durum || '' }; } } catch (e) { O.rakip = null; log('Rakip analizi: ' + e.message); }
+  /* paket 141+: rakip ithalatçı alım primi (Ozet H44) için kesin parçalı doğrusal tablo (SCN_GTS_RAKIP_PRIM_PARCA); girdi_bag.js yaklaşımın yerine kullanır */
+  let RPP = null; try { if (has('SCN_GTS_RAKIP_PRIM_PARCA')) RPP = Q('select Sayfa,Sirket_ID,Il,Terminal_ID,Sutun,H44_alt,H44_ust,Sabit_TL_m3,Egim_TL_m3_USD_t from SCN_GTS_RAKIP_PRIM_PARCA'); } catch { RPP = null; }
+  O.rakipPrimTablo = !!(RPP && RPP.length);
   db.close();
   // Excel modeli
   log('Excel modeli okunuyor: ' + path.basename(xl.ad));
@@ -143,7 +146,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   log(Object.keys(girdi).length ? 'Model sizin girdilerinizle yeniden hesaplanıyor' : 'Model hesaplanıyor');
   // Forward faizleri (kullanıcı 02.11.2026 17:47): forward TL faizi = Genel bakıştaki TL faizi; USD faizi panelden girilir
   // panel bağlantıları: forward TL faizi = TL faizi; stok ve alacak finansmanı alım priminde (res/girdi_bag.js)
-  const GB = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xb), FW = GB.FW, bag = GB.bag;
+  const GB = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xb, { parca: RPP }), FW = GB.FW, bag = GB.bag;
   const HSh = (g) => HS.hesapla(xb, bag(g));
   let X = HSh(girdi);
   // Girdiler'deki bir hücre artık Ozet panelinden besleniyorsa (=Ozet!$H$n), eski girdi anahtarını panele taşı
@@ -288,7 +291,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   let XT = X; O.ittModel = null;
   try { const xlI = Z.bul(/(^|\/)GTS_ITT_Alpet_Modeli_20\d\d_20\d\d\.xlsx$/i)[0];
     const varMi = (() => { try { return !!X.sayfa('ITT Modeli'); } catch { return false; } })();
-    if (xlI && !varMi) { log('ITT / Alpet modeli hesaplanıyor: ' + path.basename(xlI.ad)); const xbI = Z.oku(xlI), GBI = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xbI), gI = {};
+    if (xlI && !varMi) { log('ITT / Alpet modeli hesaplanıyor: ' + path.basename(xlI.ad)); const xbI = Z.oku(xlI), GBI = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xbI, { parca: RPP }), gI = {};
       for (const [k, v] of Object.entries(girdi)) { const m = /^Ozet!H(\d+)$/.exec(k); if (/^ITT Modeli!/.test(k) || /^(Girdiler|GTS)!/.test(k) || (m && +m[1] <= 49)) gI[k] = v; }
       XT = HS.hesapla(xbI, GBI.bag(gI)); O.ittModel = path.basename(xlI.ad); } } catch (e) { log('ITT / Alpet modeli: ' + (e && e.message)); }
   try { const IT = XT.sayfa('ITT Modeli'); if (IT) { const ns = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)) ? Number(v) : null);
@@ -317,8 +320,8 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
           if (gb > 0) for (let i = gb + 1; i < gb + 24 && i < IT.length; i++) { const x = IT[i]; if (!x || !x[0]) { if (i > gb + 3) break; continue; } if (/KÂR \/ ZARAR/.test(x[0])) break;
             if (x[1] == null || x[1] === '') { grup = x[0]; continue; } O2.girdi.push([x[0], typeof x[1] === 'string' && !isFinite(Number(x[1])) ? x[1] : ns(x[1]), x[5] || null, 'ITT Modeli!B' + i, grup]); } }   // X.sayfa dizini = Excel satır no
         // ITT primi fiyat endeksi (paket 126+): H etiket, I değer (H9 başlık, I10–I12 girdi, I13 bilgi)
-        { const gb = bul(/^GİRDİLER/); if (gb > 0) { let eg = null; for (let i = gb; i < gb + 16 && i < IT.length; i++) { const x = IT[i]; if (!x || typeof x[7] !== 'string' || !x[7].trim()) continue;
-            if (x[8] == null || x[8] === '') { eg = x[7]; continue; } if (!eg) continue; O2.girdi.push([x[7], typeof x[8] === 'string' && !isFinite(Number(x[8])) ? x[8] : ns(x[8]), null, 'ITT Modeli!I' + i, eg]); } } }
+        { const gb = bul(/^GİRDİLER/); if (gb > 0) { let eg = null, son = null; for (let i = gb; i < gb + 22 && i < IT.length; i++) { const x = IT[i]; if (!x || typeof x[7] !== 'string' || !x[7].trim()) { if (x && (x[7] == null || x[7] === '')) eg = null; continue; }
+            if (x[8] == null || x[8] === '') { if (x[7].length > 70) { if (son && !son[2]) son[2] = x[7]; } else eg = x[7]; continue; } /* paket 142: uzun metin = açıklama; boş satır grubu kapatır */ son = [x[7], typeof x[8] === 'string' && !isFinite(Number(x[8])) ? x[8] : ns(x[8]), null, 'ITT Modeli!I' + i, eg || 'ITT hacmi']; O2.girdi.push(son); } } }
         // B14 yüzde (paket 123+): C14 TL/m³ karşılığı
         { const i14 = O2.girdi.findIndex((g) => /^Alpet satışı \(dağıtıcılara\)/.test(g[0])); if (i14 >= 0) { const rI = +O2.girdi[i14][3].replace(/\D+/g, ''), c = IT[rI] && ns(IT[rI][2]); O2.b14tl = c != null && Math.abs(O2.girdi[i14][1]) < 1 ? R2(c, 1) : null; if (O2.b14tl != null) O2.girdi[i14][2] = 'TL/m³ karşılığı ≈ ' + Math.round(O2.b14tl).toLocaleString('tr-TR') + ' (ortalama İzmir RSF ile)' + (O2.girdi[i14][2] ? ' · ' + O2.girdi[i14][2] : ''); } }
         const G2 = XT.sayfa('Ozet') || []; O2.h7 = ns((G2.find((x) => x && typeof x[6] === 'string' && /^Alım primi \/ iskontosu – motorin/.test(x[6])) || [])[7]);

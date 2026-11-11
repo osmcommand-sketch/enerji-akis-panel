@@ -19,18 +19,19 @@ const kolNo = (s) => { let c = 0; for (const ch of s) c = c * 26 + ch.charCodeAt
 
 /* ---------- formül ayrıştırıcı ---------- */
 function tokenize(f) {
-  const T = []; let i = 0;
+  const T = []; let i = 0, qsh = null;   /* qsh: tırnaklı sayfa adı ('ITT Modeli'!$I$16; paket 142) */
   while (i < f.length) {
     const ch = f[i];
+    if (ch === "'") { const mq = /^'((?:[^']|'')+)'!/.exec(f.slice(i)); if (mq) { qsh = mq[1].replace(/''/g, "'"); i += mq[0].length; continue; } }
     if (ch === ' ' || ch === '\n') { i++; continue; }
     if (ch === '"') { let j = i + 1, s = ''; for (;;) { if (f[j] === '"') { if (f[j + 1] === '"') { s += '"'; j += 2; continue; } break; } s += f[j++]; if (j > f.length) throw new Error('kapanmayan metin'); } T.push({ t: 'str', v: s }); i = j + 1; continue; }
     // tam sütun aralığı (paket 85: SUMIFS(Musteri_Gunluk!$H:$H; …)) – r2 = −1: sayfanın kullanılan son satırı
     const mk = /^(?:([A-Za-z_][\w.]*)!)?\$?([A-Z]{1,3}):\$?([A-Z]{1,3})(?![\w(])/.exec(f.slice(i));
-    if (mk && !/^[A-Za-z_][\w.]*\(/.test(f.slice(i))) { T.push({ t: 'ref', sh: mk[1] || null, r1: 0, c1: kolNo(mk[2]), r2: -1, c2: kolNo(mk[3]) }); i += mk[0].length; continue; }
+    if (mk && !/^[A-Za-z_][\w.]*\(/.test(f.slice(i))) { T.push({ t: 'ref', sh: mk[1] || qsh || null, r1: 0, c1: kolNo(mk[2]), r2: -1, c2: kolNo(mk[3]) }); qsh = null; i += mk[0].length; continue; }
     const m3 = /^(?:([A-Za-z_][\w.]*)!)?(\$?)([A-Z]{1,3})(\$?)(\d+)(?::(\$?)([A-Z]{1,3})(\$?)(\d+))?/.exec(f.slice(i));
     if (m3 && !/^[A-Za-z_][\w.]*\(/.test(f.slice(i))) {
       // hücre ya da aralık (önünde işlev adı olmayan)
-      const ref = { t: 'ref', sh: m3[1] || null, r1: +m3[5] - 1, c1: kolNo(m3[3]) };
+      const ref = { t: 'ref', sh: m3[1] || qsh || null, r1: +m3[5] - 1, c1: kolNo(m3[3]) }; qsh = null;
       if (m3[7]) { ref.r2 = +m3[9] - 1; ref.c2 = kolNo(m3[7]); } else { ref.r2 = ref.r1; ref.c2 = ref.c1; }
       T.push(ref); i += m3[0].length; continue;
     }
