@@ -1,0 +1,12 @@
+const {chromium}=require('playwright'); (async()=>{ const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1500,height:1000}}); const er=[]; p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.argv[2]+'#rakip'); await p.waitForTimeout(2500);
+const t=s=>p.$eval(s,e=>e.innerText.replace(/\s+/g,' ')).catch(()=>'(yok)');
+console.log('KPI',await t('#rk-kpi')); console.log('OZ',(await t('#rk-oz')).slice(0,600));
+await p.screenshot({path:process.argv[3]+'/rk1.png',fullPage:true});
+await p.selectOption('#rk-sir',{index:3}); await p.click('#rk-tip [data-t="yer"]'); await p.click('#rk-olc [data-o="tes"]'); await p.waitForTimeout(500);
+console.log('KPI2',await t('#rk-kpi')); console.log('TAB2',(await t('#rk-tab')).slice(0,700));
+await p.click('#rk-tab th[data-i="12"]'); await p.click('#rk-yil button:last-child'); await p.click('#rk-gor [data-g="nokta"]'); await p.waitForTimeout(300);
+await p.screenshot({path:process.argv[3]+'/rk2.png',fullPage:true});
+await p.setViewportSize({width:390,height:800}); await p.waitForTimeout(300); await p.screenshot({path:process.argv[3]+'/rk3.png'});
+console.log('hscroll',await p.evaluate(()=>document.documentElement.scrollWidth));
+console.log('ERR',er); await b.close(); })();

@@ -1,0 +1,3 @@
+const {chromium}=require('playwright'); (async()=>{ const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1400,height:1000}});
+await p.goto('file://'+process.argv[2]); await p.waitForTimeout(2000); await p.evaluate(()=>{ const b=[...document.querySelectorAll('nav button')].find(x=>/Risk/.test(x.textContent)); b&&b.click(); }); await p.waitForTimeout(1500);
+console.log(await p.evaluate(()=>{ const v=document.querySelector('.v[data-v="risk"]'); return [...v.querySelectorAll('h2,h3,.sub,.kt,.not,table thead,table tbody tr:first-child,.chip,figcaption,p')].map(e=>e.tagName+': '+e.innerText.replace(/\s+/g,' ').slice(0,400)).join('\n'); })); await b.close(); })();

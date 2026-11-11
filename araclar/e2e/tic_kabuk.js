@@ -1,0 +1,11 @@
+const {_electron}=require('playwright'), path=require('path');
+(async()=>{ const [exe,ad,ev]=process.argv.slice(2);
+  const app=await _electron.launch({executablePath:exe,args:['--no-sandbox'],env:{...process.env,HOME:ev,XDG_CONFIG_HOME:path.join(ev,'.config')}});
+  const w=await app.firstWindow(); const er=[]; w.on('pageerror',e=>er.push(e.message));
+  await w.waitForSelector('#g-kpi .kt b',{timeout:560000});
+  const durum=()=>w.evaluate(()=>{ const g=[...document.querySelectorAll('.tf-g')].find(g=>/^Kaynak/.test(g.dataset.g)), s=document.querySelector('select[data-h="Ozet!H30"]'), a=document.querySelector('[data-h="Ozet!H37"]');
+    return {yontem:s&&s.value, pasif:g&&g.classList.contains('pasif'), kaynakKapali:g&&[...g.querySelectorAll('input')].every(i=>i.disabled), altKapali:a&&a.disabled}; });
+  console.log('ilk',JSON.stringify(await durum()));
+  await w.selectOption('select[data-h="Ozet!H30"]','Sabit segment'); await w.waitForTimeout(300); console.log('sabit',JSON.stringify(await durum()), await w.$eval('#tic-hesap',b=>b.disabled));
+  await w.selectOption('select[data-h="Ozet!H30"]','Rakip maliyeti'); await w.waitForTimeout(300); console.log('rakip',JSON.stringify(await durum()));
+  console.log('ERR',er); await app.close(); })().catch(e=>{ console.log('HATA',e.message.split('\n')[0]); process.exit(1); });

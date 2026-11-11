@@ -1,0 +1,16 @@
+const {chromium}=require('playwright'); (async()=>{ const b=await chromium.launch(); const p=await b.newPage({viewport:{width:1400,height:1000}}); const er=[]; p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.argv[2]); await p.waitForTimeout(2000);
+const nav=async()=>p.evaluate(()=>[...document.querySelectorAll('.tabs.ust button')].map(b=>b.textContent+(b.getAttribute('aria-selected')==='true'?'*':'')).join(' | ')+'  ||  '+[...document.querySelectorAll('.tabs.alt button')].filter(b=>!b.hidden).map(b=>b.textContent+(b.getAttribute('aria-selected')==='true'?'*':'')).join(' | '));
+console.log('A',await nav());
+await p.click('.tabs.ust [data-mod="itt"]'); await p.waitForTimeout(1500); console.log('B',await nav());
+const t=s=>p.$eval(s,e=>e.innerText.replace(/\s+/g,' ')).catch(()=>'yok');
+console.log('KPI',await t('#it-kpi')); console.log('TIC',(await t('#it-tic')).slice(0,700)); console.log('ALP',(await t('#it-alp')).slice(-300));
+await p.$eval('.v[data-v="itt"]',e=>e.scrollIntoView()); await p.screenshot({path:process.argv[3]+'/itt1.png',fullPage:true});
+await p.click('.tabs.alt [data-v="ittakis"]'); await p.waitForTimeout(1500); console.log('C',await nav());
+console.log('IKART',await t('#ia-kart')); console.log('IIL son',(await t('#ia-il')).slice(-600));
+await p.screenshot({path:process.argv[3]+'/itt2.png',fullPage:true});
+await p.click('.tabs.ust [data-mod="gts"]'); await p.waitForTimeout(800); console.log('D',await nav());
+await p.click('.tabs.alt [data-v="akis"]'); await p.waitForTimeout(1500); console.log('AKART',await t('#a-kart'));
+await p.click('.tabs.ust [data-mod="itt"]'); await p.waitForTimeout(800); console.log('E',await nav());
+await p.goto('file://'+process.argv[2]+'#genel'); await p.waitForTimeout(1500); console.log('GTIC',(await t('#g-tic')).includes('Alpet')?'ITT girdisi GTS panelinde!':'ok');
+console.log('ERR',er); await b.close(); })();

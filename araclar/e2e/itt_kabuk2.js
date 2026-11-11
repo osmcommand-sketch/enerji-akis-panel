@@ -1,0 +1,12 @@
+const {_electron}=require('playwright'), path=require('path');
+(async()=>{ const [exe,ev]=process.argv.slice(2);
+  const app=await _electron.launch({executablePath:exe,args:['--no-sandbox'],env:{...process.env,HOME:ev,XDG_CONFIG_HOME:path.join(ev,'.config')}});
+  const w=await app.firstWindow(); const er=[]; w.on('pageerror',e=>er.push(e.message));
+  await w.waitForSelector('#g-kpi .kt b',{timeout:560000});
+  await w.click('.tabs.ust [data-mod="itt"]'); await w.waitForTimeout(1500);
+  console.log('KPI',(await w.$eval('#it-kpi',e=>e.innerText.replace(/\s+/g,' '))).slice(0,200));
+  const i=await w.$('#it-tic input[data-h="ITT Modeli!B5"]'); console.log('B5 aktif',i&&!(await i.isDisabled()));
+  await i.fill('-22'); await w.waitForTimeout(300); console.log('D',await w.$eval('#tici-d',e=>e.textContent), await w.evaluate(()=>[...document.querySelectorAll('#it-tic .hata')].map(x=>x.dataset.h+'='+x.value+' min='+x.dataset.min+' max='+x.dataset.max).join(' ; ')), await w.evaluate(()=>[...document.querySelectorAll('#it-tic [data-h]')].map(x=>x.dataset.h+':'+x.value+':'+x.dataset.d+':'+x.disabled).join(' ; '))); console.log('hesapla aktif',!(await w.$eval('#tici-hesap',b=>b.disabled)));
+  const gt=await w.$('#g-tic input[data-h="ITT Modeli!B5"]'); console.log('GTS panelinde ITT girdisi',!!gt);
+  await w.click('.tabs.alt [data-v="ittakis"]'); await w.waitForTimeout(1500); console.log('IAKART',(await w.$eval('#ia-kart',e=>e.innerText.replace(/\s+/g,' '))).slice(0,160));
+  console.log('ERR',er); await app.close(); })().catch(e=>{ console.log('HATA',e.message.split('\n')[0]); process.exit(1); });
