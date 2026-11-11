@@ -525,10 +525,13 @@ function run(SQL, dbBytes, resDir, log = () => {}, opt = {}) {
       const dg = hasTable('SCN_AKIS_TAHSIS_OZET') ? QA(`select sum(Degisen_ton) from SCN_AKIS_TAHSIS_OZET where Urun='${u}'`)[0][0] : 0;
       oz[u] = [pr(o[0], 1), pr(n[0], 1), pr(o[1]), pr(n[1]), pr(n[2]), pr(dg || 0), eski ? pr(r0[0], 1) : null, eski ? pr(r0[1]) : null];
     }
-    const I = Q('select * from SCN_AKIS_TAHSIS_INCELEME');
+    /* görünen ad = konsolide ad (kullanıcı 11.11.2026 11:51 "şirket adı Bpet"): SCN tabloları tüzel kişi adını (Turkey) taşır */
+    const gad = new Map(); if (tableCols('DIM_SIRKET').includes('Konsolide_Adi')) for (const [a, b] of QA('SELECT Sirket_Adi, Konsolide_Adi FROM DIM_SIRKET')) if (a && b && a !== b) gad.set(a, b);
+    const ga = (x) => gad.get(x) || x;
+    const I = Q('select * from SCN_AKIS_TAHSIS_INCELEME').map(r => ({ ...r, Sirket: ga(r.Sirket) }));
     const y = I.filter(r => /^700/.test(r.Tur)).map(r => [r.Sirket, r.Urun, r.Il, r.Terminal, pr(r.Yeni_atanan_ton, 1), pr(r.Leg2_km, 1), pr(r.Il_ort_km_once, 1)]).sort((a, b) => b[4] - a[4]);
     const u = I.filter(r => !/^700/.test(r.Tur)).map(r => [r.Sirket, r.Urun, r.Il, pr(r.Ton, 1), pr(r.Il_ort_km_once, 1), pr(r.Il_ort_km_sonra, 1)]).sort((a, b) => (b[5] - b[4]) * b[3] - (a[5] - a[4]) * a[3]);
-    const s = hasTable('SCN_AKIS_TAHSIS_OZET') ? Q('select * from SCN_AKIS_TAHSIS_OZET order by Degisen_ton desc').map(r => [r.Sirket_Adi, r.Urun, pr(r.Ton), pr(r.Km_once, 1), pr(r.Km_sonra, 1), pr(r.Ust700_once), pr(r.Ust700_sonra), pr(r.Degisen_ton)]) : [];
+    const s = hasTable('SCN_AKIS_TAHSIS_OZET') ? Q('select * from SCN_AKIS_TAHSIS_OZET order by Degisen_ton desc').map(r => [ga(r.Sirket_Adi), r.Urun, pr(r.Ton), pr(r.Km_once, 1), pr(r.Km_sonra, 1), pr(r.Ust700_once), pr(r.Ust700_sonra), pr(r.Degisen_ton)]) : [];
     // kontroller: tahsisle değişen terminal tonu kapasiteyi aşıyor mu; Batman (T13) demiryolu yükü
     const kap = [];
     if (hasTable('REF_TERMINAL_KAPASITE')) {

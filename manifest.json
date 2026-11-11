@@ -1,15 +1,15 @@
 {
- "surum": "1.0.81",
+ "surum": "1.0.82",
  "kabuk": 2,
- "tarih": "2026-11-06T15:15:12+03:00",
- "notlar": "Kabuk 2 (yeni imza anahtarı); arayüz değişmedi.",
+ "tarih": "2026-11-11T11:52:55+03:00",
+ "notlar": "Tahsis incelemesi: şirket adları panelin geri kalanıyla aynı (Bpet)",
  "dosyalar": {
   "ui/index.html": "4d3cae6004dbeaa159fc26fd650e1ebde6d318c8b83bcf2ecffcd0c09e2ba4fc",
   "ui/app.css": "e98fc0b4ab415ed65a27ddc7b14e2125053c2f40630becdbf9b094d0f2e61653",
   "ui/app.js": "6be64abf58d134d87816a6bbdaf1756074fe57a135e416ba8477efb34f49fbf5",
   "ui/panel.css": "73c923c2d7c86b62c1c9fdbd5273dbbb689002a9c41146bb84436716b3b332d3",
   "ui/panel.js": "ef3c578121c54199a8b19ca8092ff0d76ee7174a44da896bc8f637c39148eee3",
-  "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
+  "pipeline.js": "8695d419e3d79dbdc05da3de0c838969369a6210939e7bd41f6a2a71e5725033",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
