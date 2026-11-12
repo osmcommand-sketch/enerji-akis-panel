@@ -292,7 +292,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   try { const xlI = Z.bul(/(^|\/)GTS_ITT_Alpet_Modeli_20\d\d_20\d\d\.xlsx$/i)[0];
     const varMi = (() => { try { return !!X.sayfa('ITT Modeli'); } catch { return false; } })();
     if (xlI && !varMi) { log('ITT / Alpet modeli hesaplanıyor: ' + path.basename(xlI.ad)); const xbI = Z.oku(xlI), GBI = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xbI, { parca: RPP }), gI = {};
-      for (const [k, v] of Object.entries(girdi)) { const m = /^Ozet!H(\d+)$/.exec(k); if (/^ITT Modeli!/.test(k) || /^(Girdiler|GTS)!/.test(k) || (m && +m[1] <= 49)) gI[k] = v; }
+      for (const [k, v] of Object.entries(girdi)) { const m = /^Ozet!H(\d+)$/.exec(k); if (/^ITT Modeli!/.test(k) || /^(Girdiler|GTS)!/.test(k) || (m && +m[1] <= 49)) gI[k] = v; else { const q = /^ITTOzet!(H\d+)$/.exec(k); if (q) gI['Ozet!' + q[1]] = v; } }   // paket 144+: Alpet teklif girdileri (Ozet H56–H62) ITT dosyasına ayrı anahtarla
       XT = HS.hesapla(xbI, GBI.bag(gI)); O.ittModel = path.basename(xlI.ad); } } catch (e) { log('ITT / Alpet modeli: ' + (e && e.message)); }
   try { const IT = XT.sayfa('ITT Modeli'); if (IT) { const ns = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)) ? Number(v) : null);
       const bul = (re, a = 0) => { for (let i = a; i < IT.length; i++) if (IT[i] && typeof IT[i][0] === 'string' && re.test(IT[i][0])) return i; return -1; };
@@ -329,6 +329,12 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
         let og = null; for (const [ad, v, not, hc, gr] of O2.girdi) { if (gr !== og) { O.tic.push(['ITT · ' + gr, null, null]); og = gr; }
           const adr = hc.split('!')[1], fm = XT.formulMu('ITT Modeli', adr), orj = XT.orijinal('ITT Modeli', adr), dv = XT.dogrulama ? XT.dogrulama('ITT Modeli', adr) : null;
           O.tic.push([ad, typeof v === 'number' ? R2(v, 4) : v, not, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : hc, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : '', dv || (typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? { liste: ['Açık', 'Kapalı'] } : typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : null)]); }
+        /* paket 144+ (kullanıcı 11.11.2026 21:30): Alpet'in müşteri başına teklifi – ITT dosyasının Ozet H56–H62 satırları; anahtar ITTOzet!Hn (GTS dosyasının Ozet'inden bağımsız) */
+        if (O.ittModel) { let ilk = true; for (let i = 56; i <= 62 && i < G2.length; i++) { const x = G2[i]; if (!x || typeof x[6] !== 'string' || x[7] == null) continue;
+            if (ilk) { O.tic.push(['ITT · Alpet teklif fiyatı (müşteri avantajı)', null, null]); ilk = false; }
+            const fm = XT.formulMu('Ozet', 'H' + i), orj = XT.orijinal('Ozet', 'H' + i), dv = fm ? null : XT.dogrulama('Ozet', 'H' + i), v = x[7];
+            O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, typeof x[8] === 'string' ? x[8] : null, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : 'ITTOzet!H' + i, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : '',
+              dv || (typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : typeof v === 'string' && /^(Müşteri avantajı|Önceki)$/.test(v) ? { liste: ['Müşteri avantajı', 'Önceki'] } : null)]); } }
         O.itt = O2; } } } catch (e) { O.itt = null; log('ITT modeli: ' + (e && e.message)); }
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);
   O.tank = []; for (const r of satir('Tank', 3)) { if (!serial(r[0])) continue; O.tank.push([R2(r[1]), R2(r[4]), R2(r[8]), R2(r[11])]); if (!O.tkap) O.tkap = [R2(r[2]), R2(r[5]), R2(r[9]), R2(r[12])]; }
@@ -355,7 +361,11 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (tld.length) for (const r of tld) { const k = r.sen + '|' + (r.varyant ? VY[r.varyant] || r.varyant : 'varsayılan girdiler · TL defter'); (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.net_2027), Number(r.net_2028)]); }
     else for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
     const oz = (v) => { v = [...v].sort((p, q) => p - q); const n = v.length, q = (p) => { const x = p * (n - 1), i = Math.floor(x), j = Math.min(n - 1, i + 1); return v[i] + (v[j] - v[i]) * (x - i); }; return [pr(v.reduce((p, c) => p + c, 0) / n), pr(q(0.1)), pr(q(0.5)), pr(q(0.9)), pr(v.filter((z) => z < 0).length / n, 3)]; };
-    O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; }); }
+    O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; });
+    /* paket 145+ (PDM): ITT modeli MC kolonları – GTS net, Alpet net (kur hedge kapalı / açık), birlikte (ana modelin hedge ayarıyla), ITT tonu; iki yıl, Ana varyant */
+    O.mcItt = null; if (tld.length && 'itt_birlikte_2y' in tld[0]) { const gi = new Map(); for (const r of tld) { if (r.varyant && r.varyant !== 'Ana') continue; (gi.get(r.sen) || gi.set(r.sen, []).get(r.sen)).push(r); }
+      const nn = (v) => v.filter((x) => isFinite(x));
+      O.mcItt = [...gi].map(([s, L]) => [s, L.length, oz(nn(L.map((r) => Number(r.itt_gts_net_2y)))), oz(nn(L.map((r) => Number(r.itt_alpet_usd_hk_2y)))), oz(nn(L.map((r) => Number(r.itt_alpet_usd_ha_2y)))), oz(nn(L.map((r) => Number(r.itt_birlikte_2y)))), oz(nn(L.map((r) => Number(r.itt_ton_2y))))]); } }
   // Karlılık tablosu (Excel Karlilik sayfası)
   O.kartab = null; try { if (X.sayfalar.includes('Karlilik')) { const K = X.sayfa('Karlilik'), rows = [];
     for (let i = 6; i < K.length; i++) { const r = K[i]; if (!r || typeof r[0] !== 'string' || !r[0].trim()) continue; rows.push([r[0], ...[1, 2, 3, 4, 5].map((j) => (typeof r[j] === 'number' ? pr(r[j], 4) : null)), r[6] || null]); }
