@@ -47,7 +47,7 @@
       /* ürün hedge işlemleri (kullanıcı 12.11.2026 10:14 "hangi tarihte ne kadar pozisyon açılıyor ve kapanıyor"): modelde pozisyon = oran × ton;
          kilit fiyatı fiyatlama günlerinin (iş günü, tatil hariç) eşit ağırlıklı ortalaması → her fiyatlama günü eşit miktar açılır;
          kapanış satış penceresinin (ilk satış … tükenme, takvim günü) eşit ağırlıklı ortalaması → her gün eşit miktar kapanır. */
-      const hx = { cb: c(/^Hedge kapanış ağırlığı/), ab: c(/^Hedge kilit fiyatı/), ac: c(/^Satış penceresi CIF ort/), ad: c(/^Ürün hedge brüt/), ae: c(/^Hedge işlem maliyeti/), ak: c(/^Hedge teminat finansmanı/), am: c(/^Ürün hedge oranı/) };
+      const hx = { cd: c(/^Satış fiyatlama başı/), ce: c(/^Satış fiyatlama sonu/), cc: c(/^Devir tarihi/), cb: c(/^Hedge kapanış ağırlığı/), ab: c(/^Hedge kilit fiyatı/), ac: c(/^Satış penceresi CIF ort/), ad: c(/^Ürün hedge brüt/), ae: c(/^Hedge işlem maliyeti/), ak: c(/^Hedge teminat finansmanı/), am: c(/^Ürün hedge oranı/) };
       const hg = {}; if (hx.am >= 0 && hx.ab >= 0) {
         const TT = sayfa('Tatiller') || [], tat = new Set(); for (const r of TT) if (r && typeof r[0] === 'number') tat.add(Math.floor(r[0]));
         const fT = F ? Math.max(0, bas(F, /^Tarih/)) : 0, fI = F ? bas(F, /^ICE LSGO front/) : -1, fC = F ? bas(F, /^CIF Med/) : -1, ice = new Map(), cif = new Map();
@@ -58,12 +58,16 @@
           if (!ac.length) ac.push(Math.floor(f0));
           const kp = []; let kpT = null;
           /* paket 148+ (Kargolar CB var): kapanış FIFO satış ağırlıklı – w = MAX(0, MIN(M, D) − MAX(L, D − C)); hedgenin tamamı satılan kısmın ağırlığıyla kapanır */
-          if (hx.cb >= 0) { const L0 = v(r, 'L'), M0 = v(r, 'M'); let cum = 0; const W = [];
+          /* paket 149+ antrepo devri: hedge satış fiyatlama penceresinde (devir sonrası N kotasyon, iş günü) eşit kapanır */
+          let dvm = false; if (hx.cd >= 0 && hx.ce >= 0 && typeof r[hx.cd] === 'number' && typeof r[hx.ce] === 'number') { dvm = true; const P = [];
+            for (let d = Math.floor(r[hx.cd]); d <= Math.floor(r[hx.ce]); d++) { const w = new Date(Date.UTC(1899, 11, 30) + d * 864e5).getUTCDay(); if (w === 0 || w === 6 || tat.has(d)) continue; P.push(d); }
+            if (!P.length) P.push(Math.floor(r[hx.ce])); kpT = P.map((d) => [Math.round(d - d0), t / P.length]); }
+          else if (hx.cb >= 0) { const L0 = v(r, 'L'), M0 = v(r, 'M'); let cum = 0; const W = [];
             for (let j = 0; j < sat.length; j++) { const a = cum, b = cum + (sat[j] || 0); cum = b; const w = Math.max(0, Math.min(M0, b) - Math.max(L0, a)); if (w > 0.05) W.push([j, w]); }
             const sw = W.reduce((p, x) => p + x[1], 0); if (sw > 0) kpT = W.map(([j, w]) => [j, (w * t) / sw]); }
           else if (typeof n0 === 'number') for (let d = Math.floor(n0); d <= Math.floor(typeof n1 === 'number' ? n1 : n0); d++) kp.push(d);
           hg[v(r, 'no')] = { oran: o, t: r2(t, 1), kilit: r2(r[hx.ab], 2), kap: hx.ac >= 0 ? r2(r[hx.ac], 2) : null, brut: hx.ad >= 0 ? r2(r[hx.ad]) : null, isl: hx.ae >= 0 ? r2(r[hx.ae]) : null, tem: hx.ak >= 0 ? r2(r[hx.ak]) : null, net: r2(v(r, 'hn')), baz: ix.bz >= 0 ? r2(v(r, 'bz')) : null,
-            ac: ac.map((d) => [Math.round(d - d0), r2(t / ac.length, 1), r2(ice.get(d), 2), r2(cif.get(d), 2)]), kp: kpT ? kpT.map(([j, q]) => [j, r2(q, 1), r2(ice.get(Math.round(d0) + j), 2), r2(cif.get(Math.round(d0) + j), 2)]) : kp.map((d) => [Math.round(d - d0), r2(t / kp.length, 1), r2(ice.get(d), 2), r2(cif.get(d), 2)]), sat: !!kpT }; } }
+            ac: ac.map((d) => [Math.round(d - d0), r2(t / ac.length, 1), r2(ice.get(d), 2), r2(cif.get(d), 2)]), kp: kpT ? kpT.map(([j, q]) => [j, r2(q, 1), r2(ice.get(Math.round(d0) + j), 2), r2(cif.get(Math.round(d0) + j), 2)]) : kp.map((d) => [Math.round(d - d0), r2(t / kp.length, 1), r2(ice.get(d), 2), r2(cif.get(d), 2)]), sat: !!kpT && !dvm, dv: dvm, devir: hx.cc >= 0 ? iso(r[hx.cc]) : null }; } }
       out[u] = { k, g0: iso(d0), sat, bey, yog: yog[u], odv, hg, by0 };
     }
     return Object.keys(out).length ? out : null;
