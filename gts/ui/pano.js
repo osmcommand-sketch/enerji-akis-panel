@@ -681,12 +681,16 @@ function kargolar(){
     for(const r of $("kg-sonuc").querySelectorAll("rect[data-k]")) r.onclick=()=>{ S.kgN=+r.dataset.k; kargolar(); }; }
   // satışın FIFO dağılımı: kümülatif satış ∈ (L, M]
   const L=k[21], M=k[22], gun=[]; let cum=0; for(let i=0;i<D.sat.length;i++){ const a=cum, b=cum+D.sat[i]; cum=b; const o=Math.max(0,Math.min(b,M)-Math.max(a,L)); if(o>0.05) gun.push([i,o]); }
-  let cb=0; const BY=[]; for(const b of D.bey){ const a0=cb, a1=cb+b[1]; cb=a1; const o=Math.max(0,Math.min(a1,M)-Math.max(a0,L)); if(o>0.05) BY.push([b[0],o,b[2],b[3]!=null?b[3]*o/b[1]:null,b[4],b[5],o<b[1]-0.05]); }
+  /* kullanıcı 12.11.2026 09:33: beyannameler modelin kendi FIFO kargo atamasıyla (Gunluk "Beyanname kargosu"); kümülatif hesap açılış stoğunun
+     beyanname ofsetini bilmediği için komşu kargonun beyannamesini bu kargoya yazıyordu. Atama yoksa eski kümülatif dağıtım. */
+  let cb=0; const BY=[], kAt=D.bey.some(b=>typeof b[2]==="number"&&b[2]>0);
+  if(kAt) for(const b of D.bey){ if(b[2]===k[0]) BY.push([b[0],b[1],b[2],b[3]!=null?b[3]:null,b[4],b[5],false]); }
+  else for(const b of D.bey){ const a0=cb, a1=cb+b[1]; cb=a1; const o=Math.max(0,Math.min(a1,M)-Math.max(a0,L)); if(o>0.05) BY.push([b[0],o,b[2],b[3]!=null?b[3]*o/b[1]:null,b[4],b[5],o<b[1]-0.05]); }
   const byT=BY.reduce((a,b)=>a+b[1],0), stT=gun.reduce((a,g)=>a+g[1],0), kmb=BY.reduce((a,b)=>a+(b[3]||0),0);
   $("kg-h").textContent=k[0]===0?"Açılış stoğu · yaşam döngüsü":`Kargo ${k[0]} · ${k[1]||""} · yaşam döngüsü`;
   $("kg-sub").textContent=`${S.kgU} · ${nf.format(k[2])} t net${k[3]?` · B/L ${nf.format(k[3])} t`:""} · ${K.filter(x=>x[0]>0).length} kargo`;
   // zaman çizelgesi
-  const OL=[["Fiyatlama"+(k[31]&&k[31]!==k[4]?" başı":""),k[4],C.ink3],...(k[31]&&k[31]!==k[4]?[["Fiyatlama sonu",k[31],C.ink3]]:[]),["NOR / varış",k[5],C.gts],["Antrepo beyannamesi",k[6],"#7B4FA0"],["COD",k[7],C.mot],["Ödeme",k[8],"#C0504D"],["Satışa hazır",k[9],C.pos],["İlk satış",k[10],C.mot],["Tükenme",k[11],C.neg]].filter(x=>x[1]).reduce((a,x)=>{ const o=a.find(y=>y[1]===x[1]); if(o) o[0]+=" · "+x[0]; else a.push([...x]); return a; },[]);
+  const OL=[["Fiyatlama"+(k[31]&&k[31]!==k[4]?" başı":""),k[4],C.ink3],...(k[31]&&k[31]!==k[4]?[["Fiyatlama sonu",k[31],C.ink3]]:[]),["NOR / varış",k[5],C.gts],["Antrepo beyannamesi",k[6],"#7B4FA0"],["COD",k[7],C.mot],["Ödeme",k[8],"#C0504D"],["Satışa hazır",k[9],C.pos],["İlk satış",k[10],C.mot],["Tükenme · son satış",k[11],C.neg]].filter(x=>x[1]).reduce((a,x)=>{ const o=a.find(y=>y[1]===x[1]); if(o) o[0]+=" · "+x[0]; else a.push([...x]); return a; },[]);
   gw($("kg-cizgi")); const xs=OL.map(x=>gi(x[1])), lo=Math.min(...xs,gun.length?gun[0][0]:Infinity), hi=Math.max(...xs,gun.length?gun[gun.length-1][0]:-Infinity), Wd=W||900, H=214, pl=16, pr=16, sx=i=>pl+(hi>lo?(i-lo)/(hi-lo):0.5)*(Wd-pl-pr);
   let g=`<line x1="${pl}" y1="92" x2="${Wd-pr}" y2="92" stroke="var(--line)" stroke-width="2"/>`;
   if(gun.length) g+=`<rect x="${sx(gun[0][0])}" y="86" width="${Math.max(2,sx(gun[gun.length-1][0])-sx(gun[0][0]))}" height="12" rx="3" fill="${C.mot}" opacity=".22"><title>Satış dönemi: ${tS(gun[0][0])} – ${tS(gun[gun.length-1][0])}</title></rect>`;

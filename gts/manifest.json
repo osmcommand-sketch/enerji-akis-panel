@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.109",
+ "surum": "1.0.110",
  "kabuk": 2,
- "tarih": "2026-11-12T09:11:11+03:00",
- "notlar": "Paket 143–145: müşteri avantajı teklif girdileri (GTS ve Alpet ayrı), paçal; rakip primi tablosu ölçek ekonomisine göre bağlandı; ITT Monte Carlo tablosu",
+ "tarih": "2026-11-12T09:35:13+03:00",
+ "notlar": "Kargo yaşam döngüsü: ithalat beyannameleri modelin FIFO kargo atamasıyla; tükenme = son satış",
  "dosyalar": {
   "ui/index.html": "38dc8c1e0a7dca8a20742671c0e5b6bd573d4885224c9968da399939c71988c9",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "1356a999612a73e625f3e5e8f18c344e8cf50d92d963f04342c4bc8504bb190d",
+  "ui/pano.js": "45d96a26e4ffc9bb3b7fe213df156aa9de18768e6f009fb373db9ca71d41e0ab",
   "gts_pipeline.js": "c3794acea50841f07576cb303ee31d3039c65536619e06e563a910489ced43d5",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
