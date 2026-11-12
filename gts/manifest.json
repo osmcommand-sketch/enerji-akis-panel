@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.131",
+ "surum": "1.0.132",
  "kabuk": 2,
- "tarih": "2026-11-12T18:58:18+03:00",
- "notlar": "GTS ticari koşullarında seçilen alanlar gizlendi",
+ "tarih": "2026-11-12T21:18:57+03:00",
+ "notlar": "Yeni Teklif sayfası: potansiyel müşterilerin mevcut alım koşulları (prim, vade; ithal / yerli) şirket bazında KPI'larla",
  "dosyalar": {
-  "ui/index.html": "49b802663aea533ec301ed7b76cfa3cda2767f891f2d7b69636c9cd39fe13f72",
+  "ui/index.html": "1e3d668c68ae628992663f084c59b3a99023c8ba0f1054b4f18064689c2887a8",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "e4cfeb8534b8f6756397886aacdf8f6c42dc765edd7e9cdc2d8e9861bd4c3485",
+  "ui/pano.js": "5774906e23c71bbdcb4b25fd7722c1693dc5f7f00584db5244562ee831dac05c",
   "gts_pipeline.js": "dda5f8e6bd9c4c7287e17fad573f215474045a4ff49e4693b62d1b33c3654a3a",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",

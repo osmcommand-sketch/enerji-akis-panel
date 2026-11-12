@@ -609,6 +609,8 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
 .kg-kpi{margin-top:12px}
 .kg-kpi.k5{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:900px){.kg-kpi.k5{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .t.sik{width:100%;min-width:0}.t.sik th,.t.sik td{padding:5px 7px;font-size:12.5px;white-space:nowrap}.t.sik th{font-size:10px;letter-spacing:.02em}.t.sik th span{font-size:9.5px}
+.tk-sir{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:14px;background:var(--surface)}.tk-sir h3{margin:0 0 2px;font-size:15px}.tk-sir .sub{font-size:12px;color:var(--ink-3)}.tk-sir .kpi4{margin-top:8px}.kpi6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:8px}@media (max-width:1100px){.kpi6{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:600px){.kpi6{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tk-ctl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:6px 0 4px}
 .g-devir{margin-top:14px}.g-devir tr.top td{border-top:1px solid var(--line-2,var(--line))}.g-devir tr.bilgi td{color:var(--ink-3);font-style:italic}
 .kg-hgc{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--surface)}.kg-hgc h3{margin:0 0 6px;font-size:13px;font-weight:650;color:var(--ink)}.kg-hgc svg{width:100%;height:auto;display:block}.hgl{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:11.5px;color:var(--ink-2);margin-bottom:4px}.hgl i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 .kg-hg details{margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--surface)}.kg-hg summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--ink-2)}.kg-hg .scroll{max-height:320px;overflow:auto}
@@ -698,6 +700,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
     <button type="button" role="tab" data-v="operasyon" data-m="gts" aria-selected="false">Operasyon</button>
     <button type="button" role="tab" data-v="kargo" data-m="gts" aria-selected="false">Kargolar</button>
     <button type="button" role="tab" data-v="satis" data-m="gts" aria-selected="false">Satışlar</button>
+    <button type="button" role="tab" data-v="teklif" data-m="gts" aria-selected="false">Teklif</button>
     <button type="button" role="tab" data-v="rakip" data-m="gts" aria-selected="false">Rakip analizi</button>
     <button type="button" role="tab" data-v="nakit" data-m="gts" aria-selected="false">Nakit akışı</button>
     <button type="button" role="tab" data-v="ekonomi" data-m="gts" aria-selected="false">Ekonomi</button>
@@ -835,6 +838,7 @@ table.kar tr.k-acl td.p{color:#1D7A4A}table.kar tr.k-acl td.n{color:#B3412E}tabl
       <p class="not">Kaynak: GTS Excel modeli Kargolar ve Günlük sayfaları. NOR = varış (NOR verildiği gün varsayılır); antrepo beyannamesi tahliye başlangıcında, B/L miktarıyla açılır; COD = tahliye bitişi; ödeme = COD + alım ödeme vadesi. İthalat beyannameleri modelin günlük beyanname partileridir; kargoya düşen miktar kümülatif tonla ilk giren ilk çıkar (½ = parti iki kargoya bölünüyor), kambiyo partinin tonuyla orantılı; günlük satış kargolara kümülatif satış ile ilk giren ilk çıkar mantığıyla dağıtılır.</p>
     </section>
   </div>
+  <div class="v" data-v="teklif" hidden><div id="tk-kok"></div></div>
   <div class="v" data-v="satis" hidden>
     <section>
       <div class="head"><h2>Satışlar</h2><span class="sub" id="st-sub"></span></div>

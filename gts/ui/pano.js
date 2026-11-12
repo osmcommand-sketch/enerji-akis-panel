@@ -121,7 +121,7 @@ function aralik(el,R,o={}){
 
 /* ---------- sekmeler (hash) ---------- */
 const SON={gts:"genel",itt:"itt"};
-const SEK=["genel","akis","operasyon","kargo","satis","rakip","nakit","itt","ittakis","ittop","ittkargo","ittsatis","ittrakip","ittnakit","itteko","itthedge","ittrisk","ittvars","ekonomi","hedge","risk","varsayim"], CIZ={};
+const SEK=["genel","akis","operasyon","kargo","satis","teklif","rakip","nakit","itt","ittakis","ittop","ittkargo","ittsatis","ittrakip","ittnakit","itteko","itthedge","ittrisk","ittvars","ekonomi","hedge","risk","varsayim"], CIZ={};
 function goster(v){ if(!SEK.includes(v)) v="genel";
   // iki düzey (kullanıcı 10.11.2026 13:40): GTS | ITT Modeli; alt sekmeler seçili modele göre
   if(v==="akis"){ AP="a-"; AMOD="gts"; } else if(v==="ittakis"){ AP="ia-"; AMOD="itt"; }
@@ -130,7 +130,7 @@ function goster(v){ if(!SEK.includes(v)) v="genel";
   for(const d of document.querySelectorAll(".v")) d.hidden=d.dataset.v!==v;
   if(!BZ) for(const id of ["o-kur","e-fu","h-eu","h-ku"]){ const e=$(id); if(e) e.closest(".ctl").hidden=true; }
   { const ys=$("yilsec"); if(ys) ys.style.visibility=(v==="akis"||/^itt/.test(v)||v==="varsayim")?"hidden":"visible"; }
-  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis:()=>akis("gts"),operasyon,kargo:kargolar,satis:satislar,rakip,nakit,itt,ittakis:()=>akis("itt"),ittop,ittkargo,ittsatis,ittrakip,ittnakit,itteko,itthedge,ittrisk,ittvars,ekonomi,hedge,risk,varsayim})[v](); } }
+  if(!CIZ[v]){ CIZ[v]=1; ({genel,akis:()=>akis("gts"),operasyon,kargo:kargolar,satis:satislar,teklif,rakip,nakit,itt,ittakis:()=>akis("itt"),ittop,ittkargo,ittsatis,ittrakip,ittnakit,itteko,itthedge,ittrisk,ittvars,ekonomi,hedge,risk,varsayim})[v](); } }
 { const ys=$("yilsec"); if(ys&&KILIT){ ys.hidden=true; penAyarla(); } else if(ys){ const yz=()=>{ for(const b of ys.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b.dataset.y===YIL)); };
   for(const b of ys.querySelectorAll("button")) b.onclick=()=>{ YIL=b.dataset.y; try{ localStorage.setItem("gts.yil",YIL); }catch{} penAyarla(); yz(); for(const k in CIZ) delete CIZ[k]; goster(location.hash.slice(1)||"genel"); };
   penAyarla(); yz(); } }
@@ -283,6 +283,30 @@ function dvNakit(){ const D=DVK(), el=dvKap("nakit"); if(!D||!el) return; const 
     <p class="not">Tedarikçi ödemesi = ürün maliyeti (CIF + prim + navlun, fire dahil) ödeme gününde; ek seyir, sörvey ve GTS'in elleçleme gideri COD gününde. Finansman maliyeti modelde ayrıca hesaplanır (USD faizi × ödeme–tahsilat farkı); burada nakit hareketi olarak değil, sonuç olarak gösterilir. ÖTV teminatı nakit çıkışı değildir (mektup); komisyonu giderlerde.</p></section>`;
   zaman($("dv-nk-g"),{aria:"Kümülatif nakit",h:220,sifir:true,fmt:x=>nf1.format(x),seri:[{ad:"Kümülatif nakit (M $)",renk:C.mot,v:kum,alan:1,kalin:2}]}); }
 
+
+/* Teklif sayfası (kullanıcı 12.11.2026 21:16): potansiyel müşterilerin mevcut alım koşulları – ürün kaydırması yapacakları terminallerde (Gecis'te GTS'e geçen
+   akışların bugünkü terminalleri), prim ve vade, ithal / yerli ayrımıyla; her şirket kendi KPI kartlarıyla. Kaynak: rakip maliyet tablosu (2027) ve Gecis. */
+function teklif(){ const el=$("tk-kok"); if(!el) return; const RK=V.rakip; if(!RK||!RK.satir){ el.innerHTML=`<section><p class="not">Bu pakette rakip maliyet tablosu yok.</p></section>`; return; }
+  const K=RK.kol, ix=n=>K.indexOf(n), F=TLF(), yil=+(YIL||2027);
+  const G=new Map(); for(const g of (V.gecis&&V.gecis.r)||[]){ const t=V.term&&V.term[g[2]]; const k=(V.sir||{})[g[0]]+"|"+(t?t[1]:g[2]); const o=G.get(k)||G.set(k,{t:0,g:0,il:new Set()}).get(k); o.t+=g[3]; if(g[9]){ o.g+=g[3]; o.il.add(g[1]); } }
+  if(S.tkTum==null) S.tkTum=false;
+  const R=RK.satir.filter(r=>r[ix("Yil")]===yil).map(r=>{ const k=r[ix("Sirket")]+"|"+r[ix("Yukleme_noktasi")], g=G.get(k); return {r,g,pay:g&&g.t?g.g/g.t:0}; }).filter(x=>x.g&&(S.tkTum||x.pay>0));
+  const SR=new Map(); for(const x of R){ const s=x.r[ix("Sirket")]; (SR.get(s)||SR.set(s,[]).get(s)).push(x); }
+  const v=(x,c)=>x.r[ix(c)], $t=x=>x/F, sg=(n,f=nf1)=>(n<0?"−":n>0?"+":"")+f.format(Math.abs(n));
+  const ag=(L,f)=>{ const t=L.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0); return t?L.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay*f(x),0)/t:null; };
+  const kart=(s,L)=>{ const I=L.filter(x=>v(x,"Tip")==="İthal"), Y=L.filter(x=>v(x,"Tip")!=="İthal"), tI=I.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0), tY=Y.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0);
+    const pr=Lx=>ag(Lx,x=>$t(v(x,"Prim_TL_m3")||0)), po=Lx=>ag(Lx,x=>(v(x,"Prim_orani")||0)*100), vd=Lx=>ag(Lx,x=>v(x,"Vade_gun")||0), vdd=Lx=>ag(Lx,x=>$t(v(x,"Vade_degeri_TL_m3")||0)), am=Lx=>ag(Lx,x=>$t(v(x,"Alim_maliyeti_TL_m3")||0)), gf=Lx=>ag(Lx,x=>$t(v(x,"GTS_farki_TL_m3")||0));
+    const ken=Lx=>{ const t=Lx.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0), k=Lx.filter(x=>v(x,"Kaynak")===s).reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0); return t?k/t:0; };
+    const kp=(ad,Lx,t)=>Lx.length?dvK(`${ad} · prim`,`${sg(pr(Lx))} $/t`,`%${nf2.format(po(Lx)||0)} · ${ton(t)}${ad==="İthal"&&ken(Lx)>0.01?` · kendi ithalatı %${nf.format(ken(Lx)*100)}`:""}`)+dvK(`${ad} · vade`,`${nf1.format(vd(Lx)||0)} gün`,`vade değeri ${sg(vdd(Lx))} $/t`):dvK(`${ad} · prim`,"–","bu terminallerde yok")+dvK(`${ad} · vade`,"–","");
+    const terms=[...new Set(L.map(x=>v(x,"Yukleme_noktasi")))];
+    return `<section class="tk-sir"><h3>${esc(s)}</h3><div class="sub">${terms.length} terminal: ${terms.map(esc).join(", ")} · GTS'e kayacak hacim ${ton(tI+tY)}${S.tkTum?" (tüm akış gösteriliyor)":""}</div>
+      <div class="kpi6">${kp("İthal",I,tI)}${kp("Yerli",Y,tY)}${dvK("Mevcut alım maliyeti",(am(L)!=null?nf1.format(am(L)):"–")+" $/t","kayan hacim ağırlıklı · vergisiz, vade ve vergi finansmanı dahil")+dvK("GTS avantajı",(gf(L)!=null?sg(gf(L)):"–")+" $/t","mevcut maliyet − GTS · + = GTS ucuz",(gf(L)||0)>0?"pos":"neg")}</div>
+      <details><summary>Terminal × tedarikçi ayrıntısı</summary><div class="scroll"><table class="t sik"><thead><tr><th class="l">Terminal</th><th class="l">Tedarikçi</th><th class="l">Tip</th><th>Hacim<br><span>t/yıl</span></th><th>GTS'e kayan<br><span>%</span></th><th>Prim<br><span>%</span></th><th>Prim<br><span>$/t</span></th><th>Vade<br><span>gün</span></th><th>Vade değeri<br><span>$/t</span></th><th>Alım maliyeti<br><span>$/t</span></th><th>GTS avantajı<br><span>$/t</span></th></tr></thead><tbody>${L.sort((a,b)=>v(b,"Hacim_t")-v(a,"Hacim_t")).map(x=>`<tr title="${esc(String(v(x,"Fiyat_bazi")||""))}"><td class="l">${esc(v(x,"Yukleme_noktasi"))}</td><td class="l">${esc(v(x,"Kaynak"))}</td><td class="l">${esc(v(x,"Tip"))}</td><td>${nf.format(v(x,"Hacim_t"))}</td><td>${nf.format(x.pay*100)}</td><td>${nf2.format((v(x,"Prim_orani")||0)*100)}</td><td>${sg($t(v(x,"Prim_TL_m3")||0))}</td><td>${nf1.format(v(x,"Vade_gun")||0)}</td><td>${sg($t(v(x,"Vade_degeri_TL_m3")||0))}</td><td>${nf1.format($t(v(x,"Alim_maliyeti_TL_m3")||0))}</td><td class="${(v(x,"GTS_farki_TL_m3")||0)>0?"p":"n"}">${sg($t(v(x,"GTS_farki_TL_m3")||0))}</td></tr>`).join("")}</tbody></table></div></details></section>`; };
+  const sir=[...SR].map(([s,L])=>[s,L,L.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0)]).sort((a,b)=>b[2]-a[2]);
+  el.innerHTML=`<section><div class="head"><h2>Teklif · potansiyel müşterilerin mevcut alım koşulları · ${yil}</h2><span class="sub">ürün kaydırması yapacakları terminallerde (Gecis'te GTS'e geçen akışların bugünkü terminalleri) · prim ve vade, ithal / yerli ayrımıyla · prim = liste fiyatına göre iskonto (− = iskonto) · $/t, TL/m³ ÷ ${nf2.format(F)}</span></div>
+    <div class="tk-ctl"><label><input type="checkbox" id="tk-tum"${S.tkTum?" checked":""}> GTS'e geçmeyen akışların terminallerini de göster</label><span class="sub">${sir.length} şirket</span></div></section>
+    ${sir.map(([s,L])=>kart(s,L)).join("")||`<p class="not">Gösterilecek şirket yok.</p>`}`;
+  $("tk-tum").onchange=e=>{ S.tkTum=e.target.checked; teklif(); }; }
 function satislar(){ if(DVK()) return dvSatis();
   const SD=V.satis; if(!SD||!(SD.Motorin||SD.Benzin)){ $("st-tab").innerHTML=`<tbody><tr><td class="l">Bu paketteki modelde satış / beyanname ayrıntısı yok.</td></tr></tbody>`; return; }
   const ur=["Motorin","Benzin"].filter(u=>SD[u]); if(!S.stU||!SD[S.stU]) S.stU=ur[0]; $("st-urun-k").hidden=ur.length<2;
