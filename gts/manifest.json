@@ -1,9 +1,9 @@
 {
  "uygulama": "gts",
- "surum": "1.0.125",
+ "surum": "1.0.126",
  "kabuk": 2,
- "tarih": "2026-11-12T13:56:53+03:00",
- "notlar": "Satış tablolarında hedge katkısı; sade, kaydırmasız tablolar",
+ "tarih": "2026-11-12T14:09:24+03:00",
+ "notlar": "Paket 151: açılış stoğu yok; beyanname ofseti düzeltmesi",
  "dosyalar": {
   "ui/index.html": "49b802663aea533ec301ed7b76cfa3cda2767f891f2d7b69636c9cd39fe13f72",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
@@ -14,7 +14,7 @@
   "res/min_alim.js": "330cfd4f22f227c923e840a5365eb5d9ee324c763c25de317d5c676700348213",
   "res/girdi_bag.js": "db978c6608887628de2474a8d276c3d46264e8f189bd06015f693badc9fba48d",
   "res/kambiyo.js": "3bc101874a4f249d896db23c3b3df6a8e79926bcc8fa759433c886e84dadb1db",
-  "res/kargo_omur.js": "ca31ceeb6c7ddf1ea172c255a652add38e5dd42930c912064372de8aff90f733",
+  "res/kargo_omur.js": "e51375017e32bdaf8b5a255c5784db9bc95f19eaadbc8734711bba68476d1f89",
   "res/satis.js": "f695d20cc2f283208ff2277c0900808df6c0c8edd281a6a27705603c77b6a400",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",

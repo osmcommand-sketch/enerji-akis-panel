@@ -44,6 +44,8 @@
       for (let i = 0; i < sat.length; i++) if (sat[i] == null) sat[i] = 0;
       /* beyanname FIFO ofseti: dönem başında zaten beyan edilmiş (milli tank) açılış stoğu = ilk satırın kümülatif beyannamesi − o günkü beyanname */
       const gAB = g(/^Kümülatif ithalat beyannamesi/); let by0 = null; if (gAB >= 0 && typeof rows[0][gAB] === 'number') by0 = r2(rows[0][gAB] - (rows[0][gB] > 0 ? rows[0][gB] * yog[u] : 0), 1);
+      /* paket 151+: açılış stoğu 0 iken modelin kümülatif beyanname başlangıcında kalan ofset (AB4) kargolara ait değil → açılış kargosu yoksa ofset 0 */
+      if (!k.some((x) => x[0] === 0 && x[2] > 0)) by0 = 0;
       /* ürün hedge işlemleri (kullanıcı 12.11.2026 10:14 "hangi tarihte ne kadar pozisyon açılıyor ve kapanıyor"): modelde pozisyon = oran × ton;
          kilit fiyatı fiyatlama günlerinin (iş günü, tatil hariç) eşit ağırlıklı ortalaması → her fiyatlama günü eşit miktar açılır;
          kapanış satış penceresinin (ilk satış … tükenme, takvim günü) eşit ağırlıklı ortalaması → her gün eşit miktar kapanır. */
