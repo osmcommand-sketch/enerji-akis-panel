@@ -2,7 +2,8 @@
    tarihi ve miktarı, ithalat beyannameleri, günlük satış miktarları").
    Kaynak model sayfaları: <Ürün>_Kargolar (kargo satırları), <Ürün>_Gunluk (günlük satış, ithalat beyannamesi, beyanname kargosu, kambiyo),
    Fiyatlar (USD/TRY). Hem masaüstü hattı (X.sayfa) hem web derlemesi (web_hesap.js) kullanır.
-   Çıktı: { urun: { k: [[...kargo]], g0: 'YYYY-MM-DD', sat: [t/gün], bey: [[gün, t, kargo, kambiyo TL, beyanname kuru, ödeme kuru]] } }
+   Çıktı: { urun: { k: [[...kargo]], g0: 'YYYY-MM-DD', sat: [t/gün], bey: [[gün, t, kargo, kambiyo TL, beyanname kuru, ödeme kuru]],
+                    hg: { kargo no: { oran, t, kilit, kap, brut, isl, tem, net, baz, ac: [[gün, t, ICE, CIF]], kp: [[gün, t, ICE, CIF]] } } } }
    Kargo satırı: [no, gemi, ton, B/L t, fiyatlama, NOR/varış, antrepo beyannamesi (tahliye başlangıcı), COD (tahliye bitişi), ödeme, satışa hazır,
                   ilk satış, tükenme, yaşam gün, ort. stok gün, CIF $/t, alış $/t, değer $, brüt marj $/t, brüt marj $, net marj $, ÖTV teminatı TL,
                   kümülatif alım önce t, kümülatif alım sonra t, varış kuru,
@@ -41,7 +42,24 @@
       for (const r of rows) { const i = Math.round(r[gT] - d0); sat[i] = r2(r[gS] || 0, 1);
         if (r[gB] > 0) { const t = r[gB] * yog[u]; bey.push([i, r2(t, 1), gC >= 0 ? r[gC] : null, gK >= 0 ? r2(r[gK] || 0) : null, r2(K(r[gT]), 4), gF >= 0 ? r2(r[gF], 4) : null, gH >= 0 ? r2(r[gH] || 0) : null]); } }
       for (let i = 0; i < sat.length; i++) if (sat[i] == null) sat[i] = 0;
-      out[u] = { k, g0: iso(d0), sat, bey, yog: yog[u], odv };
+      /* beyanname FIFO ofseti: dönem başında zaten beyan edilmiş (milli tank) açılış stoğu = ilk satırın kümülatif beyannamesi − o günkü beyanname */
+      const gAB = g(/^Kümülatif ithalat beyannamesi/); let by0 = null; if (gAB >= 0 && typeof rows[0][gAB] === 'number') by0 = r2(rows[0][gAB] - (rows[0][gB] > 0 ? rows[0][gB] * yog[u] : 0), 1);
+      /* ürün hedge işlemleri (kullanıcı 12.11.2026 10:14 "hangi tarihte ne kadar pozisyon açılıyor ve kapanıyor"): modelde pozisyon = oran × ton;
+         kilit fiyatı fiyatlama günlerinin (iş günü, tatil hariç) eşit ağırlıklı ortalaması → her fiyatlama günü eşit miktar açılır;
+         kapanış satış penceresinin (ilk satış … tükenme, takvim günü) eşit ağırlıklı ortalaması → her gün eşit miktar kapanır. */
+      const hx = { ab: c(/^Hedge kilit fiyatı/), ac: c(/^Satış penceresi CIF ort/), ad: c(/^Ürün hedge brüt/), ae: c(/^Hedge işlem maliyeti/), ak: c(/^Hedge teminat finansmanı/), am: c(/^Ürün hedge oranı/) };
+      const hg = {}; if (hx.am >= 0 && hx.ab >= 0) {
+        const TT = sayfa('Tatiller') || [], tat = new Set(); for (const r of TT) if (r && typeof r[0] === 'number') tat.add(Math.floor(r[0]));
+        const fT = F ? Math.max(0, bas(F, /^Tarih/)) : 0, fI = F ? bas(F, /^ICE LSGO front/) : -1, fC = F ? bas(F, /^CIF Med/) : -1, ice = new Map(), cif = new Map();
+        if (F) for (const r of F) if (r && typeof r[fT] === 'number') { if (fI >= 0 && typeof r[fI] === 'number') ice.set(Math.floor(r[fT]), r[fI]); if (fC >= 0 && typeof r[fC] === 'number') cif.set(Math.floor(r[fT]), r[fC]); }
+        for (let i = 5; i < KG.length; i++) { const r = KG[i]; if (!r || typeof v(r, 'no') !== 'number') continue; const o = r[hx.am]; if (typeof o !== 'number' || !(o > 0)) continue;
+          const t = (v(r, 'ton') || 0) * o, f0 = v(r, 'fy'), f1 = ix.fyb >= 0 ? v(r, 'fyb') : f0, n0 = v(r, 'ilk'), n1 = v(r, 'son'); if (!(t > 0) || typeof f0 !== 'number') continue;
+          const ac = []; for (let d = Math.floor(f0); d <= Math.floor(typeof f1 === 'number' ? f1 : f0); d++) { const w = new Date(Date.UTC(1899, 11, 30) + d * 864e5).getUTCDay(); if (w === 0 || w === 6 || tat.has(d)) continue; ac.push(d); }
+          if (!ac.length) ac.push(Math.floor(f0));
+          const kp = []; if (typeof n0 === 'number') for (let d = Math.floor(n0); d <= Math.floor(typeof n1 === 'number' ? n1 : n0); d++) kp.push(d);
+          hg[v(r, 'no')] = { oran: o, t: r2(t, 1), kilit: r2(r[hx.ab], 2), kap: hx.ac >= 0 ? r2(r[hx.ac], 2) : null, brut: hx.ad >= 0 ? r2(r[hx.ad]) : null, isl: hx.ae >= 0 ? r2(r[hx.ae]) : null, tem: hx.ak >= 0 ? r2(r[hx.ak]) : null, net: r2(v(r, 'hn')), baz: ix.bz >= 0 ? r2(v(r, 'bz')) : null,
+            ac: ac.map((d) => [Math.round(d - d0), r2(t / ac.length, 1), r2(ice.get(d), 2), r2(cif.get(d), 2)]), kp: kp.map((d) => [Math.round(d - d0), r2(t / kp.length, 1), r2(ice.get(d), 2), r2(cif.get(d), 2)]) }; } }
+      out[u] = { k, g0: iso(d0), sat, bey, yog: yog[u], odv, hg, by0 };
     }
     return Object.keys(out).length ? out : null;
   }

@@ -645,7 +645,8 @@ function kargolar(){
   if(S.kgN==null||!K.some(k=>k[0]===S.kgN)) S.kgN=(K.find(k=>k[0]>0)||K[0])[0];
   // kargo kâr/zarar (kullanıcı 03.11.2026 17:09): model kalemleri + TL defter düzeltmesi (kambiyo, kur hedge, tahsilat kur farkı)
   const FZ=(V.kambiyo&&V.kambiyo.faiz)||{tl:.33,usd:.0394,marj:.001}, hAc=(((V.tic||[]).find(r=>/^Kur hedge \(Açık/.test(r[0]))||(V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';   // tek kur hedge anahtarı (03.11.2026 19:29)
-  const beyK=x=>{ let c=0; const o=[]; for(const b of D.bey){ const a0=c, a1=c+b[1]; c=a1; const t=Math.max(0,Math.min(a1,x[22])-Math.max(a0,x[21])); if(t>0.05) o.push([b[0],t,b[2],b[3]!=null?b[3]*t/b[1]:null,b[4],b[5],t<b[1]-0.05,b[6]!=null?b[6]*t/b[1]:null]); } return o; };
+  const beyK=x=>{ if(D.by0==null&&D.bey.some(b=>typeof b[2]==="number"&&b[2]>0)) return D.bey.filter(b=>b[2]===x[0]).map(b=>[b[0],b[1],b[2],b[3],b[4],b[5],false,b[6]]);
+    let c=D.by0||0; const o=[]; for(const b of D.bey){ const a0=c, a1=c+b[1]; c=a1; const t=Math.max(0,Math.min(a1,x[22])-Math.max(a0,x[21])); if(t>0.05) o.push([b[0],t,b[2],b[3]!=null?b[3]*t/b[1]:null,b[4],b[5],t<b[1]-0.05,b[6]!=null?b[6]*t/b[1]:null]); } return o; };
   const kzH=x=>{ const B=beyK(x), od=gi(x[8]); let kmb=0, hdg=0; for(const b of B){ const kb=b[4]||0; if(!kb) continue; kmb+=(b[3]||0)/kb; const dd=od!=null?od-b[0]:0, kv=b[5]||kb;
       if(b[7]!=null){ hdg+=b[7]/kb; continue; }   // paket 78+: modelin günlük kur hedge sütunu
       if(hAc&&dd>0){ const fw=kb*(1+FZ.tl*dd/365)/(1+FZ.usd*dd/360)*(1+(FZ.marj||0)); hdg+=b[1]*(x[15]||0)*(kv-fw)/kb; } }
@@ -685,7 +686,9 @@ function kargolar(){
   const L=k[21], M=k[22], gun=[]; let cum=0; for(let i=0;i<D.sat.length;i++){ const a=cum, b=cum+D.sat[i]; cum=b; const o=Math.max(0,Math.min(b,M)-Math.max(a,L)); if(o>0.05) gun.push([i,o]); }
   /* kullanıcı 12.11.2026 09:33: beyannameler modelin kendi FIFO kargo atamasıyla (Gunluk "Beyanname kargosu"); kümülatif hesap açılış stoğunun
      beyanname ofsetini bilmediği için komşu kargonun beyannamesini bu kargoya yazıyordu. Atama yoksa eski kümülatif dağıtım. */
-  let cb=0; const BY=[], kAt=D.bey.some(b=>typeof b[2]==="number"&&b[2]>0);
+  /* 12.11.2026 10:14: kümülatif FIFO, dönem başında beyan edilmiş açılış stoğu ofsetiyle (D.by0) – her kargonun beyannameleri tonajına eşit toplanır.
+     Ofset yoksa modelin orta nokta kargo ataması (Gunluk "Beyanname kargosu") */
+  let cb=D.by0||0; const BY=[], kAt=D.by0==null&&D.bey.some(b=>typeof b[2]==="number"&&b[2]>0);
   if(kAt) for(const b of D.bey){ if(b[2]===k[0]) BY.push([b[0],b[1],b[2],b[3]!=null?b[3]:null,b[4],b[5],false]); }
   else for(const b of D.bey){ const a0=cb, a1=cb+b[1]; cb=a1; const o=Math.max(0,Math.min(a1,M)-Math.max(a0,L)); if(o>0.05) BY.push([b[0],o,b[2],b[3]!=null?b[3]*o/b[1]:null,b[4],b[5],o<b[1]-0.05]); }
   const byT=BY.reduce((a,b)=>a+b[1],0), stT=gun.reduce((a,g)=>a+g[1],0), kmb=BY.reduce((a,b)=>a+(b[3]||0),0);
@@ -693,19 +696,35 @@ function kargolar(){
   $("kg-sub").textContent=`${S.kgU} · ${nf.format(k[2])} t net${k[3]?` · B/L ${nf.format(k[3])} t`:""} · ${K.filter(x=>x[0]>0).length} kargo`;
   // zaman çizelgesi
   const OL=[["Fiyatlama"+(k[31]&&k[31]!==k[4]?" başı":""),k[4],C.ink3],...(k[31]&&k[31]!==k[4]?[["Fiyatlama sonu",k[31],C.ink3]]:[]),["NOR / varış",k[5],C.gts],["Antrepo beyannamesi",k[6],"#7B4FA0"],["COD",k[7],C.mot],["Ödeme",k[8],"#C0504D"],["Satışa hazır",k[9],C.pos],["İlk satış",k[10],C.mot],["Tükenme · son satış",k[11],C.neg]].filter(x=>x[1]).reduce((a,x)=>{ const o=a.find(y=>y[1]===x[1]); if(o) o[0]+=" · "+x[0]; else a.push([...x]); return a; },[]);
-  gw($("kg-cizgi")); const xs=OL.map(x=>gi(x[1])), lo=Math.min(...xs,gun.length?gun[0][0]:Infinity), hi=Math.max(...xs,gun.length?gun[gun.length-1][0]:-Infinity), Wd=W||900, H=214, pl=16, pr=16, sx=i=>pl+(hi>lo?(i-lo)/(hi-lo):0.5)*(Wd-pl-pr);
+  /* ürün hedge (kullanıcı 12.11.2026 10:14): fiyatlama günlerinde eşit miktar açılır (short), satış günlerinde eşit miktar kapanır */
+  const HG=D.hg&&D.hg[k[0]], hA=HG?HG.ac:[], hK=HG?HG.kp:[], HC="#D9822B";
+  gw($("kg-cizgi")); const xs=[...OL.map(x=>gi(x[1])),...(hA.length?[hA[0][0],hA[hA.length-1][0]]:[]),...(hK.length?[hK[0][0],hK[hK.length-1][0]]:[])], lo=Math.min(...xs,gun.length?gun[0][0]:Infinity), hi=Math.max(...xs,gun.length?gun[gun.length-1][0]:-Infinity), Wd=W||900, H=HG?292:214, pl=16, pr=16, sx=i=>pl+(hi>lo?(i-lo)/(hi-lo):0.5)*(Wd-pl-pr);
   let g=`<line x1="${pl}" y1="92" x2="${Wd-pr}" y2="92" stroke="var(--line)" stroke-width="2"/>`;
   if(gun.length) g+=`<rect x="${sx(gun[0][0])}" y="86" width="${Math.max(2,sx(gun[gun.length-1][0])-sx(gun[0][0]))}" height="12" rx="3" fill="${C.mot}" opacity=".22"><title>Satış dönemi: ${tS(gun[0][0])} – ${tS(gun[gun.length-1][0])}</title></rect>`;
   for(const b of BY) g+=`<line x1="${sx(b[0]).toFixed(1)}" y1="100" x2="${sx(b[0]).toFixed(1)}" y2="108" stroke="#7B4FA0" stroke-width="1.5"><title>İthalat beyannamesi ${tS(b[0])}: ${nf.format(b[1])} t</title></line>`;
   const yer=[], cx=x=>Math.min(Math.max(x,pl+58),Wd-pr-58); OL.forEach(([ad,d,c],j)=>{ const x=sx(gi(d)); let sira=0; while(sira<5&&yer.some(p=>p[1]===sira&&Math.abs(p[0]-cx(x))<124)) sira++; yer.push([cx(x),sira]); const ust=sira%2===0, kat=Math.floor(sira/2), yy=ust?92-28-kat*30:92+30+kat*30;
     g+=`<line x1="${x.toFixed(1)}" y1="${ust?yy+5:98}" x2="${x.toFixed(1)}" y2="${ust?86:yy-13}" stroke="${c}" stroke-width="1" opacity=".55"/><circle cx="${x.toFixed(1)}" cy="92" r="5.5" fill="${c}" stroke="var(--surface,#fff)" stroke-width="2"><title>${ad}: ${tk(d)}</title></circle>`
       +`<text x="${cx(x).toFixed(1)}" y="${ust?yy-8:yy}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${ad}</text><text x="${cx(x).toFixed(1)}" y="${ust?yy+4:yy+12}" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">${tk(d)}</text>`; });
+  if(HG){ const ev=new Map(); for(const a of hA) ev.set(a[0],(ev.get(a[0])||0)+a[1]); for(const a of hK) ev.set(a[0],(ev.get(a[0])||0)-a[1]);
+    const gs=[...ev.keys()].sort((a,b)=>a-b); let tp=0, pk=0; for(const i of gs){ tp=Math.max(0,tp+ev.get(i)); pk=Math.max(pk,tp); } HG.pk=pk;
+    const y0=280, yT=232, sy=t=>y0-(t/(pk||1))*(y0-yT); let pos=0, d=`M${sx(gs[0]).toFixed(1)},${y0}`; for(const i of gs){ d+=`L${sx(i).toFixed(1)},${sy(pos).toFixed(1)}`; pos=Math.max(0,pos+ev.get(i)); d+=`L${sx(i).toFixed(1)},${sy(pos).toFixed(1)}`; } d+=`L${sx(gs[gs.length-1]).toFixed(1)},${y0}Z`;
+    g+=`<line x1="${pl}" y1="${y0}" x2="${Wd-pr}" y2="${y0}" stroke="var(--line)"/><path d="${d}" fill="${HC}" fill-opacity=".22" stroke="${HC}" stroke-width="1.5"><title>Açık ICE short pozisyonu · en çok ${nf.format(pk)} t</title></path>`;
+    for(const a of hA) g+=`<line x1="${sx(a[0]).toFixed(1)}" y1="${y0}" x2="${sx(a[0]).toFixed(1)}" y2="${y0+6}" stroke="${HC}" stroke-width="1.5"><title>Hedge açılış ${tS(a[0])}: ${nf.format(a[1])} t sat · CIF Med ${a[3]!=null?nf1.format(a[3]):"–"} $/t</title></line>`;
+    for(const a of hK) g+=`<line x1="${sx(a[0]).toFixed(1)}" y1="${y0}" x2="${sx(a[0]).toFixed(1)}" y2="${y0+6}" stroke="${C.mot}" stroke-width="1" opacity=".7"><title>Hedge kapanış ${tS(a[0])}: ${nf.format(a[1])} t geri al · CIF Med ${a[3]!=null?nf1.format(a[3]):"–"} $/t</title></line>`;
+    g+=`<text x="${pl}" y="${yT-6}" font-size="10.5" font-weight="600" fill="var(--ink-2)">Ürün hedge · açık short pozisyon</text><text x="${Wd-pr}" y="${yT-6}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">en çok ${nf.format(pk)} t açık (toplam ${nf.format(HG.t)} t) · turuncu: açılış (fiyatlama günleri) · mavi: kapanış (satış günleri)</text>`; }
   $("kg-cizgi").innerHTML=`<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Kargo yaşam döngüsü zaman çizelgesi">${g}</svg>`;
   const kt=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
-  $("kg-kpi").innerHTML=kt("Antrepo beyannamesi",k[0]===0?"–":tk(k[6]),k[0]===0?"açılış stoğu":`B/L ${nf.format(k[3]||k[2])} t · ÖTV teminatı ${nf1.format((k[20]||0)/1e6)} M TL`)
+  $("kg-kpi").classList.toggle("k5",!!HG); $("kg-kpi").innerHTML=kt("Antrepo beyannamesi",k[0]===0?"–":tk(k[6]),k[0]===0?"açılış stoğu":`B/L ${nf.format(k[3]||k[2])} t · ÖTV teminatı ${nf1.format((k[20]||0)/1e6)} M TL`)
     +kt("İthalat beyannameleri",`${BY.length} adet`,`${nf.format(byT)} t · kambiyo ${kmb>=0?"+":"−"}${nf1.format(Math.abs(kmb)/1e6)} M TL`)
     +kt("Satış",gun.length?`${gun.length} gün`:"–",gun.length?`${nf.format(stT)} t · ${tS(gun[0][0])} – ${tS(gun[gun.length-1][0])}`:"")
+    +(HG?kt("Ürün hedge",`${(HG.net||0)<0?"−":"+"}${nf1.format(Math.abs(HG.net||0)/1e6)} M $`,`${nf.format(HG.t)} t · en çok ${nf.format(HG.pk||0)} t açık · kilit ${nf1.format(HG.kilit)} → kapanış ${nf1.format(HG.kap)} $/t`,(HG.net||0)<0?"neg":"pos"):"")
     +kt("Alış ve marj",`${nf1.format(k[15]||0)} $/t`,`CIF ${nf1.format(k[14]||0)} · değer ${nf1.format((k[16]||0)/1e6)} M $ · brüt ${(k[17]||0)<0?"−":""}${nf1.format(Math.abs(k[17]||0))} $/t · net ${(k[19]||0)<0?"−":""}${nf1.format(Math.abs(k[19]||0)/1e6)} M $`,(k[19]||0)<0?"neg":"pos");
+  { let el=$("kg-hg"); if(!el){ el=document.createElement("div"); el.id="kg-hg"; el.className="kg-hg"; $("kg-kpi").after(el); }
+    if(!HG){ el.innerHTML=""; } else { let pos=0; const R=[...hA.map(a=>[a[0],"Açılış · ICE sat",a[1],a[3]]),...hK.map(a=>[a[0],"Kapanış · ICE geri al",-a[1],a[3]])].sort((a,b)=>a[0]-b[0]||b[2]-a[2]);
+      const ort=A=>A.length?A.reduce((p,x)=>p+(x[3]||0),0)/A.length:0, sg=v=>(v<0?"−":"+")+nf.format(Math.abs(v));
+      el.innerHTML=`<details><summary>Hedge işlemleri · ${hA.length} açılış (${tS(hA[0][0])} – ${tS(hA[hA.length-1][0])}) · ${hK.length} kapanış${hK.length?` (${tS(hK[0][0])} – ${tS(hK[hK.length-1][0])})`:""} · oran %${nf.format(HG.oran*100)}</summary>
+        <p class="not">Model: pozisyon = hedge oranı × kargo tonu. Kilit fiyatı fiyatlama günlerinin (iş günü) eşit ağırlıklı ortalaması (${nf1.format(HG.kilit)} $/t; açılış günleri ort. ${nf1.format(ort(hA))}), kapanış satış penceresinin (ilk satış – tükenme, takvim günü) ortalaması (${nf1.format(HG.kap)} $/t). Brüt ${sg(HG.brut||0)} $ = ${nf.format(HG.t)} t × (kilit − kapanış)${HG.baz?` + baz etkisi ${sg(HG.baz)} $ (CIF Med − ICE farkının iki dönem arasındaki değişimi)`:""}; işlem maliyeti −${nf.format(HG.isl||0)} $, teminat finansmanı −${nf.format(HG.tem||0)} $ → net ${sg(HG.net||0)} $. Fiyatlar CIF Med (model fiyat yolu). Fiyatlama ile satış dönemleri çakıştığında açılışlar ve kapanışlar aynı günlere düşer; açık pozisyon fiyatı sabitlenmiş ama henüz satılmamış ürün kadardır.</p>
+        <div class="scroll"><table class="t"><thead><tr><th class="l">Tarih</th><th class="l">İşlem</th><th>Ton</th><th>CIF Med<br><span>$/t</span></th><th>Açık pozisyon<br><span>t</span></th></tr></thead><tbody>${R.map(r=>{ pos=Math.max(0,pos+r[2]); return `<tr><td class="l">${tS(r[0])}</td><td class="l">${r[1]}</td><td class="${r[2]<0?"n":""}">${sg(r[2])}</td><td>${r[3]!=null?nf1.format(r[3]):"–"}</td><td>${nf.format(pos)}</td></tr>`; }).join("")}</tbody></table></div></details>`; } }
   // günlük satış + kalan stok grafiği
   { const el=$("kg-gunluk"); if(!gun.length){ el.innerHTML=`<p class="not">Bu kargodan dönem içinde satış yok.</p>`; } else {
     gw(el); const a=gun[0][0], b=gun[gun.length-1][0], n=b-a+1, Hh=200, pL=52, pR=52, pT=10, y0=Hh-24, Wg=W||900, bw=Math.max(1,(Wg-pL-pR)/n*0.8), mx=Math.max(...gun.map(x=>x[1])), sxg=i=>pL+(i-a+0.5)/n*(Wg-pL-pR);
