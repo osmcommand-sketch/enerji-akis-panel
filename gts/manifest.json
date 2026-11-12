@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.124",
+ "surum": "1.0.125",
  "kabuk": 2,
- "tarih": "2026-11-12T13:47:09+03:00",
- "notlar": "Günlük satışlar: elleçleme kaldırıldı, SMM (birim ve toplam) ve brüt kâr",
+ "tarih": "2026-11-12T13:56:53+03:00",
+ "notlar": "Satış tablolarında hedge katkısı; sade, kaydırmasız tablolar",
  "dosyalar": {
-  "ui/index.html": "2480f0579d77024cefd41224956a9c10df1784d453dfcde3dff8f584b9bba9b1",
+  "ui/index.html": "49b802663aea533ec301ed7b76cfa3cda2767f891f2d7b69636c9cd39fe13f72",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "270b49a59893bde0d1a7162fa688e824fdb27d204d83f678c9316997b20a45fd",
+  "ui/pano.js": "6ab743d444372b272f44c951704b069102dc5760d01e9db413a04ef7fd391c82",
   "gts_pipeline.js": "88fd7babca023f124e9c48d1b2f6e100c76764659eaa39f0482c47051f3ef3a5",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
