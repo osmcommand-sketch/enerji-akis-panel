@@ -10,8 +10,8 @@ const pct=x=>"%"+nf1.format(x*100);
 const km=x=>nf.format(x)+" km";
 const C={mot:"#2A5591",ben:"#2F855A",gts:"#B8860B",neg:"#B3412E",pos:"#1D7A4A",ink3:"#6F7E89",kur:"#7A3E9D",tup:"#0F6E8C"};
 const AY=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
-const T0=new Date(V.g0+"T00:00:00Z"), gun=i=>new Date(T0.getTime()+i*864e5), gunS=i=>{ const d=gun(i); return d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear(); };
-const tk=s=>/^\d{4}-/.test(s)?s.slice(8,10)+"."+s.slice(5,7)+"."+s.slice(2,4):s;
+const T0=new Date(V.g0+"T00:00:00Z"), gun=i=>new Date(T0.getTime()+i*864e5), gunS=i=>{ const d=gun(i); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear(); };
+const tk=s=>/^\d{4}-/.test(s)?s.slice(8,10)+"."+s.slice(5,7)+"."+s.slice(0,4):s;   // 12.11.2026: tüm raporlarda GG.AA.YYYY
 const tarihI=s=>Math.round((new Date(s+"T00:00:00Z")-T0)/864e5);
 const ND=V.gm.length;
 /* benzin projede yoksa (paket 58: Girdiler "Benzin ithalatı" Kapalı) benzin öğeleri gösterilmez */
@@ -160,7 +160,7 @@ const dvFinYil=D=>{ const o={1:[0,0],2:[0,0],3:[0,0]}; for(const r of D.kg){ con
 /* Satışlar · antrepo devri (kullanıcı 12.11.2026 13:54 "tüm satış tablolarında hedge katkısını da gösterelim, sağa sola kaydırmak zorunda kalmayalım"):
    tablolar sığacak şekilde sade kolonlar (sınıf "sik"); tarih ayrıntıları satır ipucunda. Kargo birimleri: SMM = (ürün maliyeti + ek seyir) / devredilen t, hedge = ürün hedge net / devredilen t */
 const dvKgB=r=>({ fy:r[7]||0, sm:r[1]?((r[9]||0)+(r[10]||0))/r[1]:0, hd:r[1]?(r[11]||0)/r[1]:0 });
-const dvTk=s=>s?(d=>d.getUTCDate()+" "+AY[d.getUTCMonth()])(new Date(s+"T00:00:00Z")):"–";
+const dvTk=s=>s?(d=>String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear())(new Date(s+"T00:00:00Z")):"–";
 const dvSg=(v,f=nf)=>v==null?"–":(v<0?"−":"")+f.format(Math.abs(v)), dvCl=v=>v<0?"n":"";
 function dvSatis(){ const D=DVK(), el=dvKap("satis"); if(!D||!el) return; setTimeout(()=>dvGunluk(D),0);
   const K=D.kg.filter(r=>!YIL||dvYil(r)===YIL), P=D.p||{};
@@ -200,7 +200,7 @@ function dvLot(D,SD){ if(dvLot.c&&dvLot.c.D===D&&dvLot.c.SD===SD) return dvLot.c
   const R={AN,P,cek,ay}; dvLot.c={D,SD,R}; return R; }
 function dvGunluk(D){ const SD=V.satis&&V.satis.Motorin, root=document.querySelector('.v[data-v="satis"] > .dv-alt'); if(!root) return; let el=root.querySelector("#dv-gun"); if(!el){ el=document.createElement("section"); el.id="dv-gun"; root.appendChild(el); }
   if(!SD||!SD.mg||!SD.mus){ el.innerHTML=`<div class="head"><h2>Müşterilerin GTS'ten alımları</h2></div><p class="not">Bu pakette müşteri bazında günlük satış (Musteri_Gunluk) yok.</p>`; return; }
-  const {AN,P,cek,ay}=dvLot(D,SD), g0=Date.parse(SD.g0+"T00:00:00Z"), gS=i=>{ const d=new Date(g0+i*864e5); return d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear(); }, yil=i=>String(new Date(g0+i*864e5).getUTCFullYear());
+  const {AN,P,cek,ay}=dvLot(D,SD), g0=Date.parse(SD.g0+"T00:00:00Z"), gS=i=>{ const d=new Date(g0+i*864e5); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear(); }, yil=i=>String(new Date(g0+i*864e5).getUTCFullYear());
   const AYA=a=>{ const [y,m]=a.split("-"); return AY[+m-1]+" "+y; }, U=v=>dvSg(Math.round(v)), B=v=>dvSg(Math.round(v/1e3)), imA=(ad,k)=>`${esc(ad)} IM-${k}`, anA=k=>`GTS AN-${k}`;
   const PY=P.filter(p=>!YIL||yil(p.gun)===YIL), CY=cek.filter(c=>!YIL||yil(c.i)===YIL);
   const aylar=[...new Set(PY.map(p=>ay[p.gun]))].sort(); if(!S.dvAy||!aylar.includes(S.dvAy)) S.dvAy=aylar[0]; const musL=[...new Set(PY.map(p=>p.ad))].sort((a,b)=>a.localeCompare(b,"tr")); if(S.dvMus&&!musL.includes(S.dvMus)) S.dvMus="";
@@ -229,7 +229,7 @@ function dvGunluk(D){ const SD=V.satis&&V.satis.Motorin, root=document.querySele
     <div class="scroll" style="max-height:420px"><table class="t sik"><thead><tr><th class="l">Antrepo beyannamesi</th><th>Kargo<br><span>no</span></th><th class="l">Devir<br><span>tarih</span></th><th>Miktar<br><span>t</span></th><th>Düşülen<br><span>t (IM)</span></th><th>Kalan<br><span>t</span></th><th>IM<br><span>adet</span></th><th>Müşteri<br><span>adet</span></th><th class="l">Kapanış<br><span>son IM tarihi</span></th><th>Fiyat<br><span>$/t</span></th><th>SMM<br><span>$/t</span></th></tr></thead><tbody>${ANY.map(A=>{ const o=anIM.get(A.no)||{t:0,n:0,son:null,mus:new Set()}, k=A.t-o.t; return `<tr><td class="l"><b>${anA(A.no)}</b></td><td>${A.kg}</td><td class="l">${gS(A.gun)}</td><td>${nf.format(A.t)}</td><td>${nf.format(o.t)}</td><td class="${k>1?"":"muted"}">${k>1?nf.format(k):"kapandı"}</td><td>${o.n}</td><td>${o.mus.size}</td><td class="l">${o.son!=null&&k<=1?gS(o.son):"–"}</td><td>${nf1.format(A.fy)}</td><td>${nf1.format(A.sm)}</td></tr>`; }).join("")}</tbody></table></div>
     <h3 style="margin-top:16px">Müşterilerin milli tanktan günlük çekişi${YIL?" · "+YIL:""}</h3>
     <p class="not" style="margin-top:0">Müşterinin kendi ithalatından (IM lotu) milli tanktan çektiği günlük ihtiyaç · lot = çekilen ürünün ithalat beyannamesi (müşteri içinde FIFO)</p>
-    <div class="scroll" style="max-height:520px"><table class="t sik"><thead><tr><th class="l">Tarih</th><th class="l">Müşteri</th><th>Çekilen<br><span>t</span></th><th class="l">Lot<br><span>IM</span></th><th>Fiyat<br><span>$/t</span></th><th>Tutar<br><span>$</span></th><th>SMM<br><span>$/t</span></th><th>Brüt kâr<br><span>$</span></th><th>Hedge<br><span>$</span></th><th>Hedge sonrası<br><span>$</span></th></tr></thead><tbody>${[...GG].map(([i,L])=>S.dvMus?L.map(c=>cS(gS(i),c)).join(""):cS(gS(i),cTop(L),1)+L.sort((a,b)=>b.t-a.t).map(c=>cS("",c)).join("")).join("")||`<tr><td class="l" colspan="10">Bu ayda çekiş yok.</td></tr>`}</tbody></table></div>
+    <div class="scroll" style="max-height:520px"><table class="t sik"><thead><tr><th class="l">Tarih</th><th class="l">Müşteri</th><th>Çekilen<br><span>t</span></th><th class="l">Lot<br><span>IM</span></th><th>Fiyat<br><span>$/t</span></th><th>Tutar<br><span>$</span></th><th>SMM<br><span>$/t</span></th><th>Brüt kâr<br><span>$</span></th><th>Hedge<br><span>$</span></th><th>Hedge sonrası<br><span>$</span></th></tr></thead><tbody>${[...GG].map(([i,L])=>S.dvMus?L.map(c=>cS(gS(i),c)).join(""):cS(gS(i),cTop(L),1)+L.sort((a,b)=>b.t-a.t).map(c=>cS(gS(i),c)).join("")).join("")||`<tr><td class="l" colspan="10">Bu ayda çekiş yok.</td></tr>`}</tbody></table></div>
     <p class="not">Alım kuralı panelde uygulanır (model müşteri çekişini günlük alır); GTS'in kargo bazlı geliri ve kâr / zararı değişmez – bu tablolar devredilen ürünün müşteri alımlarına (IM) dağılımını gösterir. ⚠: alım günü devredilmiş antrepo stoğu yetmiyor (bir sonraki geminin AN'sinden). Hedge kargonun ürün hedge sonucunun ton başına payıdır; finansman, sörvey, kira ve elleçleme müşteri satırlarına dağıtılmaz.</p>`;
   for(const s of el.querySelectorAll(".dv-ay")) s.onchange=e=>{ S.dvAy=e.target.value; dvGunluk(D); }; for(const s of el.querySelectorAll(".dv-mus")) s.onchange=e=>{ S.dvMus=e.target.value; dvGunluk(D); }; }
 function dvEkonomi(){ const D=DVK(), el=dvKap("ekonomi"); if(!D||!el) return; const R=D.rows, tR=R.find(r=>/^Devredilen/.test(r[0]))||[null,0,0,0], ust=/^(BRÜT ÜRÜN MARJI|TERMİNAL HİZMET MARJI|NET KÂR)/;
@@ -252,7 +252,7 @@ function dvNakit(){ const D=DVK(), el=dvKap("nakit"); if(!D||!el) return; const 
   for(let i=0;i<n;i++){ const y=new Date(d0+i*864e5).getUTCFullYear(), j=y===2027?1:y===2028?2:0, dn=y%4===0?366:365; if(!j) continue;
     for(const r of ter12) ter[i]+=(r[j]||0)/dn; for(const r of gd12) gid[i]+=(r[j]||0)/dn; }
   const net=tah.map((v,i)=>v+ode[i]+hdg[i]+ter[i]+gid[i]); let c=0; const kum=net.map(v=>c+=v/1e6), mn=Math.min(...kum), mi=kum.indexOf(mn), son=kum[kum.length-1];
-  const tS=i=>{ const d=new Date(d0+i*864e5); return d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear(); };
+  const tS=i=>{ const d=new Date(d0+i*864e5); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear(); };
   const ay=new Map(); for(let i=0;i<n;i++){ const d=new Date(d0+i*864e5), a=d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0"); if(YIL&&String(d.getUTCFullYear())!==YIL) continue; const o=ay.get(a)||ay.set(a,[0,0,0,0,0,0]).get(a); o[0]+=tah[i]; o[1]+=ode[i]; o[2]+=hdg[i]; o[3]+=ter[i]; o[4]+=gid[i]; o[5]=kum[i]; }
   const AYA=a=>{ const [y,m]=a.split("-"); return AY[+m-1]+" "+y; }, cl=v=>v<0?"n":"";
   el.innerHTML=`<section><div class="head"><h2>Nakit akışı · antrepo devri${YIL?" · "+YIL:""}</h2><span class="sub">USD · tedarikçiye ödeme COD + vade, müşteri tahsilatı devir + ${P.vade??"?"} gün; hedge satış fiyatlaması sonunda; kira, elleçleme ve genel giderler gün bazında eşit</span></div>
@@ -775,8 +775,8 @@ function kargolar(){
   const KD=V.kargo; if(!KD){ $("kg-cizgi").innerHTML=`<p class="not">Bu paketteki modelde kargo yaşam döngüsü verisi yok.</p>`; return; }
   const ur=Object.keys(KD); if(!S.kgU||!KD[S.kgU]) S.kgU=ur[0]; $("kg-urun-k").hidden=ur.length<2;
   for(const b of $("kg-urun").querySelectorAll("button")){ b.disabled=!KD[b.dataset.u]; b.onclick=()=>{ S.kgU=b.dataset.u; S.kgN=null; kargolar(); }; b.setAttribute("aria-pressed",String(b.dataset.u===S.kgU)); }
-  const D=KD[S.kgU], K=D.k, g0=Date.parse(D.g0+"T00:00:00Z"), gi=s=>s?Math.round((Date.parse(s+"T00:00:00Z")-g0)/864e5):null, tS=i=>{ const d=new Date(g0+i*864e5); return d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear(); };
-  const tk=s=>s?(d=>d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear())(new Date(s+"T00:00:00Z")):"–", gem=k=>k[0]===0?"Açılış stoğu":esc(k[1]||"");
+  const D=KD[S.kgU], K=D.k, g0=Date.parse(D.g0+"T00:00:00Z"), gi=s=>s?Math.round((Date.parse(s+"T00:00:00Z")-g0)/864e5):null, tS=i=>{ const d=new Date(g0+i*864e5); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear(); };
+  const tk=s=>s?(d=>String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0")+"."+d.getUTCFullYear())(new Date(s+"T00:00:00Z")):"–", gem=k=>k[0]===0?"Açılış stoğu":esc(k[1]||"");
   if(S.kgN==null||!K.some(k=>k[0]===S.kgN)) S.kgN=(K.find(k=>k[0]>0)||K[0])[0];
   // kargo kâr/zarar (kullanıcı 03.11.2026 17:09): model kalemleri + TL defter düzeltmesi (kambiyo, kur hedge, tahsilat kur farkı)
   const FZ=(V.kambiyo&&V.kambiyo.faiz)||{tl:.33,usd:.0394,marj:.001}, hAc=(((V.tic||[]).find(r=>/^Kur hedge \(Açık/.test(r[0]))||(V.tic||[]).find(r=>r[4]==='GTS!KambiyoHedge'||/^Kambiyo kur hedge/.test(r[0]))||[])[1]||'Açık')==='Açık';   // tek kur hedge anahtarı (03.11.2026 19:29)
@@ -788,7 +788,7 @@ function kargolar(){
     const t=x[25]||0, sat=(x[24]||0)*t, al=-(x[15]||0)*t, bm=x[18]||0, fin=-(x[26]||0), hn=x[27]||0, nm=x[19]||0, tk=-(x[29]||0);
     if(x.length>36){ const bus=x[36]||0; return {t,tl:true,m3:x[32]||0,gtl:x[33]||0,stl:-(x[34]||0),btl:x[35]||0,bus,fin,hn,kmb,hdg,son:bus+fin+hn+kmb+hdg,kh:x[28]||0}; }   // paket 85: kullanıcı hesap şablonu (TL)
     return {t,sat,al,bm,fin,hn,nm,tk,kmb,hdg,son:nm+tk+kmb+hdg,kh:x[28]||0}; };
-  const sel=$("kg-sel"); sel.innerHTML=K.map(k=>`<option value="${k[0]}">${k[0]===0?"Açılış stoğu · 1 Oca 2027":"Kargo "+k[0]+" · "+esc(k[1]||"")+" · "+nf.format(k[2])+" t · varış "+tk(k[5])}</option>`).join(""); sel.value=String(S.kgN);
+  const sel=$("kg-sel"); sel.innerHTML=K.map(k=>`<option value="${k[0]}">${k[0]===0?"Açılış stoğu · 01.01.2027":"Kargo "+k[0]+" · "+esc(k[1]||"")+" · "+nf.format(k[2])+" t · varış "+tk(k[5])}</option>`).join(""); sel.value=String(S.kgN);
   sel.onchange=()=>{ S.kgN=+sel.value; kargolar(); };
   const ki=K.findIndex(k=>k[0]===S.kgN), k=K[ki];
   $("kg-onc").disabled=ki<=0; $("kg-son").disabled=ki>=K.length-1;
@@ -887,7 +887,7 @@ function kargolar(){
         +`<circle cx="${x(pkI).toFixed(1)}" cy="${s2(pk).toFixed(1)}" r="3.5" fill="#5B6770"/><text x="${Math.min(Math.max(x(pkI)-60,pL+4),Wg-pR-190).toFixed(1)}" y="${(s2(pk)-8).toFixed(1)}" font-size="10.5" font-weight="600" fill="var(--ink-2)">en çok ${nk(Math.abs(pk))} t ${pk<0?"long":"short"} · ${tS(pkI)}</text>`;
       for(let j=0;j<nD;j++){ const v=P[j]; g+=`<rect x="${(x(d0+j)-bw/2).toFixed(1)}" y="${y2T}" width="${bw.toFixed(1)}" height="${y2B-y2T}" fill="transparent"><title>${tS(d0+j)}: açık pozisyon ${v<0?"long "+nk(-v):"short "+nk(v)} t</title></rect>`; }
       // tarih ekseni (haftalık)
-      for(let i=d0;i<=d1;i++){ const dt=new Date(g0+i*864e5); if(dt.getUTCDay()!==1&&i!==d0) continue; g+=`<line x1="${x(i).toFixed(1)}" y1="${y2B}" x2="${x(i).toFixed(1)}" y2="${y2B+4}" stroke="var(--ink-3)"/><text x="${x(i).toFixed(1)}" y="${y2B+16}" text-anchor="middle" font-size="10" fill="var(--ink-3)">${dt.getUTCDate()} ${AY[dt.getUTCMonth()]}</text>`; }
+      for(let i=d0;i<=d1;i++){ const dt=new Date(g0+i*864e5); if(dt.getUTCDay()!==1&&i!==d0) continue; g+=`<line x1="${x(i).toFixed(1)}" y1="${y2B}" x2="${x(i).toFixed(1)}" y2="${y2B+4}" stroke="var(--ink-3)"/><text x="${x(i).toFixed(1)}" y="${y2B+16}" text-anchor="middle" font-size="10" fill="var(--ink-3)">${String(dt.getUTCDate()).padStart(2,"0")}.${String(dt.getUTCMonth()+1).padStart(2,"0")}</text>`; }
       g+=`<text x="${pL}" y="12" font-size="11.5" font-weight="700" fill="var(--ink)">Günlük hedge işlemi (t)</text><text x="${pL}" y="${y2T-10}" font-size="11.5" font-weight="700" fill="var(--ink)">Açık ICE pozisyonu (t) <tspan font-weight="400" fill="var(--ink-3)">= ${HG.dv?"alış fiyatı sabitlenen − satış fiyatı sabitlenen ürün × hedge oranı · + short, − long":"fiyatı sabitlenmiş, henüz satılmamış ürün × hedge oranı"}</tspan></text>`;
       const leg=`<div class="hgl"><span><i style="background:${HC}"></i>ICE'ta satılan · ürünün alış fiyatı sabitlenirken (fiyatlama günleri)</span><span><i style="background:${BC}"></i>${HG.dv?"ICE'ta alınan · satış fiyatı sabitlenirken (devir sonrası kotasyon günleri)":"ICE'ta geri alınan · ürün fiziksel olarak satıldıkça"}</span><span><i style="background:#5B6770;opacity:.5"></i>Açık pozisyon</span></div>`;
       var hgSvg=`<div class="kg-hgc"><div class="head"><h3>Ürün hedge · ${nf.format(HG.t)} t · kilit ${nf1.format(HG.kilit)} → kapanış ${nf1.format(HG.kap)} $/t · net ${(HG.net||0)<0?"−":"+"}${nf1.format(Math.abs(HG.net||0)/1e6)} M $</h3></div>${leg}<svg viewBox="0 0 ${Wg} ${Hs}" role="img" aria-label="Ürün hedge günlük işlemleri ve açık pozisyon">${g}</svg></div>`; let pos=0; /* kullanıcı 12.11.2026 10:50: fiziksel ürünün satış tonajı da – gün başına tek satır */

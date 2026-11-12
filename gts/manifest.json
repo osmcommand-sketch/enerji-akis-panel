@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.127",
+ "surum": "1.0.128",
  "kabuk": 2,
- "tarih": "2026-11-12T14:19:54+03:00",
- "notlar": "Satışlar: müşterilerin GTS'ten alımları (≥1.000 t parti, ayda en çok 3), ithalat beyannamesi lotları (IM) ve GTS antrepo beyannameleri (AN) ile FIFO kapanış",
+ "tarih": "2026-11-12T14:32:56+03:00",
+ "notlar": "Tarihler GG.AA.YYYY; günlük çekiş tablosunda her satırda tarih",
  "dosyalar": {
   "ui/index.html": "49b802663aea533ec301ed7b76cfa3cda2767f891f2d7b69636c9cd39fe13f72",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "1e4a241ff105f174458963cc1d773e7642955aa0185b48dacd49d87585022aaf",
+  "ui/pano.js": "133be5d4df550cd52d3810b69990616453eb4ac8d8c838deb37f90323bd025e7",
   "gts_pipeline.js": "88fd7babca023f124e9c48d1b2f6e100c76764659eaa39f0482c47051f3ef3a5",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
