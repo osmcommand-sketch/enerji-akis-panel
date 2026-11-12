@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.113",
+ "surum": "1.0.114",
  "kabuk": 2,
- "tarih": "2026-11-12T10:19:33+03:00",
- "notlar": "Kargo yaşam döngüsünde ürün hedge: günlük açılış/kapanış, açık pozisyon, işlem tablosu; beyannameler kargo tonajına tam eşit",
+ "tarih": "2026-11-12T10:51:00+03:00",
+ "notlar": "Hedge işlemleri tablosunda fiziksel satış ve sabit fiyatlı satılmamış ürün; zaman çizelgesi üst etiketleri",
  "dosyalar": {
   "ui/index.html": "7a1604a84181703308ba8bf483f893b1985aa9953fee3d9c09e2051c45438bb7",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "513027ffae0cad1b3ea2b46017ea0255f73066d765d9f35a9b51c7847af93647",
+  "ui/pano.js": "6421f32394e52e78b77b5e3e4f91a18bea9128eb3391e8b04aa6a846a8f5fd63",
   "gts_pipeline.js": "c3794acea50841f07576cb303ee31d3039c65536619e06e563a910489ced43d5",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
