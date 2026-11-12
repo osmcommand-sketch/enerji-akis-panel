@@ -1,9 +1,9 @@
 {
  "uygulama": "gts",
- "surum": "1.0.110",
+ "surum": "1.0.111",
  "kabuk": 2,
- "tarih": "2026-11-12T09:35:13+03:00",
- "notlar": "Kargo yaşam döngüsü: ithalat beyannameleri modelin FIFO kargo atamasıyla; tükenme = son satış",
+ "tarih": "2026-11-12T09:51:18+03:00",
+ "notlar": "Rakip alım primi: PDM paket 146 tablosu (terminal ve paçal maliyeti doğrudan, kesin)",
  "dosyalar": {
   "ui/index.html": "38dc8c1e0a7dca8a20742671c0e5b6bd573d4885224c9968da399939c71988c9",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
@@ -12,7 +12,7 @@
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
   "res/min_alim.js": "330cfd4f22f227c923e840a5365eb5d9ee324c763c25de317d5c676700348213",
-  "res/girdi_bag.js": "ce118243c6ce75c0aa2a31cf8757f141ea8ef92b92091aaf52edee165925dff6",
+  "res/girdi_bag.js": "db978c6608887628de2474a8d276c3d46264e8f189bd06015f693badc9fba48d",
   "res/kambiyo.js": "3bc101874a4f249d896db23c3b3df6a8e79926bcc8fa759433c886e84dadb1db",
   "res/kargo_omur.js": "bfcbe3ca1e697a81f7c65588838052a197b9f17277c1a825e7c47f53ce12e452",
   "res/satis.js": "7a258635d9ab94203829cc0692835c6c65867c42e8e9366e259e8971d4f499b5",
