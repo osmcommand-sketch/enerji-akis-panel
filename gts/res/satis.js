@@ -55,7 +55,7 @@
       const KG = sayfa(u + '_Kargolar'), GN = sayfa(u + '_Gunluk'); if (!KG || !GN) continue;
       const c = (re) => bas(KG, re), g = (re) => bas(GN, re);
       const ix = { no: c(/^Kargo no/), var: c(/^Var mı/), gemi: c(/^Gemi sınıfı/), ton: c(/^Ton$/), vr: c(/^Varış$/), al: c(/^Alış maliyeti/), L: c(/^Kümülatif alım önce/), M: c(/^Kümülatif alım sonra/),
-        ab: c(/^Tahliye başlangıcı/), cif: c(/^CIF Med/), yg: c(/^Gerçek yoğunluk/), nf: c(/^Navlun farkı \(USD\/t\)/), il: c(/^İkinci liman \(USD\/t\)/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – tedarikçi/), hn: c(/^Ürün hedge net/) };
+        ab: c(/^Tahliye başlangıcı/), cif: c(/^CIF Med/), yg: c(/^Gerçek yoğunluk/), nf: c(/^Navlun farkı \(USD\/t\)/), il: c(/^İkinci liman \(USD\/t\)/), cod: c(/^Tahliye bitişi/), bl: c(/^B\/L miktarı/), at: c(/^Dönem içinde satılan/), fin: c(/^Finansman – (tedarikçi|nakit akışı)/), hn: c(/^Ürün hedge net/) };
       if ([ix.no, ix.L, ix.M, ix.al].some((x) => x < 0)) continue;
       const kv = (r, k) => (ix[k] >= 0 ? r[ix[k]] : null), L = [], APR = gb(u === 'Motorin' ? /^Alım primi \/ iskontosu – motorin/ : /^Alım primi \/ iskontosu – benzin/);
       for (let i = 5; i < KG.length; i++) { const r = KG[i]; if (!r || typeof kv(r, 'no') !== 'number' || (ix.var >= 0 && !kv(r, 'var'))) continue; if (!(kv(r, 'M') > kv(r, 'L'))) continue;

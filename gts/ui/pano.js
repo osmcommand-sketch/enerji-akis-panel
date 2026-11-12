@@ -636,6 +636,8 @@ function ittvars(){ const I=V.itt; if(!I||!I.girdi||!I.girdi.length){ $("iv-tab"
   $("iv-not").innerHTML=`Masaüstü uygulamada bu değerler ITT Modeli › Genel bakış › ITT koşulları panelinden değiştirilip yeniden hesaplanır. Fiziksel operasyon (kargo takvimi, CIF Med, kur, faiz) ana modelle aynıdır; Varsayımlar (GTS) sekmesine bakın.`;
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
+/* PDM 12.11.2026 pdm-panel-kargo-finansman-sutun-adi: alt yazı değere göre değil seçime göre (Ozet H41 / GTS!FinansmanPrimde) */
+const finPrimde=()=>{ const r=(V.tic||[]).find(r=>r[4]==="GTS!FinansmanPrimde"||/^Stok ve alacak finansmanı/.test(r[0])); if(!r) return false; const G=V.girdi||{}; return String(r[4]&&r[4] in G?G[r[4]]:r[1])==="Alım priminde"; };
 function kargolar(){
   const KD=V.kargo; if(!KD){ $("kg-cizgi").innerHTML=`<p class="not">Bu paketteki modelde kargo yaşam döngüsü verisi yok.</p>`; return; }
   const ur=Object.keys(KD); if(!S.kgU||!KD[S.kgU]) S.kgU=ur[0]; $("kg-urun-k").hidden=ur.length<2;
@@ -665,12 +667,12 @@ function kargolar(){
       { const n=$("kg-knot"); if(n) n.textContent="Kargo sonucu modelin kargo bazında hesabından (Kargolar BU–BZ): satış m³, gelir ve SMM TL, brüt kâr $ = TL / beyanname kuru; + finansman + ürün hedge + kambiyo + forward. Faaliyet giderleri (elleçleme, fire, teminat, ÖTV/KDV faizi, beyanname) dönem bazlıdır, kargolara dağıtılmaz."; }
       $("kg-kz").innerHTML=`<thead><tr><th class="l">Kalem</th><th class="yb">Tutar</th><th>Birim</th></tr></thead><tbody>`
         +tlr("Satış geliri",z.gtl,"k-ana","m³ × (satış günü Tüpraş + müşteri primi)")+tlr("Satılan malın maliyeti",z.stl,"k-alt","ton × (CIF fiyatlama ort. + prim) × beyanname kuru × 0,845 / yoğunluk "+(k[37]?nf3.format(k[37]):""))+tlr("Brüt kâr",z.btl,"k-ara")
-        +sat("Brüt kâr ($)",z.bus,"k-ara","brüt kâr TL / ithalat beyannamesi kuru")+sat("Finansman",z.fin,"k-alt",z.fin?"stok ve alacak (USD faiz)":"alım primi içinde")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
+        +sat("Brüt kâr ($)",z.bus,"k-ara","brüt kâr TL / ithalat beyannamesi kuru")+sat("Finansman",z.fin,"k-alt",finPrimde()?"alım primi içinde":"stok ve alacak · USD faizi − TL tahsilat getirisi")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
         +sat("Kambiyo kârı / zararı",z.kmb,"k-alt","beyanname kuru − fatura vadesi kuru")+sat("Kur hedge (forward)",z.hdg,"k-alt",hAc?"beyanname → fatura vadesi":"kapalı")
         +sat("Kargo sonucu",z.son,"k-son","faaliyet giderleri (elleçleme, fire, teminat, faiz, beyanname) dönem bazlı, dahil değil")+`</tbody>`; } else
     $("kg-kz").innerHTML=`<thead><tr><th class="l">Kalem</th><th class="yb">M $</th><th>$/t</th></tr></thead><tbody>`
       +sat("Satış geliri",z.sat,"k-ana","Tüpraş ± fiyatı, tahsilat kuruyla")+sat("Alış maliyeti",z.al,"k-alt","CIF + prim, navlun farkı, ikinci liman, fire")+sat("Brüt marj",z.bm,"k-ara")
-      +sat("Finansman",z.fin,"k-alt",z.fin?"stok ve alacak (USD faiz)":"alım primi içinde")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
+      +sat("Finansman",z.fin,"k-alt",finPrimde()?"alım primi içinde":"stok ve alacak · USD faizi − TL tahsilat getirisi")+sat("Ürün hedge (net)",z.hn,"k-alt","ICE swap sonucu − işlem maliyeti − teminat finansmanı")+(k[30]!=null?sat("&nbsp;&nbsp;içinde baz etkisi",k[30],"k-alt","CIF Med − ICE LSGO; + = kazanç"):"")
       +sat("Net marj (model)",z.nm,"k-ara")+sat("Tahsilat kur farkı geri eklenir",z.tk,"k-alt","TL defterde kambiyoya taşınır")
       +sat("Kambiyo kârı / zararı",z.kmb,"k-alt","beyanname kuru − fatura vadesi kuru")+sat("Kur hedge (forward)",z.hdg,"k-alt",hAc?"beyanname → fatura vadesi":"kapalı")
       +sat("Kargo sonucu",z.son,"k-son","TL defter; vergi avantajı ve faaliyet giderleri hariç")+`</tbody>`;
