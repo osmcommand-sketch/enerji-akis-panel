@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.115",
+ "surum": "1.0.116",
  "kabuk": 2,
- "tarih": "2026-11-12T11:00:35+03:00",
- "notlar": "Ürün hedge kapanışı fiziksel satışla (PDM paket 148)",
+ "tarih": "2026-11-12T11:08:26+03:00",
+ "notlar": "Kargo ürün hedge grafiği yeniden tasarlandı: günlük ICE sat / geri al çubukları ve açık pozisyon",
  "dosyalar": {
-  "ui/index.html": "7a1604a84181703308ba8bf483f893b1985aa9953fee3d9c09e2051c45438bb7",
+  "ui/index.html": "f5c6fbc49fbddb5087f9fbc5af94e49359dd5a5d12203c413ea060e0546c3317",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "249ff4028e2db26038e42637798eb872dafee89f26bdafb23e0e9de2b1c1f552",
+  "ui/pano.js": "07728ec8708fd9b99d08e150e885ed096dc3cdc60388e6381655b493b82258a4",
   "gts_pipeline.js": "c3794acea50841f07576cb303ee31d3039c65536619e06e563a910489ced43d5",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
