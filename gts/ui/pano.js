@@ -303,7 +303,7 @@ function teklif(){ const el=$("tk-kok"); if(!el) return; const RK=V.rakip; if(!R
       <div class="kpi6">${kp("İthal",I,tI)}${kp("Yerli",Y,tY)}${dvK("Mevcut alım maliyeti",(am(L)!=null?nf1.format(am(L)):"–")+" $/t","kayan hacim ağırlıklı · vergisiz, vade ve vergi finansmanı dahil")+dvK("GTS avantajı",(gf(L)!=null?sg(gf(L)):"–")+" $/t","mevcut maliyet − GTS · + = GTS ucuz",(gf(L)||0)>0?"pos":"neg")}</div>
       <details><summary>Terminal × tedarikçi ayrıntısı</summary><div class="scroll"><table class="t sik"><thead><tr><th class="l">Terminal</th><th class="l">Tedarikçi</th><th class="l">Tip</th><th>Hacim<br><span>t/yıl</span></th><th>GTS'e kayan<br><span>%</span></th><th>Prim<br><span>%</span></th><th>Prim<br><span>$/t</span></th><th>Vade<br><span>gün</span></th><th>Vade değeri<br><span>$/t</span></th><th>Alım maliyeti<br><span>$/t</span></th><th>GTS avantajı<br><span>$/t</span></th></tr></thead><tbody>${L.sort((a,b)=>v(b,"Hacim_t")-v(a,"Hacim_t")).map(x=>`<tr title="${esc(String(v(x,"Fiyat_bazi")||""))}"><td class="l">${esc(v(x,"Yukleme_noktasi"))}</td><td class="l">${esc(v(x,"Kaynak"))}</td><td class="l">${esc(v(x,"Tip"))}</td><td>${nf.format(v(x,"Hacim_t"))}</td><td>${nf.format(x.pay*100)}</td><td>${nf2.format((v(x,"Prim_orani")||0)*100)}</td><td>${sg($t(v(x,"Prim_TL_m3")||0))}</td><td>${nf1.format(v(x,"Vade_gun")||0)}</td><td>${sg($t(v(x,"Vade_degeri_TL_m3")||0))}</td><td>${nf1.format($t(v(x,"Alim_maliyeti_TL_m3")||0))}</td><td class="${(v(x,"GTS_farki_TL_m3")||0)>0?"p":"n"}">${sg($t(v(x,"GTS_farki_TL_m3")||0))}</td></tr>`).join("")}</tbody></table></div></details></section>`; };
   const sir=[...SR].map(([s,L])=>[s,L,L.reduce((a,x)=>a+v(x,"Hacim_t")*x.pay,0)]).sort((a,b)=>b[2]-a[2]);
-  el.innerHTML=`<section><div class="head"><h2>Teklif · potansiyel müşterilerin mevcut alım koşulları · ${yil}</h2><span class="sub">ürün kaydırması yapacakları terminallerde (Gecis'te GTS'e geçen akışların bugünkü terminalleri) · prim ve vade, ithal / yerli ayrımıyla · prim = liste fiyatına göre iskonto (− = iskonto) · $/t, TL/m³ ÷ ${nf2.format(F)}</span></div>
+  el.innerHTML=`<section><div class="head"><h2>Teklif · potansiyel müşterilerin mevcut alım koşulları · ${yil}</h2><span class="sub">ürün kaydırması yapacakları terminallerde (Gecis'te GTS'e geçen akışların bugünkü terminalleri) · prim ve vade, ithal / yerli ayrımıyla · prim = liste fiyatına göre iskonto (− = iskonto) · ${TLFE(yil)}</span></div>
     <div class="tk-ctl"><label><input type="checkbox" id="tk-tum"${S.tkTum?" checked":""}> GTS'e geçmeyen akışların terminallerini de göster</label><span class="sub">${sir.length} şirket</span></div></section>
     ${sir.map(([s,L])=>kart(s,L)).join("")||`<p class="not">Gösterilecek şirket yok.</p>`}`;
   $("tk-tum").onchange=e=>{ S.tkTum=e.target.checked; teklif(); }; }
@@ -442,6 +442,7 @@ try{ new MutationObserver(()=>birimEkle()).observe(document.body,{childList:true
 /* $/t ↔ TL/m³ çevrimi (kullanıcı 12.11.2026 23:10): her yılın ortalama kuru × 0,845. Yıl yoksa (iki yıl) model Ozet H55 (Makul ort. kur × 0,845). */
 const KURY={}; const kurYil=y=>{ y=String(y||YIL||""); if(!/^20\d\d$/.test(y)) return null; if(y in KURY) return KURY[y];
   const F=V.fiy||[], t0=Date.UTC(2027,0,1); let t=0,n=0; F.forEach((r,i)=>{ if(typeof r[2]==="number"&&String(new Date(t0+i*864e5).getUTCFullYear())===y){ t+=r[2]; n++; } }); return KURY[y]=n?t/n:null; };
+const TLFE=y=>{ const k=kurYil(y); return k?`1 $/t = ${nf2.format(k*0.845)} TL/m³ (${String(y||YIL)} ort. kur ${nf2.format(k)} × 0,845)`:`1 $/t = ${nf2.format(TLF(y))} TL/m³ (iki yıl Makul ort. kur × 0,845)`; };
 const TLF=y=>{ const k=kurYil(y); if(k) return k*0.845; const r=(V.tic||[]).find(r=>/^TL\/m³ karşılığı – 1 USD\/t/.test(r[0])); return r&&typeof r[1]==="number"&&r[1]>0?r[1]:47.5; }, KURO=y=>TLF(y)/0.845;
 function rakip(){
   const RK=V.rakip; if(!RK||!RK.satir||!RK.satir.length){ $("rk-tab").innerHTML=`<tbody><tr><td class="l">Bu pakette rakip maliyet analizi (SCN_GTS_RAKIP_MALIYET_V2) yok.</td></tr></tbody>`; return; }
@@ -469,7 +470,7 @@ function rakip(){
     +kt(S.rkS?esc(S.rkS)+" ortalaması":"Rakip ortalaması",tl(A.m)+" $/t",`${nf.format(A.t/1e3)} kt · GTS'e göre ${fr(A.f)} $/t`,A.f>0?"pos":A.f<0?"neg":"")
     +kt("İthal",Ri.t?tl(Ri.m)+" $/t":"–",`hacmin %${nf1.format(A.t?Ri.t/A.t*100:0)} · GTS'e göre ${fr(Ri.f)}`)
     +kt("Yerli (rafineri)",Ry.t?tl(Ry.m)+" $/t":"–",`hacmin %${nf1.format(A.t?Ry.t/A.t*100:0)} · GTS'e göre ${fr(Ry.f)}`);
-  $("rk-sub").textContent=`GTS etki alanındaki iller · motorin · ${S.rkY} Makul yol · $/t (TL/m³ ÷ ${nf2.format(UF)}), vergisiz · + = rakip GTS'den pahalı (GTS avantajı)`;
+  $("rk-sub").textContent=`GTS etki alanındaki iller · motorin · ${S.rkY} Makul yol · ${TLFE(S.rkY)}, vergisiz · + = rakip GTS'den pahalı (GTS avantajı)`;
   // tedarikçi grafiği: kaynak (ithalatçı / rafineri) ya da yükleme noktası bazında, hacim ağırlıklı
   { const anah=r=>S.rkG==="kaynak"?g(r,"Kaynak")+"|"+g(r,"Tip"):g(r,"Yukleme_noktasi")+"|"+g(r,"Tip"), M=new Map();
     for(const r of R){ const k=anah(r); (M.get(k)||M.set(k,[]).get(k)).push(r); }
