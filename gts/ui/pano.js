@@ -143,7 +143,56 @@ addEventListener("hashchange",()=>goster(location.hash.slice(1)));
 const ST_KES=0.835, ST_BOL=0.845, nf3=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:3,maximumFractionDigits:3}), nf4=new Intl.NumberFormat("tr-TR",{minimumFractionDigits:4,maximumFractionDigits:4});   // kullanıcı 04.11.2026: kargo kesafeti 0,835; alım fiyatı çarpanı 0,845 / 0,835
 // CSV: claude.ai yayınında downloads yeteneği (yoksa düğme gizlenir); masaüstünde doğrudan dosya
 let ST_DL=null; try{ if(window.claude&&typeof window.claude.use==="function") window.claude.use("downloads").then(d=>{ ST_DL=d||false; const b=$("st-csv"); if(b) b.hidden=!d; }).catch(()=>{ ST_DL=false; const b=$("st-csv"); if(b) b.hidden=true; }); }catch{}
-function satislar(){
+
+/* ===== Antrepo devri kurgusu (paket 149+; kullanıcı 12.11.2026 12:27 "bu tablolar da modelin yeni hali için oluşturulsun"):
+   Satışlar / Ekonomi / Nakit akışı sekmeleri Antrepo Devri kargo tablosundan. Eski (günlük satış) içerik gizlenir. */
+const DVK=()=>V.devir&&V.devir.kg&&V.devir.kg.length?V.devir:null;
+function dvKap(v){ const root=document.querySelector(`.v[data-v="${v}"]`); if(!root) return null; let el=root.querySelector(":scope > .dv-alt");
+  if(!el){ el=document.createElement("div"); el.className="dv-alt"; root.prepend(el); } for(const c of root.children) if(c!==el) c.hidden=true; return el; }
+const dvGi=s=>s?Math.round((Date.parse(s+"T00:00:00Z")-Date.parse(V.g0+"T00:00:00Z"))/864e5):null;
+const dvM=v=>v==null?"–":(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), dvK=(l,v,s,c="")=>`<div class="kt ${c}"><span>${l}</span><b>${v}</b><small>${s}</small></div>`;
+const dvYil=r=>String(r[16]||(r[3]||"").slice(0,4));
+/* kargo satırı: 0 no, 1 ton, 2 COD, 3 devir, 4 sf başı, 5 sf sonu, 6 satış CIF, 7 satış fiyatı, 8 gelir, 9 ürün maliyeti, 10 ek seyir, 11 hedge, 12 ödeme, 13 tahsilat, 14 finansman, 15 sörvey, 16 yıl, 17 katkı, 18 elleçleme gideri */
+function dvSatis(){ const D=DVK(), el=dvKap("satis"); if(!D||!el) return; const K=D.kg.filter(r=>!YIL||dvYil(r)===YIL), P=D.p||{};
+  const sm=(f)=>K.reduce((a,r)=>a+(f(r)||0),0), t=sm(r=>r[1]), gel=sm(r=>r[8]), mal=sm(r=>r[9]), hd=sm(r=>r[11]), kt=sm(r=>r[17]), cif=t?sm(r=>r[6]*r[1])/t:0, fy=t?gel/t:0;
+  const ay=new Map(); for(const r of K){ const a=(r[3]||"").slice(0,7); const o=ay.get(a)||ay.set(a,{n:0,t:0,g:0,m:0,s:0,h:0,k:0,c:0}).get(a); o.n++; o.t+=r[1]; o.g+=r[8]||0; o.m+=r[9]||0; o.s+=r[10]||0; o.h+=r[11]||0; o.k+=r[17]||0; o.c+=(r[6]||0)*r[1]; }
+  const AYA=a=>{ const [y,m]=a.split("-"); return AY[+m-1]+" "+y; };
+  el.innerHTML=`<section><div class="head"><h2>Satışlar · antrepo devri${YIL?" · "+YIL:""}</h2><span class="sub">Her kargo, antrepo beyannamesinden sonra (COD + ${P.devG??"?"} gün) müşteriye devredilir; ürün devir sonrası ${P.n??"?"} kotasyonun CIF Med ortalaması ${P.prim!=null?(P.prim<0?"− ":"+ ")+nf2.format(Math.abs(P.prim))+" $/t":""} ile faturalanır, tahsilat devir + ${P.vade??"?"} gün (USD). Kira ve elleçleme ayrı fatura.</span></div>
+    <div class="kpi4">${dvK("Devredilen",ton(t),`${K.length} kargo`)+dvK("Ortalama satış fiyatı",nf1.format(fy)+" $/t",`satış CIF Med ort. ${nf1.format(cif)} $/t`)+dvK("Satış geliri – ürün",dvM(gel)+" M $",`ürün maliyeti ${dvM(mal)} M $`)+dvK("Ürün katkısı",dvM(kt)+" M $",`hedge ${dvM(hd)} M $ dahil · ek seyir, sörvey ve finansman sonrası`,kt<0?"neg":"pos")}</div></section>
+  <section><div class="head"><h2>Aylık devir</h2><span class="sub">ay = devir tarihi · M $</span></div><div class="scroll"><table class="t"><thead><tr><th class="l">Ay</th><th>Kargo</th><th>Devredilen<br><span>t</span></th><th>Satış CIF ort.<br><span>$/t</span></th><th>Satış geliri</th><th>Ürün maliyeti</th><th>Ek seyir</th><th>Ürün hedge</th><th>Ürün katkısı</th></tr></thead><tbody>${[...ay].sort().map(([a,o])=>`<tr><td class="l">${AYA(a)}</td><td>${o.n}</td><td>${nf.format(o.t)}</td><td>${nf1.format(o.c/o.t)}</td><td>${dvM(o.g)}</td><td class="n">${dvM(-o.m)}</td><td class="n">${dvM(-o.s)}</td><td class="${o.h<0?"n":""}">${dvM(o.h)}</td><td class="${o.k<0?"n":""}"><b>${dvM(o.k)}</b></td></tr>`).join("")}</tbody></table></div></section>
+  <section><div class="head"><h2>Kargo bazında devir</h2><span class="sub">tarihler · fiyat $/t · tutarlar bin $</span></div><div class="scroll"><table class="t"><thead><tr><th>Kargo</th><th>Ton</th><th class="l">COD</th><th class="l">Devir</th><th class="l">Satış fiyatlaması</th><th>Satış CIF</th><th>Satış fiyatı</th><th>Gelir</th><th>Ürün maliyeti</th><th>Hedge</th><th class="l">Tedarikçi ödemesi</th><th class="l">Tahsilat</th><th>Finansman</th><th>Katkı</th></tr></thead><tbody>${K.map(r=>{ const b=v=>v==null?"–":(v<0?"−":"")+nf.format(Math.abs(v)/1e3), tk=s=>s?(d=>d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2))(new Date(s+"T00:00:00Z")):"–";
+      return `<tr><td>${r[0]===0?"Açılış":r[0]}</td><td>${nf.format(r[1])}</td><td class="l">${tk(r[2])}</td><td class="l">${tk(r[3])}</td><td class="l">${tk(r[4])} – ${tk(r[5])}</td><td>${nf1.format(r[6]||0)}</td><td>${nf1.format(r[7]||0)}</td><td>${b(r[8])}</td><td class="n">${b(-(r[9]||0))}</td><td class="${(r[11]||0)<0?"n":""}">${b(r[11])}</td><td class="l">${tk(r[12])}</td><td class="l">${tk(r[13])}</td><td class="${(r[14]||0)>0?"n":""}">${b(-(r[14]||0))}</td><td class="${(r[17]||0)<0?"n":""}"><b>${b(r[17])}</b></td></tr>`; }).join("")}</tbody></table></div>
+    <p class="not">Finansman: + gider (tedarikçiye ödeme tahsilattan önceyse), − gelir. Katkı = gelir − ürün maliyeti − ek seyir + hedge − sörvey − finansman (modelin kargo katkısı; kira, elleçleme ve genel giderler hariç). Müşterinin fiziksel çekişi ve kendi satışı GTS sonucunu etkilemez; elleçleme geliri çekilen tona göre faturalanır.</p></section>`; }
+function dvEkonomi(){ const D=DVK(), el=dvKap("ekonomi"); if(!D||!el) return; const R=D.rows, tR=R.find(r=>/^Devredilen/.test(r[0]))||[null,0,0,0], ust=/^(BRÜT ÜRÜN MARJI|TERMİNAL HİZMET MARJI|NET KÂR)/;
+  const L=R.filter(r=>!/^Devredilen|^Net \(USD\/t|^Bilgi:/.test(r[0])), ad=s=>s.replace(/ \(USD[^)]*\)$/,"").replace(/ – müşteri faturası| – GTS'in ödediği/,m=>m);
+  const ut=(v,t)=>t?(v<0?"−":"")+nf2.format(Math.abs(v)/t):"–", nk=R.find(r=>/^NET KÂR/.test(r[0]))||[null,0,0,0];
+  const sel=YIL==="2027"?[1]:YIL==="2028"?[2]:[1,2,3], yb=["","2027","2028","İki yıl"];
+  el.innerHTML=`<section><div class="head"><h2>Ekonomi · antrepo devri${YIL?" · "+YIL:""}</h2><span class="sub">yıl = devir yılı · M $ ve devredilen ton başına $/t</span></div>
+    <div class="kpi4">${sel.slice(-1).map(j=>dvK("Net kâr · "+yb[j],dvM(nk[j])+" M $",`${ut(nk[j],tR[j])} $/t · ${ton(tR[j])} devredilen`,nk[j]<0?"neg":"pos")
+      +dvK("Brüt ürün marjı",dvM((R.find(r=>/^BRÜT ÜRÜN/.test(r[0]))||[])[j])+" M $",`${ut((R.find(r=>/^BRÜT ÜRÜN/.test(r[0]))||[])[j],tR[j])} $/t · hedge dahil`)
+      +dvK("Terminal hizmet marjı",dvM((R.find(r=>/^TERMİNAL/.test(r[0]))||[])[j])+" M $","kira + elleçleme gelir − gider")
+      +dvK("Finansman",dvM((R.find(r=>/^Finansman/.test(r[0]))||[])[j])+" M $","tedarikçi ödemesi ↔ müşteri tahsilatı (USD faizi)")).join("")}</div></section>
+  <section><div class="head"><h2>Kâr / zarar ve birim ekonomi</h2><span class="sub">M $ · $/t (devredilen)</span></div><div class="scroll"><table class="t"><thead><tr><th class="l">Kalem</th>${sel.map(j=>`<th>${yb[j]}<br><span>M $</span></th><th>${yb[j]}<br><span>$/t</span></th>`).join("")}</tr></thead><tbody>${L.map(r=>`<tr class="${ust.test(r[0])?"top":""}"><td class="l">${ust.test(r[0])?"<b>"+esc(ad(r[0]))+"</b>":esc(ad(r[0]))}</td>${sel.map(j=>`<td class="${(r[j]||0)<0?"n":""}">${dvM(r[j])}</td><td class="${(r[j]||0)<0?"n":""}">${ut(r[j]||0,tR[j])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="not">Ürün geliri ve maliyeti kargo başına (devir yılına), kira ve genel giderler yıllık, elleçleme geliri müşterinin çektiği tona göre. ÖTV teminat komisyonu antrepodaki fiziksel stok takviminden. Karlilik sayfasındaki günlük satış hesabı bu kurguda kullanılmaz.</p></section>`; }
+function dvNakit(){ const D=DVK(), el=dvKap("nakit"); if(!D||!el) return; const R=D.rows, P=D.p||{}, n=ND, z=()=>Array(n).fill(0);
+  const tah=z(), ode=z(), hdg=z(), ter=z(), gid=z(), add=(A,s,v)=>{ const i=dvGi(s); if(i!=null&&i>=0&&i<n) A[i]+=v; };
+  for(const r of D.kg){ add(tah,r[13],r[8]||0); add(ode,r[12],-(r[9]||0)); add(ode,r[2],-(r[10]||0)-(r[15]||0)-(r[18]||0)); add(hdg,r[5],r[11]||0); }
+  const yr=re=>R.find(r=>re.test(r[0]))||[null,0,0,0], d0=Date.parse(V.g0+"T00:00:00Z");
+  const ter12=[yr(/^Tank kira geliri/),yr(/^Elleçleme geliri/),yr(/^Tank kira gideri/)], gd12=[yr(/^ÖTV teminat/),yr(/^Sörvey/).map(()=>0),yr(/^Satış ve pazarlama/),yr(/^Genel yönetim/)];
+  for(let i=0;i<n;i++){ const y=new Date(d0+i*864e5).getUTCFullYear(), j=y===2027?1:y===2028?2:0, dn=y%4===0?366:365; if(!j) continue;
+    for(const r of ter12) ter[i]+=(r[j]||0)/dn; for(const r of gd12) gid[i]+=(r[j]||0)/dn; }
+  const net=tah.map((v,i)=>v+ode[i]+hdg[i]+ter[i]+gid[i]); let c=0; const kum=net.map(v=>c+=v/1e6), mn=Math.min(...kum), mi=kum.indexOf(mn), son=kum[kum.length-1];
+  const tS=i=>{ const d=new Date(d0+i*864e5); return d.getUTCDate()+" "+AY[d.getUTCMonth()]+" "+d.getUTCFullYear(); };
+  const ay=new Map(); for(let i=0;i<n;i++){ const d=new Date(d0+i*864e5), a=d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0"); if(YIL&&String(d.getUTCFullYear())!==YIL) continue; const o=ay.get(a)||ay.set(a,[0,0,0,0,0,0]).get(a); o[0]+=tah[i]; o[1]+=ode[i]; o[2]+=hdg[i]; o[3]+=ter[i]; o[4]+=gid[i]; o[5]=kum[i]; }
+  const AYA=a=>{ const [y,m]=a.split("-"); return AY[+m-1]+" "+y; }, cl=v=>v<0?"n":"";
+  el.innerHTML=`<section><div class="head"><h2>Nakit akışı · antrepo devri${YIL?" · "+YIL:""}</h2><span class="sub">USD · tedarikçiye ödeme COD + vade, müşteri tahsilatı devir + ${P.vade??"?"} gün; hedge satış fiyatlaması sonunda; kira, elleçleme ve genel giderler gün bazında eşit</span></div>
+    <div class="kpi4">${dvK("Tepe finansman ihtiyacı",mn<0?nf1.format(-mn)+" M $":"yok",mn<0?`${tS(mi)} · kümülatif nakdin en düşük noktası`:"kümülatif nakit hep pozitif",mn<0?"neg":"pos")+dvK("Dönem sonu kümülatif · 2028 sonu",(son<0?"−":"+")+nf1.format(Math.abs(son))+" M $","finansman maliyeti hariç (model: "+dvM(yr(/^Finansman/)[3])+" M $)")+dvK("Ödeme − tahsilat sırası",(()=>{ const g=D.kg.map(r=>dvGi(r[12])-dvGi(r[13])).filter(isFinite); const o=g.reduce((a,b)=>a+b,0)/(g.length||1); return (o>=0?"+":"−")+nf1.format(Math.abs(o))+" gün"; })(),"ort. tedarikçi ödemesi − müşteri tahsilatı · + = önce tahsil")+dvK("Kira + elleçleme (net)",dvM(ter.reduce((a,b)=>a+b,0))+" M $","müşteri faturası − GTS'in ödediği")}</div></section>
+  <section><div class="head"><h2>Kümülatif nakit</h2><span class="sub">M $ · sıfırın altı = dışarıdan finansman gerekir</span></div><div class="grf" id="dv-nk-g"></div></section>
+  <section><div class="head"><h2>Aylık nakit akışı</h2><span class="sub">M $</span></div><div class="scroll"><table class="t"><thead><tr><th class="l">Ay</th><th>Müşteri tahsilatı</th><th>Tedarikçi + terminal ödemeleri</th><th>Ürün hedge</th><th>Kira + elleçleme (net)</th><th>Genel giderler, ÖTV komisyonu</th><th>Net</th><th>Kümülatif</th></tr></thead><tbody>${[...ay].sort().map(([a,o])=>{ const nt=o[0]+o[1]+o[2]+o[3]+o[4]; return `<tr><td class="l">${AYA(a)}</td><td>${dvM(o[0])}</td><td class="n">${dvM(o[1])}</td><td class="${cl(o[2])}">${dvM(o[2])}</td><td class="${cl(o[3])}">${dvM(o[3])}</td><td class="${cl(o[4])}">${dvM(o[4])}</td><td class="${cl(nt)}"><b>${dvM(nt)}</b></td><td class="${cl(o[5])}">${(o[5]<0?"−":"")+nf1.format(Math.abs(o[5]))}</td></tr>`; }).join("")}</tbody></table></div>
+    <p class="not">Tedarikçi ödemesi = ürün maliyeti (CIF + prim + navlun, fire dahil) ödeme gününde; ek seyir, sörvey ve GTS'in elleçleme gideri COD gününde. Finansman maliyeti modelde ayrıca hesaplanır (USD faizi × ödeme–tahsilat farkı); burada nakit hareketi olarak değil, sonuç olarak gösterilir. ÖTV teminatı nakit çıkışı değildir (mektup); komisyonu giderlerde.</p></section>`;
+  zaman($("dv-nk-g"),{aria:"Kümülatif nakit",h:220,sifir:true,fmt:x=>nf1.format(x),seri:[{ad:"Kümülatif nakit (M $)",renk:C.mot,v:kum,alan:1,kalin:2}]}); }
+
+function satislar(){ if(DVK()) return dvSatis();
   const SD=V.satis; if(!SD||!(SD.Motorin||SD.Benzin)){ $("st-tab").innerHTML=`<tbody><tr><td class="l">Bu paketteki modelde satış / beyanname ayrıntısı yok.</td></tr></tbody>`; return; }
   const ur=["Motorin","Benzin"].filter(u=>SD[u]); if(!S.stU||!SD[S.stU]) S.stU=ur[0]; $("st-urun-k").hidden=ur.length<2;
   for(const b of $("st-urun").querySelectorAll("button")){ b.disabled=!SD[b.dataset.u]; b.onclick=()=>{ S.stU=b.dataset.u; S.stLot=""; S.stSf=0; satislar(); }; b.setAttribute("aria-pressed",String(b.dataset.u===S.stU)); }
@@ -323,7 +372,7 @@ function rakip(){
 }
 /* ---------- NAKİT AKIŞI (kullanıcı 09.11.2026 20:11 "ekle"): modelin Nakit_Akisi sayfası (paket 105+). Giriş +, çıkış −; bakiye 1.1.2027'de sıfırdan başlar,
    finansman öncesidir (faiz ve kredi kur farkı Kârlılık'ta). USD gösterimde her gün o günün kuruyla çevrilir. ---------- */
-function nakit(){
+function nakit(){ if(DVK()) return dvNakit();
   const N=V.nakit; if(!N||!N.g||!N.g.length){ $("nk-kpi").innerHTML=`<p class="not">Bu pakette günlük nakit akışı (Nakit_Akisi) yok; paket 105 ve sonrası gerekir.</p>`; for(const id of ["nk-graf","nk-ay"]) $(id).innerHTML=""; $("nk-tab").innerHTML=""; return; }
   if(!S.nkB) S.nkB="tl"; if(!S.nkA) S.nkA="ozet";
   for(const [id,k,f] of [["nk-bir","b","nkB"],["nk-ayr","a","nkA"]]) for(const b of $(id).querySelectorAll("button")){ b.setAttribute("aria-pressed",String(b.dataset[k]===S[f])); b.onclick=()=>{ S[f]=b.dataset[k]; nakit(); }; }
@@ -982,7 +1031,7 @@ function ticari(elId="g-tic",kap="gts"){
   const bzGiz=r=>!BZ&&/benzin/i.test(r[0])&&!(r[4]&&r[4] in G)&&(r[3]==null||r[3]===r[1]);
   for(const r of T){ if(r[5]==="not"&&/SCN_GTS_RAFINERI_FARKI|paylar ve potansiyel/.test(r[0])) continue; // kullanıcı 02.11.2026 18:57: not kaldırıldı
     if(r[5]==="not"){ if(acik) h+=`<p class="tf-not">${esc(r[0].replace(/^Not:\s*/,""))}</p>`; continue; }
-    if(r[1]==null&&r[2]==null&&!r[4]){ h+=`${acik?"</div>":""}<div class="tf-g" data-g="${esc(r[0])}"><h4>${esc(r[0].replace(/^ITT · /,"").replace(/\s*\(Karlilik\)$/,"").replace(/\s*\(Tüpraş İzmit ± TL\/m³\)$/,""))}</h4>`; acik=true; continue; }
+    if(r[1]==null&&r[2]==null&&!r[4]){ h+=`${acik?"</div>":""}<div class="tf-g" data-g="${esc(r[0])}"><h4>${esc(r[0].replace(/^ITT · (Ozet · )?/,"").replace(/\s*\(Karlilik\)$/,"").replace(/\s*\(Tüpraş İzmit ± TL\/m³\)$/,""))}</h4>`; acik=true; continue; }
     if(bzGiz(r)||ittGiz(r)) continue;
     if(/^Satış ve pazarlama/.test(r[0])&&!(r[4]&&r[4] in G)) continue; // kullanıcı 02.11.2026 11:39: panelden kaldırıldı
     if(/^2027 motorin GTS partisi|^Uygulanan parti/.test(r[0])&&!(r[4]&&r[4] in G)) continue; // kullanıcı 02.11.2026 18:52: panelden kaldırıldı (kayıtlı 2027 partisi varsa görünür kalır)
@@ -1226,7 +1275,7 @@ function operasyon(){
 }
 
 /* ---------- EKONOMİ ---------- */
-function ekonomi(){
+function ekonomi(){ if(DVK()) return dvEkonomi();
   yasalDefter();   // kullanıcı 02.11.2026 22:11: kambiyo Ekonomi sayfasında
   const sat=[["Motorin satışı (t)",ton],...(BZ?[["Benzin satışı (t)",ton]]:[]),["Satış / hedef tonaj",pct],["Gemi varışı (adet, varış tarihine göre)",nf.format],["Brüt marj (USD)",musd,1],["Finansman (USD)",x=>musd(-x),1],["Ürün hedge net (USD)",musd,1],["Net marj (USD)",musd,2],["Vergi + beyanname maliyeti (USD)",x=>musd(-x),1],...(V.kartab?[["Diğer faaliyet giderleri (USD)",x=>musd(-x),1]]:[]),...(V.tld?[["Kambiyo kârı / zararı",musd,1],["Kur hedge (forward) sonucu",musd,1],["Tahsilat kur farkı geri eklenir",musd,1]]:[]),["Toplam (USD)",musd,2],["Toplam (USD/t)",nf2.format],["Tepe teminat bakiyesi (TL)",x=>nf1.format(x/1e9)+" mlr TL"]];
   if(V.tld&&V.tld.tl){ const L=V.kartab.rows, b=re=>L.find(r=>re.test(String(r[0]).trim()))||[null,0,0,0], ng=r=>[r[0],-r[1],-r[2],-r[3]], mTL=x=>(x<0?"−":"")+nf1.format(Math.abs(x)/1e6)+" M TL";
