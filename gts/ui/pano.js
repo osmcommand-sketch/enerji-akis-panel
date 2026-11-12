@@ -154,7 +154,8 @@ const dvM=v=>v==null?"–":(v<0?"−":"")+nf1.format(Math.abs(v)/1e6), dvK=(l,v,
 const dvYil=r=>String(r[16]||(r[3]||"").slice(0,4));
 /* kullanıcı 12.11.2026 13:37 "finansman gelir ve giderlerini kırılım olarak göster": kargo finansmanı = (ürün + terminal) × USD faizi × (tahsilat − tedarikçi ödemesi) gün;
    tahsilat ödemeden önceyse GTS nakdi elinde tutar → gelir, sonraysa → gider. Model Q: + gider, − gelir. */
-const dvFin=r=>{ const q=r[14]||0, g=dvGi(r[13])-dvGi(r[12]); return {gel:q<0?-q:0, gid:q>0?-q:0, gun:g, tutar:g&&q?Math.abs(q)/Math.abs(g)*365/((r=>r?+((V.girdi||{})[r[4]]??r[1]):0)((V.tic||[]).find(x=>/^USD borçlanma faizi/.test(x[0])))||0.08):null}; };
+const dvFin=r=>{ const D=DVK(), SD=V.satis&&V.satis.Motorin; if(D&&D.im&&D.im.length&&SD&&SD.mg){ const f=dvLot(D,SD).KF.get(r[0]); if(f) return {gel:f.gel,gid:f.gid,gun:dvGi(r[13])-dvGi(r[12]),tutar:null,im:f.n,modelQ:-(r[14]||0)}; }
+  const q=r[14]||0, g=dvGi(r[13])-dvGi(r[12]); return {gel:q<0?-q:0, gid:q>0?-q:0, gun:g, tutar:g&&q?Math.abs(q)/Math.abs(g)*365/((r=>r?+((V.girdi||{})[r[4]]??r[1]):0)((V.tic||[]).find(x=>/^USD borçlanma faizi/.test(x[0])))||0.08):null}; };
 const dvFinYil=D=>{ const o={1:[0,0],2:[0,0],3:[0,0]}; for(const r of D.kg){ const f=dvFin(r), j=dvYil(r)==="2027"?1:dvYil(r)==="2028"?2:0; if(j){ o[j][0]+=f.gel; o[j][1]+=f.gid; } o[3][0]+=f.gel; o[3][1]+=f.gid; } return o; };
 /* kargo satırı: 0 no, 1 ton, 2 COD, 3 devir, 4 sf başı, 5 sf sonu, 6 satış CIF, 7 satış fiyatı, 8 gelir, 9 ürün maliyeti, 10 ek seyir, 11 hedge, 12 ödeme, 13 tahsilat, 14 finansman, 15 sörvey, 16 yıl, 17 katkı, 18 elleçleme gideri */
 /* Satışlar · antrepo devri (kullanıcı 12.11.2026 13:54 "tüm satış tablolarında hedge katkısını da gösterelim, sağa sola kaydırmak zorunda kalmayalım"):
@@ -179,7 +180,27 @@ function dvSatis(){ const D=DVK(), el=dvKap("satis"); if(!D||!el) return; setTim
    Her parti = müşterinin ithalat beyannamesi (ör. "Aytemiz IM-1"); her gemi = GTS antrepo beyannamesi ("GTS AN-1"); IM'ler devredilmiş AN'lerden FIFO ile düşülerek kapanır.
    Panel kuralı: ayın parti büyüklüğü = max(1.000 t, ayın ihtiyacı / 3, 100 t'ye yuvarlı); müşterinin milli tank stoğu o günün çekişini karşılamıyorsa parti alınır;
    ayda 3. partide ayın kalan ihtiyacının tamamı alınır. Fiyat, SMM ve hedge partinin düştüğü AN'lerin (kargoların) ton ağırlıklı değerleri. Modelin kargo bazlı sonucu değişmez. */
-function dvLot(D,SD){ if(dvLot.c&&dvLot.c.D===D&&dvLot.c.SD===SD) return dvLot.c.R;
+/* paket 152+: IM partileri modelden (Musteri_Gunluk J–P, Musteri_Alimlari E) – fiyat = IM sonrası N kotasyon CIF + satış primi; finansman IM bazında
+   (tahsilat = IM + vade, ödeme = kargonun tedarikçi ödemesi; tutar = ürün maliyeti / t × IM t × USD faizi × gün / 365; + gelir, − gider) */
+const dvFaiz=()=>((r=>r?+((V.girdi||{})[r[4]]??r[1]):0)((V.tic||[]).find(x=>/^USD borçlanma faizi/.test(x[0])))||0.08);
+function dvLotM(D,SD){ const g0=Date.parse(SD.g0+"T00:00:00Z"), n=SD.mg.length, ayK=i=>new Date(g0+i*864e5).toISOString().slice(0,7), ay=[]; for(let i=0;i<n;i++) ay[i]=ayK(i);
+  const KGR=new Map(D.kg.map(r=>[r[0],r])), AN=D.kg.filter(r=>r[0]>0).map(r=>({no:r[0],kg:r[0],t:r[1],gun:dvGi(r[3]),kal:r[1],ode:dvGi(r[12]),c:r[1]?(r[9]||0)/r[1]:0,...dvKgB(r)})), ANm=new Map(AN.map(a=>[a.no,a]));
+  const P=D.p||{}, prim=P.prim||0, vade=P.vade||0, rf=dvFaiz(), musId=new Map((SD.mus||[]).map((m,i)=>[m[0],i]));
+  const Pl=D.im.map(x=>{ const gun=dvGi(x[0]), an=[[x[5],x[6]],...(x[7]!==""&&x[7]!=null?[[x[7],x[8]]]:[])].filter(a=>a[0]!==""&&a[0]!=null&&a[1]>0).map(a=>[+a[0],a[1]]), tt=an.reduce((a,b)=>a+b[1],0)||1;
+    const w=k=>an.reduce((a,[no,d])=>a+d*((ANm.get(no)||{})[k]||0),0)/tt, cif=(D.imCif||{})[x[0]], fy=cif!=null?cif+prim:w("fy");
+    const fin=an.map(([no,d])=>{ const A=ANm.get(no)||{}; return [no, d*(A.c||0)*rf*((A.ode??gun)-(gun+vade))/365]; });
+    const imn=+String(x[3]).replace(/^.*IM-/,"");
+    return {gun,mi:musId.get(x[1]),sid:x[1],ad:x[2],im:imn,t:x[4],an,fy,sm:w("sm"),hd:w("hd"),erken:an.some(([no])=>(ANm.get(no)||{}).gun>gun),fin}; });
+  for(const p of Pl) for(const [no,d] of p.an){ const A=ANm.get(no); if(A) A.kal-=d; }
+  // günlük çekiş → müşterinin IM'leri (FIFO)
+  const need=new Map(); SD.mg.forEach((L,i)=>{ for(const [mi,t] of L||[]){ if(!(t>0)) continue; const a=need.get(mi)||need.set(mi,new Float64Array(n)).get(mi); a[i]+=t; } });
+  const imK=new Map(); for(const p of Pl){ (imK.get(p.mi)||imK.set(p.mi,[]).get(p.mi)).push({...p,kal:p.t}); }
+  const cek=[]; for(const [mi,a] of need){ const L=imK.get(mi)||[]; let j=0; for(let i=0;i<n;i++){ let q=a[i]; if(q<=0) continue; const im=[]; while(q>1e-6&&j<L.length){ const d=Math.min(q,L[j].kal); L[j].kal-=d; q-=d; im.push([L[j],d]); if(L[j].kal<1e-6) j++; }
+      const tt=im.reduce((x,y)=>x+y[1],0)||1, w=k=>im.reduce((x,[l,d])=>x+d*l[k],0)/tt; cek.push({i,mi,ad:(SD.mus[mi]||[])[1],t:a[i],im:im.map(x=>x[0].im),fy:w("fy"),sm:w("sm"),hb:w("hd")}); } }
+  // kargo bazında IM finansmanı (gelir / gider)
+  const KF=new Map(); for(const p of Pl) for(const [no,f] of p.fin){ const o=KF.get(no)||KF.set(no,{gel:0,gid:0,n:0}).get(no); if(f>=0) o.gel+=f; else o.gid+=f; o.n++; }
+  return {AN,P:Pl.sort((x,y)=>x.gun-y.gun||x.ad.localeCompare(y.ad,"tr")),cek,ay,KF,model:true}; }
+function dvLot(D,SD){ if(dvLot.c&&dvLot.c.D===D&&dvLot.c.SD===SD) return dvLot.c.R; if(D.im&&D.im.length){ const R=dvLotM(D,SD); dvLot.c={D,SD,R}; return R; }
   const g0=Date.parse(SD.g0+"T00:00:00Z"), ayK=i=>new Date(g0+i*864e5).toISOString().slice(0,7), n=SD.mg.length;
   const AN=D.kg.filter(r=>r[0]>0).map((r,j)=>({no:j+1,kg:r[0],t:r[1],gun:dvGi(r[3]),kal:r[1],...dvKgB(r)}));
   const need=new Map(); SD.mg.forEach((L,i)=>{ for(const [mi,t] of L||[]){ if(!(t>0)) continue; const a=need.get(mi)||need.set(mi,new Float64Array(n)).get(mi); a[i]+=t; } });
@@ -611,7 +632,31 @@ function ittkargo(){ const X=ITX(); itSeg("ik-yil","ittkargo",ittkargo); if(!X) 
   $("ik-tsub").textContent=`${L.length} kargo · ortalamalar net tonla ağırlıklı · finansman: + gider`;
 }
 
-function ittsatis(){ const X=ITX(); itSeg("is-yil","ittsatis",ittsatis); if(!X) return itYok("is-kpi"); const {D,gd}=X, [a,b]=itR();
+/* ITT · GTS → Alpet partileri (paket 153+; kullanıcı 12.11.2026 14:23–14:25): GTS AN-n (kargo) → Alpet IM-n (≥ asgari parti, ayda ≤ azami alım) →
+   Alpet'in dağıtıcılara günlük karadolum satışı; her satış FIFO ile Alpet IM lotundan düşer. Veri modelden (Alpet_IM, Musteri_Gunluk J–P). Alpet tarafı TL. */
+function ittLot(){ const root=document.querySelector('.v[data-v="ittsatis"]'); if(!root) return; let el=root.querySelector("#it-lot"); const IM=V.ittIm, KD=V.ittKd;
+  if(!IM||!IM.length){ if(el) el.remove(); return; } if(!el){ el=document.createElement("section"); el.id="it-lot"; root.appendChild(el); }
+  const tk2=s=>tk(s), ayA=a=>{ const [y,m]=a.split("-"); return AY[+m-1]+" "+y; }, U=v=>dvSg(Math.round(v)), imA=k=>`Alpet IM-${String(k).replace(/^.*IM-/,"")}`, anA=k=>`GTS AN-${k}`;
+  const ayl=[...new Set(IM.map(x=>x[0].slice(0,7)))].sort(); if(!S.itAy||!ayl.includes(S.itAy)) S.itAy=ayl[0];
+  const musL=[...new Set((KD||[]).map(x=>x[2]))].sort((a,b)=>a.localeCompare(b,"tr")); if(S.itMus&&!musL.includes(S.itMus)) S.itMus="";
+  const yT=y=>IM.filter(x=>x[0].startsWith(y)), oz=y=>{ const L=yT(y), t=L.reduce((a,x)=>a+x[2],0); return {n:L.length,t,u:L.reduce((a,x)=>a+(x[8]||0),0)}; }, O7=oz("2027"), O8=oz("2028");
+  // AN kapanışı
+  const AN=new Map(); for(const x of IM) for(const [no,t] of [[x[3],x[4]],[x[5],x[6]]]){ if(no===""||no==null||!(t>0)) continue; const o=AN.get(+no)||AN.set(+no,{t:0,n:0,ilk:x[0],son:x[0]}).get(+no); o.t+=t; o.n++; o.son=x[0]; }
+  const F=IM.filter(x=>x[0].startsWith(S.itAy)), FK=(KD||[]).filter(x=>x[0].startsWith(S.itAy)&&(!S.itMus||x[2]===S.itMus));
+  const imTL=new Map(IM.map(x=>[String(x[1]).replace(/^.*IM-/,""),x[9]||0]));   // Alpet IM maliyeti TL/t
+  const yog=0.835, kS=x=>{ const L=[[x[4],x[5]],[x[6],x[7]]].filter(a=>a[0]!==""&&a[0]!=null&&a[1]>0), tt=L.reduce((a,b)=>a+b[1],0)||1; return {lot:L.map(([k,t])=>L.length>1?`${imA(k)} (${nf.format(t)})`:imA(k)).join(", "), sm:L.reduce((a,[k,t])=>a+t*(imTL.get(String(k))||0),0)/tt}; };
+  el.innerHTML=`<div class="head"><h2>GTS → Alpet partileri · ithalat beyannameleri</h2><span class="sub">Alpet GTS'ten partiyle alır (Alpet IM-n), ithalat beyannamesini açar ve dağıtıcılara karadolumla satar · IM'ler GTS antrepo beyannamelerinden (AN = kargo) FIFO ile düşer · karadolum satışları IM lotlarından FIFO</span></div>
+    <div class="kpi4">${dvK("Alpet alımı · 2027",`${O7.n} IM`,`${nf.format(O7.t)} t · ort. parti ${O7.n?nf.format(O7.t/O7.n):"–"} t`)+dvK("Alpet alımı · 2028",`${O8.n} IM`,`${nf.format(O8.t)} t · ort. parti ${O8.n?nf.format(O8.t/O8.n):"–"} t`)+dvK("ITT tutarı · iki yıl",nf1.format((O7.u+O8.u)/1e6)+" M $",`ort. ${nf1.format((O7.u+O8.u)/((O7.t+O8.t)||1))} $/t`)+dvK("GTS antrepo beyannamesi",`${AN.size} AN`,"Alpet IM'leriyle kapanan kargo")}</div>
+    <div class="ctl" style="margin-top:12px"><label>Ay <select class="it-ay">${ayl.map(a=>`<option value="${a}"${a===S.itAy?" selected":""}>${ayA(a)}</option>`).join("")}</select></label> <label>Dağıtıcı <select class="it-mus"><option value="">Tümü</option>${musL.map(m=>`<option${m===S.itMus?" selected":""}>${esc(m)}</option>`).join("")}</select></label></div>
+    <h3>Alpet ithalat beyannameleri (GTS'ten alım)</h3>
+    <div class="scroll" style="max-height:360px"><table class="t sik"><thead><tr><th class="l">Tarih</th><th class="l">İthalat beyannamesi<br><span>lot</span></th><th>Miktar<br><span>t</span></th><th class="l">Antrepo beyannamesinden<br><span>AN (t)</span></th><th>ITT fiyatı<br><span>$/t</span></th><th>ITT tutarı<br><span>$</span></th><th>Alpet maliyeti<br><span>TL/t</span></th></tr></thead><tbody>${F.map(x=>{ const L=[[x[3],x[4]],[x[5],x[6]]].filter(a=>a[0]!==""&&a[0]!=null&&a[1]>0); return `<tr><td class="l">${tk2(x[0])}</td><td class="l"><b>${imA(x[1])}</b></td><td>${nf.format(x[2])}</td><td class="l">${L.map(([k,t])=>L.length>1?`${anA(k)} (${nf.format(t)})`:anA(k)).join(", ")}</td><td>${nf1.format(x[7]||0)}</td><td>${U(x[8]||0)}</td><td>${nf.format(Math.round(x[9]||0))}</td></tr>`; }).join("")||`<tr><td class="l" colspan="7">Bu ayda alım yok.</td></tr>`}</tbody></table></div>
+    <h3 style="margin-top:16px">GTS antrepo beyannameleri · Alpet IM ile kapanış</h3>
+    <div class="scroll" style="max-height:300px"><table class="t sik"><thead><tr><th class="l">Antrepo beyannamesi</th><th>Düşülen<br><span>t (IM)</span></th><th>IM<br><span>adet</span></th><th class="l">İlk IM<br><span>tarih</span></th><th class="l">Son IM<br><span>tarih</span></th></tr></thead><tbody>${[...AN].sort((a,b)=>a[0]-b[0]).filter(([,o])=>o.son.startsWith(S.itAy)||o.ilk.startsWith(S.itAy)).map(([k,o])=>`<tr><td class="l"><b>${anA(k)}</b></td><td>${nf.format(o.t)}</td><td>${o.n}</td><td class="l">${tk2(o.ilk)}</td><td class="l">${tk2(o.son)}</td></tr>`).join("")||`<tr><td class="l" colspan="5">–</td></tr>`}</tbody></table></div>
+    <h3 style="margin-top:16px">Alpet'in karadolum satışları · IM lotlu</h3>
+    <div class="scroll" style="max-height:520px"><table class="t sik"><thead><tr><th class="l">Tarih</th><th class="l">Dağıtıcı</th><th>Satış<br><span>t</span></th><th class="l">Lot<br><span>Alpet IM (t)</span></th><th>Satış fiyatı<br><span>TL/m³</span></th><th>Satış tutarı<br><span>TL</span></th><th>SMM<br><span>TL/t</span></th><th>SMM<br><span>TL</span></th><th>Brüt kâr<br><span>TL</span></th></tr></thead><tbody>${FK.map(x=>{ const k=kS(x), smm=k.sm*x[3], bk=(x[9]||0)-smm; return `<tr><td class="l">${tk2(x[0])}</td><td class="l">${esc(x[2])}</td><td>${nf.format(x[3])}</td><td class="l">${k.lot}</td><td>${nf.format(Math.round(x[8]||0))}</td><td>${U(x[9]||0)}</td><td>${nf.format(Math.round(k.sm))}</td><td class="n">${U(-smm)}</td><td class="${dvCl(bk)}"><b>${U(bk)}</b></td></tr>`; }).join("")||`<tr><td class="l" colspan="9">Bu ayda satış yok.</td></tr>`}${FK.length?(()=>{ const t=FK.reduce((a,x)=>a+x[3],0), u=FK.reduce((a,x)=>a+(x[9]||0),0), sm=FK.reduce((a,x)=>a+kS(x).sm*x[3],0); return `<tr class="top"><td class="l"><b>Ay toplamı</b></td><td class="l"><b>${S.itMus?esc(S.itMus):"Tümü"}</b></td><td><b>${nf.format(t)}</b></td><td></td><td></td><td><b>${U(u)}</b></td><td>${t?nf.format(Math.round(sm/t)):"–"}</td><td class="n"><b>${U(-sm)}</b></td><td class="${dvCl(u-sm)}"><b>${U(u-sm)}</b></td></tr>`; })():""}</tbody></table></div>
+    <p class="not">SMM = satışın düştüğü Alpet IM lotlarının TL/t alım maliyeti (ITT fiyatı × kur; ÖTV ve KDV hariç), ton ağırlıklı. Brüt kâra ÖTV / KDV finansmanı, teslim etme bedeli ve genel giderler dahil değil (Ekonomi sekmesi).</p>`;
+  for(const s of el.querySelectorAll(".it-ay")) s.onchange=e=>{ S.itAy=e.target.value; ittLot(); }; for(const s of el.querySelectorAll(".it-mus")) s.onchange=e=>{ S.itMus=e.target.value; ittLot(); }; }
+function ittsatis(){ setTimeout(ittLot,0); const X=ITX(); itSeg("is-yil","ittsatis",ittsatis); if(!X) return itYok("is-kpi"); const {D,gd}=X, [a,b]=itR();
   const T=itTop(D.t,a,b), G=itTop(D.gelir,a,b), M3=itTop(D.m3,a,b), AG=itTop(D.aGel,a,b), AM=itTop(D.aMal,a,b), rsf=itAg(D.rsf,D.m3,a,b);
   $("is-sub").textContent=`${itAd()} · GTS → Alpet: ICE trigger + makas fix ${iS(gd(/^Alpet alımı \(ITT\)/),nf)} $/t · Alpet → dağıtıcılar: ${alpB14().txt}, ${gd(/^Alpet satışı – vade/)??"–"} gün vade`;
   $("is-kpi").innerHTML=kut("ITT satışı (GTS → Alpet)",ton(T),`${M3?nf.format(M3/1e3)+" bin m³":""}`)
@@ -802,7 +847,8 @@ function kargolar(){
       $("kg-kz").innerHTML=`<thead><tr><th class="l">Kalem</th><th class="yb">M $</th><th>$/t</th></tr></thead><tbody>`
         +sat("Satış geliri – ürün",r[8]||0,"k-ana",`devir sonrası kotasyon ort. ${nf1.format(r[6]||0)} $/t → fiyat ${nf1.format(r[7]||0)} $/t`)+sat("Ürün maliyeti",-(r[9]||0),"k-alt","CIF + prim + navlun, fire dahil")+sat("Ek seyir",-(r[10]||0),"k-alt")
         +sat("Ürün hedge (net)",r[11]||0,"k-alt","ICE; işlem maliyeti ve teminat finansmanı dahil")+sat("Sörvey",-(r[15]||0),"k-alt")
-        +(f=>sat("Finansman geliri",f.gel,"k-alt",f.gel?`müşteri tahsilatı (${tk(r[13])}) tedarikçi ödemesinden (${tk(r[12])}) ${Math.abs(f.gun)} gün önce · ${f.tutar?nf1.format(f.tutar/1e6)+" M $ × USD faizi":""}`:"tahsilat ödemeden sonra – gelir yok")
+        +(f=>f.im!=null?sat("Finansman geliri",f.gel,"k-alt",`${f.im} IM'den tahsilatı tedarikçi ödemesinden (${tk(r[12])}) önce olanlar · IM + vade, USD faizi`)+sat("Finansman gideri",f.gid,"k-alt",`tahsilatı tedarikçi ödemesinden sonra olan IM'ler · model kargo neti ${(f.modelQ<0?"−":"+")+nf.format(Math.abs(Math.round(f.modelQ)))} $`):
+          sat("Finansman geliri",f.gel,"k-alt",f.gel?`müşteri tahsilatı (${tk(r[13])}) tedarikçi ödemesinden (${tk(r[12])}) ${Math.abs(f.gun)} gün önce · ${f.tutar?nf1.format(f.tutar/1e6)+" M $ × USD faizi":""}`:"tahsilat ödemeden sonra – gelir yok")
           +sat("Finansman gideri",f.gid,"k-alt",f.gid?`tedarikçi ödemesi (${tk(r[12])}) müşteri tahsilatından (${tk(r[13])}) ${Math.abs(f.gun)} gün önce · ${f.tutar?nf1.format(f.tutar/1e6)+" M $ × USD faizi":""}`:"ödeme tahsilattan sonra – gider yok"))(dvFin(r))
         +sat("Kâr / zarar",r[17]||0,"k-son","kira, elleçleme ve genel giderler hariç")+`</tbody>`; } else
     if(z.tl){ const tlr=(l,v,c,n)=>`<tr class="${c||"k-alt"}"><td class="l"><span class="kl">${l}</span>${n?`<span class="kn">${n}</span>`:""}</td><td class="yb${c==="k-ara"?(v<0?" n":" p"):""}">${(v<0?"−":"")+nf1.format(Math.abs(v)/1e6)} <span class="muted">M TL</span></td><td class="muted">${z.m3?(v<0?"−":"")+nf.format(Math.abs(v)/z.m3)+" /m³":""}</td></tr>`;
