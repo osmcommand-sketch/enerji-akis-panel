@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.122",
+ "surum": "1.0.123",
  "kabuk": 2,
- "tarih": "2026-11-12T13:38:46+03:00",
- "notlar": "Finansman geliri / gideri kırılımı; kargo sonucu 'Kâr / zarar'",
+ "tarih": "2026-11-12T13:41:18+03:00",
+ "notlar": "Günlük satışlar: müşteri seçiliyken tek satır, ay toplamı",
  "dosyalar": {
   "ui/index.html": "2480f0579d77024cefd41224956a9c10df1784d453dfcde3dff8f584b9bba9b1",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "451c4064948d4a3125b032d6cc71ce818e6be4f103e51302835584c4c3615806",
+  "ui/pano.js": "c8957dc22eac47384ea3b826dfde4fdc538dff2b25c01da4cd673980e0bd1e99",
   "gts_pipeline.js": "88fd7babca023f124e9c48d1b2f6e100c76764659eaa39f0482c47051f3ef3a5",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
