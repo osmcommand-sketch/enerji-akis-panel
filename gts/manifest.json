@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.150",
+ "surum": "1.0.151",
  "kabuk": 2,
- "tarih": "2026-11-13T13:30:58+03:00",
- "notlar": "Teklif: vade varsayılan 15 gün; müşteri bazında elle vade verilince prim o vadeye göre yeniden bulunur",
+ "tarih": "2026-11-13T13:37:09+03:00",
+ "notlar": "Teklif: eski pakette teklif yoksa uyarı",
  "dosyalar": {
   "ui/index.html": "dc1ff5cada1ac96832a0d189d2a0adb38734cc8cdeda09c95f37135e440b87ed",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "aa68cadc5201a3a688f3e25a143d7549421ff7da69dc5cb62a665d3aec779695",
+  "ui/pano.js": "4941239b8b18ba1f8e7e2980222164068d4572936f60cabb1692cc35365fbe12",
   "gts_pipeline.js": "cddbfa1726687c7a3889fe1a1078d998f9c7a5371d3c2c9724247082cb43fdfa",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
