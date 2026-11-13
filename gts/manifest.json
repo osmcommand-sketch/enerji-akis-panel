@@ -1,9 +1,9 @@
 {
  "uygulama": "gts",
- "surum": "1.0.148",
+ "surum": "1.0.149",
  "kabuk": 2,
- "tarih": "2026-11-13T13:16:57+03:00",
- "notlar": "Teklif: müşteri başına kâr optimumu teklifi (CIF ± prim + vade), kâr eğrisi, elle teklif girişi; girdiler değişince optimum uygulama içinde yeniden bulunur",
+ "tarih": "2026-11-13T13:17:29+03:00",
+ "notlar": "Teklif optimumu modülü kanala eklendi (res/teklif_opt.js)",
  "dosyalar": {
   "ui/index.html": "dc1ff5cada1ac96832a0d189d2a0adb38734cc8cdeda09c95f37135e440b87ed",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
@@ -18,6 +18,7 @@
   "res/satis.js": "f695d20cc2f283208ff2277c0900808df6c0c8edd281a6a27705603c77b6a400",
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
-  "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7"
+  "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7",
+  "res/teklif_opt.js": "6683cbbccc147497a614c4f79c7ed8ee40f582a08a9250f3600bd3138494cb2a"
  }
 }
