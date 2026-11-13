@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.140",
+ "surum": "1.0.141",
  "kabuk": 2,
- "tarih": "2026-11-13T11:20:42+03:00",
- "notlar": "Kokpit düzeni: Alım tarafı, Satış tarafı, Terminal, Faaliyet giderleri",
+ "tarih": "2026-11-13T11:32:21+03:00",
+ "notlar": "Kokpit: devir günü ve parti yuvarlama gizlendi",
  "dosyalar": {
   "ui/index.html": "905e251752051f7633a9bc764322af71ef40f74bd91a52d48fc05e1f54ccad98",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "3fddc6b0bdcb87f2e82c4601e9513061e8581b93573ad8fa4962492018822974",
+  "ui/pano.js": "2f052179ddc537c31f7bf840b2691b160823205837a45e35f4dfe4b3d3f06fdd",
   "gts_pipeline.js": "2c6c119410c55306e95d54aaec5e7cebf5c689a680668e1bfabe8a630f8193f6",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",

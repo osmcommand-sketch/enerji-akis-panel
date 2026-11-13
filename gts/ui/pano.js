@@ -1163,7 +1163,7 @@ function ticari(elId="g-tic",kap="gts"){
   const TI=kap==="itt"?"tici-":"tic-", P=kap==="itt"?"ti-":"tg-";
   const DG=new Set(kap==="itt"?[]:(V.devirGiz||[]));   // paket 149+: antrepo devrinde kullanılmayan GTS girdileri gizlenir
   /* kullanıcı 12.11.2026 18:57 "bu alanları gizleyelim" (GTS sayfası; değerler modelde aynen kalır) */
-  const GZ=kap==="itt"?[/^Rakip ithalatçıların alım primi/]:[/^Rakip ithalatçıların alım primi/,/^Önceki yöntem/,/^Bayi kotası/,/^ITT satış fiyatı/,/^Alıcının ithalat iç gideri/,/^Alıcının GTS'den alım maliyeti/,/CIF Med paritesi [−–-] Tüpraş İzmit/,/^1 USD\/t'nin TL\/m³ karşılığı|^TL\/m³ karşılığı – 1 USD\/t/,/^Satış primi – motorin, ağırlıklı/,
+  const GZ=kap==="itt"?[/^Rakip ithalatçıların alım primi/]:[/^Rakip ithalatçıların alım primi/,/^Önceki yöntem/,/^Devir: COD/,/^Parti yuvarlama/,/^Bayi kotası/,/^ITT satış fiyatı/,/^Alıcının ithalat iç gideri/,/^Alıcının GTS'den alım maliyeti/,/CIF Med paritesi [−–-] Tüpraş İzmit/,/^1 USD\/t'nin TL\/m³ karşılığı|^TL\/m³ karşılığı – 1 USD\/t/,/^Satış primi – motorin, ağırlıklı/,
     /^Navlun avantajının fiyata yansıyan payı/,/^Satış hedefi/,/^Satış fiyatı yöntemi/,/asgari marjı – teklif tabanı/,/^Teklif tabanı/,/^Uygulanan ortalama teklif/,/^Ürün satış primi – devir/,/^NET KÂR – GTS antrepo/,
     /^Müşterinin ton başı kira/,/^Rafineri ek kotası|Batman \/ Kırıkkale ek kotası/,/^Karadeniz alternatifi/];
   const el=$(elId), T0=(()=>{ let iI=false; return (V.tic||[]).filter(r=>r[1]!=="Değer").filter(r=>{ if(r[1]==null&&r[2]==null&&!r[4]&&r[5]!=="not") iI=/^ITT · /.test(r[0]); return kap==="itt"?iI:!iI; }).filter(r=>!(r[4]&&DG.has(r[4]))).filter(r=>!(r[1]!=null||r[4])||!GZ.some(re=>re.test(String(r[0]||"")))); })();
