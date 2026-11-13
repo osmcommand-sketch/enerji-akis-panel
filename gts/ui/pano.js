@@ -839,7 +839,7 @@ function ittvars(){ const I=V.itt; if(!I||!I.girdi||!I.girdi.length){ $("iv-tab"
   let son=""; $("iv-tab").innerHTML=`<thead><tr><th class="l">Varsayım</th><th>Değer</th><th class="l">Açıklama</th><th class="l">Hücre</th></tr></thead><tbody>`+I.girdi.map(g=>{ const bs=g[4]&&g[4]!==son?`<tr class="it-bas"><td class="l" colspan="4">${esc(g[4])}</td></tr>`:""; son=g[4]||son;
       return bs+`<tr><td class="l">${esc(g[0])}</td><td><b>${fm(g[1])}</b></td><td class="l">${esc(g[2]||"")}</td><td class="l"><small>${esc(g[3]||"")}</small></td></tr>`; }).join("")+`</tbody>`;
   $("iv-sub").textContent=`${I.girdi.length} girdi · modelin "ITT Modeli" sayfası`;
-  $("iv-not").innerHTML=`Masaüstü uygulamada bu değerler ITT Modeli › Genel bakış › ITT koşulları panelinden değiştirilip yeniden hesaplanır. Fiziksel operasyon (kargo takvimi, CIF Med, kur, faiz) ana modelle aynıdır; Varsayımlar (GTS) sekmesine bakın.`;
+  $("iv-not").innerHTML=`Masaüstü uygulamada bu değerler ITT Modeli › Kokpit › ITT koşulları panelinden değiştirilip yeniden hesaplanır. Fiziksel operasyon (kargo takvimi, CIF Med, kur, faiz) ana modelle aynıdır; Varsayımlar (GTS) sekmesine bakın.`;
 }
 /* ---------- KARGOLAR (kullanıcı 03.11.2026 16:50): kargo yaşam döngüsü ---------- */
 /* PDM 12.11.2026 pdm-panel-kargo-finansman-sutun-adi: alt yazı değere göre değil seçime göre (Ozet H41 / GTS!FinansmanPrimde) */

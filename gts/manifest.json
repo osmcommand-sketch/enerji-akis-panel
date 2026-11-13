@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.136",
+ "surum": "1.0.137",
  "kabuk": 2,
- "tarih": "2026-11-13T10:08:36+03:00",
- "notlar": "Genel bakış → Kokpit; Müşteri davranışı (bayi kotası) GTS kokpitinden kaldırıldı",
+ "tarih": "2026-11-13T10:12:20+03:00",
+ "notlar": "ITT Modeli: Genel bakış → Kokpit",
  "dosyalar": {
-  "ui/index.html": "5cb7ac8cad197ddf26c151cdaf0cc3e12affecfe9f0582b2bb29f27568629969",
+  "ui/index.html": "c1707c4ca0b2cf330bc8d65bb2a133ad11b2c1c3eea7d10272bedc29cef96566",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "19dd90e9a089f851ae1d5e6bb985b12bf3fd4365342b6c2dcb0ef0e05018f95b",
+  "ui/pano.js": "401462faf6e40407b8ab8734b451f7d0523d09ba137ba59135f9a077b4a40a15",
   "gts_pipeline.js": "c75f4e36aa9349f407da58d72fe66abc40bf9f524fdefd8790df0bc1f57e403c",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
