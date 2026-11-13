@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.152",
+ "surum": "1.0.153",
  "kabuk": 2,
- "tarih": "2026-11-13T13:55:06+03:00",
- "notlar": "Teklif: müşteri teminatı 1:1 (tepe alacak) ve teminat maliyeti bilgi olarak",
+ "tarih": "2026-11-13T14:05:56+03:00",
+ "notlar": "Teklif: teklifsiz müşterilerde avantaj ve hacim etiketleri düzeltildi",
  "dosyalar": {
-  "ui/index.html": "dc1ff5cada1ac96832a0d189d2a0adb38734cc8cdeda09c95f37135e440b87ed",
+  "ui/index.html": "9fb58052ae43fb2017c55534236dafeba31b55003c575c4bfea03577acd3d061",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "f239f8456a982c3cb68e58cdd038ba5c0b4eb85505aebceaf71a49e1478a8315",
+  "ui/pano.js": "466970514d514957ce503fe4dd85dbe9cb3cafe9ea074f37ff6e26b672590e21",
   "gts_pipeline.js": "cddbfa1726687c7a3889fe1a1078d998f9c7a5371d3c2c9724247082cb43fdfa",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
