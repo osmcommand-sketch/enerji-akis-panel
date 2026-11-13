@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.141",
+ "surum": "1.0.142",
  "kabuk": 2,
- "tarih": "2026-11-13T11:32:21+03:00",
- "notlar": "Kokpit: devir günü ve parti yuvarlama gizlendi",
+ "tarih": "2026-11-13T11:34:20+03:00",
+ "notlar": "Kokpit: teklif ve model hesabı satırları gizlendi",
  "dosyalar": {
   "ui/index.html": "905e251752051f7633a9bc764322af71ef40f74bd91a52d48fc05e1f54ccad98",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "2f052179ddc537c31f7bf840b2691b160823205837a45e35f4dfe4b3d3f06fdd",
+  "ui/pano.js": "812dd2207d72554a0811700eae1cec93defa6fb330c9369fb5cb270219ca38e5",
   "gts_pipeline.js": "2c6c119410c55306e95d54aaec5e7cebf5c689a680668e1bfabe8a630f8193f6",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
