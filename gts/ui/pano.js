@@ -1272,7 +1272,7 @@ function ticari(elId="g-tic",kap="gts"){
   btn.onclick=()=>{ const o={}; for(const i of I){ const v=oku(i), dd=i.dataset.d; if(v===null) continue;
       const esit=typeof v==="string"?v===dd:(dd!==""&&Math.abs(v-Number(dd))<1e-12); if(!esit) o[i.dataset.h]=v; }
     if(kap!=="itt") o["GTS!RiskHesapla"]=true;   // kullanıcı 03.11.2026: Genel bakıştaki değişiklik Risk tablolarına da yansısın
-    try{ kaydet(o); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor… (Risk tabloları dahil, yaklaşık 1 dk)"; window.gts.yenile(); };
+    try{ kaydet(o); }catch(e){ d.textContent="Girdiler kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent=V.riskDevir?"Hesaplanıyor… (yalnız değişen model, yaklaşık 20–30 sn)":"Hesaplanıyor… (Risk tabloları dahil, birkaç dakika)"; window.gts.yenile(); };
   const sf=$(TI+"sifir"); if(sf) sf.onclick=()=>{ try{ kaydet({"GTS!RiskHesapla":true}); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
 
@@ -1500,7 +1500,7 @@ function hedgeAyar(){
   const kontrol=()=>{ let deg=false, hata=false; for(const i of I){ if(i.tagName!=="SELECT"){ const ok=isFinite(deger(i)); i.classList.toggle("hata",!ok); if(!ok) hata=true; } if(i.value!==ilk.get(i)) deg=true; } btn.disabled=hata||!deg; d.textContent=hata?"Geçerli bir sayı girin.":deg?"Değişiklikler hesaplanmadı.":""; };
   for(const i of I) i.addEventListener(i.tagName==="SELECT"?"change":"input",kontrol);
   btn.onclick=()=>{ const o={}; for(const i of I){ const v=deger(i), dv=i.dataset.d; const esit=typeof v==="string"?v===dv:(dv!==""&&Math.abs(v-Number(dv))<1e-12); if(!esit) o[i.dataset.h]=v; }
-    o["GTS!RiskHesapla"]=true; try{ girdiYaz(KS,o); }catch(e){ d.textContent="Kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent="Hesaplanıyor… (Risk tabloları dahil, yaklaşık 1 dk)"; window.gts.yenile(); };
+    o["GTS!RiskHesapla"]=true; try{ girdiYaz(KS,o); }catch(e){ d.textContent="Kaydedilemedi: "+e.message; return; } btn.disabled=true; d.textContent=V.riskDevir?"Hesaplanıyor… (yalnız değişen model, yaklaşık 20–30 sn)":"Hesaplanıyor… (Risk tabloları dahil, birkaç dakika)"; window.gts.yenile(); };
   const sf=$("hg-sifir"); if(sf) sf.onclick=()=>{ try{ girdiYaz(KS,{"GTS!RiskHesapla":true}); }catch(e){ d.textContent=e.message; return; } window.gts.yenile(); };
 }
 function hedge(){ { const k=$("h-ksub"), sc=k&&k.closest("section"); if(sc) sc.style.display=DVK()?"none":""; }
@@ -1563,8 +1563,10 @@ function riskDurum(){ // Risk tablolarının kaynağı: PDM çalıştırması ya
   el.innerHTML=h; const b=$("r-hbtn"); if(b) b.onclick=()=>{ try{ girdiYaz(["GTS!RiskHesapla"],{"GTS!RiskHesapla":true}); }catch(e){ el.insertAdjacentHTML("beforeend",`<span class="not">Kaydedilemedi: ${esc(e.message)}</span>`); return; } b.disabled=true; b.textContent="Hesaplanıyor…"; window.gts.yenile(); };
 }
 function iki(){
-  riskDurum();
-  const IZ=V.riskHesap&&V.riskHesap.izg&&V.riskHesap.izg.length?V.riskHesap.izg:(V.izg||[]), M2=V.mc2||[], mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)/1e6), cl=v=>v<0?"n":"p";
+  /* kullanıcı 13.11.2026: antrepo devri kurgusunda ızgara (eski satış kurgusu net kârı) gösterilmez; yalnız Monte Carlo */
+  { const DV=!!V.riskDevir, h=document.querySelector("#r-iki > .head"), z=$("r-izg"), n=$("r-iznot"); for(const e of [h,$("r-hdurum"),z&&z.parentElement,n]) if(e) e.style.display=DV?"none":""; }
+  if(!V.riskDevir) riskDurum();
+  const IZ=V.riskDevir?[]:V.riskHesap&&V.riskHesap.izg&&V.riskHesap.izg.length?V.riskHesap.izg:(V.izg||[]), M2=V.mc2||[], mm=v=>(v<0?"−":v>0?"+":"")+nf1.format(Math.abs(v)/1e6), cl=v=>v<0?"n":"p";
   $("r-iki").hidden=!IZ.length&&!M2.length; if(!IZ.length&&!M2.length) return;
   const vs=+gir("Satış vadesi (gün)")||17;
   const R=[...IZ].sort((a,b)=>(a[1]===b[1]?0:a[1]==="Açık"?-1:1)||a[4]-b[4]||a[2]-b[2]||a[3]-b[3]);

@@ -100,6 +100,94 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   if (!dbX) throw new Error('Zip içinde veritabanı (.db) yok. PDM teslimatındaki Enerji_Master_DB_2026_paket_NN.zip dosyasını seçin.');
   const xl = Z.bul(/(^|\/)GTS_Dortyol_[\w]*Senaryo_Modeli\.xlsx$/i).sort((a, b) => { const y = (s) => (s.ad.match(/20\d\d/g) || []); return y(b).length - y(a).length || (Math.max(...y(b).map(Number), 0) - Math.max(...y(a).map(Number), 0)); })[0];
   if (!xl) throw new Error('Bu pakette GTS Excel modeli (GTS_Dortyol_…_Senaryo_Modeli.xlsx) yok. GTS modelini içeren paketi (ör. paket 56) seçin.');
+  /* kullanıcı 13.11.2026 10:31: GTS ve ITT ayrı dünyalar → yalnız ITT girdisi değiştiyse GTS modeli yeniden hesaplanmaz (önbellek userData/gts_onbellek.json:
+     paket zip'i, GTS girdileri ve kod sürümü aynıysa önceki GTS çıktısı kullanılır) */
+  const gy = girdiYolu(opt.kok || __dirname), girdiOku = () => { try { return fs.existsSync(gy) ? JSON.parse(fs.readFileSync(gy, 'utf8')) || {} : {}; } catch { return {}; } };
+  const ittK = (k) => /^ITT Modeli!/.test(k) || /^ITTOzet!H\d+$/.test(k) || k === 'GTS!RiskHesapla';
+  const gtsCy = path.join(path.dirname(gy), 'gts_onbellek.json');
+  const gtsAnahtar = (() => { try { const g0 = girdiOku(), gG = {}; for (const [k, v] of Object.entries(g0)) if (!ittK(k)) gG[k] = v;
+      const st = (f) => { try { const x = fs.statSync(f); return x.size + ':' + Math.round(x.mtimeMs); } catch { return '-'; } };
+      const kod = [__filename, path.join(opt.kok || __dirname, 'pipeline.js'), ...fs.readdirSync(resDir).filter((f) => /\.js$/.test(f)).sort().map((f) => path.join(resDir, f)), path.join(path.dirname(gy), 'risk_hesap.json')].map(st).join(',');
+      return require('crypto').createHash('md5').update(zipBuf).digest('hex') + '|' + JSON.stringify(Object.keys(gG).sort().map((k) => [k, gG[k]])) + '|' + kod + '|gts-onb-1'; } catch { return null; } })();
+  let O = null, RPP = null, ittVar = false, X = null;
+  if (gtsAnahtar) try { const c = JSON.parse(fs.readFileSync(gtsCy, 'utf8')); if (c && c.anahtar === gtsAnahtar) { O = c.O; RPP = c.RPP; log('GTS modeli: girdiler değişmedi, önceki hesap kullanılıyor'); } } catch {}
+  if (!O) { const r = gtsHesap(); O = r.O; RPP = r.RPP; ittVar = r.ittVar; X = r.X;
+    if (gtsAnahtar && !ittVar) try { fs.writeFileSync(gtsCy, JSON.stringify({ anahtar: gtsAnahtar, O, RPP })); } catch {} }
+  const girdi = girdiOku(); O.girdi = girdi; O.girdiYolu = gy;
+  const HS = require(path.join(resDir, 'hesap.js')), R2 = (x, n = 0) => pr(x, n);
+  /* kullanıcı 13.11.2026 10:31: GTS ve ITT girdileri ayrı → ITT / Alpet modeli yalnız kendi girdileri ya da dosyası değişince yeniden hesaplanır (önbellek userData/itt_onbellek.json) */
+  const ittOnb = (() => { try { const xlI = Z.bul(/(^|\/)GTS_ITT_Alpet_Modeli_20\d\d_20\d\d\.xlsx$/i)[0]; if (!xlI) return null; if (ittVar) return null;
+      const gI = {}; for (const [k, v] of Object.entries(girdi)) if (/^ITT Modeli!/.test(k) || /^ITTOzet!H\d+$/.test(k)) gI[k] = v;
+      const surum = [__filename, path.join(resDir, 'hesap.js'), path.join(resDir, 'girdi_bag.js')].map((f) => { try { const st = fs.statSync(f); return st.size + ':' + Math.round(st.mtimeMs); } catch { return '-'; } }).join(',');
+      return { yol: path.join(path.dirname(gy), 'itt_onbellek.json'), anahtar: JSON.stringify(Object.keys(gI).sort().map((k) => [k, gI[k]])) + '|' + xlI.ad + '|' + Z.oku(xlI).length + '|' + surum + '|' + require('crypto').createHash('md5').update(JSON.stringify(RPP || null)).digest('hex') + '|itt-onb-1' }; } catch { return null; } })();
+  let ittHit = false;
+  if (ittOnb) try { const c = JSON.parse(fs.readFileSync(ittOnb.yol, 'utf8')); if (c && c.anahtar === ittOnb.anahtar) { O.itt = c.itt; O.ittIm = c.ittIm; O.ittKd = c.ittKd; O.ittModel = c.ittModel; O.tic.push(...c.tic); ittHit = true; log('ITT / Alpet modeli: girdiler değişmedi, önceki hesap kullanılıyor'); } } catch {}
+  if (!ittHit) { const ticN = O.tic.length;
+  let XT = X; O.ittModel = null;
+  try { const xlI = Z.bul(/(^|\/)GTS_ITT_Alpet_Modeli_20\d\d_20\d\d\.xlsx$/i)[0];
+    const varMi = ittVar;
+    if (xlI && !varMi) { log('ITT / Alpet modeli hesaplanıyor: ' + path.basename(xlI.ad)); const xbI = Z.oku(xlI), GBI = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xbI, { parca: RPP }), gI = {};
+      /* kullanıcı 12.11.2026 12:27 "ayıralım tamamen, 2 ayrı dünya": ITT / Alpet dosyası yalnız kendi anahtarlarını alır – ITT Modeli!… ve ITTOzet!Hn (→ Ozet!Hn) */
+      for (const [k, v] of Object.entries(girdi)) { if (/^ITT Modeli!/.test(k)) gI[k] = v; else { const q = /^ITTOzet!(H\d+)$/.exec(k); if (q) gI['Ozet!' + q[1]] = v; } }
+      XT = HS.hesapla(xbI, GBI.bag(gI)); O.ittModel = path.basename(xlI.ad); } } catch (e) { log('ITT / Alpet modeli: ' + (e && e.message)); }
+  try { const IT = XT.sayfa('ITT Modeli'); if (IT) { const ns = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)) ? Number(v) : null);
+      const bul = (re, a = 0) => { for (let i = a; i < IT.length; i++) if (IT[i] && typeof IT[i][0] === 'string' && re.test(IT[i][0])) return i; return -1; };
+      const tablo = (bas) => { const L = []; if (bas < 0) return L; for (let i = bas + 1; i < IT.length && IT[i] && IT[i][0]; i++) L.push([IT[i][0], R2(ns(IT[i][1]), 3), R2(ns(IT[i][2]), 3), R2(ns(IT[i][3]), 3)]); return L; };
+      const g0 = bul(/^GTS KÂR \/ ZARAR/), a0 = bul(/^ALPET KÂR \/ ZARAR/);
+      if (g0 > 0 && a0 > 0) { const O2 = { gts: tablo(bul(/^Kalem$/, g0)), alp: tablo(bul(/^Kalem$/, a0)), risk: [], kg: [], ay: [], girdi: [] };
+        const bi = bul(/^BİRLİKTE/); O2.birlikte = bi > 0 ? [R2(ns(IT[bi][1]), 3), R2(ns(IT[bi][2]), 3), R2(ns(IT[bi][3]), 3)] : null;
+        const r0 = bul(/^Risk ve yük dağılımı/); if (r0 > 0) for (let i = r0 + 1; i < r0 + 14 && IT[i] && IT[i][0]; i++) O2.risk.push([IT[i][0], IT[i][1]]);
+        const k0 = bul(/^Kargo no$/); if (k0 > 0) { const H = IT[k0], c = (re) => H.findIndex((h) => typeof h === 'string' && re.test(h));
+          const K = [c(/^Kargo no/), c(/^Net ton/), c(/^B\/L ton/), c(/^COD/), c(/^Fiyatlama sonu/), c(/^CIF Med fiyatlama/), c(/^GTS alım fiyatı/), c(/^Makas fix/), c(/^ICE kilit/), c(/^Tedarikçi ödeme tarihi/), c(/^Satılan \/ ITT/), c(/^ITT geliri/), c(/^Hedge sonucu/), c(/^Roll/), c(/^Finansman/), c(/^Kargo brüt/), c(/^Fiyatlama başı/), c(/^Tedarikçi ödemesi \(USD/), c(/^Ürün birim maliyeti/), c(/^GTS teslim alma/)], VM = c(/^Var mı/);
+          for (let i = k0 + 1; i < IT.length; i++) { const x = IT[i]; if (!x || ns(x[K[0]]) == null) continue; if (VM >= 0 && !ns(x[VM])) continue; if (!ns(x[K[1]])) continue;
+            O2.kg.push(K.map((j, q) => (j < 0 ? null : q === 3 || q === 4 || q === 9 || q === 16 ? (serial(x[j]) ? tarih(x[j]) : x[j]) : R2(ns(x[j]), q >= 11 && q !== 18 ? 0 : 2)))); } }
+        const hb = IT.findIndex((x) => x && x[33] === 'Tarih'); if (hb > 0) { const H = IT[hb], c = (re) => H.findIndex((h, j) => j >= 33 && typeof h === 'string' && re.test(h));
+          const K = { t: c(/^ITT \/ Alpet alımı/), g: c(/^ITT geliri/), h: c(/^GTS hedge sonucu/), f: c(/^GTS finansmanı/), n: c(/^GTS net katkı/), an: c(/^Alpet net/), ak: c(/^Alpet kur farkı/) }, M = new Map();
+          for (let i = hb + 1; i < IT.length; i++) { const x = IT[i]; if (!x || !serial(x[33])) continue; const d = tarih(x[33]).slice(0, 7); let o = M.get(d); if (!o) M.set(d, (o = [d, 0, 0, 0, 0, 0, 0, 0]));
+            o[1] += ns(x[K.t]) || 0; o[2] += ns(x[K.g]) || 0; o[3] += ns(x[K.h]) || 0; o[4] += ns(x[K.f]) || 0; o[5] += ns(x[K.n]) || 0; o[6] += ns(x[K.an]) || 0; o[7] += ns(x[K.ak]) || 0; }
+          O2.ay = [...M.values()].map((o) => o.map((v, j) => (j ? R2(v) : v))); }
+        // günlük blok (ITT sayfaları: satışlar, nakit, hedge, ekonomi – kullanıcı 10.11.2026 19:19)
+        if (hb > 0) { const H = IT[hb], c = (re) => H.findIndex((h, j) => j >= 33 && typeof h === 'string' && re.test(h));
+          const GK = [/^ITT \/ Alpet alımı/, /^Lot kargosu/, /^ICE trigger/, /^Makas fix – lot/, /^Roll maliyeti/, /^ITT fiyatı/, /^ITT geliri/, /^GTS hedge sonucu/, /^USD\/TRY/, /^Alpet ITT maliyeti/, /^İzmir RSF/, /^Alpet satış fiyatı/, /^Alpet satış geliri/, /^Alpet kur farkı/, /^Alpet vade farkı/, /^Alpet ÖTV\/KDV/, /^Alpet GTS teslim etme/, /^Alpet net/, /^Lot ürün birim maliyeti/, /^Lot ICE kilit/, /^GTS finansmanı/, /^GTS net katkı/].map(c), DP = [0, 0, 2, 2, 2, 2, 0, 0, 4, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0], G = [];
+          let g0 = null; for (let i = hb + 1; i < IT.length; i++) { const x = IT[i]; if (!x || !serial(x[33])) continue; if (g0 == null) g0 = tarih(x[33]); G.push(GK.map((j, q) => (j < 0 ? null : R2(ns(x[j]), DP[q])))); }
+          O2.gun = { g0, kol: ['t', 'lot', 'ice', 'makas', 'roll', 'fiyat', 'gelir', 'hedge', 'kur', 'aMal', 'rsf', 'aFiy', 'aGel', 'aKur', 'aVade', 'aVergi', 'aTes', 'aNet', 'lotBirim', 'lotKilit', 'gFin', 'gNet'], g: G }; }
+        // girdiler (sarı, B5–B19): grup başlıkları B'si boş satırlar; formül olanlar bilgi
+        { const gb = bul(/^GİRDİLER/); let grup = gb > 0 && typeof IT[gb][2] === 'string' ? IT[gb][2] : 'Girdiler';
+          if (gb > 0) for (let i = gb + 1; i < gb + 24 && i < IT.length; i++) { const x = IT[i]; if (!x || !x[0]) { if (i > gb + 3) break; continue; } if (/KÂR \/ ZARAR/.test(x[0])) break;
+            if (x[1] == null || x[1] === '') { grup = x[0]; continue; } O2.girdi.push([x[0], typeof x[1] === 'string' && !isFinite(Number(x[1])) ? x[1] : ns(x[1]), x[5] || null, 'ITT Modeli!B' + i, grup]); } }   // X.sayfa dizini = Excel satır no
+        // ITT primi fiyat endeksi (paket 126+): H etiket, I değer (H9 başlık, I10–I12 girdi, I13 bilgi)
+        { const gb = bul(/^GİRDİLER/); if (gb > 0) { let eg = null, son = null; for (let i = gb; i < gb + 22 && i < IT.length; i++) { const x = IT[i]; if (!x || typeof x[7] !== 'string' || !x[7].trim()) { if (x && (x[7] == null || x[7] === '')) eg = null; continue; }
+            if (x[8] == null || x[8] === '') { if (x[7].length > 70) { if (son && !son[2]) son[2] = x[7]; } else eg = x[7]; continue; } /* paket 142: uzun metin = açıklama; boş satır grubu kapatır */ son = [x[7], typeof x[8] === 'string' && !isFinite(Number(x[8])) ? x[8] : ns(x[8]), null, 'ITT Modeli!I' + i, eg || 'ITT hacmi']; O2.girdi.push(son); } } }
+        // B14 yüzde (paket 123+): C14 TL/m³ karşılığı
+        { const i14 = O2.girdi.findIndex((g) => /^Alpet satışı \(dağıtıcılara\)/.test(g[0])); if (i14 >= 0) { const rI = +O2.girdi[i14][3].replace(/\D+/g, ''), c = IT[rI] && ns(IT[rI][2]); O2.b14tl = c != null && Math.abs(O2.girdi[i14][1]) < 1 ? R2(c, 1) : null; if (O2.b14tl != null) O2.girdi[i14][2] = 'TL/m³ karşılığı ≈ ' + Math.round(O2.b14tl).toLocaleString('tr-TR') + ' (ortalama İzmir RSF ile)' + (O2.girdi[i14][2] ? ' · ' + O2.girdi[i14][2] : ''); } }
+        const G2 = XT.sayfa('Ozet') || []; O2.h7 = ns((G2.find((x) => x && typeof x[6] === 'string' && /^Alım primi \/ iskontosu – motorin/.test(x[6])) || [])[7]);
+        // ITT girdileri Ticari koşullarda ayrı kapsam ("ITT · " başlıklı gruplar; ITT sayfasındaki girdi panelinde)
+        let og = null; for (const [ad, v, not, hc, gr] of O2.girdi) { if (gr !== og) { O.tic.push(['ITT · ' + gr, null, null]); og = gr; }
+          const adr = hc.split('!')[1], fm = XT.formulMu('ITT Modeli', adr), orj = XT.orijinal('ITT Modeli', adr), dv = XT.dogrulama ? XT.dogrulama('ITT Modeli', adr) : null;
+          O.tic.push([ad, typeof v === 'number' ? R2(v, 4) : v, not, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : hc, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : '', dv || (typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? { liste: ['Açık', 'Kapalı'] } : typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : null)]); }
+        /* paket 144+ (kullanıcı 11.11.2026 21:30): Alpet'in müşteri başına teklifi – ITT dosyasının Ozet H56–H62 satırları; anahtar ITTOzet!Hn (GTS dosyasının Ozet'inden bağımsız) */
+        /* ITT dosyasının Ozet girdileri – tamamı, GTS'ten bağımsız (ITTOzet!Hn); başlık satırları "ITT · <başlık>" grubu */
+        if (O.ittModel) { let grp = null; for (let i = 5; i <= 90 && i < G2.length; i++) { const x = G2[i]; if (!x || typeof x[6] !== 'string' || !x[6].trim() || /^(Girdi paneli|Not:)/.test(x[6])) continue;
+            const fm = XT.formulMu('Ozet', 'H' + i); if (x[7] == null && x[8] == null && !fm) { grp = x[6]; O.tic.push(['ITT · Ozet · ' + grp, null, null]); continue; }
+            if (!grp) { grp = 'Genel'; O.tic.push(['ITT · Ozet · Genel', null, null]); }
+            const orj = XT.orijinal('Ozet', 'H' + i), dv = fm ? null : XT.dogrulama('Ozet', 'H' + i), v = x[7];
+            O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, typeof x[8] === 'string' ? x[8] : null, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : 'ITTOzet!H' + i, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : /\(%\)/.test(x[6]) ? 'yuzde' : '',
+              dv || (typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? { liste: ['Açık', 'Kapalı'] } : typeof v === 'string' && /^(Müşteri avantajı|Önceki)$/.test(v) ? { liste: ['Müşteri avantajı', 'Önceki'] } : null)]); } }
+        /* paket 153+: Alpet IM (GTS → Alpet partileri, AN dökümü, ITT fiyatı) ve karadolum satışları IM lotlu (Musteri_Gunluk J–P) */
+        try { const iso = (d) => (typeof d === 'number' ? new Date(Date.UTC(1899, 11, 30) + Math.floor(d) * 864e5).toISOString().slice(0, 10) : null);
+          const AI = (() => { try { return XT.sayfa('Alpet_IM'); } catch { return null; } })();
+          if (AI) { const L = []; for (let i = 5; i < AI.length; i++) { const x = AI[i]; if (!x || !(x[2] > 0)) continue; L.push([iso(x[0]), x[9], R2(x[2], 1), x[11] ?? null, R2(x[12], 1), x[13] ?? null, R2(x[14], 1), R2(x[15], 3), R2(x[16], 0), R2(x[17], 0)]); } O.ittIm = L; }
+          const MG = XT.sayfa('Musteri_Gunluk'); let hb = -1; for (let i = 1; i < Math.min(MG.length, 12); i++) if (MG[i] && MG[i].some((v) => v === 'Alpet IM-1 no')) { hb = i; break; }
+          if (hb > 0) { const H = MG[hb], ci = (re) => H.findIndex((v) => typeof v === 'string' && re.test(v)), C = [ci(/^Tarih/), ci(/^Şirket ID/), ci(/^Şirket$/), ci(/^Satış \(t\)/), ci(/^Alpet IM-1 no/), ci(/^IM-1 \(t\)/), ci(/^Alpet IM-2 no/), ci(/^IM-2 \(t\)/), ci(/^Alpet satış fiyatı/), ci(/^Alpet satış tutarı/)], L = [];
+            for (let i = hb + 1; i < MG.length; i++) { const x = MG[i]; if (!x || !(x[C[3]] > 0)) continue; L.push([iso(x[C[0]]), x[C[1]], x[C[2]], R2(x[C[3]], 2), x[C[4]] ?? null, R2(x[C[5]], 2), x[C[6]] ?? null, R2(x[C[7]], 2), R2(x[C[8]], 1), R2(x[C[9]], 0)]); }
+            O.ittKd = L; }
+        } catch (e) { log('Alpet IM: ' + (e && e.message)); }
+        O.itt = O2; } } } catch (e) { O.itt = null; log('ITT modeli: ' + (e && e.message)); }
+    if (ittOnb && O.ittModel && O.itt) try { fs.writeFileSync(ittOnb.yol, JSON.stringify({ anahtar: ittOnb.anahtar, itt: O.itt, ittIm: O.ittIm, ittKd: O.ittKd, ittModel: O.ittModel, tic: O.tic.slice(ticN) })); } catch {} }
+  log('Hazır');
+  return O;
+
+  function gtsHesap() {
   log('Veritabanı açılıyor');
   const dbBuf = Z.oku(dbX);
   // panel veri hattı: terminal, il, şirket, ilçe ve SCN_GTS_* (gts) anahtarları
@@ -139,7 +227,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   log('Excel modeli okunuyor: ' + path.basename(xl.ad));
   O.model = path.basename(xl.ad);
   // kullanıcı girdileri (Ticari koşullar paneli) – userData/girdiler.json; model bunlarla yeniden hesaplanır
-  const gy = girdiYolu(opt.kok || __dirname); let girdi = {};
+  let girdi = {};
   try { if (fs.existsSync(gy)) girdi = JSON.parse(fs.readFileSync(gy, 'utf8')) || {}; } catch { girdi = {}; }
   const HS = require(path.join(resDir, 'hesap.js'));
   const xb = Z.oku(xl);
@@ -183,7 +271,11 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const IST = 'GTS!RiskHesapla', cy = path.join(path.dirname(gy), 'risk_hesap.json'), temel = {}; for (const [k, v] of Object.entries(girdi)) if (k !== IST) temel[k] = v;
     const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length + '|netkar-tl-defter-1';
     let RH = null; try { const c = JSON.parse(fs.readFileSync(cy, 'utf8')); if (c && c.anahtar === anahtar) RH = c; else if (c) O.riskEski = c.zaman || true; } catch {}
-    if (girdi[IST] || !RH) { const t0 = Date.now()   /* kullanıcı 03.11.2026: geçerli önbellek yoksa Risk tabloları kendiliğinden hesaplanır (tüm sayfalar aynı girdi ve net kâr tanımıyla) */, G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
+    /* kullanıcı 13.11.2026 10:31: antrepo devri kurgusunda parti / liman / vade / hedge ızgarası ve tarihsel test (eski satış kurgusunun net kârı) hesaplanmaz –
+       parametre değişikliğinde 23 ek tam hesap (~8–9 dk) kalkar */
+    const devirMod = (() => { try { return !!X.sayfa('Antrepo Devri'); } catch { return false; } })(); O.riskDevir = devirMod;
+    if (devirMod) { RH = null; O.riskEski = null; if (IST in girdi) { delete girdi[IST]; try { fs.writeFileSync(gy, JSON.stringify(girdi, null, 1)); } catch {} } }
+    else if (girdi[IST] || !RH) { const t0 = Date.now()   /* kullanıcı 03.11.2026: geçerli önbellek yoksa Risk tabloları kendiliğinden hesaplanır (tüm sayfalar aynı girdi ve net kâr tanımıyla) */, G0 = X.sayfa('Girdiler'), b9 = O.hedef ? O.hedef.tam : null, taban = {};
       for (const [k, v] of Object.entries(temel)) if (!k.startsWith('GTS!') || k === 'GTS!FinansmanPrimde') taban[k] = v;
       if (b9 && Math.abs(sy - 1) > 1e-9 && !(HK in taban)) taban[HK] = b9 * sy;
       Object.assign(taban, ekG);
@@ -314,66 +406,6 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
      gts / alp: [kalem, 2027, 2028, iki yıl] · birlikte · risk · kg: kargo · ay: aylık · girdi: [etiket, değer, not, hücre, grup] */
   /* paket 125+ (kullanıcı 10.11.2026 19:53 "GTS ve ITT modelini ayıralım"): ITT Modeli ayrı dosyada (GTS_ITT_Alpet_Modeli_2027_2028.xlsx, Alpet / TL modlu yapı).
      Varsa o dosya da hesaplanır: ITT Modeli!… girdileri + ortak Ozet (H ≤ 49) / Girdiler / GTS! girdileri; yoksa eski yapı (ITT sayfası GTS dosyasında). */
-  let XT = X; O.ittModel = null;
-  try { const xlI = Z.bul(/(^|\/)GTS_ITT_Alpet_Modeli_20\d\d_20\d\d\.xlsx$/i)[0];
-    const varMi = (() => { try { return !!X.sayfa('ITT Modeli'); } catch { return false; } })();
-    if (xlI && !varMi) { log('ITT / Alpet modeli hesaplanıyor: ' + path.basename(xlI.ad)); const xbI = Z.oku(xlI), GBI = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xbI, { parca: RPP }), gI = {};
-      /* kullanıcı 12.11.2026 12:27 "ayıralım tamamen, 2 ayrı dünya": ITT / Alpet dosyası yalnız kendi anahtarlarını alır – ITT Modeli!… ve ITTOzet!Hn (→ Ozet!Hn) */
-      for (const [k, v] of Object.entries(girdi)) { if (/^ITT Modeli!/.test(k)) gI[k] = v; else { const q = /^ITTOzet!(H\d+)$/.exec(k); if (q) gI['Ozet!' + q[1]] = v; } }
-      XT = HS.hesapla(xbI, GBI.bag(gI)); O.ittModel = path.basename(xlI.ad); } } catch (e) { log('ITT / Alpet modeli: ' + (e && e.message)); }
-  try { const IT = XT.sayfa('ITT Modeli'); if (IT) { const ns = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' && isFinite(Number(v)) ? Number(v) : null);
-      const bul = (re, a = 0) => { for (let i = a; i < IT.length; i++) if (IT[i] && typeof IT[i][0] === 'string' && re.test(IT[i][0])) return i; return -1; };
-      const tablo = (bas) => { const L = []; if (bas < 0) return L; for (let i = bas + 1; i < IT.length && IT[i] && IT[i][0]; i++) L.push([IT[i][0], R2(ns(IT[i][1]), 3), R2(ns(IT[i][2]), 3), R2(ns(IT[i][3]), 3)]); return L; };
-      const g0 = bul(/^GTS KÂR \/ ZARAR/), a0 = bul(/^ALPET KÂR \/ ZARAR/);
-      if (g0 > 0 && a0 > 0) { const O2 = { gts: tablo(bul(/^Kalem$/, g0)), alp: tablo(bul(/^Kalem$/, a0)), risk: [], kg: [], ay: [], girdi: [] };
-        const bi = bul(/^BİRLİKTE/); O2.birlikte = bi > 0 ? [R2(ns(IT[bi][1]), 3), R2(ns(IT[bi][2]), 3), R2(ns(IT[bi][3]), 3)] : null;
-        const r0 = bul(/^Risk ve yük dağılımı/); if (r0 > 0) for (let i = r0 + 1; i < r0 + 14 && IT[i] && IT[i][0]; i++) O2.risk.push([IT[i][0], IT[i][1]]);
-        const k0 = bul(/^Kargo no$/); if (k0 > 0) { const H = IT[k0], c = (re) => H.findIndex((h) => typeof h === 'string' && re.test(h));
-          const K = [c(/^Kargo no/), c(/^Net ton/), c(/^B\/L ton/), c(/^COD/), c(/^Fiyatlama sonu/), c(/^CIF Med fiyatlama/), c(/^GTS alım fiyatı/), c(/^Makas fix/), c(/^ICE kilit/), c(/^Tedarikçi ödeme tarihi/), c(/^Satılan \/ ITT/), c(/^ITT geliri/), c(/^Hedge sonucu/), c(/^Roll/), c(/^Finansman/), c(/^Kargo brüt/), c(/^Fiyatlama başı/), c(/^Tedarikçi ödemesi \(USD/), c(/^Ürün birim maliyeti/), c(/^GTS teslim alma/)], VM = c(/^Var mı/);
-          for (let i = k0 + 1; i < IT.length; i++) { const x = IT[i]; if (!x || ns(x[K[0]]) == null) continue; if (VM >= 0 && !ns(x[VM])) continue; if (!ns(x[K[1]])) continue;
-            O2.kg.push(K.map((j, q) => (j < 0 ? null : q === 3 || q === 4 || q === 9 || q === 16 ? (serial(x[j]) ? tarih(x[j]) : x[j]) : R2(ns(x[j]), q >= 11 && q !== 18 ? 0 : 2)))); } }
-        const hb = IT.findIndex((x) => x && x[33] === 'Tarih'); if (hb > 0) { const H = IT[hb], c = (re) => H.findIndex((h, j) => j >= 33 && typeof h === 'string' && re.test(h));
-          const K = { t: c(/^ITT \/ Alpet alımı/), g: c(/^ITT geliri/), h: c(/^GTS hedge sonucu/), f: c(/^GTS finansmanı/), n: c(/^GTS net katkı/), an: c(/^Alpet net/), ak: c(/^Alpet kur farkı/) }, M = new Map();
-          for (let i = hb + 1; i < IT.length; i++) { const x = IT[i]; if (!x || !serial(x[33])) continue; const d = tarih(x[33]).slice(0, 7); let o = M.get(d); if (!o) M.set(d, (o = [d, 0, 0, 0, 0, 0, 0, 0]));
-            o[1] += ns(x[K.t]) || 0; o[2] += ns(x[K.g]) || 0; o[3] += ns(x[K.h]) || 0; o[4] += ns(x[K.f]) || 0; o[5] += ns(x[K.n]) || 0; o[6] += ns(x[K.an]) || 0; o[7] += ns(x[K.ak]) || 0; }
-          O2.ay = [...M.values()].map((o) => o.map((v, j) => (j ? R2(v) : v))); }
-        // günlük blok (ITT sayfaları: satışlar, nakit, hedge, ekonomi – kullanıcı 10.11.2026 19:19)
-        if (hb > 0) { const H = IT[hb], c = (re) => H.findIndex((h, j) => j >= 33 && typeof h === 'string' && re.test(h));
-          const GK = [/^ITT \/ Alpet alımı/, /^Lot kargosu/, /^ICE trigger/, /^Makas fix – lot/, /^Roll maliyeti/, /^ITT fiyatı/, /^ITT geliri/, /^GTS hedge sonucu/, /^USD\/TRY/, /^Alpet ITT maliyeti/, /^İzmir RSF/, /^Alpet satış fiyatı/, /^Alpet satış geliri/, /^Alpet kur farkı/, /^Alpet vade farkı/, /^Alpet ÖTV\/KDV/, /^Alpet GTS teslim etme/, /^Alpet net/, /^Lot ürün birim maliyeti/, /^Lot ICE kilit/, /^GTS finansmanı/, /^GTS net katkı/].map(c), DP = [0, 0, 2, 2, 2, 2, 0, 0, 4, 0, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0], G = [];
-          let g0 = null; for (let i = hb + 1; i < IT.length; i++) { const x = IT[i]; if (!x || !serial(x[33])) continue; if (g0 == null) g0 = tarih(x[33]); G.push(GK.map((j, q) => (j < 0 ? null : R2(ns(x[j]), DP[q])))); }
-          O2.gun = { g0, kol: ['t', 'lot', 'ice', 'makas', 'roll', 'fiyat', 'gelir', 'hedge', 'kur', 'aMal', 'rsf', 'aFiy', 'aGel', 'aKur', 'aVade', 'aVergi', 'aTes', 'aNet', 'lotBirim', 'lotKilit', 'gFin', 'gNet'], g: G }; }
-        // girdiler (sarı, B5–B19): grup başlıkları B'si boş satırlar; formül olanlar bilgi
-        { const gb = bul(/^GİRDİLER/); let grup = gb > 0 && typeof IT[gb][2] === 'string' ? IT[gb][2] : 'Girdiler';
-          if (gb > 0) for (let i = gb + 1; i < gb + 24 && i < IT.length; i++) { const x = IT[i]; if (!x || !x[0]) { if (i > gb + 3) break; continue; } if (/KÂR \/ ZARAR/.test(x[0])) break;
-            if (x[1] == null || x[1] === '') { grup = x[0]; continue; } O2.girdi.push([x[0], typeof x[1] === 'string' && !isFinite(Number(x[1])) ? x[1] : ns(x[1]), x[5] || null, 'ITT Modeli!B' + i, grup]); } }   // X.sayfa dizini = Excel satır no
-        // ITT primi fiyat endeksi (paket 126+): H etiket, I değer (H9 başlık, I10–I12 girdi, I13 bilgi)
-        { const gb = bul(/^GİRDİLER/); if (gb > 0) { let eg = null, son = null; for (let i = gb; i < gb + 22 && i < IT.length; i++) { const x = IT[i]; if (!x || typeof x[7] !== 'string' || !x[7].trim()) { if (x && (x[7] == null || x[7] === '')) eg = null; continue; }
-            if (x[8] == null || x[8] === '') { if (x[7].length > 70) { if (son && !son[2]) son[2] = x[7]; } else eg = x[7]; continue; } /* paket 142: uzun metin = açıklama; boş satır grubu kapatır */ son = [x[7], typeof x[8] === 'string' && !isFinite(Number(x[8])) ? x[8] : ns(x[8]), null, 'ITT Modeli!I' + i, eg || 'ITT hacmi']; O2.girdi.push(son); } } }
-        // B14 yüzde (paket 123+): C14 TL/m³ karşılığı
-        { const i14 = O2.girdi.findIndex((g) => /^Alpet satışı \(dağıtıcılara\)/.test(g[0])); if (i14 >= 0) { const rI = +O2.girdi[i14][3].replace(/\D+/g, ''), c = IT[rI] && ns(IT[rI][2]); O2.b14tl = c != null && Math.abs(O2.girdi[i14][1]) < 1 ? R2(c, 1) : null; if (O2.b14tl != null) O2.girdi[i14][2] = 'TL/m³ karşılığı ≈ ' + Math.round(O2.b14tl).toLocaleString('tr-TR') + ' (ortalama İzmir RSF ile)' + (O2.girdi[i14][2] ? ' · ' + O2.girdi[i14][2] : ''); } }
-        const G2 = XT.sayfa('Ozet') || []; O2.h7 = ns((G2.find((x) => x && typeof x[6] === 'string' && /^Alım primi \/ iskontosu – motorin/.test(x[6])) || [])[7]);
-        // ITT girdileri Ticari koşullarda ayrı kapsam ("ITT · " başlıklı gruplar; ITT sayfasındaki girdi panelinde)
-        let og = null; for (const [ad, v, not, hc, gr] of O2.girdi) { if (gr !== og) { O.tic.push(['ITT · ' + gr, null, null]); og = gr; }
-          const adr = hc.split('!')[1], fm = XT.formulMu('ITT Modeli', adr), orj = XT.orijinal('ITT Modeli', adr), dv = XT.dogrulama ? XT.dogrulama('ITT Modeli', adr) : null;
-          O.tic.push([ad, typeof v === 'number' ? R2(v, 4) : v, not, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : hc, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : '', dv || (typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? { liste: ['Açık', 'Kapalı'] } : typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : null)]); }
-        /* paket 144+ (kullanıcı 11.11.2026 21:30): Alpet'in müşteri başına teklifi – ITT dosyasının Ozet H56–H62 satırları; anahtar ITTOzet!Hn (GTS dosyasının Ozet'inden bağımsız) */
-        /* ITT dosyasının Ozet girdileri – tamamı, GTS'ten bağımsız (ITTOzet!Hn); başlık satırları "ITT · <başlık>" grubu */
-        if (O.ittModel) { let grp = null; for (let i = 5; i <= 90 && i < G2.length; i++) { const x = G2[i]; if (!x || typeof x[6] !== 'string' || !x[6].trim() || /^(Girdi paneli|Not:)/.test(x[6])) continue;
-            const fm = XT.formulMu('Ozet', 'H' + i); if (x[7] == null && x[8] == null && !fm) { grp = x[6]; O.tic.push(['ITT · Ozet · ' + grp, null, null]); continue; }
-            if (!grp) { grp = 'Genel'; O.tic.push(['ITT · Ozet · Genel', null, null]); }
-            const orj = XT.orijinal('Ozet', 'H' + i), dv = fm ? null : XT.dogrulama('Ozet', 'H' + i), v = x[7];
-            O.tic.push([x[6], typeof v === 'number' ? R2(v, 4) : v, typeof x[8] === 'string' ? x[8] : null, fm ? null : typeof orj === 'number' ? R2(orj, 4) : orj, fm ? null : 'ITTOzet!H' + i, fm ? 'bilgi' : typeof v === 'string' ? 'sec' : /\(%\)/.test(x[6]) ? 'yuzde' : '',
-              dv || (typeof v === 'string' && /^(Evet|Hayır)$/.test(v) ? { liste: ['Evet', 'Hayır'] } : typeof v === 'string' && /^(Açık|Kapalı)$/.test(v) ? { liste: ['Açık', 'Kapalı'] } : typeof v === 'string' && /^(Müşteri avantajı|Önceki)$/.test(v) ? { liste: ['Müşteri avantajı', 'Önceki'] } : null)]); } }
-        /* paket 153+: Alpet IM (GTS → Alpet partileri, AN dökümü, ITT fiyatı) ve karadolum satışları IM lotlu (Musteri_Gunluk J–P) */
-        try { const iso = (d) => (typeof d === 'number' ? new Date(Date.UTC(1899, 11, 30) + Math.floor(d) * 864e5).toISOString().slice(0, 10) : null);
-          const AI = (() => { try { return XT.sayfa('Alpet_IM'); } catch { return null; } })();
-          if (AI) { const L = []; for (let i = 5; i < AI.length; i++) { const x = AI[i]; if (!x || !(x[2] > 0)) continue; L.push([iso(x[0]), x[9], R2(x[2], 1), x[11] ?? null, R2(x[12], 1), x[13] ?? null, R2(x[14], 1), R2(x[15], 3), R2(x[16], 0), R2(x[17], 0)]); } O.ittIm = L; }
-          const MG = XT.sayfa('Musteri_Gunluk'); let hb = -1; for (let i = 1; i < Math.min(MG.length, 12); i++) if (MG[i] && MG[i].some((v) => v === 'Alpet IM-1 no')) { hb = i; break; }
-          if (hb > 0) { const H = MG[hb], ci = (re) => H.findIndex((v) => typeof v === 'string' && re.test(v)), C = [ci(/^Tarih/), ci(/^Şirket ID/), ci(/^Şirket$/), ci(/^Satış \(t\)/), ci(/^Alpet IM-1 no/), ci(/^IM-1 \(t\)/), ci(/^Alpet IM-2 no/), ci(/^IM-2 \(t\)/), ci(/^Alpet satış fiyatı/), ci(/^Alpet satış tutarı/)], L = [];
-            for (let i = hb + 1; i < MG.length; i++) { const x = MG[i]; if (!x || !(x[C[3]] > 0)) continue; L.push([iso(x[C[0]]), x[C[1]], x[C[2]], R2(x[C[3]], 2), x[C[4]] ?? null, R2(x[C[5]], 2), x[C[6]] ?? null, R2(x[C[7]], 2), R2(x[C[8]], 1), R2(x[C[9]], 0)]); }
-            O.ittKd = L; }
-        } catch (e) { log('Alpet IM: ' + (e && e.message)); }
-        O.itt = O2; } } } catch (e) { O.itt = null; log('ITT modeli: ' + (e && e.message)); }
   O.tplan = satir('Tank_Plani', 4, 18, 4).filter((x) => typeof x[0] === 'number').map((x) => [x[0], x[1], x[2], x[3]]);
   O.tank = []; for (const r of satir('Tank', 3)) { if (!serial(r[0])) continue; O.tank.push([R2(r[1]), R2(r[4]), R2(r[8]), R2(r[11])]); if (!O.tkap) O.tkap = [R2(r[2]), R2(r[5]), R2(r[9]), R2(r[12])]; }
   O.vad = satir('Vadeli', 5, Math.min(40, X.sayfa('Vadeli').length - 1), 9).filter((x) => serial(x[0])).map((x) => [tarih(x[0]), R2(x[2], 1), R2(x[3], 1), R2(x[6], 1), R2(x[7], 3)]);
@@ -422,7 +454,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   if (rd) { const t = Z.oku(rd).toString('utf8'), i0 = t.search(/^## .*GTS/m);
     if (i0 >= 0) for (const m of t.slice(i0).matchAll(/^## (.+)$/gm)) { const h = m[1].trim(); if (!(/GTS|kullanıcı|hedge/i.test(h)) || /FACT_|düzeltme/i.test(h)) continue; const d = /(\d{2})\.(\d{2})\.(\d{4})(?:\s+(\d{1,2}:\d{2}))?/.exec(h);
       O.karar.push([d ? `${d[1]}.${d[2]}${d[4] ? ' ' + d[4] : ''}` : '', h.replace(/\s*\((?:PDM|kullanıcı)[^)]*\)/g, '').replace(/\s+–\s+SENARYO.*$/, '').trim()]); } }
-  log('Hazır');
-  return O;
+  return { O, RPP, X, ittVar: (() => { try { return !!X.sayfa('ITT Modeli'); } catch { return false; } })() };
+  }
 }
 if (typeof module !== 'undefined' && module.exports) module.exports = { run, zipAc, xlsxAc, girdiYolu };
