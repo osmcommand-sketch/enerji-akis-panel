@@ -31,7 +31,9 @@
       for (const [k, x] of O.cells) { if (k % 16384 !== 6 || typeof x.v !== 'string') continue; const r = Math.floor(k / 16384) + 1;
         if (/^Kur hedge \(Açık/.test(x.v)) { a = 'Ozet!H' + r; const h = O.cells.get(k + 1); a0 = h ? h.v : null; } else if (/^Kambiyo kur hedge/.test(x.v)) b = 'Ozet!H' + r; }
       if (a && b) KH = { a, b, a0 }; } }
-    let RP = null; { const O = W.Ozet, Gc = W.Gecis, D = W.Dagiticilar; if (O && Gc) { let adr = null, v0 = null, f = null;
+    /* kullanıcı 13.11.2026 10:56: rakiplerin ithal alım koşulları satır satır modelde (SCN_GTS_RAKIP_ITHAL_KOSUL) → genel rakip primi (Ozet H44) kaydırması kapalı */
+    const RAKIP_H44 = false;
+    let RP = null; { const O = W.Ozet, Gc = W.Gecis, D = W.Dagiticilar; if (RAKIP_H44 && O && Gc) { let adr = null, v0 = null, f = null;
       for (const [k, x] of O.cells) { if (k % 16384 !== 6 || typeof x.v !== 'string') continue; const h = O.cells.get(k + 1);
         if (/^Rakip ithalatçıların alım primi/.test(x.v)) { adr = 'Ozet!H' + (Math.floor(k / 16384) + 1); v0 = h && typeof h.v === 'number' ? h.v : null; }
         else if (/^TL\/m³ karşılığı – 1 USD\/t/.test(x.v) && h && typeof h.v === 'number') f = h.v; }
