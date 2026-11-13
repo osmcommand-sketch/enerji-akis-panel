@@ -274,9 +274,9 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
       X = HSh({ ...girdi, ...(O.hedef && Math.abs(sy - 1) > 1e-9 ? { [HK]: O.hedef.tam * sy } : {}), ...ekG }); } }
   /* paket 166+ (kullanıcı 13.11.2026 12:22): Ozet H56 = 'Kâr optimumu' iken müşteri başına teklif (Dagiticilar Y / Z) PDM'nin gts_teklif_opt.py kuralıyla
      uygulama içinde yeniden bulunur – kullanıcının GTS girdileri değiştiyse (varsayılan girdilerde modeldeki PDM değerleri kullanılır; TEKLIF_OPT_ZORLA=1 test) */
-  try { const OZ = X.sayfa('Ozet'), degisti = process.env.TEKLIF_OPT_ZORLA === '1' || Object.keys(girdi).some((k) => !/^(GTS!RiskHesapla$|ITT Modeli!|ITTOzet!|Dagiticilar!A[AB]\d+$)/.test(k));
+  try { const OZ = X.sayfa('Ozet'), degisti = process.env.TEKLIF_OPT_ZORLA === '1' || Object.keys(girdi).some((k) => !/^(GTS!RiskHesapla$|ITT Modeli!|ITTOzet!|Dagiticilar!AA\d+$)/.test(k));   // AB (elle vade) değişince o müşterinin primi o vadeye göre yeniden bulunur
     if (OZ[56] && OZ[56][7] === 'Kâr optimumu' && degisti) { log('Müşteri teklifleri (kâr optimumu) girdilerinizle yeniden bulunuyor');
-      const X1 = HS.hesapla(xb, bag({ ...sonG, 'Ozet!H56': 'Müşteri avantajı' })), T = require(path.join(resDir, 'teklif_opt.js')).opt(X1);
+      const X1 = HS.hesapla(xb, bag({ ...sonG, 'Ozet!H56': 'Müşteri avantajı' })), T = require(path.join(resDir, 'teklif_opt.js')).opt(X1, { vade: Object.fromEntries(Object.entries(girdi).map(([k, v]) => [/^Dagiticilar!AB(\d+)$/.exec(k), v]).filter(([m, v]) => m && typeof v === 'number').map(([m, v]) => [+m[1], v])) });
       if (T && T.sec.length) { const ek = {}; for (const r of T.sec) { ek['Dagiticilar!Y' + r.row] = r.p == null ? null : r.p; ek['Dagiticilar!Z' + r.row] = r.p == null ? null : r.v; }
         X = HSh({ ...sonG, ...ek }); O.teklifOpt = { kaynak: 'uygulama', sec: T.sec, egri: T.egri }; } } } catch (e) { log('Teklif optimumu: ' + (e && e.message)); }
   /* teklif tablosu (Dagiticilar Y–AE): müşteri satırı, optimum, kullanıcı ve uygulanan teklif */

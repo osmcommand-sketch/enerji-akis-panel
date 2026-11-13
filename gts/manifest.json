@@ -1,14 +1,14 @@
 {
  "uygulama": "gts",
- "surum": "1.0.149",
+ "surum": "1.0.150",
  "kabuk": 2,
- "tarih": "2026-11-13T13:17:29+03:00",
- "notlar": "Teklif optimumu modülü kanala eklendi (res/teklif_opt.js)",
+ "tarih": "2026-11-13T13:30:58+03:00",
+ "notlar": "Teklif: vade varsayılan 15 gün; müşteri bazında elle vade verilince prim o vadeye göre yeniden bulunur",
  "dosyalar": {
   "ui/index.html": "dc1ff5cada1ac96832a0d189d2a0adb38734cc8cdeda09c95f37135e440b87ed",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "ac036dbd189166d710478d07a14a2ec40d181c4024bb7557ee966fad795e80dc",
-  "gts_pipeline.js": "133d178281e44aba306c0025e355f03e385e8b70721a304cd1fbb4c900700f96",
+  "ui/pano.js": "aa68cadc5201a3a688f3e25a143d7549421ff7da69dc5cb62a665d3aec779695",
+  "gts_pipeline.js": "cddbfa1726687c7a3889fe1a1078d998f9c7a5371d3c2c9724247082cb43fdfa",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
   "res/min_alim.js": "330cfd4f22f227c923e840a5365eb5d9ee324c763c25de317d5c676700348213",
@@ -19,6 +19,6 @@
   "res/tr_svg.json": "11b993bff62dc39adcbad587a2db51ce3f4715e97bd7fbdb6985e440b4e0c4b6",
   "res/ilce_koordinat.csv": "6b8ce84db90af71589660a29f2f1281c60f197399a5128fe89ca7eb3113345da",
   "res/terminal_depo_koordinat.csv": "21d1fd5f80a2627f239d0e89a6b65c1604ab4e5d9c93e60a30bbccd0101a17e7",
-  "res/teklif_opt.js": "6683cbbccc147497a614c4f79c7ed8ee40f582a08a9250f3600bd3138494cb2a"
+  "res/teklif_opt.js": "df7add1b874c6247745617b3e3f87c6a033b71ccef9bbd3f3f93651d80337d73"
  }
 }

@@ -1,4 +1,4 @@
-/* Müşteri başına kârı en çoğaltan GTS teklifi – CIF Med ± prim ($/t) ve tahsilat vadesi (gün). PDM tools/db2026/gts_teklif_opt.py (paket 166) ile aynı kural.
+/* Müşteri başına kârı en çoğaltan GTS teklifi – CIF Med ± prim ($/t) ve tahsilat vadesi (gün). PDM tools/db2026/gts_teklif_opt.py (paket 166–167) ile aynı kural.
    Girdi: 'Müşteri avantajı' yöntemiyle hesaplanmış model (hesap.js sonucu). Çıktı: { sec: [müşteri başına seçilen teklif], egri: { Sirket_ID: [[p, kâr, devir t, v, il]] } } */
 function opt(X, sec = {}) {
   const TABAN = sec.taban !== false, VADE_TOL = sec.vadeTol != null ? sec.vadeTol : 1000;
@@ -19,7 +19,10 @@ function opt(X, sec = {}) {
   const out = [], egri = {};
   for (const s of D) { const f = G.filter((g) => g.sid === s.sid), pot = f.reduce((a, g) => a + g.pot, 0); if (!f.length || pot <= 0) continue;
     const CAND = [], E = new Map();
-    for (let v = 0; v <= VMAX; v++) { const pmax = f.map((g) => ((g.al + dvd(v) + 0.01) / I4 - H[54] - H[52]) / H[55]);
+    /* paket 167 (kullanıcı 13.11.2026 13:03): vade varsayılan Ozet H66 / H88 (15 gün), prim bu vadeye göre; müşteri bazında elle vade (Dagiticilar AB) verilmişse prim o vadeye göre */
+    const vU = sec.vade && sec.vade[s.row] != null ? Math.max(0, Math.min(VMAX, Math.round(sec.vade[s.row]))) : null;
+    const VL = vU != null ? [vU] : sec.vadeSerbest ? Array.from({ length: VMAX + 1 }, (_, i) => i) : [Math.round(H[88])];
+    for (const v of VL) { const pmax = f.map((g) => ((g.al + dvd(v) + 0.01) / I4 - H[54] - H[52]) / H[55]);
       let grid = [...new Set([...PG, ...pmax.map((x) => Math.floor(x * 100) / 100)])].sort((a, b) => a - b); if (TABAN) grid = grid.filter((p) => p >= P_TABAN - 1e-9);
       for (const p of grid) { let ton = 0, il = 0, av = 0; f.forEach((g, j) => { if (pmax[j] >= p) { ton += g.pot; il++; av += (g.al + dvd(v) - oran(p)) * g.pot; } });
         const C = s.R * ton / pot, satis = H[15] <= 0 || Math.max(C * K27, C * K28) >= H[15];
