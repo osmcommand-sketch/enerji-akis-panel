@@ -222,6 +222,11 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   /* paket 141+: rakip ithalatçı alım primi (Ozet H44) için kesin parçalı doğrusal tablo (SCN_GTS_RAKIP_PRIM_PARCA); girdi_bag.js yaklaşımın yerine kullanır */
   let RPP = null; try { if (has('SCN_GTS_RAKIP_PRIM_PARCA')) RPP = Q('select Sayfa,Sirket_ID,Il,Terminal_ID,Sutun,H44_alt,H44_ust,Sabit_TL_m3,Egim_TL_m3_USD_t from SCN_GTS_RAKIP_PRIM_PARCA'); } catch { RPP = null; }
   O.rakipPrimTablo = !!(RPP && RPP.length);
+  /* paket 166+: kâr optimumu teklifi (PDM gts_teklif_opt.py) – seçilen teklif ve müşteri başına kâr eğrisi (her prim için en iyi vade) */
+  O.teklifOpt = null; try { if (has('SCN_GTS_TEKLIF_SECIM')) { const eg = {};
+      if (has('SCN_GTS_TEKLIF_OPT')) for (const r of Q('select Sirket_ID s, Prim_USD_t p, Vade_gun v, GTS_kar_USD k, Devir_2y_t t, Gecen_il n from SCN_GTS_TEKLIF_OPT')) { const m = eg[r.s] || (eg[r.s] = new Map()), o = m.get(r.p); if (!o || r.k > o[1]) m.set(r.p, [r.p, r.k, r.t, r.v, r.n]); }
+      O.teklifOpt = { kaynak: 'PDM', sec: Q('select * from SCN_GTS_TEKLIF_SECIM').map((r) => ({ sid: r.Sirket_ID, ad: r.Sirket, p: r.Prim_USD_t, v: r.Vade_gun, ton: r.Devir_2y_t, kar: r.GTS_kar_USD, il: r.Gecen_il, gec: r.Gecen_potansiyel_t, avt: r.Musteri_avantaji_TL_m3, p0: r.Mevcut_prim_USD_t, ton0: r.Mevcut_devir_2y_t, kar0: r.Mevcut_kar_USD, pot: r.Potansiyel_t })),
+        egri: Object.fromEntries(Object.entries(eg).map(([k, m]) => [k, [...m.values()].sort((a, b) => a[0] - b[0]).map((x) => x.map((y) => (typeof y === 'number' ? Math.round(y * 100) / 100 : y)))])) }; } } catch (e) { O.teklifOpt = null; }
   db.close();
   // Excel modeli
   log('Excel modeli okunuyor: ' + path.basename(xl.ad));
@@ -235,7 +240,7 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   // Forward faizleri (kullanıcı 02.11.2026 17:47): forward TL faizi = Genel bakıştaki TL faizi; USD faizi panelden girilir
   // panel bağlantıları: forward TL faizi = TL faizi; stok ve alacak finansmanı alım priminde (res/girdi_bag.js)
   const GB = require(path.join(resDir, 'girdi_bag.js')).kur(HS, xb, { parca: RPP }), FW = GB.FW, bag = GB.bag;
-  const HSh = (g) => HS.hesapla(xb, bag(g));
+  let sonG = {}; const HSh = (g) => { sonG = g; return HS.hesapla(xb, bag(g)); };
   let X = HSh(girdi);
   // Girdiler'deki bir hücre artık Ozet panelinden besleniyorsa (=Ozet!$H$n), eski girdi anahtarını panele taşı
   { const tas = {}; for (const k of Object.keys(girdi)) { const [sh, adr] = k.split('!'); if (sh !== 'Girdiler') continue; const f = X.formulMetni(sh, adr), m = f && /^=?\s*(?:IF\(\s*)?Ozet!\$?H\$?(\d+)/.exec(f); if (m && !(('Ozet!H' + m[1]) in girdi)) tas[k] = 'Ozet!H' + m[1]; }
@@ -267,6 +272,16 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
     if (m && m.n && b9 && !modelMA && !('Girdiler!B9' in girdi)) { ekG['Girdiler!B9'] = b9 * (1 - m.sM); if (bz && m.sB > 0 && !('Girdiler!B10' in girdi)) ekG['Girdiler!B10'] = b10 * (1 - m.sB);
       log(`Aylık ${Math.round(esik)} t altındaki ${m.n} dağıtıcı çıkarıldı; satış %${(m.sM * 100).toFixed(1)} düşük hesaplanıyor`);
       X = HSh({ ...girdi, ...(O.hedef && Math.abs(sy - 1) > 1e-9 ? { [HK]: O.hedef.tam * sy } : {}), ...ekG }); } }
+  /* paket 166+ (kullanıcı 13.11.2026 12:22): Ozet H56 = 'Kâr optimumu' iken müşteri başına teklif (Dagiticilar Y / Z) PDM'nin gts_teklif_opt.py kuralıyla
+     uygulama içinde yeniden bulunur – kullanıcının GTS girdileri değiştiyse (varsayılan girdilerde modeldeki PDM değerleri kullanılır; TEKLIF_OPT_ZORLA=1 test) */
+  try { const OZ = X.sayfa('Ozet'), degisti = process.env.TEKLIF_OPT_ZORLA === '1' || Object.keys(girdi).some((k) => !/^(GTS!RiskHesapla$|ITT Modeli!|ITTOzet!|Dagiticilar!A[AB]\d+$)/.test(k));
+    if (OZ[56] && OZ[56][7] === 'Kâr optimumu' && degisti) { log('Müşteri teklifleri (kâr optimumu) girdilerinizle yeniden bulunuyor');
+      const X1 = HS.hesapla(xb, bag({ ...sonG, 'Ozet!H56': 'Müşteri avantajı' })), T = require(path.join(resDir, 'teklif_opt.js')).opt(X1);
+      if (T && T.sec.length) { const ek = {}; for (const r of T.sec) { ek['Dagiticilar!Y' + r.row] = r.p == null ? null : r.p; ek['Dagiticilar!Z' + r.row] = r.p == null ? null : r.v; }
+        X = HSh({ ...sonG, ...ek }); O.teklifOpt = { kaynak: 'uygulama', sec: T.sec, egri: T.egri }; } } } catch (e) { log('Teklif optimumu: ' + (e && e.message)); }
+  /* teklif tablosu (Dagiticilar Y–AE): müşteri satırı, optimum, kullanıcı ve uygulanan teklif */
+  O.teklifUyg = null; try { const DG = X.sayfa('Dagiticilar'); if (DG[5] && DG[5].length > 30 && /Optimum prim/.test(String(DG[5][24] || ''))) { O.teklifUyg = [];
+      for (let i = 6; i <= 35; i++) { const r = DG[i]; if (!r || !r[0]) continue; const nv = (v) => (typeof v === 'number' ? pr(v, 2) : null); O.teklifUyg.push([r[1], r[0], i, nv(r[24]), nv(r[25]), nv(r[26]), nv(r[27]), nv(r[28]), nv(r[29]), nv(r[30]), r[4]]); } } } catch (e) { O.teklifUyg = null; }
   // Risk tablolarını kullanıcının girdileriyle yeniden hesapla (istek bayrağı Risk sekmesindeki düğmeden; sonuç önbellekte)
   { const IST = 'GTS!RiskHesapla', cy = path.join(path.dirname(gy), 'risk_hesap.json'), temel = {}; for (const [k, v] of Object.entries(girdi)) if (k !== IST) temel[k] = v;
     const anahtar = JSON.stringify(Object.keys(temel).sort().map((k) => [k, temel[k]])) + '|' + path.basename(xl.ad) + '|' + xb.length + '|netkar-tl-defter-1';
