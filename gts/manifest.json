@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.139",
+ "surum": "1.0.140",
  "kabuk": 2,
- "tarih": "2026-11-13T10:59:57+03:00",
- "notlar": "Rakip ithalatçıların genel alım primi (H44) hesaptan ve kokpitten çıkarıldı",
+ "tarih": "2026-11-13T11:20:42+03:00",
+ "notlar": "Kokpit düzeni: Alım tarafı, Satış tarafı, Terminal, Faaliyet giderleri",
  "dosyalar": {
-  "ui/index.html": "c1707c4ca0b2cf330bc8d65bb2a133ad11b2c1c3eea7d10272bedc29cef96566",
+  "ui/index.html": "905e251752051f7633a9bc764322af71ef40f74bd91a52d48fc05e1f54ccad98",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "b8e322e78caeedbc5b8b869bbb95e121226bdd1c6eef5f71f2ba3cb8de4c3858",
+  "ui/pano.js": "3fddc6b0bdcb87f2e82c4601e9513061e8581b93573ad8fa4962492018822974",
   "gts_pipeline.js": "2c6c119410c55306e95d54aaec5e7cebf5c689a680668e1bfabe8a630f8193f6",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
