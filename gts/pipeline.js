@@ -109,7 +109,7 @@ function lpgUyarla(SQL, db, lpgBytes, log) {
     ins.free();
     // ithalat menşei (fact_cargo): şirket × menşe ülke
     db.run('drop table if exists REF_LPG_KARGO'); db.run('create table REF_LPG_KARGO (Sirket_ID text, Ulke text, Ton real)');
-    for (const [cid, ul, q] of LQ("select g.company_id, r.name_tr, sum(coalesce(g.outturn_qty_t, g.bl_qty_t)) from fact_cargo g left join ref_country r on r.country_id=g.origin_country_id where g.direction='IMPORT' and g.period_id between 202501 and 202512 group by 1,2")) { const s_ = sid(cid, 0); if (s_ && q) db.run('insert into REF_LPG_KARGO values (?,?,?)', [s_, ul, q]); }
+    for (const [cid, ul, q] of LQ("select g.company_id, r.name_tr, sum(" + (LQ("select count(*) from pragma_table_info('fact_cargo') where name='outturn_qty_t'")[0][0] ? 'coalesce(g.outturn_qty_t, g.bl_qty_t)' : 'g.bl_qty_t') + ") from fact_cargo g left join ref_country r on r.country_id=g.origin_country_id where g.direction='IMPORT' and g.period_id between 202501 and 202512 group by 1,2")) { const s_ = sid(cid, 0); if (s_ && q) db.run('insert into REF_LPG_KARGO values (?,?,?)', [s_, ul, q]); }
     // ilçe payları (lpg_tr.db v1.4, fact_company_flow_district_share)
     db.run('drop table if exists REF_LPG_ILCE_PAY'); db.run('create table REF_LPG_ILCE_PAY (Sirket_ID text, Il_ID integer, Urun text, Sevk_Tip text, Sevk_Kod text, Ilce text, Pay real, Ilce_km real, Yontem text, Guven text)');
     if (LQ("select name from sqlite_master where type='table' and name='fact_company_flow_district_share'").length) {
