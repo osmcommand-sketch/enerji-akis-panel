@@ -1,13 +1,13 @@
 {
  "uygulama": "gts",
- "surum": "1.0.145",
+ "surum": "1.0.146",
  "kabuk": 2,
- "tarih": "2026-11-13T12:14:02+03:00",
- "notlar": "Teklif: kayacak hacim Gecis'in geçen tonundan (paket 165)",
+ "tarih": "2026-11-13T12:57:29+03:00",
+ "notlar": "Kargo hedge grafiği: üst üste binen etiketler ayrıldı",
  "dosyalar": {
   "ui/index.html": "905e251752051f7633a9bc764322af71ef40f74bd91a52d48fc05e1f54ccad98",
   "ui/app.js": "281e761e3fa5941c1ea135da23ae082edbb9c817091d710803ffdd18100e5730",
-  "ui/pano.js": "49b3548ee9725f682c2341029b9bd9ae3001a00748ea6a769e395f1ca7c031e9",
+  "ui/pano.js": "189b742388f32df4f05ebcd5322bc3d4a2729eac766778563a9ef16a0f20d534",
   "gts_pipeline.js": "6dc34c21d2ceb02d2412a8402ad195b70e2480e322d7621ff4c10faba07c1951",
   "pipeline.js": "dc73e0b92963abb7acefbe448d6184bbedccdda6cc98b1f10b4a381b74444664",
   "res/hesap.js": "cec3c99093fd93bb76a46cb2fae23603f140a12c33a728e3c1dc95666a60191d",
