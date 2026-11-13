@@ -396,12 +396,18 @@ function run(SQL, zipBuf, resDir, log = () => {}, opt = {}) {
   { const gg = new Map(), tld = csvBul('gts_mc_2yil_tld.csv'); O.mc2Tanim = tld.length ? 'tld' : 'eski';   // paket 78+: MC TL defter net kâr tanımıyla (PDM)
     // paket 111+: varyant kolonu (Ana / Hedge kapalı / H7 −15) – senaryo × varyant ayrı satır
     const VY = { Ana: 'ürün hedge açık · varsayılan girdiler', 'Hedge kapalı': 'ürün hedge kapalı', 'H7 −15': 'alım primi −15 $/t' };
-    if (tld.length) for (const r of tld) { const k = r.sen + '|' + (r.varyant ? VY[r.varyant] || r.varyant : 'varsayılan girdiler · TL defter'); (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.net_2027), Number(r.net_2028)]); }
+    /* paket 161+ (PDM): varyant = 'GTS dosyası' / 'ITT dosyası'. GTS dünyası antrepo devri net kâr (ad_net_*) ile, ITT dünyası mcItt ile */
+    const devMC = tld.some((r) => r.varyant === 'GTS dosyası' && 'ad_net_2027' in r);
+    if (devMC) { O.mc2Tanim = 'devir'; for (const r of tld) { if (r.varyant !== 'GTS dosyası') continue; const k = r.sen + '|antrepo devri · GTS net'; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.ad_net_2027), Number(r.ad_net_2028)]); } }
+    else if (tld.length) for (const r of tld) { const k = r.sen + '|' + (r.varyant ? VY[r.varyant] || r.varyant : 'varsayılan girdiler · TL defter'); (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.net_2027), Number(r.net_2028)]); }
     else for (const r of csvBul('gts_mc_2yil_eski_fiyat.csv')) { const k = r.sen + '|' + r.cfg; (gg.get(k) || gg.set(k, []).get(k)).push([Number(r.netv_2027), Number(r.netv_2028)]); }
     const oz = (v) => { v = [...v].sort((p, q) => p - q); const n = v.length, q = (p) => { const x = p * (n - 1), i = Math.floor(x), j = Math.min(n - 1, i + 1); return v[i] + (v[j] - v[i]) * (x - i); }; return [pr(v.reduce((p, c) => p + c, 0) / n), pr(q(0.1)), pr(q(0.5)), pr(q(0.9)), pr(v.filter((z) => z < 0).length / n, 3)]; };
+    O.mcDevK = null; if (devMC) { const q50 = (v) => { v = v.filter((x) => isFinite(x)).sort((p, q) => p - q); const n = v.length; if (!n) return null; const x = 0.5 * (n - 1), i = Math.floor(x), j = Math.min(n - 1, i + 1); return pr(v[i] + (v[j] - v[i]) * (x - i)); };
+      const gs = new Map(); for (const r of tld) if (r.varyant === 'GTS dosyası') (gs.get(r.sen) || gs.set(r.sen, []).get(r.sen)).push(r);
+      O.mcDevK = [...gs].map(([s, L]) => [s, ...['ad_brut_2y', 'ad_hedge_2y', 'ad_fin_2y', 'ad_otv_2y', 'ad_ton_2y', 'ad_acik_gun'].map((c) => q50(L.map((r) => Number(r[c]))))]); }
     O.mc2 = [...gg].map(([k, v]) => { const [s, c] = k.split('|'); return [s, c, v.length, oz(v.map((x) => x[0])), oz(v.map((x) => x[1])), oz(v.map((x) => x[0] + x[1]))]; });
     /* paket 145+ (PDM): ITT modeli MC kolonları – GTS net, Alpet net (kur hedge kapalı / açık), birlikte (ana modelin hedge ayarıyla), ITT tonu; iki yıl, Ana varyant */
-    O.mcItt = null; if (tld.length && 'itt_birlikte_2y' in tld[0]) { const gi = new Map(); for (const r of tld) { if (r.varyant && r.varyant !== 'Ana') continue; (gi.get(r.sen) || gi.set(r.sen, []).get(r.sen)).push(r); }
+    O.mcItt = null; if (tld.length && 'itt_birlikte_2y' in tld[0]) { const gi = new Map(); for (const r of tld) { if (r.varyant && r.varyant !== 'Ana' && r.varyant !== 'ITT dosyası') continue; (gi.get(r.sen) || gi.set(r.sen, []).get(r.sen)).push(r); }
       const nn = (v) => v.filter((x) => isFinite(x));
       O.mcItt = [...gi].map(([s, L]) => [s, L.length, oz(nn(L.map((r) => Number(r.itt_gts_net_2y)))), oz(nn(L.map((r) => Number(r.itt_alpet_usd_hk_2y)))), oz(nn(L.map((r) => Number(r.itt_alpet_usd_ha_2y)))), oz(nn(L.map((r) => Number(r.itt_birlikte_2y)))), oz(nn(L.map((r) => Number(r.itt_ton_2y))))]); } }
   // Karlılık tablosu (Excel Karlilik sayfası)
